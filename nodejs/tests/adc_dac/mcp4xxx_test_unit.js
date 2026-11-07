@@ -217,6 +217,19 @@ async function main() {
     await n.setWiper(128, 0);
     checkTrue('set_rab_resistance', Math.abs(await n.getResistance(0) - 25100) < 1e-9);
 
+    // Named aliases preset the part.
+    const mod = require('../../packages/periph/src/chips/adc_dac/mcp4xxx');
+    let aliasOk = true;
+    for (const [name, row] of Object.entries(PARTS)) {
+        const cap = name[0] + name.slice(1).toLowerCase();
+        const chip = new mod[cap + 'Full'](new ChipMock(row.maxCode));
+        new mod[cap + 'Minimal'](new ChipMock(row.maxCode));
+        aliasOk = aliasOk && chip.channels() === row.channels && chip.steps() === row.maxCode + 1 &&
+            chip.isPotentiometer() === row.pot && chip.isNonvolatile() === row.nv;
+    }
+    checkTrue('aliases_preset_part', aliasOk);
+    checkTrue('alias_is_subclass', new mod.Mcp4532Full(new ChipMock(128)) instanceof Mcp4xxxFull);
+
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);
 }

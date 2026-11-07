@@ -612,3 +612,457 @@ class Mcp4xxxFull(Mcp4xxxMinimal):
         """
         self._require_nv()
         self._hv_command(_ADDR_WP, bool(enabled))
+
+
+# ---------------------------------------------------------------------------
+# Named aliases: one thin Minimal / Full subclass per family member. They only
+# preset the ``part`` argument; behaviour is identical to Mcp4xxxMinimal / Mcp4xxxFull.
+# ---------------------------------------------------------------------------
+
+
+class Mcp4531Minimal(Mcp4xxxMinimal):
+    """MCP4531 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4531', r_ab, r_wiper)
+
+
+class Mcp4531Full(Mcp4xxxFull):
+    """MCP4531 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4531', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4532Minimal(Mcp4xxxMinimal):
+    """MCP4532 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4532', r_ab, r_wiper)
+
+
+class Mcp4532Full(Mcp4xxxFull):
+    """MCP4532 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4532', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4551Minimal(Mcp4xxxMinimal):
+    """MCP4551 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4551', r_ab, r_wiper)
+
+
+class Mcp4551Full(Mcp4xxxFull):
+    """MCP4551 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4551', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4552Minimal(Mcp4xxxMinimal):
+    """MCP4552 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4552', r_ab, r_wiper)
+
+
+class Mcp4552Full(Mcp4xxxFull):
+    """MCP4552 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4552', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4631Minimal(Mcp4xxxMinimal):
+    """MCP4631 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4631', r_ab, r_wiper)
+
+
+class Mcp4631Full(Mcp4xxxFull):
+    """MCP4631 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4631', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4632Minimal(Mcp4xxxMinimal):
+    """MCP4632 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4632', r_ab, r_wiper)
+
+
+class Mcp4632Full(Mcp4xxxFull):
+    """MCP4632 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4632', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4651Minimal(Mcp4xxxMinimal):
+    """MCP4651 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4651', r_ab, r_wiper)
+
+
+class Mcp4651Full(Mcp4xxxFull):
+    """MCP4651 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4651', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4652Minimal(Mcp4xxxMinimal):
+    """MCP4652 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4652', r_ab, r_wiper)
+
+
+class Mcp4652Full(Mcp4xxxFull):
+    """MCP4652 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4652', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4541Minimal(Mcp4xxxMinimal):
+    """MCP4541 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4541', r_ab, r_wiper)
+
+
+class Mcp4541Full(Mcp4xxxFull):
+    """MCP4541 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4541', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4542Minimal(Mcp4xxxMinimal):
+    """MCP4542 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4542', r_ab, r_wiper)
+
+
+class Mcp4542Full(Mcp4xxxFull):
+    """MCP4542 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4542', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4561Minimal(Mcp4xxxMinimal):
+    """MCP4561 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4561', r_ab, r_wiper)
+
+
+class Mcp4561Full(Mcp4xxxFull):
+    """MCP4561 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4561', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4562Minimal(Mcp4xxxMinimal):
+    """MCP4562 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4562', r_ab, r_wiper)
+
+
+class Mcp4562Full(Mcp4xxxFull):
+    """MCP4562 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4562', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4641Minimal(Mcp4xxxMinimal):
+    """MCP4641 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4641', r_ab, r_wiper)
+
+
+class Mcp4641Full(Mcp4xxxFull):
+    """MCP4641 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4641', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4642Minimal(Mcp4xxxMinimal):
+    """MCP4642 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4642', r_ab, r_wiper)
+
+
+class Mcp4642Full(Mcp4xxxFull):
+    """MCP4642 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4642', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4661Minimal(Mcp4xxxMinimal):
+    """MCP4661 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4661', r_ab, r_wiper)
+
+
+class Mcp4661Full(Mcp4xxxFull):
+    """MCP4661 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4661', r_ab, r_wiper, hvc, hvc_settle_ms)
+
+
+class Mcp4662Minimal(Mcp4xxxMinimal):
+    """MCP4662 minimal interface: ``Mcp4xxxMinimal`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0):
+        super().__init__(connection, 'MCP4662', r_ab, r_wiper)
+
+
+class Mcp4662Full(Mcp4xxxFull):
+    """MCP4662 full interface: ``Mcp4xxxFull`` with the part preset.
+
+    Args:
+        connection: RegisterConnection (I²C) pointing at the device.
+        r_ab: End-to-end resistance RAB in ohms.
+        r_wiper: Wiper resistance RW in ohms.
+        hvc: Optional OutputPin for the high-voltage command circuit (non-volatile parts).
+        hvc_settle_ms: Delay between asserting ``hvc`` and the first SCL edge.
+    """
+
+    def __init__(self, connection, r_ab=10000.0, r_wiper=75.0, hvc=None, hvc_settle_ms=1):
+        super().__init__(connection, 'MCP4662', r_ab, r_wiper, hvc, hvc_settle_ms)

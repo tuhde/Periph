@@ -614,6 +614,142 @@ impl<I2C: I2c, P: OutputPin> Mcp4xxxFull<I2C, P> {
     }
 }
 
+/// Named constructors: one per family member, each presetting [`Part`]. They behave exactly
+/// like `new(i2c, addr, Part::..., r_ab, r_wiper)`; `addr` must lie in the part's range.
+impl<I2C: I2c> Mcp4xxxMinimal<I2C> {
+    /// MCP4531 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4531`].
+    pub fn mcp4531(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4531, r_ab, r_wiper)
+    }
+    /// MCP4532 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4532`].
+    pub fn mcp4532(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4532, r_ab, r_wiper)
+    }
+    /// MCP4551 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4551`].
+    pub fn mcp4551(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4551, r_ab, r_wiper)
+    }
+    /// MCP4552 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4552`].
+    pub fn mcp4552(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4552, r_ab, r_wiper)
+    }
+    /// MCP4631 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4631`].
+    pub fn mcp4631(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4631, r_ab, r_wiper)
+    }
+    /// MCP4632 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4632`].
+    pub fn mcp4632(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4632, r_ab, r_wiper)
+    }
+    /// MCP4651 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4651`].
+    pub fn mcp4651(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4651, r_ab, r_wiper)
+    }
+    /// MCP4652 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4652`].
+    pub fn mcp4652(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4652, r_ab, r_wiper)
+    }
+    /// MCP4541 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4541`].
+    pub fn mcp4541(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4541, r_ab, r_wiper)
+    }
+    /// MCP4542 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4542`].
+    pub fn mcp4542(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4542, r_ab, r_wiper)
+    }
+    /// MCP4561 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4561`].
+    pub fn mcp4561(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4561, r_ab, r_wiper)
+    }
+    /// MCP4562 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4562`].
+    pub fn mcp4562(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4562, r_ab, r_wiper)
+    }
+    /// MCP4641 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4641`].
+    pub fn mcp4641(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4641, r_ab, r_wiper)
+    }
+    /// MCP4642 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4642`].
+    pub fn mcp4642(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4642, r_ab, r_wiper)
+    }
+    /// MCP4661 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4661`].
+    pub fn mcp4661(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4661, r_ab, r_wiper)
+    }
+    /// MCP4662 minimal driver; same as [`new`](Self::new) with [`Part::Mcp4662`].
+    pub fn mcp4662(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4662, r_ab, r_wiper)
+    }
+}
+
+impl<I2C: I2c> Mcp4xxxFull<I2C, NoHvc> {
+    /// MCP4531 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4531`].
+    pub fn mcp4531(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4531, r_ab, r_wiper)
+    }
+    /// MCP4532 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4532`].
+    pub fn mcp4532(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4532, r_ab, r_wiper)
+    }
+    /// MCP4551 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4551`].
+    pub fn mcp4551(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4551, r_ab, r_wiper)
+    }
+    /// MCP4552 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4552`].
+    pub fn mcp4552(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4552, r_ab, r_wiper)
+    }
+    /// MCP4631 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4631`].
+    pub fn mcp4631(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4631, r_ab, r_wiper)
+    }
+    /// MCP4632 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4632`].
+    pub fn mcp4632(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4632, r_ab, r_wiper)
+    }
+    /// MCP4651 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4651`].
+    pub fn mcp4651(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4651, r_ab, r_wiper)
+    }
+    /// MCP4652 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4652`].
+    pub fn mcp4652(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4652, r_ab, r_wiper)
+    }
+    /// MCP4541 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4541`].
+    pub fn mcp4541(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4541, r_ab, r_wiper)
+    }
+    /// MCP4542 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4542`].
+    pub fn mcp4542(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4542, r_ab, r_wiper)
+    }
+    /// MCP4561 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4561`].
+    pub fn mcp4561(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4561, r_ab, r_wiper)
+    }
+    /// MCP4562 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4562`].
+    pub fn mcp4562(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4562, r_ab, r_wiper)
+    }
+    /// MCP4641 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4641`].
+    pub fn mcp4641(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4641, r_ab, r_wiper)
+    }
+    /// MCP4642 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4642`].
+    pub fn mcp4642(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4642, r_ab, r_wiper)
+    }
+    /// MCP4661 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4661`].
+    pub fn mcp4661(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4661, r_ab, r_wiper)
+    }
+    /// MCP4662 full driver without a high-voltage pin; same as [`new`](Self::new) with [`Part::Mcp4662`].
+    pub fn mcp4662(i2c: I2C, addr: u8, r_ab: f32, r_wiper: f32) -> Self {
+        Self::new(i2c, addr, Part::Mcp4662, r_ab, r_wiper)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -883,5 +1019,40 @@ mod tests {
         chip.set_rab(50000.0, Some(100.0));
         assert!((chip.get_resistance(0).unwrap() - 50100.0).abs() < 1e-2);
         i2c.done();
+    }
+
+    #[test]
+    fn named_constructors_preset_the_part() {
+        macro_rules! check {
+            ($ctor:ident, $part:expr) => {{
+                let mock = I2cMock::new(&[]);
+                let mut handle = mock.clone();
+                let chip = Mcp4xxxFull::$ctor(mock, $part.default_address(), 10000.0, 75.0);
+                assert_eq!(chip.part(), $part);
+                assert_eq!(chip.channels(), $part.info().channels);
+                handle.done();
+            }};
+        }
+        check!(mcp4531, Part::Mcp4531);
+        check!(mcp4532, Part::Mcp4532);
+        check!(mcp4551, Part::Mcp4551);
+        check!(mcp4552, Part::Mcp4552);
+        check!(mcp4631, Part::Mcp4631);
+        check!(mcp4632, Part::Mcp4632);
+        check!(mcp4651, Part::Mcp4651);
+        check!(mcp4652, Part::Mcp4652);
+        check!(mcp4541, Part::Mcp4541);
+        check!(mcp4542, Part::Mcp4542);
+        check!(mcp4561, Part::Mcp4561);
+        check!(mcp4562, Part::Mcp4562);
+        check!(mcp4641, Part::Mcp4641);
+        check!(mcp4642, Part::Mcp4642);
+        check!(mcp4661, Part::Mcp4661);
+        check!(mcp4662, Part::Mcp4662);
+        let mock = I2cMock::new(&[]);
+        let mut handle = mock.clone();
+        let min = Mcp4xxxMinimal::mcp4532(mock, 0x58, 10000.0, 75.0);
+        assert_eq!(min.part(), Part::Mcp4532);
+        handle.done();
     }
 }

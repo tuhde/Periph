@@ -560,4 +560,423 @@ class Mcp4xxxFull extends Mcp4xxxMinimal {
     }
 }
 
-module.exports = { Mcp4xxxMinimal, Mcp4xxxFull, PARTS, defaultAddress };
+// Named aliases: one thin Minimal / Full subclass per family member (only the part is preset).
+
+/** MCP4531 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4531Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4531', rAb, rWiper);
+    }
+}
+
+/** MCP4531 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4531Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4531', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4532 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4532Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4532', rAb, rWiper);
+    }
+}
+
+/** MCP4532 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4532Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4532', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4551 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4551Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4551', rAb, rWiper);
+    }
+}
+
+/** MCP4551 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4551Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4551', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4552 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4552Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4552', rAb, rWiper);
+    }
+}
+
+/** MCP4552 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4552Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4552', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4631 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4631Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4631', rAb, rWiper);
+    }
+}
+
+/** MCP4631 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4631Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4631', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4632 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4632Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4632', rAb, rWiper);
+    }
+}
+
+/** MCP4632 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4632Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4632', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4651 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4651Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4651', rAb, rWiper);
+    }
+}
+
+/** MCP4651 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4651Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4651', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4652 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4652Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4652', rAb, rWiper);
+    }
+}
+
+/** MCP4652 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4652Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4652', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4541 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4541Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4541', rAb, rWiper);
+    }
+}
+
+/** MCP4541 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4541Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4541', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4542 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4542Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4542', rAb, rWiper);
+    }
+}
+
+/** MCP4542 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4542Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4542', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4561 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4561Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4561', rAb, rWiper);
+    }
+}
+
+/** MCP4561 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4561Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4561', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4562 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4562Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4562', rAb, rWiper);
+    }
+}
+
+/** MCP4562 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4562Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4562', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4641 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4641Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4641', rAb, rWiper);
+    }
+}
+
+/** MCP4641 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4641Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4641', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4642 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4642Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4642', rAb, rWiper);
+    }
+}
+
+/** MCP4642 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4642Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4642', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4661 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4661Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4661', rAb, rWiper);
+    }
+}
+
+/** MCP4661 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4661Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4661', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+/** MCP4662 minimal interface: {@link Mcp4xxxMinimal} with the part preset. */
+class Mcp4662Minimal extends Mcp4xxxMinimal {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0) {
+        super(connection, 'MCP4662', rAb, rWiper);
+    }
+}
+
+/** MCP4662 full interface: {@link Mcp4xxxFull} with the part preset. */
+class Mcp4662Full extends Mcp4xxxFull {
+    /**
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C register connection.
+     * @param {number} [rAb=10000] - RAB in ohms.
+     * @param {number} [rWiper=75] - RW in ohms.
+     * @param {import('../../connection/output_pin').OutputPin|null} [hvc=null] - Optional high-voltage command pin.
+     * @param {number} [hvcSettleMs=1] - Delay in ms between asserting `hvc` and the first SCL edge.
+     */
+    constructor(connection, rAb = 10000.0, rWiper = 75.0, hvc = null, hvcSettleMs = 1) {
+        super(connection, 'MCP4662', rAb, rWiper, hvc, hvcSettleMs);
+    }
+}
+
+module.exports = { Mcp4xxxMinimal, Mcp4xxxFull, PARTS, defaultAddress,
+    Mcp4531Minimal, Mcp4531Full, Mcp4532Minimal, Mcp4532Full, Mcp4551Minimal, Mcp4551Full, Mcp4552Minimal, Mcp4552Full, Mcp4631Minimal, Mcp4631Full, Mcp4632Minimal, Mcp4632Full, Mcp4651Minimal, Mcp4651Full, Mcp4652Minimal, Mcp4652Full, Mcp4541Minimal, Mcp4541Full, Mcp4542Minimal, Mcp4542Full, Mcp4561Minimal, Mcp4561Full, Mcp4562Minimal, Mcp4562Full, Mcp4641Minimal, Mcp4641Full, Mcp4642Minimal, Mcp4642Full, Mcp4661Minimal, Mcp4661Full, Mcp4662Minimal, Mcp4662Full };

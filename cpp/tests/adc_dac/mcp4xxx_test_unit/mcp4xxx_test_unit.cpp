@@ -4,6 +4,7 @@
 #include <string>
 #include "I2CConnectionMock.h"
 #include "MCP4XXX.h"
+#include "MCP4XXXParts.h"
 
 static int passed = 0, failed = 0;
 
@@ -213,6 +214,155 @@ int main() {
         ChipMock c2(256);
         MCP4XXXFull nohv(c2, MCP4XXXPart::MCP4562);
         check_true(!nohv.set_wiper_lock(true, 0) && c2.log.empty(), "hv_needs_pin");
+    }
+
+    {   // Named aliases preset the part and expose the default address.
+        bool ok = true;
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4531).max_code);
+            MCP4531Full chip(c);
+            MCP4531Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4531);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4531Full::DEFAULT_ADDRESS == row.addr_min && MCP4531Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4532).max_code);
+            MCP4532Full chip(c);
+            MCP4532Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4532);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4532Full::DEFAULT_ADDRESS == row.addr_min && MCP4532Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4551).max_code);
+            MCP4551Full chip(c);
+            MCP4551Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4551);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4551Full::DEFAULT_ADDRESS == row.addr_min && MCP4551Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4552).max_code);
+            MCP4552Full chip(c);
+            MCP4552Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4552);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4552Full::DEFAULT_ADDRESS == row.addr_min && MCP4552Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4631).max_code);
+            MCP4631Full chip(c);
+            MCP4631Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4631);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4631Full::DEFAULT_ADDRESS == row.addr_min && MCP4631Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4632).max_code);
+            MCP4632Full chip(c);
+            MCP4632Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4632);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4632Full::DEFAULT_ADDRESS == row.addr_min && MCP4632Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4651).max_code);
+            MCP4651Full chip(c);
+            MCP4651Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4651);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4651Full::DEFAULT_ADDRESS == row.addr_min && MCP4651Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4652).max_code);
+            MCP4652Full chip(c);
+            MCP4652Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4652);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4652Full::DEFAULT_ADDRESS == row.addr_min && MCP4652Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4541).max_code);
+            MCP4541Full chip(c);
+            MCP4541Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4541);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4541Full::DEFAULT_ADDRESS == row.addr_min && MCP4541Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4542).max_code);
+            MCP4542Full chip(c);
+            MCP4542Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4542);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4542Full::DEFAULT_ADDRESS == row.addr_min && MCP4542Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4561).max_code);
+            MCP4561Full chip(c);
+            MCP4561Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4561);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4561Full::DEFAULT_ADDRESS == row.addr_min && MCP4561Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4562).max_code);
+            MCP4562Full chip(c);
+            MCP4562Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4562);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4562Full::DEFAULT_ADDRESS == row.addr_min && MCP4562Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4641).max_code);
+            MCP4641Full chip(c);
+            MCP4641Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4641);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4641Full::DEFAULT_ADDRESS == row.addr_min && MCP4641Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4642).max_code);
+            MCP4642Full chip(c);
+            MCP4642Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4642);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4642Full::DEFAULT_ADDRESS == row.addr_min && MCP4642Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4661).max_code);
+            MCP4661Full chip(c);
+            MCP4661Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4661);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4661Full::DEFAULT_ADDRESS == row.addr_min && MCP4661Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        {
+            ChipMock c(MCP4XXXMinimal::info(MCP4XXXPart::MCP4662).max_code);
+            MCP4662Full chip(c);
+            MCP4662Minimal mini(c);
+            const MCP4XXXPartInfo& row = MCP4XXXMinimal::info(MCP4XXXPart::MCP4662);
+            ok = ok && chip.channels() == row.channels && chip.steps() == row.max_code + 1u &&
+                 chip.is_potentiometer() == row.potentiometer && chip.is_nonvolatile() == row.nonvolatile &&
+                 MCP4662Full::DEFAULT_ADDRESS == row.addr_min && MCP4662Minimal::DEFAULT_ADDRESS == row.addr_min;
+        }
+        check_true(ok, "aliases_preset_part");
     }
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);

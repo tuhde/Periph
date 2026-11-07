@@ -254,5 +254,18 @@ check_true('set_rab_no_traffic', len(conn.writes) == n_writes)
 n.set_wiper(128, 0)
 check_true('set_rab_resistance', abs(n.get_resistance(0) - (25000.0 + 100.0)) < 1e-9)
 
+# Named aliases preset the part.
+import periph.chips.adc_dac.mcp4xxx as _mod
+alias_ok = True
+for name, row in PARTS.items():
+    cls = getattr(_mod, name.capitalize() + 'Full')
+    mini = getattr(_mod, name.capitalize() + 'Minimal')
+    chip = cls(ChipMock(row['max_code'], row['channels'], row['nv']))
+    mini(ChipMock(row['max_code'], row['channels'], row['nv']))
+    alias_ok = alias_ok and (chip.channels(), chip.steps(), chip.is_potentiometer(), chip.is_nonvolatile()) == (
+        row['channels'], row['max_code'] + 1, row['pot'], row['nv'])
+check_true('aliases_preset_part', alias_ok)
+check_true('alias_is_subclass', issubclass(_mod.Mcp4532Full, Mcp4xxxFull) and issubclass(_mod.Mcp4532Minimal, Mcp4xxxMinimal))
+
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)
