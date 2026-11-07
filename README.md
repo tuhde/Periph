@@ -183,6 +183,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCA6408A | IO expander (8-bit, low-voltage) |  |  |  |  |  |  |  |  |
 | PCA9536 | IO expander (4-bit) |  |  |  |  |  |  |  |  |
 | PCA9539 | IO expander (16-bit) |  |  |  |  |  |  |  |  |
+| PCA9541 | I²C master selector (2-to-1, dual-master failover) |  |  |  |  |  |  |  |  |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF85063A | Real-time clock (alarm, timer) |  |  |  |  |  |  |  |  |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
