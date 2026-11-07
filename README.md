@@ -142,6 +142,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV8830 | DC motor driver (H-bridge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DS1881 | Digital potentiometer (dual audio taper) |  |  |  |  |  |  |  |  |
+| DS3502 | Digital potentiometer (7-bit, nonvolatile, high-voltage) |  |  |  |  |  |  |  |  |
 | DS3231 | Real-time clock (TCXO) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ES8311 | Audio codec (mono ADC + DAC, I²C control) |  |  |  |  |  |  |  |  |
