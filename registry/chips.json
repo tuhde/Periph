@@ -449,6 +449,102 @@
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
+      "id": "mcp4541",
+      "name": "MCP4541",
+      "category": "adc_dac",
+      "addresses": [
+        "0x2E..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4542",
+      "name": "MCP4542",
+      "category": "adc_dac",
+      "addresses": [
+        "0x58..0x5B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4561",
+      "name": "MCP4561",
+      "category": "adc_dac",
+      "addresses": [
+        "0x2E..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4562",
+      "name": "MCP4562",
+      "category": "adc_dac",
+      "addresses": [
+        "0x58..0x5B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4641",
+      "name": "MCP4641",
+      "category": "adc_dac",
+      "addresses": [
+        "0x28..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4642",
+      "name": "MCP4642",
+      "category": "adc_dac",
+      "addresses": [
+        "0x58..0x5B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4661",
+      "name": "MCP4661",
+      "category": "adc_dac",
+      "addresses": [
+        "0x28..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
+      "id": "mcp4662",
+      "name": "MCP4662",
+      "category": "adc_dac",
+      "addresses": [
+        "0x58..0x5B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
+    },
+    {
       "id": "pcf8591",
       "name": "PCF8591",
       "category": "adc_dac",
