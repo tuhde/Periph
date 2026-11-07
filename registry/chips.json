@@ -609,6 +609,27 @@
       "datasheet": "datasheets/imu/icm20948.pdf"
     },
     {
+      "id": "qmi8658a",
+      "name": "QMI8658A",
+      "category": "imu",
+      "addresses": [
+        "0x6A..0x6B"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x05"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/imu/qmi8658a.pdf"
+    },
+    {
       "id": "mpu9250",
       "name": "MPU9250",
       "category": "imu",
