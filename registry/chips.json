@@ -949,6 +949,18 @@
       "datasheet": "datasheets/other/mpr121.pdf"
     },
     {
+      "id": "pca9541",
+      "name": "PCA9541",
+      "category": "other",
+      "addresses": [
+        "0x70..0x77"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/other/pca9541.pdf"
+    },
+    {
       "id": "ade7953",
       "name": "ADE7953",
       "category": "power",
