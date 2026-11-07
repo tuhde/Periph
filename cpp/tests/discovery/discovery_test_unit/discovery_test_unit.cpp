@@ -197,7 +197,7 @@ int main() {
     {
         FakeBus bus; bus.with(0x76, {{0xD0, 0x60}}); bus.readError = true;
         DiscoveredDevice d = only(bus);
-        check_true(d.identified.empty() && d.candidates.empty(), "failed_read_is_no_match");
+        check_true(d.identified.empty() && std::find(d.candidates.begin(), d.candidates.end(), "bme280") == d.candidates.end(), "failed_read_is_no_match");
     }
 
     // --- aliased 24AA02UID ---

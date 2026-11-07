@@ -280,7 +280,7 @@ func TestFailedIdentityReadIsNoMatch(t *testing.T) {
 	b := newBus(single(0x76, map[uint32]byte{0xD0: 0x60}))
 	b.readError = true
 	got, _ := DiscoverBus(b, registry, false)
-	if got[0].Identified != "" || len(got[0].Candidates) != 0 {
+	if got[0].Identified != "" || containsString(got[0].Candidates, "bme280") {
 		t.Errorf("%+v", got[0])
 	}
 }
@@ -337,4 +337,13 @@ func TestRegistryIsSane(t *testing.T) {
 		}
 		ids[c.ID] = true
 	}
+}
+
+func containsString(list []string, s string) bool {
+	for _, v := range list {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }

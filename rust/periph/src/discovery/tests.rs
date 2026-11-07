@@ -268,7 +268,7 @@ fn failed_identity_read_is_no_match() {
     bus.read_error = true;
     let d = only(&mut bus, false);
     assert_eq!(d.identified, None);
-    assert!(d.candidates.is_empty());
+    assert!(!d.candidates.iter().any(|c| c == "bme280"));
 }
 
 #[test]

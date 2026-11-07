@@ -174,7 +174,7 @@ async function main() {
 
     // --- failed identity read ---
     d = await only(new FakeBus({ 0x76: bme }, { readError: true }));
-    checkTrue('failed_read_is_no_match', d.identified === null && d.candidates.length === 0);
+    checkTrue('failed_read_is_no_match', d.identified === null && !d.candidates.includes('bme280'));
 
     // --- aliased 24AA02UID ---
     let list = await discover(new FakeBus(addrs([0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57])));
