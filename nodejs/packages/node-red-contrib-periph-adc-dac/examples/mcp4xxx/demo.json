@@ -1,0 +1,206 @@
+[
+    {
+        "id": "tab-mcp4xxx-demo",
+        "type": "tab",
+        "label": "MCP4XXX Digital Potentiometer Demo",
+        "disabled": false,
+        "info": "Sets network 0 of an MCP4652 (dual 8-bit rheostat; change the part in the config node for any of the sixteen MCP4531...MCP4662) to a code from a slider-like inject, sweeps the wiper in 16 steps every 500 ms with { step: 16 } to show the resistance staircase (wrapping back to zero), and mirrors the code to network 1 with a third inject. For a non-volatile part (MCP454X/456X/464X/466X) the fourth inject sends { store: true } to keep the current wiper over power cycles. All paths print the resulting code and W-B resistance in ohms to the debug panel."
+    },
+    {
+        "id": "cfg-mcp4xxx",
+        "type": "mcp4xxx-device",
+        "name": "MCP4652",
+        "part": "MCP4652",
+        "bus": "1",
+        "address": "58",
+        "rab": "10000",
+        "rwiper": "75",
+        "gpioChip": "0",
+        "hvcPin": ""
+    },
+    {
+        "id": "inj-set",
+        "type": "inject",
+        "name": "set code 128",
+        "topic": "",
+        "payload": "128",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-mcp4xxx-demo",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "fn-set"
+            ]
+        ]
+    },
+    {
+        "id": "fn-set",
+        "type": "function",
+        "name": "network 0 code",
+        "func": "msg.payload = { channel: 0, code: msg.payload };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-mcp4xxx-demo",
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "mcp4xxx"
+            ]
+        ]
+    },
+    {
+        "id": "inj-sweep",
+        "type": "inject",
+        "name": "step +16 every 500 ms",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-mcp4xxx-demo",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "fn-sweep"
+            ]
+        ]
+    },
+    {
+        "id": "fn-sweep",
+        "type": "function",
+        "name": "staircase step",
+        "func": "let n = context.get('n') || 0;\nmsg.payload = n % 16 === 0 ? { channel: 0, code: 0 } : { channel: 0, step: 16 };\ncontext.set('n', n + 1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-mcp4xxx-demo",
+        "x": 380,
+        "y": 140,
+        "wires": [
+            [
+                "mcp4xxx"
+            ]
+        ]
+    },
+    {
+        "id": "inj-mirror",
+        "type": "inject",
+        "name": "mirror to network 1",
+        "topic": "",
+        "payload": "64",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-mcp4xxx-demo",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "fn-mirror"
+            ]
+        ]
+    },
+    {
+        "id": "fn-mirror",
+        "type": "function",
+        "name": "network 1 code",
+        "func": "msg.payload = { channel: 1, code: msg.payload };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-mcp4xxx-demo",
+        "x": 380,
+        "y": 200,
+        "wires": [
+            [
+                "mcp4xxx"
+            ]
+        ]
+    },
+    {
+        "id": "inj-store",
+        "type": "inject",
+        "name": "store wiper (NV parts)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-mcp4xxx-demo",
+        "x": 150,
+        "y": 260,
+        "wires": [
+            [
+                "fn-store"
+            ]
+        ]
+    },
+    {
+        "id": "fn-store",
+        "type": "function",
+        "name": "store",
+        "func": "msg.payload = { channel: 0, store: true };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-mcp4xxx-demo",
+        "x": 380,
+        "y": 260,
+        "wires": [
+            [
+                "mcp4xxx"
+            ]
+        ]
+    },
+    {
+        "id": "mcp4xxx",
+        "type": "periph-mcp4xxx",
+        "name": "MCP4XXX",
+        "device": "cfg-mcp4xxx",
+        "z": "tab-mcp4xxx-demo",
+        "x": 600,
+        "y": 140,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "code and resistance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-mcp4xxx-demo",
+        "x": 820,
+        "y": 140,
+        "wires": []
+    }
+]
