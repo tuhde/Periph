@@ -913,6 +913,18 @@
       "datasheet": "datasheets/power/ade7953.pdf"
     },
     {
+      "id": "axp2101",
+      "name": "AXP2101",
+      "category": "power",
+      "addresses": [
+        "0x34"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/power/axp2101.pdf"
+    },
+    {
       "id": "ina219",
       "name": "INA219",
       "category": "power",
