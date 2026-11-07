@@ -188,6 +188,18 @@
       "datasheet": "datasheets/adc_dac/ad5243.pdf"
     },
     {
+      "id": "ds3502",
+      "name": "DS3502",
+      "category": "adc_dac",
+      "addresses": [
+        "0x28..0x2B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ds3502.pdf"
+    },
+    {
       "id": "cat5171",
       "name": "CAT5171",
       "category": "adc_dac",
