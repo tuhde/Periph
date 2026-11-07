@@ -1,0 +1,937 @@
+{
+  "category": "MCP4XXX",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MCP4XXX_LANGUAGES = {\n  \"CUSTOM_MCP4XXX_INIT\": {\n    \"en\": \"%1 init bus %2 address (40-47 or 88-91) %3 part number (4531-4662) %4 RAB ohms %5 HVC pin GPIO (-1 none) %6\"\n  },\n  \"CUSTOM_MCP4XXX_SET_WIPER\": {\n    \"en\": \"%1 set wiper code %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_GET_WIPER\": {\n    \"en\": \"%1 wiper code (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_SET_RESISTANCE\": {\n    \"en\": \"%1 set W-B resistance ohms %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_GET_RESISTANCE\": {\n    \"en\": \"%1 W-B resistance in ohms (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_SET_RATIO\": {\n    \"en\": \"%1 set wiper ratio (0-1) %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_GET_RATIO\": {\n    \"en\": \"%1 wiper ratio (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_GET_RESISTANCE_WA\": {\n    \"en\": \"%1 W-A resistance in ohms, potentiometer parts (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_SET_RESISTANCE_WA\": {\n    \"en\": \"%1 set W-A resistance ohms, potentiometer parts %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_GET_RESISTANCE_STEP\": {\n    \"en\": \"%1 resistance of one step in ohms\"\n  },\n  \"CUSTOM_MCP4XXX_SET_BOTH\": {\n    \"en\": \"%1 set both wipers, dual parts, network 0 code %2 network 1 code %3\"\n  },\n  \"CUSTOM_MCP4XXX_INCREMENT\": {\n    \"en\": \"%1 increment wiper, returns new code, steps %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_DECREMENT\": {\n    \"en\": \"%1 decrement wiper, returns new code, steps %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_SHUTDOWN\": {\n    \"en\": \"%1 shutdown network (0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_RESUME\": {\n    \"en\": \"%1 resume network (0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_IS_SHUTDOWN\": {\n    \"en\": \"%1 network in shutdown? (0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_SET_TERMINALS\": {\n    \"en\": \"%1 connect terminals A (1/0) %2 W (1/0) %3 B (1/0) %4 network (0-1) %5\"\n  },\n  \"CUSTOM_MCP4XXX_GET_TCON\": {\n    \"en\": \"%1 raw TCON register\"\n  },\n  \"CUSTOM_MCP4XXX_SET_GENERAL_CALL\": {\n    \"en\": \"%1 General Call enabled (1/0) %2\"\n  },\n  \"CUSTOM_MCP4XXX_RESET\": {\n    \"en\": \"%1 reset to power-up state\"\n  },\n  \"CUSTOM_MCP4XXX_SET_RAB\": {\n    \"en\": \"%1 set resistance model RAB ohms %2 RW ohms %3\"\n  },\n  \"CUSTOM_MCP4XXX_WAIT_READY\": {\n    \"en\": \"%1 wait for EEPROM write, non-volatile parts, timeout ms %2\"\n  },\n  \"CUSTOM_MCP4XXX_GET_NV_WIPER\": {\n    \"en\": \"%1 EEPROM wiper, non-volatile parts (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_SET_NV_WIPER\": {\n    \"en\": \"%1 set EEPROM wiper, non-volatile parts, code %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_STORE_WIPER\": {\n    \"en\": \"%1 store wiper in EEPROM, non-volatile parts, returns code (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_READ_DATA\": {\n    \"en\": \"%1 EEPROM data register, non-volatile parts (index 0-9) %2\"\n  },\n  \"CUSTOM_MCP4XXX_WRITE_DATA\": {\n    \"en\": \"%1 write EEPROM data register, non-volatile parts, index (0-9) %2 value (0-511) %3\"\n  },\n  \"CUSTOM_MCP4XXX_IS_WIPER_LOCKED\": {\n    \"en\": \"%1 WiperLock active? non-volatile parts (network 0-1) %2\"\n  },\n  \"CUSTOM_MCP4XXX_IS_WRITE_PROTECTED\": {\n    \"en\": \"%1 EEPROM write protected? non-volatile parts\"\n  },\n  \"CUSTOM_MCP4XXX_SET_WIPER_LOCK\": {\n    \"en\": \"%1 set WiperLock, needs HVC pin, locked (1/0) %2 network (0-1) %3\"\n  },\n  \"CUSTOM_MCP4XXX_SET_WRITE_PROTECT\": {\n    \"en\": \"%1 set write protect, needs HVC pin, enabled (1/0) %2\"\n  }\n};\n\nconst initType = 'custom_mcp4xxx_init';\nBlockly.BlockRegExpList['custom_mcp4xxx'] = {\n  regexp: new RegExp(/^custom_mcp4xxx_/),\n  code: \"from MCP4XXX import MCP4XXX\",\n  initBlockType: initType,\n  categoryId: 'custom_mcp4xxx',\n}\nBlockly.utils.registerLanguages(CUSTOM_MCP4XXX_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MCP4XXX_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MCP4XXX = 'MCP4XXX'\n\nBlockly.utils.getcustom_mcp4xxxOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mcp4xxx_0', 'mcp4xxx_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mcp4xxxOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mcp4xxx_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'part'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_ab'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hvc'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var part = Blockly.Python.valueToCode(block, 'part', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_ab = Blockly.Python.valueToCode(block, 'r_ab', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hvc = Blockly.Python.valueToCode(block, 'hvc', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MCP4XXX(${bus}, ${address}, ${part}, ${r_ab}, ${hvc})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wiper(${code}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_wiper(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'ohms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ohms = Blockly.Python.valueToCode(block, 'ohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resistance(${ohms}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_resistance(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'ratio'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ratio = Blockly.Python.valueToCode(block, 'ratio', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ratio(${ratio}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_ratio(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_resistance_wa\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_RESISTANCE_WA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_resistance_wa\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_resistance_wa(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_resistance_wa\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_RESISTANCE_WA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'ohms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_resistance_wa\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ohms = Blockly.Python.valueToCode(block, 'ohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resistance_wa(${ohms}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_resistance_step\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_RESISTANCE_STEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_resistance_step\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resistance_step()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_both\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_BOTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'code0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'code1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_both\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code0 = Blockly.Python.valueToCode(block, 'code0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var code1 = Blockly.Python.valueToCode(block, 'code1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_both(${code0}, ${code1})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_increment\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_INCREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_increment\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.increment(${steps}, ${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_decrement\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_DECREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_decrement\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.decrement(${steps}, ${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.shutdown(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_resume\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_RESUME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_resume\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.resume(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_is_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_IS_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_is_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.is_shutdown(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_terminals\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_TERMINALS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'a'\n        },\n        {\n          'type': 'input_value',\n          'name': 'w'\n        },\n        {\n          'type': 'input_value',\n          'name': 'b'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_terminals\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var a = Blockly.Python.valueToCode(block, 'a', Blockly.Python.ORDER_FUNCTION_CALL);\n  var w = Blockly.Python.valueToCode(block, 'w', Blockly.Python.ORDER_FUNCTION_CALL);\n  var b = Blockly.Python.valueToCode(block, 'b', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_terminals(${a}, ${w}, ${b}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_tcon\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_TCON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_tcon\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_tcon()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_general_call\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_GENERAL_CALL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_general_call\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_general_call(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_rab\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_RAB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_ab'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_wiper'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_rab\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var r_ab = Blockly.Python.valueToCode(block, 'r_ab', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_wiper = Blockly.Python.valueToCode(block, 'r_wiper', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rab(${r_ab}, ${r_wiper})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_wait_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_WAIT_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_wait_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var timeout_ms = Blockly.Python.valueToCode(block, 'timeout_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.wait_ready(${timeout_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_get_nv_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_GET_NV_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_get_nv_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_nv_wiper(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_nv_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_NV_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_nv_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_nv_wiper(${code}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_store_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_STORE_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_store_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.store_wiper(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_read_data\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_READ_DATA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_read_data\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_data(${index})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_write_data\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_WRITE_DATA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_write_data\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_data(${index}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_is_wiper_locked\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_IS_WIPER_LOCKED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_is_wiper_locked\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.is_wiper_locked(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_is_write_protected\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_IS_WRITE_PROTECTED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_is_write_protected\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_write_protected()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_wiper_lock\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_WIPER_LOCK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'locked'\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_wiper_lock\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var locked = Blockly.Python.valueToCode(block, 'locked', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wiper_lock(${locked}, ${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4xxx_set_write_protect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4XXX_SET_WRITE_PROTECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4xxxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4xxx_set_write_protect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_write_protect(${enabled})\\n`\n}\n",
+    "toolbox": "\n<category name=\"MCP4XXX\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mcp4xxx\">\n<title text=\"MCP4XXX\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mcp4xxx_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">88</field>\n    </shadow>\n  </value>\n  <value name=\"part\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4532</field>\n    </shadow>\n  </value>\n  <value name=\"r_ab\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10000.0</field>\n    </shadow>\n  </value>\n  <value name=\"hvc\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_wiper\">\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_wiper\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_resistance\">\n  <value name=\"ohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5000.0</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_resistance\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_ratio\">\n  <value name=\"ratio\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_ratio\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_resistance_wa\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_resistance_wa\">\n  <value name=\"ohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5000.0</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_resistance_step\"/><block type=\"custom_mcp4xxx_set_both\">\n  <value name=\"code0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n  <value name=\"code1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_increment\">\n  <value name=\"steps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_decrement\">\n  <value name=\"steps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_shutdown\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_resume\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_is_shutdown\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_terminals\">\n  <value name=\"a\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"w\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"b\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_tcon\"/><block type=\"custom_mcp4xxx_set_general_call\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_reset\"/><block type=\"custom_mcp4xxx_set_rab\">\n  <value name=\"r_ab\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10000.0</field>\n    </shadow>\n  </value>\n  <value name=\"r_wiper\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">75.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_wait_ready\">\n  <value name=\"timeout_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_get_nv_wiper\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_nv_wiper\">\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_store_wiper\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_read_data\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_write_data\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_is_wiper_locked\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_is_write_protected\"/><block type=\"custom_mcp4xxx_set_wiper_lock\">\n  <value name=\"locked\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4xxx_set_write_protect\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_mcp4xxx",
+    "block_type": [
+      "custom_mcp4xxx___init__",
+      "custom_mcp4xxx_set_wiper",
+      "custom_mcp4xxx_get_wiper",
+      "custom_mcp4xxx_set_resistance",
+      "custom_mcp4xxx_get_resistance",
+      "custom_mcp4xxx_set_ratio",
+      "custom_mcp4xxx_get_ratio",
+      "custom_mcp4xxx_get_resistance_wa",
+      "custom_mcp4xxx_set_resistance_wa",
+      "custom_mcp4xxx_get_resistance_step",
+      "custom_mcp4xxx_set_both",
+      "custom_mcp4xxx_increment",
+      "custom_mcp4xxx_decrement",
+      "custom_mcp4xxx_shutdown",
+      "custom_mcp4xxx_resume",
+      "custom_mcp4xxx_is_shutdown",
+      "custom_mcp4xxx_set_terminals",
+      "custom_mcp4xxx_get_tcon",
+      "custom_mcp4xxx_set_general_call",
+      "custom_mcp4xxx_reset",
+      "custom_mcp4xxx_set_rab",
+      "custom_mcp4xxx_wait_ready",
+      "custom_mcp4xxx_get_nv_wiper",
+      "custom_mcp4xxx_set_nv_wiper",
+      "custom_mcp4xxx_store_wiper",
+      "custom_mcp4xxx_read_data",
+      "custom_mcp4xxx_write_data",
+      "custom_mcp4xxx_is_wiper_locked",
+      "custom_mcp4xxx_is_write_protected",
+      "custom_mcp4xxx_set_wiper_lock",
+      "custom_mcp4xxx_set_write_protect"
+    ]
+  },
+  "data": {
+    "name": "MCP4XXX",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MCP4XXX",
+      "time": "2026-11-07",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.adc_dac.mcp4xxx import Mcp4xxxFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address (40-47 or 88-91) %3 part number (4531-4662) %4 RAB ohms %5 HVC pin GPIO (-1 none) %6"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "88",
+            "note": {},
+            "field": "number",
+            "max": "95",
+            "min": "40"
+          },
+          {
+            "name": "part",
+            "type": "int",
+            "default": "4532",
+            "note": {},
+            "field": "number",
+            "max": "4662",
+            "min": "4531"
+          },
+          {
+            "name": "r_ab",
+            "type": "float",
+            "default": "10000.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "hvc",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        hvc_pin = MicroPythonOutputPin(hvc) if hvc >= 0 else None\n        self._driver = Mcp4xxxFull(connection, part='MCP%d' % part, r_ab=r_ab, hvc=hvc_pin)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 set wiper code %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "code",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wiper(code, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 wiper code (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_wiper(channel)",
+        "ast_return": {
+          "code": "self._driver.get_wiper(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 set W-B resistance ohms %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "ohms",
+            "type": "float",
+            "default": "5000.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resistance(ohms, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 W-B resistance in ohms (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_resistance(channel)",
+        "ast_return": {
+          "code": "self._driver.get_resistance(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 set wiper ratio (0-1) %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "ratio",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ratio(ratio, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 wiper ratio (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_ratio(channel)",
+        "ast_return": {
+          "code": "self._driver.get_ratio(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance_wa",
+        "note": {},
+        "label": {
+          "en": "%1 W-A resistance in ohms, potentiometer parts (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_resistance_wa(channel)",
+        "ast_return": {
+          "code": "self._driver.get_resistance_wa(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resistance_wa",
+        "note": {},
+        "label": {
+          "en": "%1 set W-A resistance ohms, potentiometer parts %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "ohms",
+            "type": "float",
+            "default": "5000.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resistance_wa(ohms, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance_step",
+        "note": {},
+        "label": {
+          "en": "%1 resistance of one step in ohms"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resistance_step()",
+        "ast_return": {
+          "code": "self._driver.get_resistance_step()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_both",
+        "note": {},
+        "label": {
+          "en": "%1 set both wipers, dual parts, network 0 code %2 network 1 code %3"
+        },
+        "params": [
+          {
+            "name": "code0",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "code1",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_both(code0, code1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "increment",
+        "note": {},
+        "label": {
+          "en": "%1 increment wiper, returns new code, steps %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.increment(steps, channel)",
+        "ast_return": {
+          "code": "self._driver.increment(steps, channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "decrement",
+        "note": {},
+        "label": {
+          "en": "%1 decrement wiper, returns new code, steps %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.decrement(steps, channel)",
+        "ast_return": {
+          "code": "self._driver.decrement(steps, channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 shutdown network (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.shutdown(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "resume",
+        "note": {},
+        "label": {
+          "en": "%1 resume network (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.resume(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 network in shutdown? (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.is_shutdown(channel)",
+        "ast_return": {
+          "code": "self._driver.is_shutdown(channel)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_terminals",
+        "note": {},
+        "label": {
+          "en": "%1 connect terminals A (1/0) %2 W (1/0) %3 B (1/0) %4 network (0-1) %5"
+        },
+        "params": [
+          {
+            "name": "a",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "w",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "b",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_terminals(a != 0, w != 0, b != 0, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_tcon",
+        "note": {},
+        "label": {
+          "en": "%1 raw TCON register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_tcon()",
+        "ast_return": {
+          "code": "self._driver.get_tcon()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_general_call",
+        "note": {},
+        "label": {
+          "en": "%1 General Call enabled (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_general_call(enabled != 0)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset to power-up state"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rab",
+        "note": {},
+        "label": {
+          "en": "%1 set resistance model RAB ohms %2 RW ohms %3"
+        },
+        "params": [
+          {
+            "name": "r_ab",
+            "type": "float",
+            "default": "10000.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_wiper",
+            "type": "float",
+            "default": "75.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rab(r_ab, r_wiper)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wait_ready",
+        "note": {},
+        "label": {
+          "en": "%1 wait for EEPROM write, non-volatile parts, timeout ms %2"
+        },
+        "params": [
+          {
+            "name": "timeout_ms",
+            "type": "float",
+            "default": "20.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.wait_ready(timeout_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_nv_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 EEPROM wiper, non-volatile parts (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_nv_wiper(channel)",
+        "ast_return": {
+          "code": "self._driver.get_nv_wiper(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_nv_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 set EEPROM wiper, non-volatile parts, code %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "code",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_nv_wiper(code, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "store_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 store wiper in EEPROM, non-volatile parts, returns code (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.store_wiper(channel)",
+        "ast_return": {
+          "code": "self._driver.store_wiper(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_data",
+        "note": {},
+        "label": {
+          "en": "%1 EEPROM data register, non-volatile parts (index 0-9) %2"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "9",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_data(index)",
+        "ast_return": {
+          "code": "self._driver.read_data(index)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_data",
+        "note": {},
+        "label": {
+          "en": "%1 write EEPROM data register, non-volatile parts, index (0-9) %2 value (0-511) %3"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "9",
+            "min": "0"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "511",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_data(index, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_wiper_locked",
+        "note": {},
+        "label": {
+          "en": "%1 WiperLock active? non-volatile parts (network 0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.is_wiper_locked(channel)",
+        "ast_return": {
+          "code": "self._driver.is_wiper_locked(channel)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_write_protected",
+        "note": {},
+        "label": {
+          "en": "%1 EEPROM write protected? non-volatile parts"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_write_protected()",
+        "ast_return": {
+          "code": "self._driver.is_write_protected()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wiper_lock",
+        "note": {},
+        "label": {
+          "en": "%1 set WiperLock, needs HVC pin, locked (1/0) %2 network (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "locked",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wiper_lock(locked != 0, channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_write_protect",
+        "note": {},
+        "label": {
+          "en": "%1 set write protect, needs HVC pin, enabled (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_write_protect(enabled != 0)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mcp4xxx"
+  },
+  "pyCode": "\"\"\"\nfile     MCP4XXX\ntime     2026-11-07\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.adc_dac.mcp4xxx import Mcp4xxxFull\n\n\nclass MCP4XXX:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 88, part: int = 4532, r_ab: float = 10000.0, hvc: int = -1):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address (40-47 or 88-91) %3 part number (4531-4662) %4 RAB ohms %5 HVC pin GPIO (-1 none) %6'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '88'\n                field: number\n                max: '95'\n                min: '40'\n            part:\n                name: part\n                type: int\n                default: '4532'\n                field: number\n                max: '4662'\n                min: '4531'\n            r_ab:\n                name: r_ab\n                type: float\n                default: '10000.0'\n                field: number\n            hvc:\n                name: hvc\n                type: int\n                default: '-1'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        hvc_pin = MicroPythonOutputPin(hvc) if hvc >= 0 else None\n        self._driver = Mcp4xxxFull(connection, part='MCP%d' % part, r_ab=r_ab, hvc=hvc_pin)\n\n    def set_wiper(self, code: int, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set wiper code %2 network (0-1) %3'\n        params:\n            code:\n                name: code\n                type: int\n                default: '64'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_wiper(code, channel)\n\n    def get_wiper(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 wiper code (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.get_wiper(channel)\n\n    def set_resistance(self, ohms: float, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set W-B resistance ohms %2 network (0-1) %3'\n        params:\n            ohms:\n                name: ohms\n                type: float\n                default: '5000.0'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_resistance(ohms, channel)\n\n    def get_resistance(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 W-B resistance in ohms (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.get_resistance(channel)\n\n    def set_ratio(self, ratio: float, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set wiper ratio (0-1) %2 network (0-1) %3'\n        params:\n            ratio:\n                name: ratio\n                type: float\n                default: '0.5'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_ratio(ratio, channel)\n\n    def get_ratio(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 wiper ratio (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.get_ratio(channel)\n\n    def get_resistance_wa(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 W-A resistance in ohms, potentiometer parts (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.get_resistance_wa(channel)\n\n    def set_resistance_wa(self, ohms: float, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set W-A resistance ohms, potentiometer parts %2 network (0-1) %3'\n        params:\n            ohms:\n                name: ohms\n                type: float\n                default: '5000.0'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_resistance_wa(ohms, channel)\n\n    def get_resistance_step(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 resistance of one step in ohms'\n        \"\"\"\n        return self._driver.get_resistance_step()\n\n    def set_both(self, code0: int, code1: int):\n        \"\"\"\n        label:\n            en: '%1 set both wipers, dual parts, network 0 code %2 network 1 code %3'\n        params:\n            code0:\n                name: code0\n                type: int\n                default: '64'\n                field: number\n            code1:\n                name: code1\n                type: int\n                default: '64'\n                field: number\n        \"\"\"\n        self._driver.set_both(code0, code1)\n\n    def increment(self, steps: int, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 increment wiper, returns new code, steps %2 network (0-1) %3'\n        params:\n            steps:\n                name: steps\n                type: int\n                default: '1'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.increment(steps, channel)\n\n    def decrement(self, steps: int, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 decrement wiper, returns new code, steps %2 network (0-1) %3'\n        params:\n            steps:\n                name: steps\n                type: int\n                default: '1'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.decrement(steps, channel)\n\n    def shutdown(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 shutdown network (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.shutdown(channel)\n\n    def resume(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 resume network (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.resume(channel)\n\n    def is_shutdown(self, channel: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 network in shutdown? (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.is_shutdown(channel)\n\n    def set_terminals(self, a: int, w: int, b: int, channel: int):\n        \"\"\"\n        label:\n            en: '%1 connect terminals A (1/0) %2 W (1/0) %3 B (1/0) %4 network (0-1) %5'\n        params:\n            a:\n                name: a\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n            w:\n                name: w\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n            b:\n                name: b\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_terminals(a != 0, w != 0, b != 0, channel)\n\n    def get_tcon(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw TCON register'\n        \"\"\"\n        return self._driver.get_tcon()\n\n    def set_general_call(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 General Call enabled (1/0) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_general_call(enabled != 0)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset to power-up state'\n        \"\"\"\n        self._driver.reset()\n\n    def set_rab(self, r_ab: float, r_wiper: float):\n        \"\"\"\n        label:\n            en: '%1 set resistance model RAB ohms %2 RW ohms %3'\n        params:\n            r_ab:\n                name: r_ab\n                type: float\n                default: '10000.0'\n                field: number\n            r_wiper:\n                name: r_wiper\n                type: float\n                default: '75.0'\n                field: number\n        \"\"\"\n        self._driver.set_rab(r_ab, r_wiper)\n\n    def wait_ready(self, timeout_ms: float):\n        \"\"\"\n        label:\n            en: '%1 wait for EEPROM write, non-volatile parts, timeout ms %2'\n        params:\n            timeout_ms:\n                name: timeout_ms\n                type: float\n                default: '20.0'\n                field: number\n        \"\"\"\n        self._driver.wait_ready(timeout_ms)\n\n    def get_nv_wiper(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 EEPROM wiper, non-volatile parts (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.get_nv_wiper(channel)\n\n    def set_nv_wiper(self, code: int, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set EEPROM wiper, non-volatile parts, code %2 network (0-1) %3'\n        params:\n            code:\n                name: code\n                type: int\n                default: '64'\n                field: number\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_nv_wiper(code, channel)\n\n    def store_wiper(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 store wiper in EEPROM, non-volatile parts, returns code (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.store_wiper(channel)\n\n    def read_data(self, index: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 EEPROM data register, non-volatile parts (index 0-9) %2'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n                max: '9'\n                min: '0'\n        \"\"\"\n        return self._driver.read_data(index)\n\n    def write_data(self, index: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write EEPROM data register, non-volatile parts, index (0-9) %2 value (0-511) %3'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n                max: '9'\n                min: '0'\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n                max: '511'\n                min: '0'\n        \"\"\"\n        self._driver.write_data(index, value)\n\n    def is_wiper_locked(self, channel: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 WiperLock active? non-volatile parts (network 0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.is_wiper_locked(channel)\n\n    def is_write_protected(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 EEPROM write protected? non-volatile parts'\n        \"\"\"\n        return self._driver.is_write_protected()\n\n    def set_wiper_lock(self, locked: int, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set WiperLock, needs HVC pin, locked (1/0) %2 network (0-1) %3'\n        params:\n            locked:\n                name: locked\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_wiper_lock(locked != 0, channel)\n\n    def set_write_protect(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set write protect, needs HVC pin, enabled (1/0) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_write_protect(enabled != 0)\n",
+  "version": "alpha2"
+}
