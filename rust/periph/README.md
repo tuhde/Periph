@@ -99,6 +99,7 @@ Each chip exposes two structs:
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC (Microchip). |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC (Microchip). |
+| MCP4XXX | ADC/DAC | MCP453X / 454X / 455X / 456X / 463X / 464X / 465X / 466X I²C digital |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor (Microchip). |
 | MFRC522 | RFID/NFC | 13.56 MHz contactless reader/writer (NXP). |
 | MMA8451Q | Accelerometer | 3-axis MEMS accelerometer (NXP / Freescale). |
