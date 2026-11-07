@@ -58,3 +58,5 @@ pub mod ads1114;
 pub use ads1114::{Ads1114Minimal, Ads1114Full};
 pub mod ads1115;
 pub use ads1115::{Ads1115Minimal, Ads1115Full};
+pub mod mcp4xxx;
+pub use mcp4xxx::{Mcp4xxxMinimal, Mcp4xxxFull, Part as Mcp4xxxPart, PartInfo as Mcp4xxxPartInfo, Error as Mcp4xxxError, Status as Mcp4xxxStatus, NoHvc as Mcp4xxxNoHvc};
