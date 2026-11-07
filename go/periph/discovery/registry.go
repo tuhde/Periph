@@ -46,6 +46,7 @@ var registry = []Chip{
 	{ID: "mcp4725", Driver: "mcp4725", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61}, Probe: nil},
 	{ID: "mcp4728", Driver: "mcp4728", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67}, Probe: nil},
 	{ID: "pcf8591", Driver: "pcf8591", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: nil},
+	{ID: "es8311", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x18, 0x19}, Probe: nil},
 	{ID: "rda5807m", Driver: "rda5807m", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x10}, Probe: nil},
 	{ID: "pcf8576", Driver: "pcf8576", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39}, Probe: nil},
 	{ID: "pcf8578", Driver: "pcf8578", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
