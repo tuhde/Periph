@@ -823,6 +823,18 @@
       "datasheet": "datasheets/light/apds9960.pdf"
     },
     {
+      "id": "max44009",
+      "name": "MAX44009",
+      "category": "light",
+      "addresses": [
+        "0x4A..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/max44009.pdf"
+    },
+    {
       "id": "as5600",
       "name": "AS5600",
       "category": "magnetometer",
