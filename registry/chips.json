@@ -353,6 +353,18 @@
       "datasheet": "datasheets/adc_dac/mcp4728.pdf"
     },
     {
+      "id": "mcp4532",
+      "name": "MCP4532",
+      "category": "adc_dac",
+      "addresses": [
+        "0x58..0x5B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/mcp4532.pdf"
+    },
+    {
       "id": "pcf8591",
       "name": "PCF8591",
       "category": "adc_dac",
