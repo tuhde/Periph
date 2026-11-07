@@ -1193,6 +1193,18 @@
       "datasheet": "datasheets/rtc/pcf8523.pdf"
     },
     {
+      "id": "pcf85063a",
+      "name": "PCF85063A",
+      "category": "rtc",
+      "addresses": [
+        "0x51"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rtc/pcf85063a.pdf"
+    },
+    {
       "id": "mcp9808",
       "name": "MCP9808",
       "category": "temperature",

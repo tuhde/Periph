@@ -180,6 +180,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCA6408A | IO expander (8-bit, low-voltage) |  |  |  |  |  |  |  |  |
 | PCA9536 | IO expander (4-bit) |  |  |  |  |  |  |  |  |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF85063A | Real-time clock (alarm, timer) |  |  |  |  |  |  |  |  |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
