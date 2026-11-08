@@ -126,7 +126,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | APDS-9930 | Proximity/ALS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AXP2101 | Power management IC (single-cell charger, 15 rails, fuel gauge) |  |  |  |  |  |  |  |  |
+| AXP2101 | Power management IC (single-cell charger, 15 rails, fuel gauge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMA150 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMA180 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
