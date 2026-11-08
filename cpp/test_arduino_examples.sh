@@ -64,12 +64,16 @@ while IFS= read -r ino; do
             sketch="${chip}_${tier^}" ;;
     esac
     mkdir -p "$WORK/Example"
+    t=$SECONDS
+    printf '[%s] %s ... ' "$(date +%H:%M:%S)" "$sketch"
     cp "$ino" "$WORK/Example/Example.ino"
     if arduino-cli compile --fqbn "$FQBN" --library "$SCRIPT_DIR" \
             --build-path "$BUILD_PATH" "$WORK/Example" > "$WORK/$sketch.log" 2>&1; then
         OK=$((OK + 1))
+        echo "ok ($((SECONDS - t))s)"
     else
         FAILED+=("$sketch")
+        echo "FAILED ($((SECONDS - t))s)"
         echo "=== FAIL: $sketch ($ino) ==="
         grep -E 'error|undefined reference|overflow|too big' "$WORK/$sketch.log" | head -20 || tail -20 "$WORK/$sketch.log"
     fi

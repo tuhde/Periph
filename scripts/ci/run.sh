@@ -191,7 +191,7 @@ case "$JOB" in
 
     java)
         step "Java version" java -version
-        step "Compile JVM modules" bash -c 'cd jvm && mvn install --batch-mode --no-transfer-progress -DskipTests'
+        step "Compile JVM modules" bash -c 'cd jvm && mvn install --batch-mode --no-transfer-progress -DskipTests -T 1C'
         ;;
 
     rust)
@@ -213,13 +213,38 @@ case "$JOB" in
         cd go
         out="$(mktemp -d)"
         at_exit 'rm -rf "$out"'
-        # Pico W, one example per transport type.
-        step "TinyGo I2C (power/ina226)" tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/power/ina226/minimal
-        step "TinyGo NeoPixel (led/ws2812b)" tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/led/ws2812b/minimal
-        step "TinyGo DHTxx (humidity/dht11)" tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/humidity/dht11/minimal
-        step "TinyGo HX711 (adc_dac/hx711)" tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/adc_dac/hx711/minimal
-        step "TinyGo SPI (rfid/mfrc522)" tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/rfid/mfrc522/minimal
-        step "TinyGo UART (gnss/neo6)" tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/gnss/neo6/minimal
+        # Pico W, one example per transport type. The builds are independent,
+        # so run them side by side (each writes its own .uf2 and log).
+        tinygo_build() { # <label> <example dir>
+            tinygo build -target=pico-w -o "$out/$(basename "$2").uf2" "$2" >"$out/$(basename "$2").log" 2>&1
+        }
+        tinygo_examples=(
+            "I2C (power/ina226)|./examples/tinygo/power/ina226/minimal"
+            "NeoPixel (led/ws2812b)|./examples/tinygo/led/ws2812b/minimal"
+            "DHTxx (humidity/dht11)|./examples/tinygo/humidity/dht11/minimal"
+            "HX711 (adc_dac/hx711)|./examples/tinygo/adc_dac/hx711/minimal"
+            "SPI (rfid/mfrc522)|./examples/tinygo/rfid/mfrc522/minimal"
+            "UART (gnss/neo6)|./examples/tinygo/gnss/neo6/minimal"
+        )
+        log "TinyGo: building ${#tinygo_examples[@]} examples in parallel"
+        pids=()
+        for e in "${tinygo_examples[@]}"; do
+            tinygo_build "${e%%|*}" "${e#*|}" &
+            pids+=($!)
+        done
+        fail=0
+        for k in "${!pids[@]}"; do
+            e="${tinygo_examples[$k]}"
+            if wait "${pids[$k]}"; then
+                printf '    ok     TinyGo %s\n' "${e%%|*}"
+            else
+                printf '    FAILED TinyGo %s\n' "${e%%|*}"
+                tail -20 "$out/$(basename "${e#*|}").log" | sed 's/^/        /'
+                fail=1
+            fi
+        done
+        CURRENT_STEP="TinyGo builds"
+        [ "$fail" -eq 0 ]
         ;;
 
     *)

@@ -25,6 +25,11 @@
 #
 # --shard I/N  build only every N-th app starting at the I-th (1-based), so
 #              CI can split a slow platform across parallel jobs.
+# -j N, --jobs N  build N apps at the same time (env: BUILD_JOBS). Default:
+#              nproc for linux, 2 for the toolchain-heavy platforms (their
+#              own build tool already runs in parallel inside each app).
+#              Each app builds in its own directory; results print as they
+#              finish, so lines may come out of order.
 # filter       optional substring of the app path (e.g. "pressure/").
 #
 # Build output goes to a temporary directory; nothing is written into the
@@ -39,9 +44,11 @@ shift || true
 SHARD_I=1
 SHARD_N=1
 FILTER=""
+JOBS="${BUILD_JOBS:-}"
 while [ $# -gt 0 ]; do
     case "$1" in
         --shard) SHARD_I="${2%/*}"; SHARD_N="${2#*/}"; shift 2 ;;
+        -j|--jobs) JOBS="$2"; shift 2 ;;
         *) FILTER="$1"; shift ;;
     esac
 done
@@ -68,6 +75,14 @@ list_apps() {
             exit 2 ;;
     esac
 }
+
+NPROC="$(nproc)"
+if [ -z "$JOBS" ]; then
+    case "$PLATFORM" in linux) JOBS="$NPROC" ;; *) JOBS=2 ;; esac
+fi
+[ "$JOBS" -ge 1 ] 2>/dev/null || { echo "invalid --jobs: $JOBS" >&2; exit 2; }
+# CPU threads each app's own build tool may use, so the total stays near nproc.
+INNER_JOBS=$(( NPROC / JOBS )); [ "$INNER_JOBS" -ge 1 ] || INNER_JOBS=1
 
 # Linux apps have no build files; linux-sources.py works out what to compile.
 LINUX_INCLUDES=(-I"$CPP_DIR/src/connection" -I"$CPP_DIR/src/discovery" -I"$CPP_DIR/src/storage")
@@ -96,7 +111,7 @@ build_picosdk() {
     local app="$1" out="$2"
     cmake -S "$app" -B "$out/b" -DPICO_BOARD="${PICO_BOARD:-pico}" \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache &&
-    cmake --build "$out/b" -- -j"$(nproc)"
+    cmake --build "$out/b" -- -j"$INNER_JOBS"
 }
 
 # Every app recompiles the same ~1,000 ESP-IDF sources. For ccache to share
@@ -125,35 +140,55 @@ build_stm32cube() {
     local app="$1" out="$2"
     cmake -S "$app" -B "$out/b" \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache &&
-    cmake --build "$out/b" -- -j"$(nproc)"
+    cmake --build "$out/b" -- -j"$INNER_JOBS"
 }
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 [ -n "${KEEP_LOGS:-}" ] && mkdir -p "$KEEP_LOGS"
 
-OK=0
-FAILED=()
+# Select the apps of this shard.
+APPS=()
 n=0
 while IFS= read -r app; do
     rel="${app#"$CPP_DIR"/}"
     case "$rel" in *"$FILTER"*) ;; *) continue ;; esac
     n=$((n + 1))
     [ $(( (n - 1) % SHARD_N + 1 )) -eq "$SHARD_I" ] || continue
+    APPS+=("$app")
+done < <(list_apps | sort)
+echo "=== $PLATFORM: ${#APPS[@]} apps, $JOBS at a time ==="
 
-    out="$WORK/app"
-    rm -rf "$out"; mkdir -p "$out"
-    log="$WORK/build.log"
-    if "build_$PLATFORM" "$app" "$out" > "$log" 2>&1; then
-        OK=$((OK + 1))
-        echo "ok   $rel"
+# Build one app in its own directory. Writes "<idx>.ok" or "<idx>.fail" to
+# $WORK and prints its result as a single block, so parallel output stays intact.
+build_one() {
+    local idx="$1" app="$2" rel t out log msg rc
+    rel="${app#"$CPP_DIR"/}"
+    out="$WORK/$idx"; log="$WORK/$idx.log"
+    mkdir -p "$out"
+    t=$SECONDS
+    if "build_$PLATFORM" "$app" "$out" > "$log" 2>&1; then rc=0; else rc=1; fi
+    if [ $rc -eq 0 ]; then
+        printf '[%s] %s ... ok (%ss)\n' "$(date +%H:%M:%S)" "$rel" "$((SECONDS - t))"
+        : > "$WORK/$idx.ok"
     else
-        FAILED+=("$rel")
-        echo "FAIL $rel"
-        grep -E 'error|Error|undefined reference|FAIL ' "$log" | head -15 | sed 's/^/     /'
+        msg="$(grep -E 'error|Error|undefined reference|FAIL ' "$log" | head -15 | sed 's/^/     /')"
+        printf '[%s] %s ... FAILED (%ss)\n%s\n' "$(date +%H:%M:%S)" "$rel" "$((SECONDS - t))" "$msg"
+        echo "$rel" > "$WORK/$idx.fail"
     fi
     [ -n "${KEEP_LOGS:-}" ] && cp "$log" "$KEEP_LOGS/$(echo "$rel" | tr / _).log"
-done < <(list_apps | sort)
+    rm -rf "$out" "$log"
+}
 
+idx=0
+for app in "${APPS[@]+"${APPS[@]}"}"; do
+    while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do wait -n || true; done
+    idx=$((idx + 1))
+    build_one "$idx" "$app" &
+done
+wait
+
+OK=$(find "$WORK" -maxdepth 1 -name '*.ok' | wc -l)
+mapfile -t FAILED < <(cat "$WORK"/*.fail 2>/dev/null | sort)
 echo "=== $PLATFORM (shard $SHARD_I/$SHARD_N): $OK built, ${#FAILED[@]} failed ==="
 [ "${#FAILED[@]}" -eq 0 ] || { printf '  %s\n' "${FAILED[@]}"; exit 1; }
