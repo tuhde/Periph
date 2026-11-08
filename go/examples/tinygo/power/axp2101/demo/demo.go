@@ -21,8 +21,9 @@ func check(err error) {
 var _ = time.Second
 
 func main() {
-	conn, err := connection.NewI2CConnection(machine.I2C0, 0x34, nil, nil)
-	check(err)
+	i2c := machine.I2C1
+	check(i2c.Configure(machine.I2CConfig{SDA: machine.GP4, SCL: machine.GP5, Frequency: 400_000}))
+	conn := connection.NewI2CConnection(i2c, 0x34, nil, nil)
 	chip, err := power.NewAXP2101Full(conn) // Create AXP2101 Full driver, (conn) → (*AXP2101Full, error)
 	check(err)
 

@@ -13,11 +13,12 @@ import (
 )
 
 func main() {
-	conn, err := connection.NewI2CConnection(machine.I2C0, 0x34, nil, nil)
-	if err != nil {
-		fmt.Println("connection:", err)
+	i2c := machine.I2C1
+	if err := i2c.Configure(machine.I2CConfig{SDA: machine.GP4, SCL: machine.GP5, Frequency: 400_000}); err != nil {
+		fmt.Println("i2c:", err)
 		return
 	}
+	conn := connection.NewI2CConnection(i2c, 0x34, nil, nil)
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {
 		if cond {
