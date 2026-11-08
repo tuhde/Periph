@@ -301,6 +301,10 @@
       "github:tuhde/Periph/python/periph/chips/power/ade7953.py"
     ],
     [
+      "periph/chips/power/axp2101.py",
+      "github:tuhde/Periph/python/periph/chips/power/axp2101.py"
+    ],
+    [
       "periph/chips/power/ina219.py",
       "github:tuhde/Periph/python/periph/chips/power/ina219.py"
     ],
