@@ -262,7 +262,7 @@ static constexpr ChipEntry kChips[] = {
     {"l3gd20h", "l3gd20h", false, false, kAddr_l3gd20h, 2, &kProbe_l3gd20h},
     {"mpu6050", "mpu6050", false, false, kAddr_mpu6050, 2, &kProbe_mpu6050},
     {"icm20948", "icm20948", false, false, kAddr_icm20948, 2, &kProbe_icm20948},
-    {"qmi8658a", nullptr, false, false, kAddr_qmi8658a, 2, &kProbe_qmi8658a},
+    {"qmi8658a", "qmi8658a", false, false, kAddr_qmi8658a, 2, &kProbe_qmi8658a},
     {"mpu9250", "mpu9250", false, false, kAddr_mpu9250, 2, &kProbe_mpu9250},
     {"mpu9255", "mpu9255", false, false, kAddr_mpu9255, 2, &kProbe_mpu9255},
     {"mcp23008", "mcp23008", false, false, kAddr_mcp23008, 8, nullptr},

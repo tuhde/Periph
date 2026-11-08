@@ -21,6 +21,10 @@
       "github:tuhde/Periph/python/periph/chips/imu/mpu9255.py"
     ],
     [
+      "periph/chips/imu/qmi8658a.py",
+      "github:tuhde/Periph/python/periph/chips/imu/qmi8658a.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

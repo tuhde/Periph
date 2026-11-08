@@ -201,6 +201,10 @@
       "github:tuhde/Periph/python/periph/chips/imu/mpu9255.py"
     ],
     [
+      "periph/chips/imu/qmi8658a.py",
+      "github:tuhde/Periph/python/periph/chips/imu/qmi8658a.py"
+    ],
+    [
       "periph/chips/io_expander/mcp23008.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/mcp23008.py"
     ],
