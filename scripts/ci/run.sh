@@ -12,7 +12,8 @@
 #       go-linux  go-tinygo
 #
 # Persistent state lives under $PERIPH_CI_CACHE (default ~/.cache/periph-ci):
-# one ccache per platform and the cargo target dir. Toolchain locations can
+# the cargo target dir; ccache lives under $PERIPH_CCACHE_ROOT (default
+# /var/cache/ccache, one subdirectory per platform). Toolchain locations can
 # be overridden with PICO_SDK_PATH, STM32CUBE_FW_PATH, IDF_PATH, ZEPHYR_DIR
 # and ZEPHYR_VENV.
 set -euo pipefail
@@ -59,6 +60,7 @@ log "job $JOB on $(hostname)"
 
 CACHE_ROOT="${PERIPH_CI_CACHE:-$HOME/.cache/periph-ci}"
 mkdir -p "$CACHE_ROOT"
+CCACHE_ROOT="${PERIPH_CCACHE_ROOT:-/var/cache/ccache}"
 
 # Pinned so the board-package set only changes when the core does.
 ESP32_CORE_VERSION="${ESP32_CORE_VERSION:-3.3.12}"
@@ -67,9 +69,9 @@ AVR_CORE_VERSION="${AVR_CORE_VERSION:-1.8.8}"
 # ccache for a platform: persistent, shared by all shards, no hash of the
 # (temporary) build dir so entries hit across runs.
 use_ccache() {
-    export CCACHE_DIR="$CACHE_ROOT/ccache-$1"
+    export CCACHE_DIR="$CCACHE_ROOT/$1"
     export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-2G}"
-    mkdir -p "$CCACHE_DIR"
+    mkdir -p "$CCACHE_DIR" || { echo "cannot create $CCACHE_DIR (make $CCACHE_ROOT writable by $(id -un))" >&2; exit 1; }
 }
 ccache_stats() { log "ccache stats"; ccache -s || true; }
 

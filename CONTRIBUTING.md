@@ -125,8 +125,10 @@ Runner host (Debian 13, bare, no Docker): install everything in
 (<https://arduino.github.io/arduino-lint/>) and `python3-smbus2`. Expected
 locations (override via env in the runner's `.env`): `~/pico-sdk`,
 `~/esp-idf`, `~/STM32CubeF4` (with FatFs), `~/zephyrproject` +
-`~/.venvs/zephyr`. ccache and the cargo target dir persist in
-`~/.cache/periph-ci`.
+`~/.venvs/zephyr`. The cargo target dir persists in
+`~/.cache/periph-ci`; ccache lives in `/var/cache/ccache/<platform>`
+(override with `PERIPH_CCACHE_ROOT`) — create it once with
+`sudo install -d -o <runner-user> /var/cache/ccache`.
 
 - **GitHub Actions:** register the runner with labels `self-hosted,linux,periph`
   (Settings → Actions → Runners). Only `ci.yml` uses it; release and Claude
