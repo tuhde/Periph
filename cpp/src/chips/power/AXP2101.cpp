@@ -131,7 +131,7 @@ float railVolts(uint8_t kind, uint8_t code) {
     }
 }
 
-inline uint8_t bit(bool on, uint8_t b) { return on ? b : 0; }
+inline uint8_t bitIf(bool on, uint8_t b) { return on ? b : 0; }
 
 }  // namespace
 
@@ -236,19 +236,19 @@ void AXP2101Full::status(AXP2101Status& out) {
 
 bool AXP2101Full::setAdcChannels(bool vbat, bool ts, bool vbus, bool vsys, bool tdie, bool gpadc) {
     _clearErr();
-    _rmw(REG_ADC_ENABLE, 0x3F, bit(vbat, 1) | bit(ts, 2) | bit(vbus, 4) | bit(vsys, 8) | bit(tdie, 16) | bit(gpadc, 32));
+    _rmw(REG_ADC_ENABLE, 0x3F, bitIf(vbat, 1) | bitIf(ts, 2) | bitIf(vbus, 4) | bitIf(vsys, 8) | bitIf(tdie, 16) | bitIf(gpadc, 32));
     return !_err;
 }
 
 bool AXP2101Full::setAdcLowFrequency(bool enabled) {
     _clearErr();
-    _rmw(REG_TS_H, 0x80, bit(enabled, 0x80));
+    _rmw(REG_TS_H, 0x80, bitIf(enabled, 0x80));
     return !_err;
 }
 
 bool AXP2101Full::setCharging(bool enabled) {
     _clearErr();
-    _rmw(REG_MODULE_ENABLE, 0x02, bit(enabled, 0x02));
+    _rmw(REG_MODULE_ENABLE, 0x02, bitIf(enabled, 0x02));
     return !_err;
 }
 
@@ -289,7 +289,7 @@ bool AXP2101Full::setTermination(float amps, bool enabled) {
     uint8_t code;
     if (!stepCode(amps, 0.0f, 0.025f, 8, code)) return false;
     _clearErr();
-    _rmw(REG_ITERM, 0x1F, static_cast<uint8_t>(code | bit(enabled, 0x10)));
+    _rmw(REG_ITERM, 0x1F, static_cast<uint8_t>(code | bitIf(enabled, 0x10)));
     return !_err;
 }
 
@@ -323,8 +323,8 @@ bool AXP2101Full::setChargeTimers(uint8_t prechargeMin, uint8_t doneHours, bool 
     if (!indexOf(prechargeMin, KEYS(kPreMinKeys), pre)) return false;
     if (!indexOf(doneHours, KEYS(kDoneHKeys), done)) return false;
     _clearErr();
-    _rmw(REG_CHG_TIMER, 0xF7, static_cast<uint8_t>(pre | bit(prechargeEnabled, 0x04) | (done << 4) |
-                                                     bit(doneEnabled, 0x40) | bit(slowInDpm, 0x80)));
+    _rmw(REG_CHG_TIMER, 0xF7, static_cast<uint8_t>(pre | bitIf(prechargeEnabled, 0x04) | (done << 4) |
+                                                     bitIf(doneEnabled, 0x40) | bitIf(slowInDpm, 0x80)));
     return !_err;
 }
 
@@ -340,13 +340,13 @@ bool AXP2101Full::setDieProtection(uint8_t level1Celsius, bool detect) {
     uint8_t i;
     if (!indexOf(level1Celsius, KEYS(kDieKeys), i)) return false;
     _clearErr();
-    _rmw(REG_DIE_TEMP_CTRL, 0x07, static_cast<uint8_t>((i << 1) | bit(detect, 1)));
+    _rmw(REG_DIE_TEMP_CTRL, 0x07, static_cast<uint8_t>((i << 1) | bitIf(detect, 1)));
     return !_err;
 }
 
 bool AXP2101Full::setBatteryDetection(bool enabled) {
     _clearErr();
-    _rmw(REG_BAT_DETECT, 0x01, bit(enabled, 1));
+    _rmw(REG_BAT_DETECT, 0x01, bitIf(enabled, 1));
     return !_err;
 }
 
@@ -355,7 +355,7 @@ bool AXP2101Full::setBackupCharging(bool enabled, float volts) {
     if (!stepCode(volts, 2.6f, 0.1f, 7, code)) return false;
     _clearErr();
     _rmw(REG_BTN_BAT_VTERM, 0x07, code);
-    _rmw(REG_MODULE_ENABLE, 0x04, bit(enabled, 0x04));
+    _rmw(REG_MODULE_ENABLE, 0x04, bitIf(enabled, 0x04));
     return !_err;
 }
 
@@ -386,7 +386,7 @@ bool AXP2101Full::configureTs(bool batterySensor, uint8_t currentUa, const char*
     else return false;
     if (!indexOf(currentUa, KEYS(kTsCurKeys), cur)) return false;
     _clearErr();
-    _rmw(REG_TS_CTRL, 0x1F, static_cast<uint8_t>(cur | (s << 2) | bit(!batterySensor, 0x10)));
+    _rmw(REG_TS_CTRL, 0x1F, static_cast<uint8_t>(cur | (s << 2) | bitIf(!batterySensor, 0x10)));
     return !_err;
 }
 
@@ -419,10 +419,10 @@ bool AXP2101Full::configureJeita(bool enabled, float coolVoltage, float warmVolt
     if (warmVoltage >= 0.0f && !stepCode(warmVoltage, 0.0f, 0.008f, 255, warm)) return false;
     _clearErr();
     _rmw(REG_JEITA_CV, 0x5F, static_cast<uint8_t>(coolVoltageDrop | (warmVoltageDrop << 2) |
-                                                   bit(coolHalfCurrent, 0x10) | bit(warmHalfCurrent, 0x40)));
+                                                   bitIf(coolHalfCurrent, 0x10) | bitIf(warmHalfCurrent, 0x40)));
     if (coolVoltage >= 0.0f) _writeReg(REG_JEITA_COOL, cool);
     if (warmVoltage >= 0.0f) _writeReg(REG_JEITA_WARM, warm);
-    _rmw(REG_JEITA_EN, 0x01, bit(enabled, 1));
+    _rmw(REG_JEITA_EN, 0x01, bitIf(enabled, 1));
     return !_err;
 }
 
@@ -449,7 +449,7 @@ bool AXP2101Full::setRailEnabled(const char* name, bool enabled) {
     if (!r) return false;
     _clearErr();
     uint8_t b = static_cast<uint8_t>(1 << r->enBit);
-    _rmw(r->enReg, b, bit(enabled, b));
+    _rmw(r->enReg, b, bitIf(enabled, b));
     return !_err;
 }
 
@@ -459,8 +459,8 @@ bool AXP2101Full::configureDcdc(const char* name, bool alwaysPwm, int8_t dvm) {
     if (dvm >= 0 && strcmp(name, "dcdc2") != 0 && strcmp(name, "dcdc3") != 0) return false;
     _clearErr();
     uint8_t b = static_cast<uint8_t>(1 << (r->enBit + 2));
-    _rmw(REG_DCDC_PWM, b, bit(alwaysPwm, b));
-    if (dvm >= 0) _rmw(r->vReg, 0x80, bit(dvm != 0, 0x80));
+    _rmw(REG_DCDC_PWM, b, bitIf(alwaysPwm, b));
+    if (dvm >= 0) _rmw(r->vReg, 0x80, bitIf(dvm != 0, 0x80));
     return !_err;
 }
 
@@ -469,14 +469,14 @@ bool AXP2101Full::configureDcdcGlobal(bool forceCcm, bool slowRamp, bool frequen
     uint8_t deb;
     if (!indexOf(uvpDebounceUs, KEYS(kDebKeys), deb)) return false;
     _clearErr();
-    _rmw(REG_DCDC_EN, 0x60, static_cast<uint8_t>(bit(forceCcm, 0x40) | bit(slowRamp, 0x20)));
-    _rmw(REG_DCDC_PWM, 0xC3, static_cast<uint8_t>(bit(frequencySpread, 0x80) | bit(spread100kHz, 0x40) | deb));
+    _rmw(REG_DCDC_EN, 0x60, static_cast<uint8_t>(bitIf(forceCcm, 0x40) | bitIf(slowRamp, 0x20)));
+    _rmw(REG_DCDC_PWM, 0xC3, static_cast<uint8_t>(bitIf(frequencySpread, 0x80) | bitIf(spread100kHz, 0x40) | deb));
     return !_err;
 }
 
 bool AXP2101Full::setOffDischarge(bool enabled) {
     _clearErr();
-    _rmw(REG_COMMON_CONFIG, 0x20, bit(enabled, 0x20));
+    _rmw(REG_COMMON_CONFIG, 0x20, bitIf(enabled, 0x20));
     return !_err;
 }
 
@@ -490,7 +490,7 @@ bool AXP2101Full::wakeup() { _clearErr(); _command(REG_SLEEP_CTRL, 0x02); return
 
 bool AXP2101Full::configureSleep(bool wakeOnIrq, bool pwrokLow, bool restoreVoltages) {
     _clearErr();
-    _rmw(REG_SLEEP_CTRL, 0x1C, static_cast<uint8_t>(bit(wakeOnIrq, 0x10) | bit(pwrokLow, 0x08) | bit(restoreVoltages, 0x04)));
+    _rmw(REG_SLEEP_CTRL, 0x1C, static_cast<uint8_t>(bitIf(wakeOnIrq, 0x10) | bitIf(pwrokLow, 0x08) | bitIf(restoreVoltages, 0x04)));
     return !_err;
 }
 
@@ -505,8 +505,8 @@ bool AXP2101Full::configurePowerKey(uint16_t onMs, float offS, float irqS, bool 
         !indexOf(irqS, KEYS(kIrqKeys), irq)) return false;
     _clearErr();
     _rmw(REG_PWRKEY_LEVEL, 0x3F, static_cast<uint8_t>(on | (off << 2) | (irq << 4)));
-    _rmw(REG_PWROFF_EN, 0x03, static_cast<uint8_t>(bit(longPressOff, 0x02) | bit(restartInstead, 0x01)));
-    _rmw(REG_COMMON_CONFIG, 0x04, bit(forceOff16s, 0x04));
+    _rmw(REG_PWROFF_EN, 0x03, static_cast<uint8_t>(bitIf(longPressOff, 0x02) | bitIf(restartInstead, 0x01)));
+    _rmw(REG_COMMON_CONFIG, 0x04, bitIf(forceOff16s, 0x04));
     return !_err;
 }
 
@@ -514,9 +514,9 @@ bool AXP2101Full::configurePowerOff(bool dieOverTemp, float offVoltage, bool dcd
     uint8_t code;
     if (!stepCode(offVoltage, 2.6f, 0.1f, 7, code)) return false;
     _clearErr();
-    _rmw(REG_PWROFF_EN, 0x04, bit(dieOverTemp, 0x04));
+    _rmw(REG_PWROFF_EN, 0x04, bitIf(dieOverTemp, 0x04));
     _rmw(REG_VOFF, 0x07, code);
-    _rmw(REG_DCDC_PROT, 0x2F, static_cast<uint8_t>(bit(dcdcOvp, 0x20) | (dcdcUvp & 0x0F)));
+    _rmw(REG_DCDC_PROT, 0x2F, static_cast<uint8_t>(bitIf(dcdcOvp, 0x20) | (dcdcUvp & 0x0F)));
     return !_err;
 }
 
@@ -525,15 +525,15 @@ bool AXP2101Full::configurePwrok(bool check, uint8_t delayMs, bool offDelay, boo
     uint8_t delayCode;
     if (!indexOf(delayMs, KEYS(kPwrokKeys), delayCode)) return false;
     _clearErr();
-    _rmw(REG_PWROK_CTRL, 0x1F, static_cast<uint8_t>(delayCode | bit(reverseOffSequence, 0x04) |
-                                                      bit(offDelay, 0x08) | bit(check, 0x10)));
-    _rmw(REG_COMMON_CONFIG, 0x08, bit(restartOnLow, 0x08));
+    _rmw(REG_PWROK_CTRL, 0x1F, static_cast<uint8_t>(delayCode | bitIf(reverseOffSequence, 0x04) |
+                                                      bitIf(offDelay, 0x08) | bitIf(check, 0x10)));
+    _rmw(REG_COMMON_CONFIG, 0x08, bitIf(restartOnLow, 0x08));
     return !_err;
 }
 
 bool AXP2101Full::setBatfetOffEnable(bool enabled) {
     _clearErr();
-    _rmw(REG_BATFET_CTRL, 0x08, bit(enabled, 0x08));
+    _rmw(REG_BATFET_CTRL, 0x08, bitIf(enabled, 0x08));
     return !_err;
 }
 
@@ -554,7 +554,7 @@ bool AXP2101Full::configureFastPoweron(bool poweron, bool wakeup, const AXP2101F
                  static_cast<uint8_t>(c << kFast[k].shift));
         }
     }
-    _rmw(REG_FAST_PWRON0 + 3, 0xC0, static_cast<uint8_t>(bit(poweron, 0x80) | bit(wakeup, 0x40)));
+    _rmw(REG_FAST_PWRON0 + 3, 0xC0, static_cast<uint8_t>(bitIf(poweron, 0x80) | bitIf(wakeup, 0x40)));
     return !_err;
 }
 
@@ -568,7 +568,7 @@ bool AXP2101Full::configureWatchdog(bool enabled, uint8_t timeoutS, const char* 
     if (!indexOf(timeoutS, KEYS(kWdtKeys), code)) return false;
     _clearErr();
     _rmw(REG_WATCHDOG_CTRL, 0x37, static_cast<uint8_t>(code | (a << 4)));
-    _rmw(REG_MODULE_ENABLE, 0x01, bit(enabled, 1));
+    _rmw(REG_MODULE_ENABLE, 0x01, bitIf(enabled, 1));
     return !_err;
 }
 
@@ -583,7 +583,7 @@ bool AXP2101Full::configureBatteryWarning(uint8_t level2, uint8_t level1) {
 
 bool AXP2101Full::setGaugeEnabled(bool enabled) {
     _clearErr();
-    _rmw(REG_MODULE_ENABLE, 0x08, bit(enabled, 0x08));
+    _rmw(REG_MODULE_ENABLE, 0x08, bitIf(enabled, 0x08));
     return !_err;
 }
 
@@ -595,7 +595,7 @@ bool AXP2101Full::resetGauge(bool full) {
 
 bool AXP2101Full::setGpio1(bool low) {
     _clearErr();
-    _rmw(REG_GPIO1_CTRL, 0x0C, bit(low, 0x04));
+    _rmw(REG_GPIO1_CTRL, 0x0C, bitIf(low, 0x04));
     return !_err;
 }
 
