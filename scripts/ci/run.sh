@@ -14,7 +14,7 @@
 # Persistent state lives under $PERIPH_CI_CACHE (default ~/.cache/periph-ci):
 # the cargo target dir; ccache lives under $PERIPH_CCACHE_ROOT (default
 # /var/cache/ccache, one subdirectory per platform). Toolchain locations can
-# be overridden with PICO_SDK_PATH, STM32CUBE_FW_PATH, IDF_PATH, ZEPHYR_DIR
+# be overridden with PICO_SDK_PATH, PICOTOOL_PREFIX, STM32CUBE_FW_PATH, IDF_PATH, ZEPHYR_DIR
 # and ZEPHYR_VENV.
 set -euo pipefail
 
@@ -126,6 +126,14 @@ case "$JOB" in
     pico-sdk)
         export PICO_SDK_PATH="${PICO_SDK_PATH:-$HOME/pico-sdk}"
         need_dir "$PICO_SDK_PATH/lib/tinyusb" "Pico SDK (with submodules)"
+        # Without an installed picotool the SDK clones and builds it from GitHub
+        # in every app's configure (~25 s each, and needs the network).
+        PICOTOOL_PREFIX="${PICOTOOL_PREFIX:-$HOME/picotool}"
+        if [ -f "$PICOTOOL_PREFIX/picotool/picotoolConfig.cmake" ]; then
+            export CMAKE_PREFIX_PATH="$PICOTOOL_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+        else
+            echo "WARNING: no picotool in $PICOTOOL_PREFIX; every app will download and build it (slow, needs network) -- see TOOLCHAINS.md" >&2
+        fi
         export PICO_BOARD=pico
         export CCACHE_BASEDIR=/tmp CCACHE_NOHASHDIR=1
         use_ccache pico

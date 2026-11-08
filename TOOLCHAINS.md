@@ -107,6 +107,15 @@ cd ~/pico-sdk && git submodule update --init --depth 1 && cd -
 echo 'export PICO_SDK_PATH="$HOME/pico-sdk"' >> ~/.bashrc
 export PICO_SDK_PATH="$HOME/pico-sdk"
 
+# Install picotool once. Without it the SDK clones and builds picotool from
+# GitHub in every app's configure (~25 s per app, and needs the network).
+# scripts/ci/run.sh finds it via $PICOTOOL_PREFIX (default ~/picotool).
+git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/picotool.git /tmp/picotool-src
+cmake -S /tmp/picotool-src -B /tmp/picotool-build -DPICO_SDK_PATH="$PICO_SDK_PATH" \
+  -DPICOTOOL_NO_LIBUSB=1 -DPICOTOOL_FLAT_INSTALL=1 -DCMAKE_INSTALL_PREFIX="$HOME/picotool"
+cmake --build /tmp/picotool-build -j"$(nproc)" && cmake --install /tmp/picotool-build
+export CMAKE_PREFIX_PATH="$HOME/picotool"   # only needed outside run.sh
+
 PICO_BOARD=pico cpp/scripts/build-all.sh picosdk
 ```
 
