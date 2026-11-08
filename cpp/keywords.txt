@@ -201,6 +201,8 @@ PCF8579Minimal	KEYWORD1
 PCF8591Full	KEYWORD1
 PCF8591Minimal	KEYWORD1
 Profile	KEYWORD1
+QMI8658AFull	KEYWORD1
+QMI8658AMinimal	KEYWORD1
 RDA5807MFull	KEYWORD1
 RDA5807MMinimal	KEYWORD1
 RFM95Full	KEYWORD1
@@ -313,6 +315,7 @@ busyLevel	KEYWORD2
 calibrate	KEYWORD2
 calibrateCrosstalk	KEYWORD2
 calibrateOffset	KEYWORD2
+calibrate_gyro	KEYWORD2
 calibrate_offset	KEYWORD2
 canRead	KEYWORD2
 can_read	KEYWORD2
@@ -362,6 +365,7 @@ configure_accel	KEYWORD2
 configure_ad1	KEYWORD2
 configure_all_thresholds	KEYWORD2
 configure_als	KEYWORD2
+configure_any_motion	KEYWORD2
 configure_autoconfig	KEYWORD2
 configure_baseline_filter	KEYWORD2
 configure_debounce	KEYWORD2
@@ -373,6 +377,8 @@ configure_gyro	KEYWORD2
 configure_hp_filter	KEYWORD2
 configure_int_pin	KEYWORD2
 configure_interrupt	KEYWORD2
+configure_no_motion	KEYWORD2
+configure_pedometer	KEYWORD2
 configure_polarity	KEYWORD2
 configure_pressure_event	KEYWORD2
 configure_pressure_interrupt	KEYWORD2
@@ -382,6 +388,8 @@ configure_proximity_thresholds	KEYWORD2
 configure_pullup	KEYWORD2
 configure_sample_rate	KEYWORD2
 configure_sampling	KEYWORD2
+configure_significant_motion	KEYWORD2
+configure_tap	KEYWORD2
 configure_thresholds	KEYWORD2
 configure_wait	KEYWORD2
 configure_wake_on_motion	KEYWORD2
@@ -405,6 +413,7 @@ delayMicros	KEYWORD2
 deselect	KEYWORD2
 device_id	KEYWORD2
 device_ids	KEYWORD2
+device_info	KEYWORD2
 device_select	KEYWORD2
 dew_point	KEYWORD2
 diagnose	KEYWORD2
@@ -468,13 +477,16 @@ enable_interrupt	KEYWORD2
 enable_interrupts	KEYWORD2
 enable_lpf	KEYWORD2
 enable_mag	KEYWORD2
+enable_motion	KEYWORD2
 enable_oor_interrupt	KEYWORD2
 enable_peak_hold	KEYWORD2
+enable_pedometer	KEYWORD2
 enable_pin_interrupt	KEYWORD2
 enable_proximity	KEYWORD2
 enable_proximity_interrupt	KEYWORD2
 enable_rds	KEYWORD2
 enable_rms	KEYWORD2
+enable_tap	KEYWORD2
 enable_wait	KEYWORD2
 erase	KEYWORD2
 erase_block_32k	KEYWORD2
@@ -539,6 +551,7 @@ get_accel_offset	KEYWORD2
 get_brightness	KEYWORD2
 get_firmware_version	KEYWORD2
 get_gain_calibration	KEYWORD2
+get_gyro_gains	KEYWORD2
 get_mode	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
@@ -831,6 +844,7 @@ reset_high_pass	KEYWORD2
 reset_io	KEYWORD2
 reset_lpf	KEYWORD2
 reset_reference	KEYWORD2
+reset_step_count	KEYWORD2
 restore_value	KEYWORD2
 resume	KEYWORD2
 retry_count	KEYWORD2
@@ -858,6 +872,8 @@ select_heater_profile	KEYWORD2
 selfTest	KEYWORD2
 self_calibrate	KEYWORD2
 self_test	KEYWORD2
+self_test_accel	KEYWORD2
+self_test_gyro	KEYWORD2
 send	KEYWORD2
 sendCommand	KEYWORD2
 sendData	KEYWORD2
@@ -1034,6 +1050,7 @@ set_full_scale	KEYWORD2
 set_gain	KEYWORD2
 set_gain_calibration	KEYWORD2
 set_gas_enabled	KEYWORD2
+set_gyro_gains	KEYWORD2
 set_gyro_offset	KEYWORD2
 set_half_bandwidth	KEYWORD2
 set_heater	KEYWORD2
@@ -1095,6 +1112,7 @@ set_protection	KEYWORD2
 set_proximity_mask	KEYWORD2
 set_proximity_offset	KEYWORD2
 set_proximity_thresholds	KEYWORD2
+set_pullups	KEYWORD2
 set_pulse	KEYWORD2
 set_pump	KEYWORD2
 set_rab	KEYWORD2
@@ -1123,6 +1141,7 @@ set_speed	KEYWORD2
 set_standby	KEYWORD2
 set_start_bank	KEYWORD2
 set_summation_channels	KEYWORD2
+set_sync_sample	KEYWORD2
 set_tap	KEYWORD2
 set_tap_detection	KEYWORD2
 set_temperature_compensation	KEYWORD2
@@ -1170,6 +1189,7 @@ start_counter	KEYWORD2
 stats	KEYWORD2
 status	KEYWORD2
 status_byte	KEYWORD2
+step_count	KEYWORD2
 stop	KEYWORD2
 stopContinuous	KEYWORD2
 stop_crypto	KEYWORD2
@@ -1178,8 +1198,10 @@ summation_value	KEYWORD2
 sync	KEYWORD2
 system_calibrate_full	KEYWORD2
 system_calibrate_zero	KEYWORD2
+tap_status	KEYWORD2
 tare	KEYWORD2
 temperature	KEYWORD2
+timestamp	KEYWORD2
 timingBudget	KEYWORD2
 toSigned	KEYWORD2
 toggle	KEYWORD2
@@ -1819,6 +1841,7 @@ SOURCE_CRITICAL	LITERAL1
 SOURCE_DATA_READY	LITERAL1
 SOURCE_FF_MT	LITERAL1
 SOURCE_FIFO	LITERAL1
+SOURCE_FIFO_FULL	LITERAL1
 SOURCE_FIFO_OVERFLOW	LITERAL1
 SOURCE_FIFO_OVERRUN	LITERAL1
 SOURCE_FIFO_READY	LITERAL1
@@ -1838,6 +1861,7 @@ SOURCE_LOW_G	LITERAL1
 SOURCE_MAG_DATA_READY	LITERAL1
 SOURCE_NEW_DATA	LITERAL1
 SOURCE_NEW_SAMPLE_READY	LITERAL1
+SOURCE_NO_MOTION	LITERAL1
 SOURCE_OOR	LITERAL1
 SOURCE_ORIENTATION	LITERAL1
 SOURCE_OUT_OF_WINDOW	LITERAL1
@@ -1845,7 +1869,9 @@ SOURCE_OVERRUN	LITERAL1
 SOURCE_PLL_READY	LITERAL1
 SOURCE_PULSE	LITERAL1
 SOURCE_SECOND	LITERAL1
+SOURCE_SIGNIFICANT_MOTION	LITERAL1
 SOURCE_SLOPE	LITERAL1
+SOURCE_STEP	LITERAL1
 SOURCE_TAP	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
