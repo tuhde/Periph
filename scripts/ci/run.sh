@@ -110,7 +110,7 @@ case "$JOB" in
         # "update": Periph is registered (arduino/library-registry#9201), so the
         # name must stay the same and each release needs a new version.
         step "Arduino Lint" arduino-lint --compliance strict --library-manager update \
-            --project-type library --recursive false "$stage/Periph"
+            --project-type library --recursive=false "$stage/Periph"
         step "Check cpp/README.md" node cpp/scripts/generate-readme.js --check
         step "Check keywords.txt" node cpp/scripts/generate-keywords.js --check
         ;;
