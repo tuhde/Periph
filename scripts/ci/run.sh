@@ -116,6 +116,8 @@ case "$JOB" in
     linux-gcc)
         # libgpiod v2 (Debian trixie); Ubuntu 24.04 still ships v1.
         log "libgpiod $(pkg-config --modversion libgpiod)"
+        use_ccache linux
+        at_exit ccache_stats
         step "Build all apps, run unit tests" cpp/scripts/build-all.sh linux "$@"
         ;;
 

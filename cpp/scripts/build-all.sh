@@ -73,11 +73,19 @@ list_apps() {
 LINUX_INCLUDES=(-I"$CPP_DIR/src/connection" -I"$CPP_DIR/src/discovery" -I"$CPP_DIR/src/storage")
 for d in "$CPP_DIR"/src/chips/*/; do LINUX_INCLUDES+=(-I"$d"); done
 
+# Compile each source to its own object so ccache can cache it (ccache skips
+# compile-and-link commands). Most apps share the same connection and chip
+# sources, so after the first app nearly everything is a cache hit.
 build_linux() {
-    local app="$1" out="$2" srcs
+    local app="$1" out="$2" srcs objs=() i=0 s cc=(g++)
+    command -v ccache >/dev/null 2>&1 && cc=(ccache g++)
     mapfile -t srcs < <(python3 "$SCRIPT_DIR/linux-sources.py" "$app")
-    g++ -std=c++17 -Wall -Wextra -Werror -O1 -I"$app" "${LINUX_INCLUDES[@]}" \
-        "${srcs[@]}" -o "$out/app" -lgpiod -lpthread -lm || return 1
+    for s in "${srcs[@]}"; do
+        objs+=("$out/$((i++)).o")
+        "${cc[@]}" -std=c++17 -Wall -Wextra -Werror -O1 -I"$app" "${LINUX_INCLUDES[@]}" \
+            -c "$s" -o "${objs[-1]}" || return 1
+    done
+    g++ "${objs[@]}" -o "$out/app" -lgpiod -lpthread -lm || return 1
     # Unit tests run against mocks, so run them too.
     if [[ "$app" == *_test_unit ]]; then
         "$out/app" || return 1
