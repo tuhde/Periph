@@ -100,7 +100,7 @@ cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
 ### 2c. Raspberry Pi Pico SDK
 
 ```sh
-sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi gcc g++ python3 ccache
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib gcc g++ python3 ccache
 
 git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
 cd ~/pico-sdk && git submodule update --init --depth 1 && cd -
@@ -164,7 +164,7 @@ source zephyr/zephyr-env.sh
 ### 2f. STM32Cube (STM32CubeF4 v1.28.3, NUCLEO-F411RE)
 
 ```sh
-sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi g++ ccache
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib g++ ccache
 
 # Sparse + blobless: only Drivers/CMSIS and the HAL driver are needed (~145 MB instead of ~1 GB).
 git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \

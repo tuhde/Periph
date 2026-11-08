@@ -130,10 +130,35 @@ build_espidf() {
 ZEPHYR_BOARD="${ZEPHYR_BOARD:-rpi_pico2/rp2350a/m33}"
 ZEPHYR_OVERLAY="$CPP_DIR/boards/zephyr/$(echo "$ZEPHYR_BOARD" | tr / _).overlay"
 
+# ccache stat()s -specs=picolibc.specs relative to the build dir and gives up
+# ("bad compiler arguments", nothing cached) when it is missing, so link the SDK's
+# copy into every build dir.
+ZEPHYR_SPECS=""
+if [ "$PLATFORM" = zephyr ]; then
+    ZEPHYR_SPECS="$(find "${ZEPHYR_SDK_INSTALL_DIR:-$(ls -d "$HOME"/zephyr-sdk-* 2>/dev/null | tail -1)}" \
+        -name picolibc.specs 2>/dev/null | head -1)"
+fi
+
+# devicetree_generated.h embeds the build dir in a comment and nearly every
+# source includes it, so a random per-run build path changes its hash and makes
+# every ccache direct-mode lookup miss (each hit then costs a preprocessor run).
+# Build each app in a stable path instead -- removed afterwards, and serialised
+# per app with flock so two concurrent CI runs cannot collide. Must stay under
+# CCACHE_BASEDIR (/tmp).
 build_zephyr() {
-    local app="$1" out="$2" extra=()
+    local app="$1" out="$2" extra=() b
     [ -f "$ZEPHYR_OVERLAY" ] && extra=(-- -DEXTRA_DTC_OVERLAY_FILE="$ZEPHYR_OVERLAY")
-    west build -p always -b "$ZEPHYR_BOARD" -d "$out/b" "$app" "${extra[@]}"
+    b="/tmp/periph-zephyr-$(id -u)/${app#"$CPP_DIR"/}/b"
+    mkdir -p "${b%/b}"
+    (
+        flock 9
+        rc=0
+        rm -rf "$b"; mkdir -p "$b"
+        [ -n "$ZEPHYR_SPECS" ] && ln -s "$ZEPHYR_SPECS" "$b/picolibc.specs"
+        west build -b "$ZEPHYR_BOARD" -d "$b" "$app" "${extra[@]}" || rc=$?
+        rm -rf "$b"
+        exit $rc
+    ) 9>"${b%/b}/.lock"
 }
 
 build_stm32cube() {
