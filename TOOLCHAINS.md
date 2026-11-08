@@ -169,7 +169,7 @@ sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewli
 # Sparse + blobless: only Drivers/CMSIS and the HAL driver are needed (~145 MB instead of ~1 GB).
 git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
   https://github.com/STMicroelectronics/STM32CubeF4.git ~/STM32CubeF4
-git -C ~/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver
+git -C ~/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver Middlewares/Third_Party/FatFs
 git -C ~/STM32CubeF4 submodule update --init --depth 1 \
   Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
 echo 'export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"' >> ~/.bashrc

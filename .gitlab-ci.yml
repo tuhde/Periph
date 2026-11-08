@@ -1,0 +1,79 @@
+# GitLab CI mirror of .github/workflows/ci.yml. Runs on a self-hosted GitLab
+# Runner with the shell executor and the tag "periph", on a host with the
+# toolchains from TOOLCHAINS.md preinstalled. Job logic lives in
+# scripts/ci/run.sh, shared with GitHub Actions.
+
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+default:
+  tags: [periph]
+  timeout: 2h
+  interruptible: true
+
+stages: [check]
+
+arduino-esp32:
+  stage: check
+  script: scripts/ci/run.sh arduino-esp32
+
+arduino-avr:
+  stage: check
+  script: scripts/ci/run.sh arduino-avr
+
+arduino-checks:
+  stage: check
+  script: scripts/ci/run.sh arduino-checks
+
+linux-gcc:
+  stage: check
+  script: scripts/ci/run.sh linux-gcc
+
+pico-sdk:
+  stage: check
+  script: scripts/ci/run.sh pico-sdk
+
+stm32cube:
+  stage: check
+  script: scripts/ci/run.sh stm32cube
+
+python:
+  stage: check
+  script: scripts/ci/run.sh python
+
+registry:
+  stage: check
+  script: scripts/ci/run.sh registry
+
+nodejs:
+  stage: check
+  script: scripts/ci/run.sh nodejs
+
+java:
+  stage: check
+  script: scripts/ci/run.sh java
+
+esp-idf:
+  stage: check
+  script: scripts/ci/run.sh esp-idf
+
+zephyr:
+  stage: check
+  script: scripts/ci/run.sh zephyr
+
+rust:
+  stage: check
+  script: scripts/ci/run.sh rust
+
+go-linux:
+  stage: check
+  script: scripts/ci/run.sh go-linux
+
+go-tinygo:
+  stage: check
+  script: scripts/ci/run.sh go-tinygo

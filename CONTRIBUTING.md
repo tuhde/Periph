@@ -113,3 +113,27 @@ rust/test_linux.sh   --compile-only power/ina226
 ## Reporting issues
 
 Open a GitHub issue. Include the chip name, platform, and a minimal reproduction if it's a driver bug.
+
+## Self-hosted CI runner
+
+CI runs on your own hardware instead of GitHub-/GitLab-hosted containers. Both
+pipelines (`.github/workflows/ci.yml`, `.gitlab-ci.yml`) call
+`scripts/ci/run.sh <job>`; edit job logic there.
+
+Runner host (Debian 13, bare, no Docker): install everything in
+`TOOLCHAINS.md` as the runner's user, plus `arduino-lint`
+(<https://arduino.github.io/arduino-lint/>) and `python3-smbus2`. Expected
+locations (override via env in the runner's `.env`): `~/pico-sdk`,
+`~/esp-idf`, `~/STM32CubeF4` (with FatFs), `~/zephyrproject` +
+`~/.venvs/zephyr`. ccache and the cargo target dir persist in
+`~/.cache/periph-ci`.
+
+- **GitHub Actions:** register the runner with labels `self-hosted,linux,periph`
+  (Settings → Actions → Runners). Only `ci.yml` uses it; release and Claude
+  workflows stay on GitHub-hosted runners. Because this repo is public, set
+  Settings → Actions → General → "Require approval for all outside
+  collaborators" so fork PRs can't run code on your machine unreviewed.
+- **GitLab:** `gitlab-runner register` with the **shell** executor and tag
+  `periph`; disable shared runners for the project if you want only yours.
+- Run one runner instance per host: jobs share `~/.arduino15` and the SDK dirs.
+- Check a single job locally: `scripts/ci/run.sh go-linux`.

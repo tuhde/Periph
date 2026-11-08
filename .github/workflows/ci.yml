@@ -1,632 +1,142 @@
 name: CI
 
+# Runs on the self-hosted runner (labels: self-hosted, linux, periph), bare
+# host with the toolchains from TOOLCHAINS.md preinstalled. Every job is one
+# call to scripts/ci/run.sh, which .gitlab-ci.yml uses too; edit job logic
+# there, not here. Runner setup: CONTRIBUTING.md ("Self-hosted CI runner").
+
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
 
-# arduino/setup-arduino-cli has no release beyond v2 yet, and v2 still targets
-# Node 20 (deprecated: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/).
-# This forces it (and any other action not yet updated) onto Node 24 so it keeps
-# running instead of failing outright; drop it once setup-arduino-cli ships a
-# Node 24 release.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Pinned so the board-package cache key only changes when the core does
-  # (keying on this file minted a new multi-GB cache entry per workflow edit).
-  ESP32_CORE_VERSION: "3.3.12"
-  AVR_CORE_VERSION: "1.8.8"
-
 # A new push to a PR supersedes its running CI; main pushes always finish.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  # -----------------------------------------------------------------------
-  # Arduino — compile-only (no hardware required), split across parallel
-  # shards per core. The test sketches target the ESP32-S3 test rig, so
-  # they only build on that core; AVR builds as C++11 without the C++
-  # standard library headers, so it catches what ESP32 lets through.
-  # -----------------------------------------------------------------------
   arduino-esp32:
-    name: Arduino compile ESP32-S3 (${{ matrix.shard }}/4)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
+    name: Arduino compile ESP32-S3
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
-
-      - name: Cache Arduino board packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.arduino15
-          key: arduino15-esp32-${{ env.ESP32_CORE_VERSION }}
-
-      - name: Install arduino-cli
-        uses: arduino/setup-arduino-cli@v2
-
-      - name: Install ESP32 core
-        run: |
-          arduino-cli config init --overwrite
-          arduino-cli config add board_manager.additional_urls \
-            https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-          arduino-cli core update-index
-          arduino-cli core install esp32:esp32@${{ env.ESP32_CORE_VERSION }}
-
-      # Every example (and, on this core, every test sketch) against cpp/
-      # as one library, the layout the Library Manager ships.
-      - name: Compile all examples and test sketches
-        run: cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests --shard ${{ matrix.shard }}/4
+      - run: scripts/ci/run.sh arduino-esp32
 
   arduino-avr:
-    name: Arduino compile AVR (${{ matrix.shard }}/2)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
+    name: Arduino compile AVR
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh arduino-avr
 
-      - name: Cache Arduino board packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.arduino15
-          key: arduino15-avr-${{ env.AVR_CORE_VERSION }}
-
-      - name: Install arduino-cli
-        uses: arduino/setup-arduino-cli@v2
-
-      - name: Install AVR core
-        run: |
-          arduino-cli config init --overwrite
-          arduino-cli core update-index
-          arduino-cli core install arduino:avr@${{ env.AVR_CORE_VERSION }}
-
-      - name: Compile all examples (Mega 2560)
-        run: cpp/test_arduino_examples.sh --fqbn arduino:avr:mega --shard ${{ matrix.shard }}/2
-
-  # -----------------------------------------------------------------------
-  # Arduino — generated-file and Library Manager checks (no board core or
-  # compile needed, so this stays a single fast job).
-  # -----------------------------------------------------------------------
   arduino-checks:
     name: Arduino checks
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh arduino-checks
 
-      - name: Check cpp/src/Periph.h is up to date
-        run: node cpp/scripts/generate-periph-header.js --check
-
-      - name: Stage Library Manager layout
-        run: |
-          mkdir -p "$RUNNER_TEMP/Periph"
-          cpp/scripts/stage-arduino-library.sh "$RUNNER_TEMP/Periph"
-
-      # "update": Periph is registered (arduino/library-registry#9201), so
-      # the name must stay the same and each release needs a new version.
-      - name: Arduino Lint
-        uses: arduino/arduino-lint-action@v3
-        with:
-          path: ${{ runner.temp }}/Periph
-          library-manager: update
-          compliance: strict
-
-      - name: Check cpp/README.md is up to date
-        run: node cpp/scripts/generate-readme.js --check
-
-      - name: Check cpp/keywords.txt is up to date
-        run: node cpp/scripts/generate-keywords.js --check
-
-  # -----------------------------------------------------------------------
-  # Linux GCC — every example, test program and unit test (unit tests are
-  # also run). Debian trixie for libgpiod v2; Ubuntu 24.04 still ships v1.
-  # -----------------------------------------------------------------------
   linux-gcc:
     name: Linux GCC compile
-    runs-on: ubuntu-latest
-    container: debian:trixie
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh linux-gcc
 
-      - name: Install toolchain
-        run: |
-          apt-get update
-          apt-get install -y --no-install-recommends g++ libgpiod-dev python3
-
-      - name: Build all apps, run unit tests
-        run: cpp/scripts/build-all.sh linux
-
-  # -----------------------------------------------------------------------
-  # Raspberry Pi Pico SDK — every example and test app, compile-only,
-  # split across parallel shards.
-  # -----------------------------------------------------------------------
   pico-sdk:
-    name: Pico SDK compile (${{ matrix.shard }}/8)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    name: Pico SDK compile
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh pico-sdk
 
-      # Network-bound setup that once hung a shard for 40+ minutes with no
-      # output: every attempt is killed after 5 minutes and retried (falling
-      # back from the runner's azure apt mirror to the main archive).
-      - name: Install pico-sdk
-        timeout-minutes: 18
-        run: |
-          APT="sudo apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-          for attempt in 1 2 3; do
-            rm -rf /opt/pico-sdk 2>/dev/null || sudo rm -rf /opt/pico-sdk
-            if timeout 300 bash -c "$APT update && $APT install -y cmake gcc-arm-none-eabi gcc g++ python3 ccache \
-                && git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git /opt/pico-sdk \
-                && (cd /opt/pico-sdk && git submodule update --init --depth 1)"; then
-              echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
-              exit 0
-            fi
-            echo "attempt $attempt failed, retrying"
-            echo "http://archive.ubuntu.com/ubuntu/ priority:1" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
-            sudo rm -rf /var/lib/apt/lists/*
-            sleep 5
-          done
-          exit 1
-
-      # ccache persists across runs, one cache per shard. Only main saves
-      # it (PRs restore main's), so PR runs can't evict the large caches.
-      - name: Restore ccache
-        id: ccache
-        uses: actions/cache/restore@v5
-        with:
-          path: .ccache
-          key: ccache-pico-${{ matrix.shard }}-${{ github.sha }}
-          restore-keys: ccache-pico-${{ matrix.shard }}-
-
-      - name: Build all apps
-        run: cpp/scripts/build-all.sh picosdk --shard ${{ matrix.shard }}/8
-        env:
-          PICO_BOARD: pico
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_MAXSIZE: 400M
-          CCACHE_BASEDIR: /tmp
-          CCACHE_NOHASHDIR: "1"
-
-      - name: ccache stats
-        if: always()
-        run: ccache -s || true
-
-      - name: Save ccache
-        if: github.ref == 'refs/heads/main' && !cancelled()
-        uses: actions/cache/save@v5
-        with:
-          path: .ccache
-          key: ${{ steps.ccache.outputs.cache-primary-key }}
-
-  # -----------------------------------------------------------------------
-  # STM32Cube — every example and test app, compile-only, split across
-  # parallel shards (Phase 3 of specs/feature_stm32cube_platform.md takes it
-  # past 100 apps).
-  #
-  # Ubuntu's gcc-arm-none-eabi package needs libnewlib-arm-none-eabi and
-  # libstdc++-arm-none-eabi-newlib alongside it for <stdio.h> etc. to
-  # resolve — unlike pico-sdk/esp-idf, there's no bundled toolchain here.
-  #
-  # Setup is bounded on purpose: a stalled apt mirror once hung this job for
-  # 29 minutes (no output after "Get:3 ... ccache"), so apt gets download
-  # timeouts and retries and the job gets a hard timeout. STM32CubeF4 is
-  # ~1 GB with docs, example projects and middlewares we never use; a sparse,
-  # blobless clone of just Drivers/CMSIS and the HAL driver is ~145 MB.
-  # -----------------------------------------------------------------------
   stm32cube:
-    name: STM32Cube compile (${{ matrix.shard }}/4)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
+    name: STM32Cube compile
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh stm32cube
 
-      # apt mirrors stall intermittently (three PRs failed this step with the
-      # old single 8-minute attempt), so each attempt is killed after 3
-      # minutes and retried; the step limit covers all three attempts.
-      - name: Install arm-none-eabi toolchain
-        timeout-minutes: 13
-        run: |
-          APT="sudo apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-          for attempt in 1 2 3; do
-            if timeout 200 bash -c "$APT update && $APT install -y --no-install-recommends \
-                cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache"; then
-              exit 0
-            fi
-            echo "attempt $attempt failed, retrying"
-            # the runner's default azure.archive.ubuntu.com mirror is what
-            # stalls; fall back to the main archive for the next attempts
-            echo "http://archive.ubuntu.com/ubuntu/ priority:1" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
-            sudo rm -rf /var/lib/apt/lists/*
-            sleep 5
-          done
-          exit 1
-
-      - name: Fetch STM32CubeF4 (Drivers/CMSIS + HAL driver + FatFs)
-        timeout-minutes: 5
-        run: |
-          git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
-            https://github.com/STMicroelectronics/STM32CubeF4.git /opt/STM32CubeF4
-          git -C /opt/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver Middlewares/Third_Party/FatFs
-          git -C /opt/STM32CubeF4 submodule update --init --depth 1 \
-            Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
-          echo "STM32CUBE_FW_PATH=/opt/STM32CubeF4" >> $GITHUB_ENV
-
-      # ccache persists across runs, one cache per shard. Only main saves
-      # it (PRs restore main's), so PR runs can't evict the large caches.
-      - name: Restore ccache
-        id: ccache
-        uses: actions/cache/restore@v5
-        with:
-          path: .ccache
-          key: ccache-stm32cube-${{ matrix.shard }}-${{ github.sha }}
-          restore-keys: ccache-stm32cube-${{ matrix.shard }}-
-
-      - name: Build all apps
-        run: cpp/scripts/build-all.sh stm32cube --shard ${{ matrix.shard }}/4
-        env:
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_MAXSIZE: 400M
-          CCACHE_BASEDIR: /tmp
-          CCACHE_NOHASHDIR: "1"
-
-      - name: ccache stats
-        if: always()
-        run: ccache -s || true
-
-      - name: Save ccache
-        if: github.ref == 'refs/heads/main' && !cancelled()
-        uses: actions/cache/save@v5
-        with:
-          path: .ccache
-          key: ${{ steps.ccache.outputs.cache-primary-key }}
-
-  # -----------------------------------------------------------------------
-  # Python — syntax check across all chip drivers and tests
-  # -----------------------------------------------------------------------
   python:
     name: Python syntax
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh python
 
-      - name: Check syntax
-        run: |
-          find python/periph python/tests python/examples -name '*.py' \
-            | xargs python3 -m py_compile
-
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: '3.13'
-
-      - name: Check UIFlow 1 .m5b files are up to date
-        run: python/uiflow1/generate.sh --check
-
-      - name: Check python/README.md is up to date
-        run: node python/scripts/generate-readme.js --check
-
-      - name: Check mip package files are up to date
-        run: python3 python/scripts/generate-mip-packages.py --check
-
-  # -----------------------------------------------------------------------
-  # I2C discovery registry — validate registry/chips.json, check the
-  # generated per-language tables are current, run the Python unit test
-  # -----------------------------------------------------------------------
   registry:
     name: I2C discovery registry
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh registry
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.13'
-
-      - name: Validator tests
-        run: node registry/scripts/validate_test.js
-
-      - name: Validate registry
-        run: node registry/scripts/validate.js --check
-
-      - name: Check generated discovery tables are up to date
-        run: node registry/scripts/generate.js --check
-
-      - name: Python discovery unit test
-        run: |
-          pip install smbus2
-          PYTHONPATH=python python3 python/tests/discovery/discovery_test_unit.py
-
-  # -----------------------------------------------------------------------
-  # Node.js — install deps, check syntax, verify chip driver loads
-  # -----------------------------------------------------------------------
   nodejs:
     name: Node.js
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh nodejs
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: npm
-          cache-dependency-path: nodejs/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: nodejs
-
-      - name: Syntax check
-        run: |
-          find nodejs/packages/periph/src nodejs/tests -name '*.js' \
-            | xargs -I{} node --check {}
-
-      - name: Verify chip drivers load
-        run: |
-          node -e "const m = require('./nodejs/packages/periph/src/chips/power/ina226'); \
-                   if (!m.INA226Minimal || !m.INA226Full) process.exit(1)"
-
-      - name: Check periph / Node-RED package READMEs are up to date
-        run: node nodejs/scripts/generate-readmes.js --check
-
-      - name: I2C discovery unit test
-        run: node nodejs/tests/discovery/discovery_test_unit.js
-
-  # -----------------------------------------------------------------------
-  # Java / Kotlin / Groovy — compile-only (no hardware required)
-  # -----------------------------------------------------------------------
   java:
     name: Java compile
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh java
 
-      - name: Set up Java 25
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '25'
-          cache: maven
-
-      - name: Compile JVM modules
-        run: mvn install --batch-mode --no-transfer-progress -DskipTests
-        working-directory: jvm
-
-  # -----------------------------------------------------------------------
-  # ESP-IDF — every example and test app, compile-only, split across
-  # parallel shards. Espressif's official image has the toolchain.
-  # -----------------------------------------------------------------------
   esp-idf:
-    name: ESP-IDF compile (${{ matrix.shard }}/8)
-    runs-on: ubuntu-latest
-    container: espressif/idf:v6.1
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    name: ESP-IDF compile
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh esp-idf
 
-      # Every app recompiles the same ~1,000 ESP-IDF sources; with ccache
-      # only the first app per shard pays for that. The image doesn't ship it.
-      - name: Install ccache
-        run: command -v ccache || { apt-get update && apt-get install -y --no-install-recommends ccache; }
-
-      # ccache persists across runs, one cache per shard. Only main saves
-      # it (PRs restore main's), so PR runs can't evict the large caches.
-      - name: Restore ccache
-        id: ccache
-        uses: actions/cache/restore@v5
-        with:
-          path: .ccache
-          key: ccache-espidf-${{ matrix.shard }}-${{ github.sha }}
-          restore-keys: ccache-espidf-${{ matrix.shard }}-
-
-      - name: Build all apps
-        shell: bash
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/scripts/build-all.sh espidf --shard ${{ matrix.shard }}/8
-        env:
-          ESPIDF_TARGET: esp32
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_MAXSIZE: 400M
-
-      - name: ccache stats
-        if: always()
-        run: ccache -s || true
-
-      - name: Save ccache
-        if: github.ref == 'refs/heads/main' && !cancelled()
-        uses: actions/cache/save@v5
-        with:
-          path: .ccache
-          key: ${{ steps.ccache.outputs.cache-primary-key }}
-
-  # -----------------------------------------------------------------------
-  # Zephyr — every example and test app, compile-only, for the Raspberry Pi
-  # Pico 2 plus cpp/boards/zephyr/rpi_pico2_rp2350a_m33.overlay (its i2c0,
-  # spi0, uart1 and gpio0 match the node labels the apps use). Zephyr v4.4.2
-  # with only the modules that board needs, ARM toolchain only; both cached.
-  # -----------------------------------------------------------------------
   zephyr:
-    name: Zephyr compile (${{ matrix.shard }}/4)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4]
-    env:
-      ZEPHYR_VERSION: v4.4.2
-      ZEPHYR_BOARD: rpi_pico2/rp2350a/m33
+    name: Zephyr compile
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh zephyr
 
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-
-      - name: Install build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ninja-build device-tree-compiler ccache
-          pip install west
-
-      - name: Cache Zephyr workspace and SDK
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/zephyrproject
-            ~/zephyr-sdk-*
-          key: zephyr-${{ env.ZEPHYR_VERSION }}-rpi-pico2
-
-      - name: Set up Zephyr
-        env:
-          # west sdk install queries the GitHub API; unauthenticated calls from
-          # shared runner IPs hit the 60/h rate limit (403).
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          if [ ! -d ~/zephyrproject/.west ]; then
-            west init -m https://github.com/zephyrproject-rtos/zephyr --mr "$ZEPHYR_VERSION" ~/zephyrproject
-            cd ~/zephyrproject
-            west config manifest.project-filter -- '-.*,+cmsis_6,+hal_rpi_pico'
-            west update --narrow -o=--depth=1
-          fi
-          cd ~/zephyrproject
-          pip install -r zephyr/scripts/requirements-base.txt
-          west sdk install -t arm-zephyr-eabi
-
-      # ccache persists across runs, one cache per shard. Only main saves
-      # it (PRs restore main's), so PR runs can't evict the large caches.
-      - name: Restore ccache
-        id: ccache
-        uses: actions/cache/restore@v5
-        with:
-          path: .ccache
-          key: ccache-zephyr-${{ matrix.shard }}-${{ github.sha }}
-          restore-keys: ccache-zephyr-${{ matrix.shard }}-
-
-      - name: Build all apps
-        env:
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_MAXSIZE: 400M
-        run: |
-          cd ~/zephyrproject
-          source zephyr/zephyr-env.sh
-          "$GITHUB_WORKSPACE/cpp/scripts/build-all.sh" zephyr --shard ${{ matrix.shard }}/4
-
-      - name: ccache stats
-        if: always()
-        run: ccache -s || true
-
-      - name: Save ccache
-        if: github.ref == 'refs/heads/main' && !cancelled()
-        uses: actions/cache/save@v5
-        with:
-          path: .ccache
-          key: ${{ steps.ccache.outputs.cache-primary-key }}
-
-  # -----------------------------------------------------------------------
-  # Rust — compile-only (no hardware required)
-  # -----------------------------------------------------------------------
   rust:
     name: Rust compile
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh rust
 
-      - name: Install system dependencies
-        run: sudo apt-get install -y libudev-dev
-
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache cargo registry
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            rust/target
-          key: cargo-${{ hashFiles('rust/Cargo.lock') }}
-          restore-keys: cargo-
-
-      - name: Compile workspace
-        run: cargo build --manifest-path rust/Cargo.toml
-
-      - name: Check rust/periph/README.md is up to date
-        run: node rust/scripts/generate-readme.js --check
-
-      - name: I2C discovery unit tests
-        run: cargo test --manifest-path rust/Cargo.toml -p periph --features std discovery
-
-  # -----------------------------------------------------------------------
-  # Go — build + vet all packages (no hardware required)
-  # -----------------------------------------------------------------------
   go-linux:
     name: Go compile
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh go-linux
 
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go/go.mod
-          cache-dependency-path: go/go.sum
-
-      - name: Build
-        run: go build ./...
-        working-directory: go
-
-      - name: Vet
-        run: go vet ./...
-        working-directory: go
-
-      - name: I2C discovery unit tests
-        run: go test ./periph/discovery/
-        working-directory: go
-
-  # -----------------------------------------------------------------------
-  # TinyGo — compile-only for Pico W, one example per transport type
-  # -----------------------------------------------------------------------
   go-tinygo:
     name: TinyGo compile
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v6
-
-      - uses: acifani/setup-tinygo@v3
-        with:
-          tinygo-version: '0.41.0'
-
-      - name: Cache TinyGo build cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/tinygo
-          key: tinygo-pico-w-${{ hashFiles('go/go.sum') }}
-          restore-keys: tinygo-pico-w-
-
-      - name: Build examples (Pico W, one per transport)
-        run: |
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/power/ina226/minimal       # I2C
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/led/ws2812b/minimal        # NeoPixel
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/humidity/dht11/minimal     # DHTxx
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/adc_dac/hx711/minimal      # HX711
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/rfid/mfrc522/minimal       # SPI
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/gnss/neo6/minimal          # UART
-        working-directory: go
+      - run: scripts/ci/run.sh go-tinygo

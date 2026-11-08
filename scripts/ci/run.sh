@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+# Usage: scripts/ci/run.sh <job> [args passed to the build script, e.g. --shard 1/4]
+#
+# One entry point per CI job, shared by .github/workflows/ci.yml and
+# .gitlab-ci.yml so the two pipelines cannot drift apart. Both run on a
+# self-hosted runner whose host has the toolchains preinstalled (setup:
+# TOOLCHAINS.md, plus the runner notes in CONTRIBUTING.md); nothing is
+# installed or downloaded here except the pinned Arduino board cores.
+#
+# Jobs: arduino-esp32  arduino-avr  arduino-checks  linux-gcc  pico-sdk
+#       stm32cube  python  registry  nodejs  java  esp-idf  zephyr  rust
+#       go-linux  go-tinygo
+#
+# Persistent state lives under $PERIPH_CI_CACHE (default ~/.cache/periph-ci):
+# one ccache per platform and the cargo target dir. Toolchain locations can
+# be overridden with PICO_SDK_PATH, STM32CUBE_FW_PATH, IDF_PATH, ZEPHYR_DIR
+# and ZEPHYR_VENV.
+set -euo pipefail
+
+JOB="${1:-}"
+[ -n "$JOB" ] || { sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+shift
+
+cd "$(git rev-parse --show-toplevel)"
+
+# Service-launched runners don't read ~/.bashrc, so add the usual tool dirs.
+for d in "$HOME/.cargo/bin" "$HOME/.local/bin" /usr/local/go/bin "$HOME/go/bin"; do
+    [ -d "$d" ] && PATH="$d:$PATH"
+done
+export PATH
+
+CACHE_ROOT="${PERIPH_CI_CACHE:-$HOME/.cache/periph-ci}"
+mkdir -p "$CACHE_ROOT"
+
+# Pinned so the board-package set only changes when the core does.
+ESP32_CORE_VERSION="${ESP32_CORE_VERSION:-3.3.12}"
+AVR_CORE_VERSION="${AVR_CORE_VERSION:-1.8.8}"
+
+# ccache for a platform: persistent, shared by all shards, no hash of the
+# (temporary) build dir so entries hit across runs.
+use_ccache() {
+    export CCACHE_DIR="$CACHE_ROOT/ccache-$1"
+    export CCACHE_MAXSIZE="${CCACHE_MAXSIZE:-2G}"
+    mkdir -p "$CCACHE_DIR"
+}
+ccache_stats() { ccache -s || true; }
+
+need_dir() { # <dir> <what>
+    [ -d "$1" ] || { echo "ERROR: $2 not found at $1 (see TOOLCHAINS.md)" >&2; exit 1; }
+}
+
+# Sourcing the SDK environment scripts trips `set -u`.
+source_relaxed() { set +u; . "$1"; set -u; }
+
+case "$JOB" in
+    arduino-esp32)
+        arduino-cli config init --overwrite
+        arduino-cli config add board_manager.additional_urls \
+            https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+        arduino-cli core update-index
+        arduino-cli core install "esp32:esp32@$ESP32_CORE_VERSION"
+        # Every example and test sketch against cpp/ as one library, the layout
+        # the Library Manager ships.
+        cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests "$@"
+        ;;
+
+    arduino-avr)
+        arduino-cli config init --overwrite
+        arduino-cli core update-index
+        arduino-cli core install "arduino:avr@$AVR_CORE_VERSION"
+        cpp/test_arduino_examples.sh --fqbn arduino:avr:mega "$@"
+        ;;
+
+    arduino-checks)
+        node cpp/scripts/generate-periph-header.js --check
+        stage="$(mktemp -d)"
+        trap 'rm -rf "$stage"' EXIT
+        mkdir -p "$stage/Periph"
+        cpp/scripts/stage-arduino-library.sh "$stage/Periph"
+        # "update": Periph is registered (arduino/library-registry#9201), so the
+        # name must stay the same and each release needs a new version.
+        arduino-lint --compliance strict --library-manager update \
+            --project-type library --recursive false "$stage/Periph"
+        node cpp/scripts/generate-readme.js --check
+        node cpp/scripts/generate-keywords.js --check
+        ;;
+
+    linux-gcc)
+        # libgpiod v2 (Debian trixie); Ubuntu 24.04 still ships v1.
+        echo "libgpiod $(pkg-config --modversion libgpiod)"
+        cpp/scripts/build-all.sh linux "$@"
+        ;;
+
+    pico-sdk)
+        export PICO_SDK_PATH="${PICO_SDK_PATH:-$HOME/pico-sdk}"
+        need_dir "$PICO_SDK_PATH/lib/tinyusb" "Pico SDK (with submodules)"
+        export PICO_BOARD=pico
+        export CCACHE_BASEDIR=/tmp CCACHE_NOHASHDIR=1
+        use_ccache pico
+        trap ccache_stats EXIT
+        cpp/scripts/build-all.sh picosdk "$@"
+        ;;
+
+    stm32cube)
+        export STM32CUBE_FW_PATH="${STM32CUBE_FW_PATH:-$HOME/STM32CubeF4}"
+        need_dir "$STM32CUBE_FW_PATH/Drivers/STM32F4xx_HAL_Driver" "STM32CubeF4 HAL driver"
+        need_dir "$STM32CUBE_FW_PATH/Middlewares/Third_Party/FatFs" "STM32CubeF4 FatFs middleware"
+        export CCACHE_BASEDIR=/tmp CCACHE_NOHASHDIR=1
+        use_ccache stm32cube
+        trap ccache_stats EXIT
+        cpp/scripts/build-all.sh stm32cube "$@"
+        ;;
+
+    esp-idf)
+        export IDF_PATH="${IDF_PATH:-$HOME/esp-idf}"
+        source_relaxed "$IDF_PATH/export.sh" >/dev/null
+        export ESPIDF_TARGET=esp32
+        use_ccache espidf
+        trap ccache_stats EXIT
+        cpp/scripts/build-all.sh espidf "$@"
+        ;;
+
+    zephyr)
+        ZEPHYR_DIR="${ZEPHYR_DIR:-$HOME/zephyrproject}"
+        need_dir "$ZEPHYR_DIR/zephyr" "Zephyr workspace"
+        ZEPHYR_VENV="${ZEPHYR_VENV:-$HOME/.venvs/zephyr}"
+        [ -f "$ZEPHYR_VENV/bin/activate" ] && source_relaxed "$ZEPHYR_VENV/bin/activate"
+        export ZEPHYR_BOARD=rpi_pico2/rp2350a/m33
+        use_ccache zephyr
+        trap ccache_stats EXIT
+        root="$PWD"
+        cd "$ZEPHYR_DIR"
+        source_relaxed zephyr/zephyr-env.sh
+        "$root/cpp/scripts/build-all.sh" zephyr "$@"
+        ;;
+
+    python)
+        find python/periph python/tests python/examples -name '*.py' | xargs python3 -m py_compile
+        python/uiflow1/generate.sh --check
+        node python/scripts/generate-readme.js --check
+        python3 python/scripts/generate-mip-packages.py --check
+        ;;
+
+    registry)
+        node registry/scripts/validate_test.js
+        node registry/scripts/validate.js --check
+        node registry/scripts/generate.js --check
+        # smbus2 comes from apt (python3-smbus2): Debian blocks bare pip installs.
+        PYTHONPATH=python python3 python/tests/discovery/discovery_test_unit.py
+        ;;
+
+    nodejs)
+        node --version
+        (cd nodejs && npm ci)
+        find nodejs/packages/periph/src nodejs/tests -name '*.js' | xargs -I{} node --check {}
+        node -e "const m = require('./nodejs/packages/periph/src/chips/power/ina226'); \
+                 if (!m.INA226Minimal || !m.INA226Full) process.exit(1)"
+        node nodejs/scripts/generate-readmes.js --check
+        node nodejs/tests/discovery/discovery_test_unit.js
+        ;;
+
+    java)
+        java -version
+        (cd jvm && mvn install --batch-mode --no-transfer-progress -DskipTests)
+        ;;
+
+    rust)
+        rustup toolchain install stable --profile minimal --no-self-update
+        export CARGO_TARGET_DIR="$CACHE_ROOT/cargo-target"
+        cargo build --manifest-path rust/Cargo.toml
+        node rust/scripts/generate-readme.js --check
+        cargo test --manifest-path rust/Cargo.toml -p periph --features std discovery
+        ;;
+
+    go-linux)
+        cd go
+        go build ./...
+        go vet ./...
+        go test ./periph/discovery/
+        ;;
+
+    go-tinygo)
+        cd go
+        out="$(mktemp -d)"
+        trap 'rm -rf "$out"' EXIT
+        # Pico W, one example per transport type.
+        tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/power/ina226/minimal       # I2C
+        tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/led/ws2812b/minimal        # NeoPixel
+        tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/humidity/dht11/minimal     # DHTxx
+        tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/adc_dac/hx711/minimal      # HX711
+        tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/rfid/mfrc522/minimal       # SPI
+        tinygo build -target=pico-w -o "$out/out.uf2" ./examples/tinygo/gnss/neo6/minimal          # UART
+        ;;
+
+    *)
+        echo "unknown job: $JOB" >&2
+        exit 2
+        ;;
+esac
