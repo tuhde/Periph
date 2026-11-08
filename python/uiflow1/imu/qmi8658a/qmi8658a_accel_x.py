@@ -1,0 +1,1 @@
+_periph_qmi8658a.accel()[0]
