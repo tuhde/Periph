@@ -4,38 +4,58 @@ name: CI
 # host with the toolchains from TOOLCHAINS.md preinstalled. Every job is one
 # call to scripts/ci/run.sh, which .gitlab-ci.yml uses too; edit job logic
 # there, not here. Runner setup: CONTRIBUTING.md ("Self-hosted CI runner").
+#
+# Scope: pull requests and pushes to main run a reduced CI -- run.sh skips jobs
+# the diff cannot affect and builds only the touched C++ chips plus a smoke set
+# (scripts/ci/changed.sh). The full matrix, with the slow C++ jobs split into
+# SHARDS parallel shards, runs only for workflow_dispatch; release.yml refuses
+# to publish a tag unless such a run passed on that commit.
 
 on:
   push:
     branches: [main]
   pull_request:
-  workflow_dispatch:
+  workflow_dispatch:   # always the full matrix (the release gate)
 
 # A new push to a PR supersedes its running CI; main pushes always finish.
+# The event is part of the group so a queued full run is not replaced by a push.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
     shell: bash
 
+env:
+  PERIPH_CI_SCOPE: ${{ github.event_name == 'workflow_dispatch' && 'full' || 'auto' }}
+  PERIPH_CI_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+  SHARDS: ${{ github.event_name == 'workflow_dispatch' && 4 || 1 }}
+
 jobs:
   arduino-esp32:
     name: Arduino compile ESP32-S3
     runs-on: [self-hosted, linux, periph]
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh arduino-esp32
+      - run: scripts/ci/run.sh arduino-esp32 --shard ${{ matrix.shard }}/${{ env.SHARDS }}
 
   arduino-avr:
     name: Arduino compile AVR
     runs-on: [self-hosted, linux, periph]
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh arduino-avr
+      - run: scripts/ci/run.sh arduino-avr --shard ${{ matrix.shard }}/${{ env.SHARDS }}
 
   arduino-checks:
     name: Arduino checks
@@ -105,17 +125,25 @@ jobs:
     name: ESP-IDF compile
     runs-on: [self-hosted, linux, periph]
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh esp-idf
+      - run: scripts/ci/run.sh esp-idf --shard ${{ matrix.shard }}/${{ env.SHARDS }}
 
   zephyr:
     name: Zephyr compile
     runs-on: [self-hosted, linux, periph]
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh zephyr
+      - run: scripts/ci/run.sh zephyr --shard ${{ matrix.shard }}/${{ env.SHARDS }}
 
   rust:
     name: Rust compile

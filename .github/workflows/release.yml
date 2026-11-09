@@ -10,9 +10,35 @@ env:
 
 jobs:
   # -----------------------------------------------------------------------
+  # Release gate -- CI on PRs/main is reduced; publish only a commit on which
+  # the FULL matrix passed. Before tagging, run it on the release commit:
+  #   gh workflow run ci.yml --ref main     (then wait for green)
+  # Every other job needs `meta`, which needs this.
+  # -----------------------------------------------------------------------
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+                --event workflow_dispatch --commit "$GITHUB_SHA" --status success \
+                --json databaseId --jq length)
+          if [ "${n:-0}" -lt 1 ]; then
+            echo "::error::No successful full CI run (workflow_dispatch of ci.yml) for $GITHUB_SHA."
+            echo "Run: gh workflow run ci.yml --ref main   -- wait for green, then re-run this release."
+            exit 1
+          fi
+          echo "Full CI passed on $GITHUB_SHA"
+
+  # -----------------------------------------------------------------------
   # Extract version number from the tag (v1.2.3 → 1.2.3)
   # -----------------------------------------------------------------------
   meta:
+    needs: gate
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.ver.outputs.version }}

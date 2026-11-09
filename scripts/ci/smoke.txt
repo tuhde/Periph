@@ -1,0 +1,10 @@
+# One representative chip per transport. Added to the C++ build filter of every
+# reduced-scope run that builds any C++ app, so a regression in a transport
+# shows up even when the PR touched a different chip. Format: <category>/<chip>
+# (case-insensitive substring of the app path, see cpp/scripts/build-all.sh).
+power/ina226
+led/ws2812b
+humidity/dht11
+adc_dac/hx711
+rfid/mfrc522
+gnss/neo6

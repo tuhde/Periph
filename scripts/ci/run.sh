@@ -11,6 +11,12 @@
 #       stm32cube  python  registry  nodejs  java  esp-idf  zephyr  rust
 #       go-linux  go-tinygo
 #
+# Scope: when PERIPH_CI_BASE is set (CI sets it to the PR base / previous push)
+# and PERIPH_CI_SCOPE is not "full", scripts/ci/changed.sh skips jobs the change
+# cannot affect and narrows the C++ jobs to the touched chips plus a smoke set
+# (scripts/ci/smoke.txt). Without PERIPH_CI_BASE (local runs) everything runs.
+# The release gate is a full run: workflow_dispatch / GitLab "web" pipeline.
+#
 # Persistent state lives under $PERIPH_CI_CACHE (default ~/.cache/periph-ci):
 # the cargo target dir; ccache lives under $PERIPH_CCACHE_ROOT (default
 # /var/cache/ccache, one subdirectory per platform). Toolchain locations can
@@ -57,6 +63,15 @@ finish() {
 }
 trap finish EXIT
 log "job $JOB on $(hostname)"
+
+# --- scope: skip or narrow the job to what the change touches ----------------
+eval "$(scripts/ci/changed.sh "$JOB")"
+log "scope: $CI_REASON"
+if [ "$CI_RUN" != 1 ]; then
+    log "skipped: nothing this job checks has changed"
+    exit 0
+fi
+[ -z "$CI_FILTER" ] || set -- "$@" "$CI_FILTER"
 
 CACHE_ROOT="${PERIPH_CI_CACHE:-$HOME/.cache/periph-ci}"
 mkdir -p "$CACHE_ROOT"
@@ -155,6 +170,9 @@ case "$JOB" in
         export IDF_PATH="${IDF_PATH:-$HOME/esp-idf}"
         source_relaxed "$IDF_PATH/export.sh" >/dev/null
         export ESPIDF_TARGET=esp32
+        # Without these the random per-app build path ends up in every cache key
+        # and a second run gets no hits at all.
+        export CCACHE_BASEDIR=/tmp CCACHE_NOHASHDIR=1
         use_ccache espidf
         at_exit ccache_stats
         step "Build all ESP-IDF apps" cpp/scripts/build-all.sh espidf "$@"

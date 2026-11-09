@@ -30,7 +30,10 @@
 #              own build tool already runs in parallel inside each app).
 #              Each app builds in its own directory; results print as they
 #              finish, so lines may come out of order.
-# filter       optional substring of the app path (e.g. "pressure/").
+# filter       optional substring of the app path (e.g. "pressure/"), matched
+#              case-insensitively. Comma-separate several to build the union
+#              (e.g. "power/ina226,led/ws2812b").
+# --list       print the selected apps and exit without building.
 #
 # Build output goes to a temporary directory; nothing is written into the
 # source tree. Set KEEP_LOGS=<dir> to keep each app's build log.
@@ -45,10 +48,12 @@ SHARD_I=1
 SHARD_N=1
 FILTER=""
 JOBS="${BUILD_JOBS:-}"
+LIST_ONLY=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --shard) SHARD_I="${2%/*}"; SHARD_N="${2#*/}"; shift 2 ;;
         -j|--jobs) JOBS="$2"; shift 2 ;;
+        --list) LIST_ONLY=1; shift ;;
         *) FILTER="$1"; shift ;;
     esac
 done
@@ -172,17 +177,31 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 [ -n "${KEEP_LOGS:-}" ] && mkdir -p "$KEEP_LOGS"
 
+# True if <path> contains one of the comma-separated FILTER patterns (any path
+# if FILTER is empty), ignoring case.
+filter_match() {
+    [ -n "$FILTER" ] || return 0
+    local p="${1,,}" f fs
+    IFS=, read -ra fs <<< "${FILTER,,}"
+    for f in "${fs[@]}"; do [[ "$p" == *"$f"* ]] && return 0; done
+    return 1
+}
+
 # Select the apps of this shard.
 APPS=()
 n=0
 while IFS= read -r app; do
     rel="${app#"$CPP_DIR"/}"
-    case "$rel" in *"$FILTER"*) ;; *) continue ;; esac
+    filter_match "$rel" || continue
     n=$((n + 1))
     [ $(( (n - 1) % SHARD_N + 1 )) -eq "$SHARD_I" ] || continue
     APPS+=("$app")
 done < <(list_apps | sort)
 echo "=== $PLATFORM: ${#APPS[@]} apps, $JOBS at a time ==="
+if [ "$LIST_ONLY" -eq 1 ]; then
+    for app in "${APPS[@]+"${APPS[@]}"}"; do echo "${app#"$CPP_DIR"/}"; done
+    exit 0
+fi
 
 # Build one app in its own directory. Writes "<idx>.ok" or "<idx>.fail" to
 # $WORK and prints its result as a single block, so parallel output stays intact.

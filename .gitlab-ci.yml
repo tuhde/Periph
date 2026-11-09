@@ -6,10 +6,20 @@
 workflow:
   auto_cancel:
     on_new_commit: interruptible
+  # Scope: merge-request and main pipelines are reduced (scripts/ci/changed.sh
+  # skips jobs the diff cannot affect and narrows the C++ jobs to the touched
+  # chips). A "web" pipeline (Build > Pipelines > Run pipeline) runs the full
+  # matrix, with the slow C++ jobs split into 4 parallel shards.
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        PERIPH_CI_BASE: $CI_MERGE_REQUEST_DIFF_BASE_SHA
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        PERIPH_CI_BASE: $CI_COMMIT_BEFORE_SHA
     - if: $CI_PIPELINE_SOURCE == "web"
+      variables:
+        PERIPH_CI_SCOPE: full
 
 default:
   tags: [periph]
@@ -20,11 +30,29 @@ stages: [check]
 
 arduino-esp32:
   stage: check
-  script: scripts/ci/run.sh arduino-esp32
+  script: scripts/ci/run.sh arduino-esp32 --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+arduino-esp32-full:
+  stage: check
+  script: scripts/ci/run.sh arduino-esp32 --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
 
 arduino-avr:
   stage: check
-  script: scripts/ci/run.sh arduino-avr
+  script: scripts/ci/run.sh arduino-avr --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+arduino-avr-full:
+  stage: check
+  script: scripts/ci/run.sh arduino-avr --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
 
 arduino-checks:
   stage: check
@@ -60,11 +88,29 @@ java:
 
 esp-idf:
   stage: check
-  script: scripts/ci/run.sh esp-idf
+  script: scripts/ci/run.sh esp-idf --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+esp-idf-full:
+  stage: check
+  script: scripts/ci/run.sh esp-idf --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
 
 zephyr:
   stage: check
-  script: scripts/ci/run.sh zephyr
+  script: scripts/ci/run.sh zephyr --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+zephyr-full:
+  stage: check
+  script: scripts/ci/run.sh zephyr --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
 
 rust:
   stage: check

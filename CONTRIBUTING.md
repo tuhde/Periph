@@ -66,7 +66,7 @@ Add one test file per platform following the naming convention in `TESTING.md`. 
 
 - One commit per implementation stage (Minimal, then Full)
 - Link the datasheet in the PR description
-- CI must pass (compile checks on Arduino, Linux GCC, Python syntax, Node.js syntax)
+- CI must pass. PR CI is *reduced*: jobs the diff cannot affect are skipped and the C++ jobs build only the touched chips plus a smoke set (see "CI scope" below)
 
 ## Code conventions (summary)
 
@@ -113,6 +113,24 @@ rust/test_linux.sh   --compile-only power/ina226
 ## Reporting issues
 
 Open a GitHub issue. Include the chip name, platform, and a minimal reproduction if it's a driver bug.
+
+## CI scope and releases
+
+Compiling every example and test on every platform takes too long for each PR,
+so CI has two scopes (logic: `scripts/ci/changed.sh`, called from
+`scripts/ci/run.sh`, shared by GitHub Actions and GitLab):
+
+| Trigger | Scope |
+|---|---|
+| Pull request / push to `main` | **Reduced.** Jobs whose inputs did not change are skipped (docs, `specs/`, `datasheets/`, wiki: nothing runs). C++ jobs build only the chips named in the diff plus one chip per transport from `scripts/ci/smoke.txt`. Changes to shared C++ code (`connection/`, `storage/`, build scripts), the CI definition, or any unrecognised path run everything. |
+| Manual run (`gh workflow run ci.yml --ref main`; GitLab: Run pipeline) | **Full.** Everything, with Arduino ESP32/AVR, ESP-IDF and Zephyr split into 4 parallel shards. |
+
+Locally, `scripts/ci/run.sh <job>` runs everything unless `PERIPH_CI_BASE=<sha>` is set;
+preview a scope with `PERIPH_CI_BASE=$(git merge-base HEAD main) scripts/ci/changed.sh <job>`
+and list the apps a filter selects with `cpp/scripts/build-all.sh <platform> --list <filter>`.
+
+**Releasing:** `release.yml` refuses to publish unless the full CI passed on the tagged
+commit. So before tagging: `gh workflow run ci.yml --ref main`, wait for green, then push the tag.
 
 ## Self-hosted CI runner
 

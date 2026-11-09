@@ -20,7 +20,9 @@
 # --shard I/N  compile only every N-th sketch starting at the I-th (1-based),
 #              so CI can split a slow core across parallel jobs.
 #
-# filter: optional substring of the example path (e.g. "temperature/" or "BME280").
+# filter: optional substring of the example path (e.g. "temperature/" or "BME280"),
+#         matched case-insensitively. Comma-separate several to compile the union.
+# --list: print the selected sketches and exit without compiling.
 #
 # Examples:
 #   ./test_arduino_examples.sh                              # ESP32-S3
@@ -36,14 +38,26 @@ FILTER=""
 TESTS=0
 SHARD_I=1
 SHARD_N=1
+LIST_ONLY=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --fqbn) FQBN="${2:-}"; shift 2 ;;
         --tests) TESTS=1; shift ;;
+        --list) LIST_ONLY=1; shift ;;
         --shard) SHARD_I="${2%/*}"; SHARD_N="${2#*/}"; shift 2 ;;
         *) FILTER="$1"; shift ;;
     esac
 done
+
+# True if <path> contains one of the comma-separated FILTER patterns (any path
+# if FILTER is empty), ignoring case.
+filter_match() {
+    [ -n "$FILTER" ] || return 0
+    local p="${1,,}" f fs
+    IFS=, read -ra fs <<< "${FILTER,,}"
+    for f in "${fs[@]}"; do [[ "$p" == *"$f"* ]] && return 0; done
+    return 1
+}
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -54,9 +68,10 @@ OK=0
 FAILED=()
 n=0
 while IFS= read -r ino; do
-    case "$ino" in *"$FILTER"*) ;; *) continue ;; esac
+    filter_match "${ino#"$SCRIPT_DIR"/}" || continue
     n=$((n + 1))
     [ $(( (n - 1) % SHARD_N + 1 )) -eq "$SHARD_I" ] || continue
+    if [ "$LIST_ONLY" -eq 1 ]; then echo "${ino#"$SCRIPT_DIR"/}"; continue; fi
     case "$ino" in
         "$SCRIPT_DIR/tests/"*) sketch="$(basename "$ino" .ino)" ;;
         *)  chip="$(basename "$(dirname "$(dirname "$ino")")")"
@@ -80,5 +95,6 @@ while IFS= read -r ino; do
 done < <({ find "$SCRIPT_DIR/examples/arduino" -name '*.ino'
             [ "$TESTS" -eq 1 ] && find "$SCRIPT_DIR/tests" -path '*_test/*.ino'; } | sort)
 
+[ "$LIST_ONLY" -eq 1 ] && exit 0
 echo "=== $FQBN (shard $SHARD_I/$SHARD_N): $OK compiled, ${#FAILED[@]} failed ==="
 [ "${#FAILED[@]}" -eq 0 ] || { printf '  %s\n' "${FAILED[@]}"; exit 1; }
