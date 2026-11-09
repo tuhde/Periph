@@ -1,0 +1,128 @@
+[
+ {
+  "id": "tab-pcf85063a-demo",
+  "type": "tab",
+  "label": "PCF85063A Logger Heartbeat Demo",
+  "disabled": false,
+  "info": "An Inject node fires every 10 seconds, triggering the periph-pcf85063a node to read the current date/time and the oscillator-stop flag. A one-shot Inject node (firing shortly after deploy) sends msg.payload.datetime built from the host's Date.now(), synchronizing the RTC to the host clock. The node is configured with a 1-minute pulsed countdown timer (source clock 1 Hz, value 60); each time it fires, the node emits a separate {source: \"timer\"} message, which a Function node turns into a \"still alive\" log line \u2014 showing the interrupt-driven path alongside the polled read in one flow."
+ },
+ {
+  "id": "inj-read",
+  "type": "inject",
+  "name": "Read clock (10s)",
+  "topic": "",
+  "payload": "",
+  "payloadType": "date",
+  "repeat": "10",
+  "crontab": "",
+  "once": false,
+  "onceDelay": 0.1,
+  "z": "tab-pcf85063a-demo",
+  "x": 170,
+  "y": 100,
+  "wires": [
+   [
+    "pcf85063a-node"
+   ]
+  ]
+ },
+ {
+  "id": "inj-sync",
+  "type": "inject",
+  "name": "Sync RTC to host clock",
+  "topic": "",
+  "payload": "",
+  "payloadType": "date",
+  "repeat": "",
+  "crontab": "",
+  "once": true,
+  "onceDelay": 0.5,
+  "z": "tab-pcf85063a-demo",
+  "x": 170,
+  "y": 220,
+  "wires": [
+   [
+    "fn-build-datetime"
+   ]
+  ]
+ },
+ {
+  "id": "fn-build-datetime",
+  "type": "function",
+  "name": "build datetime from host clock",
+  "func": "const now = new Date(msg.payload);\nmsg.payload = {\n    datetime: {\n        year: now.getFullYear(),\n        month: now.getMonth() + 1,\n        day: now.getDate(),\n        weekday: now.getDay(), // JS and PCF85063A both use Sunday=0\n        hour: now.getHours(),\n        minute: now.getMinutes(),\n        second: now.getSeconds()\n    }\n};\nreturn msg;",
+  "outputs": 1,
+  "noerr": 0,
+  "z": "tab-pcf85063a-demo",
+  "x": 440,
+  "y": 220,
+  "wires": [
+   [
+    "pcf85063a-node"
+   ]
+  ]
+ },
+ {
+  "id": "pcf85063a-node",
+  "type": "periph-pcf85063a",
+  "name": "PCF85063A",
+  "bus": "1",
+  "alarmEnabled": false,
+  "alarmMinuteEnabled": true,
+  "alarmMinute": "0",
+  "alarmHourEnabled": false,
+  "alarmHour": "0",
+  "alarmDayEnabled": false,
+  "alarmDay": "1",
+  "alarmWeekdayEnabled": false,
+  "alarmWeekday": "0",
+  "z": "tab-pcf85063a-demo",
+  "x": 420,
+  "y": 100,
+  "wires": [
+   [
+    "fn-format"
+   ]
+  ],
+  "oscillatorLoad": "7",
+  "alarmSecondEnabled": true,
+  "alarmSecond": "0",
+  "timerEnabled": true,
+  "timerClock": "1hz",
+  "timerValue": "60",
+  "timerPulsed": true
+ },
+ {
+  "id": "fn-format",
+  "type": "function",
+  "name": "format log line",
+  "func": "const p = msg.payload;\nif (p && p.source === 'timer') {\n    msg.payload = 'still alive (countdown timer heartbeat)';\n} else if (p && p.source) {\n    msg.payload = `interrupt: ${p.source}`;\n} else if (p && p.year !== undefined) {\n    const pad = (n) => String(n).padStart(2, '0');\n    msg.payload = `${p.year}-${pad(p.month)}-${pad(p.day)} ${pad(p.hour)}:${pad(p.minute)}:${pad(p.second)}` +\n        `  oscillator_stopped=${p.oscillator_stopped}`;\n}\nreturn msg;",
+  "outputs": 1,
+  "noerr": 0,
+  "z": "tab-pcf85063a-demo",
+  "x": 640,
+  "y": 100,
+  "wires": [
+   [
+    "dbg-log"
+   ]
+  ]
+ },
+ {
+  "id": "dbg-log",
+  "type": "debug",
+  "name": "log line",
+  "active": true,
+  "tosidebar": true,
+  "console": false,
+  "tostatus": false,
+  "complete": "payload",
+  "targetType": "msg",
+  "statusVal": "",
+  "statusType": "auto",
+  "z": "tab-pcf85063a-demo",
+  "x": 830,
+  "y": 100,
+  "wires": []
+ }
+]

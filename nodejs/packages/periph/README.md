@@ -98,6 +98,7 @@ Each chip exposes two classes:
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |
+| PCF85063A | RTC | `periph/src/chips/rtc/pcf85063a` |
 | PCF8523 | RTC | `periph/src/chips/rtc/pcf8523` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
