@@ -9,7 +9,7 @@ workflow:
   # Scope: merge-request and main pipelines are reduced (scripts/ci/changed.sh
   # skips jobs the diff cannot affect and narrows the C++ jobs to the touched
   # chips). A "web" pipeline (Build > Pipelines > Run pipeline) runs the full
-  # matrix, with the slow C++ jobs split into 4 parallel shards.
+  # matrix, with the slow C++ jobs split into parallel shards.
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       variables:
@@ -31,15 +31,7 @@ stages: [check]
 arduino-avr:
   stage: check
   script: scripts/ci/run.sh arduino-avr --shard 1/1
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "web"
 
-arduino-avr-full:
-  stage: check
-  script: scripts/ci/run.sh arduino-avr --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
-  parallel: 4
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
 
 arduino-checks:
   stage: check
@@ -75,29 +67,13 @@ java:
 
 esp-idf:
   stage: check
-  script: scripts/ci/run.sh esp-idf --shard 1/1
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "web"
-
-esp-idf-full:
-  stage: check
   script: scripts/ci/run.sh esp-idf --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
-  parallel: 4
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
+  parallel: 5
 
 zephyr:
   stage: check
-  script: scripts/ci/run.sh zephyr --shard 1/1
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "web"
-
-zephyr-full:
-  stage: check
   script: scripts/ci/run.sh zephyr --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
   parallel: 4
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
 
 rust:
   stage: check

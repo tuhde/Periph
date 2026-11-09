@@ -7,9 +7,9 @@ name: CI
 #
 # Scope: pull requests and pushes to main run a reduced CI -- run.sh skips jobs
 # the diff cannot affect and builds only the touched C++ chips plus a smoke set
-# (scripts/ci/changed.sh). The full matrix, with the slow C++ jobs split into
-# SHARDS parallel shards, runs only for workflow_dispatch; release.yml refuses
-# to publish a tag unless such a run passed on that commit.
+# (scripts/ci/changed.sh). The full matrix runs only for workflow_dispatch;
+# release.yml refuses to publish a tag unless such a run passed on that commit.
+# ESP-IDF (5 shards) and Zephyr (4) are sharded on every run; Arduino AVR is 1.
 
 on:
   push:
@@ -30,7 +30,6 @@ defaults:
 env:
   PERIPH_CI_SCOPE: ${{ github.event_name == 'workflow_dispatch' && 'full' || 'auto' }}
   PERIPH_CI_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-  SHARDS: ${{ github.event_name == 'workflow_dispatch' && 4 || 1 }}
 
 jobs:
   arduino-avr:
@@ -40,10 +39,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
+        shard: [1]
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh arduino-avr --shard ${{ matrix.shard }}/${{ env.SHARDS }}
+      - run: scripts/ci/run.sh arduino-avr --shard ${{ matrix.shard }}/1
 
   arduino-checks:
     name: Arduino checks
@@ -116,10 +115,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
+        shard: [1,2,3,4,5]
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh esp-idf --shard ${{ matrix.shard }}/${{ env.SHARDS }}
+      - run: scripts/ci/run.sh esp-idf --shard ${{ matrix.shard }}/5
 
   zephyr:
     name: Zephyr compile
@@ -128,10 +127,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
+        shard: [1,2,3,4]
     steps:
       - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh zephyr --shard ${{ matrix.shard }}/${{ env.SHARDS }}
+      - run: scripts/ci/run.sh zephyr --shard ${{ matrix.shard }}/4
 
   rust:
     name: Rust compile
