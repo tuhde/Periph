@@ -242,6 +242,8 @@ Status	KEYWORD1
 Supply	KEYWORD1
 TMC2208Full	KEYWORD1
 TMC2208Minimal	KEYWORD1
+TMC2209Full	KEYWORD1
+TMC2209Minimal	KEYWORD1
 TMP117Full	KEYWORD1
 TMP117Minimal	KEYWORD1
 TPIC6B595Full	KEYWORD1
@@ -361,6 +363,7 @@ configureBatteryBackup	KEYWORD2
 configureChannelB	KEYWORD2
 configureChopper	KEYWORD2
 configureComparator	KEYWORD2
+configureCoolstep	KEYWORD2
 configureOvercurrent	KEYWORD2
 configureOvervoltage	KEYWORD2
 configureStealthchop	KEYWORD2
@@ -598,6 +601,7 @@ isHigh	KEYWORD2
 isPlaying	KEYWORD2
 isReady	KEYWORD2
 isShutdown	KEYWORD2
+isStalled	KEYWORD2
 isStandstill	KEYWORD2
 isWindowLimitsLocked	KEYWORD2
 is_als_saturated	KEYWORD2
@@ -751,6 +755,7 @@ readRaw	KEYWORD2
 readRawAccel	KEYWORD2
 readRawMag	KEYWORD2
 readRegister	KEYWORD2
+readStallguard	KEYWORD2
 readStatus	KEYWORD2
 readSupplyVoltage	KEYWORD2
 readSystemMode	KEYWORD2
@@ -908,6 +913,7 @@ setCalibration	KEYWORD2
 setChopperMode	KEYWORD2
 setClick	KEYWORD2
 setClockOutput	KEYWORD2
+setCoolstepThreshold	KEYWORD2
 setCriticalLimit	KEYWORD2
 setCrosstalkCompensation	KEYWORD2
 setCurrent	KEYWORD2
@@ -989,6 +995,7 @@ setRtpFormat	KEYWORD2
 setSendDelay	KEYWORD2
 setSigmaThreshold	KEYWORD2
 setSignalRateLimit	KEYWORD2
+setStallThreshold	KEYWORD2
 setStealthchopThreshold	KEYWORD2
 setTemperatureOffset	KEYWORD2
 setThresholds	KEYWORD2
