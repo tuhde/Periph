@@ -49,4 +49,4 @@ time.sleep(0.5)
 motor.disable()
 check_true('status_dict', 'cs_actual' in motor.read_status())
 
-print('===DONE=== passed=%d failed=%d' % (passed, failed))
+print('===DONE: %d passed, %d failed===' % (passed, failed))

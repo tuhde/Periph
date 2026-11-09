@@ -78,6 +78,15 @@ TMC2208Minimal::TMC2208Minimal(Connection& connection, float rSenseOhm, OutputPi
 }
 
 void TMC2208Minimal::recover() {
+    // Discard stale receive bytes when the connection can report them, then
+    // give the chip its >= 12 bit times of bus idle.
+    size_t pending = _conn.available();
+    while (pending > 0 && pending != SIZE_MAX) {
+        uint8_t sink[16];
+        size_t n = pending < sizeof(sink) ? pending : sizeof(sink);
+        _conn.read(sink, n);
+        pending = _conn.available();
+    }
     periph_delay_ms(2);
 }
 

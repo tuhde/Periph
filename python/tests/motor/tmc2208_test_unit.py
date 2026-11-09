@@ -230,4 +230,7 @@ m24.regs[0x06] = 0x21000000
 TMC2208Full(m24, tmc2224=True)
 check_true('tmc2224_sel_a0', True)
 
-print('===DONE=== passed=%d failed=%d' % (passed, failed))
+print('===DONE: %d passed, %d failed===' % (passed, failed))
+
+if failed:
+    raise SystemExit(1)

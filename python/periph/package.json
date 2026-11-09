@@ -293,6 +293,10 @@
       "github:tuhde/Periph/python/periph/chips/motor/drv8830.py"
     ],
     [
+      "periph/chips/motor/tmc2208.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc2208.py"
+    ],
+    [
       "periph/chips/other/mpr121.py",
       "github:tuhde/Periph/python/periph/chips/other/mpr121.py"
     ],

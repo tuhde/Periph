@@ -80,3 +80,11 @@ class UARTConnection(Connection):
         """
         self._write(data)
         return self._read(n)
+
+    def flush(self):
+        """Discard any bytes received but not yet read.
+
+        Chip drivers call this after a framing error before retrying a
+        transaction (e.g. the TMC2208 after a CRC failure).
+        """
+        self._uart.reset_input_buffer()
