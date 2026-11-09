@@ -1,0 +1,106 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-tmc2209', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            port:       { value: '/dev/ttyS0', required: true },
+            baudrate:   { value: '115200', required: true, validate: RED.validators.number() },
+            address:    { value: '0', validate: RED.validators.number() },
+            rsense:     { value: '0.11', required: true, validate: RED.validators.number() },
+            current:    { value: '0.5', validate: RED.validators.number() },
+            microsteps: { value: '16' },
+            enGpio:     { value: '' },
+            diagGpio:   { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-cog',
+        label:   function() { return this.name || 'TMC2209'; },
+        paletteLabel: 'TMC2209'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-tmc2209">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="TMC2209">
+    </div>
+    <div class="form-row">
+        <label for="node-input-port"><i class="fa fa-plug"></i> Serial port</label>
+        <input type="text" id="node-input-port" placeholder="/dev/ttyS0">
+    </div>
+    <div class="form-row">
+        <label for="node-input-baudrate"><i class="fa fa-tachometer"></i> Baud rate</label>
+        <input type="number" id="node-input-baudrate" min="9000" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-hashtag"></i> Node address (0–3)</label>
+        <input type="number" id="node-input-address" min="0" max="3" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-rsense"><i class="fa fa-bolt"></i> Sense resistor (Ω)</label>
+        <input type="number" id="node-input-rsense" min="0.01" step="0.01" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-current"><i class="fa fa-bolt"></i> Default current (A RMS)</label>
+        <input type="number" id="node-input-current" min="0" max="1.4" step="0.05" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-microsteps"><i class="fa fa-th"></i> Default microsteps</label>
+        <select id="node-input-microsteps" style="width:100px">
+            <option value="1">1</option><option value="2">2</option><option value="4">4</option>
+            <option value="8">8</option><option value="16">16</option><option value="32">32</option>
+            <option value="64">64</option><option value="128">128</option><option value="256">256</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-enGpio"><i class="fa fa-microchip"></i> ENN GPIO (optional)</label>
+        <input type="text" id="node-input-enGpio" placeholder="not wired, e.g. 0:17" style="width:140px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-diagGpio"><i class="fa fa-microchip"></i> DIAG GPIO (optional)</label>
+        <input type="text" id="node-input-diagGpio" placeholder="not wired, e.g. 0:27" style="width:140px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-tmc2209">
+    <p>Drives a two-phase bipolar stepper motor through a Trinamic TMC2209 over its single-wire UART. The chip's internal step generator moves the motor, so no STEP pulses are needed.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.speed <span class="property-type">number</span></dt>
+        <dd>Full steps per second at the configured microstepping; negative = reverse, <code>0</code> stops.</dd>
+        <dt>payload.current <span class="property-type">number</span></dt>
+        <dd>Run current in A RMS (at most 1.4); hold current becomes one third of it.</dd>
+        <dt>payload.stall_threshold <span class="property-type">number</span></dt>
+        <dd>StallGuard4 threshold <code>SGTHRS</code> 0–255; a stall is signalled when <code>sg_result ≤ 2 · stall_threshold</code>.</dd>
+        <dt>payload.microsteps <span class="property-type">number</span></dt>
+        <dd>Microstep resolution: 1, 2, 4, 8, 16, 32, 64, 128 or 256.</dd>
+        <dt>payload.enable <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> switches the power stage on, <code>false</code> off (the motor freewheels).</dd>
+        <dt>payload.stop <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> stops the internal step generator.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message polls the driver status.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.speed <span class="property-type">number</span></dt>
+        <dd>Echo of the commanded speed (command messages only).</dd>
+        <dt>payload.standstill <span class="property-type">boolean</span></dt>
+        <dd>The motor is at standstill.</dd>
+        <dt>payload.fault <span class="property-type">number</span></dt>
+        <dd>Fault bitmask: 1 over-temperature pre-warning, 2 over-temperature, 4 short to GND, 8 short to supply, 16 open load; <code>0</code> = none.</dd>
+        <dt>payload.cs_actual <span class="property-type">number</span></dt>
+        <dd>Actual current scale 0–31.</dd>
+        <dt>payload.sg_result <span class="property-type">number</span></dt>
+        <dd>StallGuard4 result 0–510 (higher = less mechanical load).</dd>
+        <dt>payload.stealth, tstep, temperature_flags</dt>
+        <dd>Status polls only: StealthChop active, time between microsteps, temperature comparator bits (t120…t157 as bits 0–3).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Wire MCU TX through a 1 kΩ resistor to PDN_UART and MCU RX directly to PDN_UART. Set the serial port, the node address (0–3, as set by the MS1_AD0/MS2_AD1 pins) and baud rate (9 kBd and up; the chip auto-detects it), the external sense resistor value (0.11 Ω on common boards), and the default run current and microsteps applied at start. The optional DIAG GPIO field (<code>chip:line</code>) reads the stall / error output. The optional ENN GPIO field (<code>chip:line</code>, e.g. <code>0:17</code>, needs the <code>opengpio</code> package) drives the ENN pin; without it the node switches the power stage through the chopper (<code>TOFF</code>). The motor is stopped and the driver disabled when the node is closed.</p>
+</script>
