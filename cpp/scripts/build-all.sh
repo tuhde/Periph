@@ -26,7 +26,8 @@
 # --shard I/N  build only every N-th app starting at the I-th (1-based), so
 #              CI can split a slow platform across parallel jobs.
 # -j N, --jobs N  build N apps at the same time (env: BUILD_JOBS). Default:
-#              nproc for linux, 2 for the toolchain-heavy platforms (their
+#              nproc for linux, nproc/2 for espidf, 2 for the other
+#              toolchain-heavy platforms (their
 #              own build tool already runs in parallel inside each app).
 #              Each app builds in its own directory; results print as they
 #              finish, so lines may come out of order.
@@ -83,7 +84,13 @@ list_apps() {
 
 NPROC="$(nproc)"
 if [ -z "$JOBS" ]; then
-    case "$PLATFORM" in linux) JOBS="$NPROC" ;; *) JOBS=2 ;; esac
+    case "$PLATFORM" in
+        linux) JOBS="$NPROC" ;;
+        # ESP-IDF's per-app work (cmake, ldgen, bootloader) is mostly
+        # single-threaded, so run many apps side by side.
+        espidf) JOBS=$(( NPROC / 2 )); [ "$JOBS" -ge 2 ] || JOBS=2 ;;
+        *) JOBS=2 ;;
+    esac
 fi
 [ "$JOBS" -ge 1 ] 2>/dev/null || { echo "invalid --jobs: $JOBS" >&2; exit 2; }
 # CPU threads each app's own build tool may use, so the total stays near nproc.
@@ -119,6 +126,8 @@ build_picosdk() {
     cmake --build "$out/b" -- -j"$INNER_JOBS"
 }
 
+# COMPONENTS=main builds only main and what it (transitively) REQUIRES instead
+# of all ~300 IDF components: about half the configure and link-script work.
 # Every app recompiles the same ~1,000 ESP-IDF sources. For ccache to share
 # them between apps it must ignore the per-project -fmacro-prefix-map and
 # hash the specs file ESP-IDF regenerates per build by content, not mtime.
@@ -126,7 +135,7 @@ build_espidf() {
     local app="$1" out="$2" rc
     ( cd "$app" && IDF_TARGET="${ESPIDF_TARGET:-esp32}" IDF_CCACHE_ENABLE=1 \
         CCACHE_IGNOREOPTIONS='-fmacro-prefix-map=*' CCACHE_COMPILERCHECK=content \
-        idf.py -B "$out/b" -D SDKCONFIG="$out/b/sdkconfig" build )
+        idf.py -B "$out/b" -D SDKCONFIG="$out/b/sdkconfig" -DCOMPONENTS=main build )
     rc=$?
     rm -f "$app/dependencies.lock"
     return $rc
