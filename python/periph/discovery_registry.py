@@ -291,7 +291,7 @@ CHIPS = (
     {"id": "pcf8523", "driver": "pcf8523", "write_sensitive": False, "aliased": False,
      "addresses": (0x68,),
      "probe": None},
-    {"id": "pcf85063a", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "pcf85063a", "driver": "pcf85063a", "write_sensitive": False, "aliased": False,
      "addresses": (0x51,),
      "probe": None},
     {"id": "mcp9808", "driver": "mcp9808", "write_sensitive": False, "aliased": False,
