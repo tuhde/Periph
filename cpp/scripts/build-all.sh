@@ -110,7 +110,18 @@ ZEPHYR_OVERLAY="$CPP_DIR/boards/zephyr/$(echo "$ZEPHYR_BOARD" | tr / _).overlay"
 build_zephyr() {
     local app="$1" out="$2" extra=()
     [ -f "$ZEPHYR_OVERLAY" ] && extra=(-- -DEXTRA_DTC_OVERLAY_FILE="$ZEPHYR_OVERLAY")
-    west build -p always -b "$ZEPHYR_BOARD" -d "$out/b" "$app" "${extra[@]}"
+    # Zephyr compiles with --specs=picolibc.specs, which the compiler finds in
+    # its own sysroot; ccache stats the name relative to the build dir, fails
+    # and treats every compile as uncacheable. Configure first, then link the
+    # real file into the build dir so ccache can hash it.
+    west build -p always -b "$ZEPHYR_BOARD" -d "$out/b" "$app" --cmake-only "${extra[@]}" || return 1
+    if command -v ccache >/dev/null 2>&1; then
+        local cc specs
+        cc="$(sed -n 's/^CMAKE_C_COMPILER:[A-Z]*=//p' "$out/b/CMakeCache.txt")"
+        specs="$("$cc" -print-file-name=picolibc.specs 2>/dev/null)"
+        [ -f "$specs" ] && ln -sf "$specs" "$out/b/picolibc.specs"
+    fi
+    west build -d "$out/b"
 }
 
 build_stm32cube() {

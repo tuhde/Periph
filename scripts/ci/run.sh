@@ -154,6 +154,7 @@ case "$JOB" in
         ZEPHYR_VENV="${ZEPHYR_VENV:-$HOME/.venvs/zephyr}"
         [ -f "$ZEPHYR_VENV/bin/activate" ] && source_relaxed "$ZEPHYR_VENV/bin/activate"
         export ZEPHYR_BOARD=rpi_pico2/rp2350a/m33
+        export CCACHE_BASEDIR=/tmp CCACHE_NOHASHDIR=1
         use_ccache zephyr
         at_exit ccache_stats
         root="$PWD"
