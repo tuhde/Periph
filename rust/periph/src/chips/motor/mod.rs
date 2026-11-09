@@ -18,3 +18,10 @@ pub use drv8830::{
     Output as Drv8830Output, Fault as Drv8830Fault,
     DRV8830_I2C_ADDRESS, DRV8830_VREF, DRV8830_VSET_MIN, DRV8830_VSET_MAX,
 };
+pub mod tmc5160;
+pub use tmc5160::{
+    Tmc5160Minimal, Tmc5160Full, Tmc5160Error, Tmc5160Bus, SpiBus as Tmc5160SpiBus, UartBus as Tmc5160UartBus,
+    NoPin as Tmc5160NoPin, Tmc5160Status, Tmc5160RampStatus, Tmc5160GlobalStatus, Tmc5160Ioin, tmc5160_crc8,
+    TMC5160_FAULT_OVERTEMP_WARNING, TMC5160_FAULT_OVERTEMP, TMC5160_FAULT_SHORT_GND,
+    TMC5160_FAULT_SHORT_SUPPLY, TMC5160_FAULT_OPEN_LOAD,
+};
