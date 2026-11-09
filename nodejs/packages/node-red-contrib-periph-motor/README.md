@@ -18,6 +18,7 @@ npm install node-red-contrib-periph-motor
 |------|------|-------------|
 | `periph-drv2605` | input | Plays haptic effects on an ERM or LRA vibration motor through a DRV2605 haptic driver over I²C (fixed address 0x5A). The EN pin must be high. |
 | `periph-drv8830` | input | Drives a brushed DC motor through a DRV8830 low-voltage H-bridge over I²C, and reports its fault status. The chip regulates the commanded voltage across the motor, so speed stays constant as the supply sags. |
+| `periph-tmc5160` | input | Drives a two-phase bipolar stepper motor through a Trinamic TMC5160 over SPI (Mode 3) or single-wire UART. The chip's internal SixPoint ramp generator moves the motor; positions are in full steps, speeds in full steps/s and accelerations in full steps/s². |
 
 ## Links
 

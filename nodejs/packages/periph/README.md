@@ -111,6 +111,7 @@ Each chip exposes two classes:
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
 | ST7036 | Display driver | `periph/src/chips/display/st7036` |
+| TMC5160 | Motor driver | `periph/src/chips/motor/tmc5160` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
 | UC1611S | Display driver | `periph/src/chips/display/uc1611s` |
