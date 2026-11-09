@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/motor/tmc2208.py"
     ],
     [
+      "periph/chips/motor/tmc2209.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc2209.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
