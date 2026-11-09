@@ -13,7 +13,8 @@
   "node-red": {
     "nodes": {
       "drv2605": "nodes/drv2605/drv2605.js",
-      "drv8830": "nodes/drv8830/drv8830.js"
+      "drv8830": "nodes/drv8830/drv8830.js",
+      "tmc5160": "nodes/tmc5160/tmc5160.js"
     }
   },
   "dependencies": {
