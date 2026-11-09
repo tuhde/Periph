@@ -28,19 +28,6 @@ default:
 
 stages: [check]
 
-arduino-esp32:
-  stage: check
-  script: scripts/ci/run.sh arduino-esp32 --shard 1/1
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "web"
-
-arduino-esp32-full:
-  stage: check
-  script: scripts/ci/run.sh arduino-esp32 --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
-  parallel: 4
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-
 arduino-avr:
   stage: check
   script: scripts/ci/run.sh arduino-avr --shard 1/1

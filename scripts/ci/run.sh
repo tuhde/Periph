@@ -7,7 +7,7 @@
 # TOOLCHAINS.md, plus the runner notes in CONTRIBUTING.md); nothing is
 # installed or downloaded here except the pinned Arduino board cores.
 #
-# Jobs: arduino-esp32  arduino-avr  arduino-checks  linux-gcc  pico-sdk
+# Jobs: arduino-avr  arduino-checks  linux-gcc  pico-sdk
 #       stm32cube  python  registry  nodejs  java  esp-idf  zephyr  rust
 #       go-linux  go-tinygo
 #
@@ -78,7 +78,6 @@ mkdir -p "$CACHE_ROOT"
 CCACHE_ROOT="${PERIPH_CCACHE_ROOT:-/var/cache/ccache}"
 
 # Pinned so the board-package set only changes when the core does.
-ESP32_CORE_VERSION="${ESP32_CORE_VERSION:-3.3.12}"
 AVR_CORE_VERSION="${AVR_CORE_VERSION:-1.8.8}"
 
 # ccache for a platform: persistent, shared by all shards, no hash of the
@@ -98,17 +97,6 @@ need_dir() { # <dir> <what>
 source_relaxed() { set +u; . "$1"; set -u; }
 
 case "$JOB" in
-    arduino-esp32)
-        step "Configure arduino-cli" arduino-cli config init --overwrite
-        step "Add ESP32 board index" arduino-cli config add board_manager.additional_urls \
-            https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-        step "Update board index" arduino-cli core update-index
-        step "Install ESP32 core $ESP32_CORE_VERSION" arduino-cli core install "esp32:esp32@$ESP32_CORE_VERSION"
-        # Every example and test sketch against cpp/ as one library, the layout
-        # the Library Manager ships.
-        step "Compile ESP32-S3 examples and test sketches" cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests "$@"
-        ;;
-
     arduino-avr)
         step "Configure arduino-cli" arduino-cli config init --overwrite
         step "Update board index" arduino-cli core update-index

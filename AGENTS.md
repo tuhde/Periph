@@ -1483,7 +1483,7 @@ C++ Arduino sketches (examples and `cpp/tests/**/*.ino`) include the library wit
 - the `#else` / `ARDUINO` platform branch includes `<Arduino.h>` itself when it calls `delay()`/`millis()`; name local delay helpers something other than `_delay_ms` (AVR's `<util/delay.h>` owns it)
 - examples use `Serial.print`, not `Serial.printf` (ESP32-only), and guard ESP32-only pin arguments: `#if defined(ARDUINO_ARCH_ESP32)` `Wire.begin(TEST_SDA, TEST_SCL, 400000);` `#else` `Wire.begin(); Wire.setClock(400000);` `#endif`
 
-Verify with `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3` and `--fqbn arduino:avr:mega` (CI runs both).
+Verify with `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3` and `--fqbn arduino:avr:mega` (CI runs the AVR one only; run the ESP32-S3 build locally).
 
 For C++ Zephyr, each example is a standalone Zephyr app at `cpp/examples/zephyr/<category>/<Chip>/<tier>/` (see Zephyr examples above).
 

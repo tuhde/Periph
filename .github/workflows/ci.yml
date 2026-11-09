@@ -33,18 +33,6 @@ env:
   SHARDS: ${{ github.event_name == 'workflow_dispatch' && 4 || 1 }}
 
 jobs:
-  arduino-esp32:
-    name: Arduino compile ESP32-S3
-    runs-on: [self-hosted, linux, periph]
-    timeout-minutes: 120
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,2,3,4]' || '[1]') }}
-    steps:
-      - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh arduino-esp32 --shard ${{ matrix.shard }}/${{ env.SHARDS }}
-
   arduino-avr:
     name: Arduino compile AVR
     runs-on: [self-hosted, linux, periph]

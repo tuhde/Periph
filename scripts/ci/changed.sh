@@ -23,7 +23,7 @@ set -euo pipefail
 JOB="${1:?usage: changed.sh <job>}"
 cd "$(git rev-parse --show-toplevel)"
 
-CPP_JOBS=(arduino-esp32 arduino-avr linux-gcc pico-sdk stm32cube esp-idf zephyr)
+CPP_JOBS=(arduino-avr linux-gcc pico-sdk stm32cube esp-idf zephyr)
 OTHER_JOBS=(arduino-checks python registry nodejs java rust go-linux go-tinygo)
 
 emit() { # <run 0|1> <filter> <reason>
@@ -53,7 +53,7 @@ add_chip() { # <category> <name>; the name is a case-insensitive substring
 mark() { local j; for j in "$@"; do need[$j]=1; done; }
 plat_jobs() { # <cpp platform dir name> -> jobs
     case "$1" in
-        arduino)   echo arduino-esp32 arduino-avr ;;
+        arduino)   echo arduino-avr ;;
         linux)     echo linux-gcc ;;
         picosdk)   echo pico-sdk ;;
         espidf)    echo esp-idf ;;
@@ -102,7 +102,7 @@ while IFS= read -r f; do
                 *_test_espidf)    mark esp-idf ;;
                 *_test_zephyr)    mark zephyr ;;
                 *_test_stm32cube) mark stm32cube ;;
-                *_test)           mark arduino-esp32 arduino-avr ;;
+                *_test)           ;;  # ESP32 hardware sketches; CI has no ESP32 core
                 *)                mark "${CPP_JOBS[@]}" ;;
             esac
             add_chip "$cat" "${dir%%_test*}" ;;
