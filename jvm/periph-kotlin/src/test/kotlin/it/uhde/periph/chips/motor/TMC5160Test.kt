@@ -16,6 +16,7 @@ class TMC5160Test {
         val regs = mutableMapOf<Int, Long>(0x04 to 0x30000000L)
         val writes = mutableListOf<Pair<Int, Long>>()
         var pending = 0L
+        var mirrorBad = false
 
         fun lastWrite(reg: Int): Long = writes.last { it.first == reg }.second
 
@@ -32,7 +33,7 @@ class TMC5160Test {
                     regs[0x21] = v
                     regs[0x35] = 1L shl 9
                 }
-                pending = v
+                pending = if (mirrorBad) 0L else v
             } else {
                 pending = regs[reg] ?: 0L
             }
@@ -140,6 +141,9 @@ class TMC5160Test {
         f.configureRamp(0.0, 800.0, 400.0, 400.0, 200.0, 400.0, 800.0, 1.0)
         assertEquals(3127L, sim.lastWrite(0x24))
         assertThrows(IllegalStateException::class.java) { f.readIfcnt() }
+        f.writeRegister(0x13, 5, true)
+        sim.mirrorBad = true
+        assertThrows(IOException::class.java) { f.writeRegister(0x13, 6, true) }
         f.setMicrosteps(16)
         assertEquals(4L, (sim.lastWrite(0x6C) shr 24) and 0xF)
         assertThrows(IllegalArgumentException::class.java) { f.setMicrosteps(3) }

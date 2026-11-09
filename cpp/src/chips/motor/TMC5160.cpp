@@ -192,7 +192,7 @@ bool TMC5160Minimal::writeVerified(uint8_t reg, uint32_t value) {
         return true;
     }
     if (!writeReg(reg, value)) return false;
-    spiSecond();
+    if (spiSecond() != value) { _ok = false; return false; }
     return true;
 }
 

@@ -14,9 +14,10 @@ type tmc5160Reg struct {
 // tmc5160SpiSim is an in-memory TMC5160 over SPI with the pipelined 40-bit
 // datagram protocol and an instant ramp generator.
 type tmc5160SpiSim struct {
-	regs    map[uint8]uint32
-	writes  []tmc5160Reg
-	pending uint32
+	regs      map[uint8]uint32
+	writes    []tmc5160Reg
+	pending   uint32
+	mirrorBad bool
 }
 
 func newTMC5160SpiSim() *tmc5160SpiSim {
@@ -37,6 +38,9 @@ func (m *tmc5160SpiSim) datagram(frame []byte) uint32 {
 			m.regs[0x35] = 1 << 9
 		}
 		m.pending = v
+		if m.mirrorBad {
+			m.pending = 0
+		}
 	} else {
 		m.pending = m.regs[reg]
 	}
@@ -191,6 +195,14 @@ func TestTMC5160FullRampAndUartOnly(t *testing.T) {
 	if _, err := d.ReadIfcnt(); err != ErrTMC5160UartOnly {
 		t.Fatalf("err = %v", err)
 	}
+	if err := d.WriteRegister(0x13, 5, true); err != nil {
+		t.Fatal(err)
+	}
+	sim.mirrorBad = true
+	if err := d.WriteRegister(0x13, 6, true); err != ErrTMC5160NotAcknowledged {
+		t.Fatalf("err = %v", err)
+	}
+	sim.mirrorBad = false
 	if err := d.SetMicrosteps(16); err != nil {
 		t.Fatal(err)
 	}

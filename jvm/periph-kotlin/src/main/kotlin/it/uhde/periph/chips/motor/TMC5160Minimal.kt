@@ -259,7 +259,7 @@ open class TMC5160Minimal protected constructor(
             if (after != ((before + 1) and 0xFF)) throw IOException("TMC5160: write not acknowledged")
         } else {
             writeReg(reg, value)
-            spiSecond()
+            if (spiSecond() != (value and 0xFFFFFFFFL)) throw IOException("TMC5160: write mirror mismatch")
         }
     }
 

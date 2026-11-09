@@ -23,6 +23,7 @@ class TMC5160Test {
         final Map<Integer, Long> regs = new HashMap<>();
         final List<long[]> writes = new ArrayList<>();
         long pending;
+        boolean mirrorBad;
 
         SpiSim() {
             regs.put(0x04, 0x30000000L);
@@ -45,7 +46,7 @@ class TMC5160Test {
                     regs.put(0x21, v);
                     regs.put(0x35, 1L << 9);
                 }
-                pending = v;
+                pending = mirrorBad ? 0L : v;
             } else {
                 pending = regs.getOrDefault(reg, 0L);
             }
@@ -163,6 +164,9 @@ class TMC5160Test {
         f.configureRamp(0, 800, 400, 400, 200, 400, 800, 1);
         assertEquals(3127L, sim.lastWrite(0x24));
         assertThrows(IllegalStateException.class, f::readIfcnt);
+        f.writeRegister(0x13, 5, true);
+        sim.mirrorBad = true;
+        assertThrows(IOException.class, () -> f.writeRegister(0x13, 6, true));
         f.setMicrosteps(16);
         assertEquals(4L, (sim.lastWrite(0x6C) >> 24) & 0xF);
         assertThrows(IllegalArgumentException.class, () -> f.setMicrosteps(3));

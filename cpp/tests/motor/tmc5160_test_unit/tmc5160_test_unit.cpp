@@ -20,6 +20,7 @@ public:
     std::map<uint8_t, uint32_t> regs;
     std::vector<RegWrite> writes;
     uint32_t pending = 0;
+    bool mirrorBad = false;
 
     SpiSim() { regs[0x04] = 0x30000000UL; }
 
@@ -39,7 +40,7 @@ protected:
             regs[reg] = v;
             writes.push_back({reg, v});
             if (reg == 0x2D) { regs[0x21] = v; regs[0x35] = 1UL << 9; }
-            pending = v;
+            pending = mirrorBad ? 0 : v;
         } else {
             pending = regs.count(reg) ? regs[reg] : 0;
         }
@@ -179,6 +180,9 @@ int main() {
     check_true(full.configureStealthchop(true, true, 36, 14, 1, 4, 12) && (fs.lastWrite(0x70) & 0xFF) == 36, "stealthchop");
     check_true(full.writeRegister(0x13, 5, true) && fs.lastWrite(0x13) == 5, "write_register");
     check_true(!full.writeRegister(0x6F, 1), "write_register_readonly");
+    fs.mirrorBad = true;
+    check_true(!full.writeRegister(0x13, 6, true) && !full.ok(), "write_register_mirror_mismatch");
+    fs.mirrorBad = false;
     fs.regs[0x6F] = (1UL << 31) | (1UL << 25) | (1UL << 24) | (17UL << 16) | 300;
     TMC5160Full::Status st = full.readStatus();
     check_true(st.stst && st.ot && st.stallguard && st.csActual == 17 && st.sgResult == 300 && !st.otpw, "status");

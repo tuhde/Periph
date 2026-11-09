@@ -188,6 +188,10 @@ pub trait Tmc5160Bus {
     fn read_reg<D: DelayNs>(&mut self, reg: u8, delay: &mut D) -> Result<u32, Tmc5160Error<Self::Error>>;
     /// Set the UART node address (no effect on SPI).
     fn set_address(&mut self, _address: u8) {}
+    /// SPI only: the mirror of the previous write, from a side-effect-free `GCONF` read request.
+    fn mirror(&mut self) -> Result<u32, Tmc5160Error<Self::Error>> {
+        Ok(0)
+    }
 }
 
 /// SPI transport.
@@ -212,6 +216,9 @@ impl<SPI: SpiDevice> Tmc5160Bus for SpiBus<SPI> {
     fn write_reg<D: DelayNs>(&mut self, reg: u8, value: u32, _delay: &mut D) -> Result<(), Tmc5160Error<SPI::Error>> {
         let v = value.to_be_bytes();
         self.spi.write(&[reg | 0x80, v[0], v[1], v[2], v[3]]).map_err(Tmc5160Error::Bus)
+    }
+    fn mirror(&mut self) -> Result<u32, Tmc5160Error<SPI::Error>> {
+        self.second()
     }
     fn read_reg<D: DelayNs>(&mut self, reg: u8, _delay: &mut D) -> Result<u32, Tmc5160Error<SPI::Error>> {
         let req = [reg & 0x7F];
@@ -540,7 +547,7 @@ impl<B: Tmc5160Bus, EN: OutputPin, D: DelayNs> Tmc5160Minimal<B, EN, D> {
             Ok(())
         } else {
             self.write_reg(reg, value)?;
-            if self.bus.read_reg(REG_GCONF, &mut self.delay).is_err() {
+            if self.bus.mirror()? != value {
                 return Err(Tmc5160Error::WriteNotAcknowledged);
             }
             Ok(())
@@ -1573,6 +1580,7 @@ mod tests {
         writes: Vec<(u8, u32)>,
         pending: u32,
         version: u8,
+        mirror_broken: bool,
     }
 
     impl SpiSim {
@@ -1609,7 +1617,7 @@ mod tests {
                     self.regs.insert(0x21, v);
                     self.regs.insert(0x35, 1 << 9);
                 }
-                self.pending = v;
+                self.pending = if self.mirror_broken { 0 } else { v };
             } else {
                 self.pending = self.regs.get(&reg).copied().unwrap_or(0);
             }
@@ -1747,6 +1755,9 @@ mod tests {
         f.configure_ramp(0.0, 800.0, 400.0, 400.0, 200.0, 400.0, 800.0, 1.0).unwrap();
         assert_eq!(f.core.bus.spi.last(0x24), Some(3127));
         assert!(matches!(f.read_ifcnt(), Err(Tmc5160Error::UartOnly)));
+        f.write_register(0x13, 5, true).unwrap();
+        f.core.bus.spi.mirror_broken = true;
+        assert!(matches!(f.write_register(0x13, 6, true), Err(Tmc5160Error::WriteNotAcknowledged)));
         f.set_microsteps(16).unwrap();
         assert_eq!((f.core.bus.spi.last(0x6C).unwrap() >> 24) & 0xF, 4);
         assert!(f.set_microsteps(3).is_err());

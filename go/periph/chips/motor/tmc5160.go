@@ -374,8 +374,14 @@ func (d *TMC5160Minimal) writeVerified(reg uint8, value uint32) error {
 	if err := d.writeReg(reg, value); err != nil {
 		return err
 	}
-	_, err := d.spiSecond()
-	return err
+	mirror, err := d.spiSecond()
+	if err != nil {
+		return err
+	}
+	if mirror != value {
+		return ErrTMC5160NotAcknowledged
+	}
+	return nil
 }
 
 func (d *TMC5160Minimal) first(reg uint8, reset uint32) {

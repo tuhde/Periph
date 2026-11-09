@@ -269,7 +269,7 @@ public class TMC5160Minimal {
             if (after != ((before + 1) & 0xFF)) throw new IOException("TMC5160: write not acknowledged");
         } else {
             writeReg(reg, value);
-            spiSecond();
+            if (spiSecond() != (value & 0xFFFFFFFFL)) throw new IOException("TMC5160: write mirror mismatch");
         }
     }
 

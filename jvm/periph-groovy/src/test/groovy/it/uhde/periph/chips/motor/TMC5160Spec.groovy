@@ -12,6 +12,7 @@ class TMC5160Spec extends Specification {
         Map<Integer, Long> regs = [0x04: 0x30000000L]
         List<List<Long>> writes = []
         long pending
+        boolean mirrorBad
 
         long lastWrite(int reg) { writes.findAll { it[0] == (long) reg }.last()[1] }
 
@@ -27,7 +28,7 @@ class TMC5160Spec extends Specification {
                     regs[0x21] = v
                     regs[0x35] = 1L << 9
                 }
-                pending = v
+                pending = mirrorBad ? 0L : v
             } else {
                 pending = regs.getOrDefault(reg, 0L)
             }
@@ -191,6 +192,13 @@ class TMC5160Spec extends Specification {
 
         then:
         thrown(IllegalArgumentException)
+
+        when:
+        sim.mirrorBad = true
+        f.writeRegister(0x13, 6, true)
+
+        then:
+        thrown(IOException)
 
         when:
         f.setCoilCurrents(1, 1)
