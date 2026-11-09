@@ -197,7 +197,11 @@ int main() {
     {
         FakeBus bus; bus.with(0x76, {{0xD0, 0x60}}); bus.readError = true;
         DiscoveredDevice d = only(bus);
-        check_true(d.identified.empty() && d.candidates.empty(), "failed_read_is_no_match");
+        // Chips without an identity probe (e.g. PCA9539 at 0x76) legitimately stay candidates;
+        // only the probed BME280 must be gone.
+        bool stillBme = false;
+        for (const auto& c : d.candidates) if (c == "bme280") stillBme = true;
+        check_true(d.identified.empty() && !stillBme, "failed_read_is_no_match");
     }
 
     // --- aliased 24AA02UID ---

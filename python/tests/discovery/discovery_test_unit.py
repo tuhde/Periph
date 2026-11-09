@@ -182,7 +182,9 @@ check_true('kernel_bound_not_probed', all(a != 0x77 for a, _ in bus.writes))
 
 # --- failed identity read ---
 d = discover(FakeBus({0x76: bme}, read_error=True))[0]
-check_true('failed_read_is_no_match', d.identified is None and d.candidates == [])
+# Chips without an identity probe (e.g. PCA9539 at 0x76) legitimately stay candidates;
+# only the probed BME280 must be gone.
+check_true('failed_read_is_no_match', d.identified is None and 'bme280' not in d.candidates)
 
 # --- aliased 24AA02UID ---
 bus = FakeBus({a: {} for a in range(0x50, 0x58)})

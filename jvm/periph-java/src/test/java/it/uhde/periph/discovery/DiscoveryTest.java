@@ -215,7 +215,9 @@ class DiscoveryTest {
         bus.readError = true;
         var d = only(bus, false);
         assertNull(d.identified());
-        assertTrue(d.candidates().isEmpty());
+        // Chips without an identity probe (e.g. PCA9539 at 0x76) legitimately stay candidates;
+        // only the probed BME280 must be gone.
+        assertFalse(d.candidates().contains("bme280"));
     }
 
     @Test

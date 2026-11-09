@@ -280,7 +280,15 @@ func TestFailedIdentityReadIsNoMatch(t *testing.T) {
 	b := newBus(single(0x76, map[uint32]byte{0xD0: 0x60}))
 	b.readError = true
 	got, _ := DiscoverBus(b, registry, false)
-	if got[0].Identified != "" || len(got[0].Candidates) != 0 {
+	// Chips without an identity probe (e.g. PCA9539 at 0x76) legitimately stay
+	// candidates; only the probed BME280 must be gone.
+	stillBME := false
+	for _, c := range got[0].Candidates {
+		if c == "bme280" {
+			stillBME = true
+		}
+	}
+	if got[0].Identified != "" || stillBME {
 		t.Errorf("%+v", got[0])
 	}
 }
