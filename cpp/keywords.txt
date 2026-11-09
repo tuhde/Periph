@@ -96,6 +96,8 @@ EEPROM24AA02UIDFull	KEYWORD1
 EEPROM24AA02UIDMinimal	KEYWORD1
 ENS160Full	KEYWORD1
 ENS160Minimal	KEYWORD1
+ES8311Full	KEYWORD1
+ES8311Minimal	KEYWORD1
 FXOS8700Full	KEYWORD1
 FXOS8700Minimal	KEYWORD1
 Fault	KEYWORD1
@@ -310,6 +312,8 @@ burn_angle	KEYWORD2
 burn_count	KEYWORD2
 burn_setting	KEYWORD2
 busyLevel	KEYWORD2
+bypass_adc_eq	KEYWORD2
+bypass_dac_eq	KEYWORD2
 calibrate	KEYWORD2
 calibrateCrosstalk	KEYWORD2
 calibrateOffset	KEYWORD2
@@ -360,12 +364,17 @@ configureTimerA	KEYWORD2
 configureTimerB	KEYWORD2
 configure_accel	KEYWORD2
 configure_ad1	KEYWORD2
+configure_adc	KEYWORD2
+configure_alc	KEYWORD2
 configure_all_thresholds	KEYWORD2
 configure_als	KEYWORD2
 configure_autoconfig	KEYWORD2
 configure_baseline_filter	KEYWORD2
+configure_clock	KEYWORD2
 configure_debounce	KEYWORD2
 configure_dlpf	KEYWORD2
+configure_dmic	KEYWORD2
+configure_drc	KEYWORD2
 configure_fifo	KEYWORD2
 configure_filters	KEYWORD2
 configure_gesture	KEYWORD2
@@ -382,6 +391,7 @@ configure_proximity_thresholds	KEYWORD2
 configure_pullup	KEYWORD2
 configure_sample_rate	KEYWORD2
 configure_sampling	KEYWORD2
+configure_serial	KEYWORD2
 configure_thresholds	KEYWORD2
 configure_wait	KEYWORD2
 configure_wake_on_motion	KEYWORD2
@@ -539,6 +549,7 @@ get_accel_offset	KEYWORD2
 get_brightness	KEYWORD2
 get_firmware_version	KEYWORD2
 get_gain_calibration	KEYWORD2
+get_mic_gain	KEYWORD2
 get_mode	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
@@ -546,6 +557,7 @@ get_pixel	KEYWORD2
 get_ratio	KEYWORD2
 get_resistance	KEYWORD2
 get_scale	KEYWORD2
+get_volume	KEYWORD2
 get_wiper	KEYWORD2
 gray_linear	KEYWORD2
 gyro	KEYWORD2
@@ -970,6 +982,10 @@ set_activity_threshold	KEYWORD2
 set_activity_time	KEYWORD2
 set_ad1_input	KEYWORD2
 set_ad1_reference	KEYWORD2
+set_adc_eq	KEYWORD2
+set_adc_ramp	KEYWORD2
+set_adc_volume	KEYWORD2
+set_adcdat_mode	KEYWORD2
 set_alert	KEYWORD2
 set_all	KEYWORD2
 set_all_eeprom	KEYWORD2
@@ -1000,6 +1016,9 @@ set_crc	KEYWORD2
 set_critical_alert	KEYWORD2
 set_cursor	KEYWORD2
 set_dac	KEYWORD2
+set_dac_eq	KEYWORD2
+set_dac_mute_options	KEYWORD2
+set_dac_ramp	KEYWORD2
 set_dac_voltage	KEYWORD2
 set_data_chunk	KEYWORD2
 set_data_rate	KEYWORD2
@@ -1046,6 +1065,7 @@ set_iir_filter	KEYWORD2
 set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2
 set_inactivity_time	KEYWORD2
+set_input	KEYWORD2
 set_interrupt	KEYWORD2
 set_interrupt_pin	KEYWORD2
 set_interrupt_pins	KEYWORD2
@@ -1058,6 +1078,7 @@ set_led_boost	KEYWORD2
 set_line_rate	KEYWORD2
 set_link_loop_mode	KEYWORD2
 set_link_mode	KEYWORD2
+set_loopback	KEYWORD2
 set_low_g	KEYWORD2
 set_low_noise	KEYWORD2
 set_low_power	KEYWORD2
@@ -1066,9 +1087,11 @@ set_master_current	KEYWORD2
 set_max_angle	KEYWORD2
 set_max_chunk	KEYWORD2
 set_max_position	KEYWORD2
+set_mic_gain	KEYWORD2
 set_mode	KEYWORD2
 set_mono	KEYWORD2
 set_motion_interrupt	KEYWORD2
+set_mute	KEYWORD2
 set_nline_inversion	KEYWORD2
 set_noise_mode	KEYWORD2
 set_odr	KEYWORD2
@@ -1112,6 +1135,7 @@ set_sample_skip	KEYWORD2
 set_scale	KEYWORD2
 set_scroll_line	KEYWORD2
 set_sdo_pullup	KEYWORD2
+set_sdp_mute	KEYWORD2
 set_sensors	KEYWORD2
 set_sequential	KEYWORD2
 set_shadow	KEYWORD2
@@ -1129,6 +1153,7 @@ set_temperature_compensation	KEYWORD2
 set_temperature_sensor	KEYWORD2
 set_threshold	KEYWORD2
 set_transient	KEYWORD2
+set_tristate	KEYWORD2
 set_tx_power	KEYWORD2
 set_vcom_dc	KEYWORD2
 set_voltage	KEYWORD2
@@ -1246,6 +1271,12 @@ ACCESS_FULL_GRAPHIC	LITERAL1
 ACCESS_HALF_GRAPHIC	LITERAL1
 ACTIVE_HIGH	LITERAL1
 ACTIVE_LOW	LITERAL1
+ADCDAT_ADC_ADC	LITERAL1
+ADCDAT_ADC_DAC	LITERAL1
+ADCDAT_ADC_ZERO	LITERAL1
+ADCDAT_DAC_ADC	LITERAL1
+ADCDAT_DAC_DAC	LITERAL1
+ADCDAT_ZERO_ADC	LITERAL1
 ADC_10BIT	LITERAL1
 ADC_11BIT	LITERAL1
 ADC_12BIT	LITERAL1
@@ -1548,6 +1579,10 @@ FLAG_BORF	LITERAL1
 FLAG_CTF	LITERAL1
 FLAG_LPFF	LITERAL1
 FLAG_RMSF	LITERAL1
+FORMAT_DSP_A	LITERAL1
+FORMAT_DSP_B	LITERAL1
+FORMAT_I2S	LITERAL1
+FORMAT_LEFT_JUSTIFIED	LITERAL1
 FS_2000_DPS	LITERAL1
 FS_250_DPS	LITERAL1
 FS_500_DPS	LITERAL1
@@ -1593,6 +1628,9 @@ IIR_COEFF_3	LITERAL1
 IIR_COEFF_31	LITERAL1
 IIR_COEFF_63	LITERAL1
 IIR_COEFF_7	LITERAL1
+INPUT_ANALOG	LITERAL1
+INPUT_DIGITAL	LITERAL1
+INPUT_NONE	LITERAL1
 INT_ACTIVITY	LITERAL1
 INT_BOOT_ON	LITERAL1
 INT_DATA_READY	LITERAL1

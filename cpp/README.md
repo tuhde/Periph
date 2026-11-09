@@ -73,6 +73,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | `chips/motor/DRV8830.h` |
 | DS3231 | RTC | `chips/rtc/DS3231.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
+| ES8311 | ADC/DAC | `chips/adc_dac/ES8311.h` |
 | FXOS8700 | Accelerometer | `chips/accelerometer/FXOS8700.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |

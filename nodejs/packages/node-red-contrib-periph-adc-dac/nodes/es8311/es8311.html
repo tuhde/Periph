@@ -1,0 +1,111 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('es8311-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '18', required: true },
+            mclk:       { value: '12288000', required: true, validate: RED.validators.number() },
+            sampleRate: { value: '48000', required: true, validate: RED.validators.number() },
+            volume:     { value: '-40', validate: RED.validators.number(true) },
+            micGain:    { value: '24', validate: RED.validators.number(true) }
+        },
+        label: function() {
+            return this.name || ('ES8311 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="es8311-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ES8311">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <select id="node-config-input-address" style="width:150px">
+            <option value="18">0x18 (CE low)</option>
+            <option value="19">0x19 (CE high)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mclk">MCLK (Hz)</label>
+        <input type="number" id="node-config-input-mclk" min="1" style="width:120px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-sampleRate">Sample rate (Hz)</label>
+        <input type="number" id="node-config-input-sampleRate" min="1" style="width:120px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-volume">Initial volume (dB)</label>
+        <input type="number" id="node-config-input-volume" min="-95.5" max="32" step="0.5" style="width:120px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-micGain">Microphone gain (dB)</label>
+        <input type="number" id="node-config-input-micGain" min="0" max="30" step="3" style="width:120px"> &nbsp;0–30 dB
+    </div>
+</script>
+
+<!-- Control node: volume / mute / mic gain / readback -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-es8311', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'es8311-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-volume-up',
+        label:   function() { return this.name || 'ES8311'; },
+        paletteLabel: 'ES8311'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-es8311">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ES8311">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-es8311">
+    <p>Controls an ES8311 low-power mono audio codec over its I²C control port. The audio stream
+    itself (I²S) is not handled by this node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">payload.volume <span class="property-type">number</span></dt>
+        <dd>DAC volume in dB (−95.5 … +32, 0.5 dB steps).</dd>
+        <dt class="optional">payload.mute <span class="property-type">boolean</span></dt>
+        <dd>Mute (true) or unmute (false) the DAC.</dd>
+        <dt class="optional">payload.mic_gain <span class="property-type">number</span></dt>
+        <dd>Analog microphone PGA gain in dB (0 … 30, 3 dB steps).</dd>
+    </dl>
+    <p>Several fields may be combined in one message. Any message without one of these fields
+    reads the current settings back.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.volume <span class="property-type">number</span></dt>
+        <dd>DAC volume read back from the chip, in dB.</dd>
+        <dt>payload.mic_gain <span class="property-type">number</span></dt>
+        <dd>PGA gain read back from the chip, in dB.</dd>
+    </dl>
+    <p>Command messages produce no output.</p>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the 7-bit address (<code>0x18</code> with CE low, <code>0x19</code> with
+    CE high), the MCLK frequency and sample rate (must give a valid divider set, see the datasheet clock
+    table), the initial DAC volume and the microphone gain in the device config node.</p>
+</script>

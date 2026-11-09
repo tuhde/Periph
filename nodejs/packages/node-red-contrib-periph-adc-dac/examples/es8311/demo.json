@@ -1,0 +1,173 @@
+[
+    {
+        "id": "tab-es8311-demo",
+        "type": "tab",
+        "label": "ES8311 Volume Control",
+        "disabled": false,
+        "info": "Runtime volume control of an ES8311 audio codec whose I2S stream is produced elsewhere. An Inject node sets -40 dB on deploy; a second Inject node fires every 10 s and a Function node alternates the volume between -20 dB and -60 dB. The Debug node prints the value read back from the chip, which shows the 0.5 dB quantisation. Adjust MCLK and sample rate in the device config node to match the I2S source."
+    },
+    {
+        "id": "cfg-es8311",
+        "type": "es8311-device",
+        "name": "ES8311",
+        "bus": "1",
+        "address": "18",
+        "mclk": "12288000",
+        "sampleRate": "48000",
+        "volume": "-60",
+        "micGain": "24"
+    },
+    {
+        "id": "inj-start",
+        "type": "inject",
+        "name": "-40 dB on deploy",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "",
+        "payload": "{\"volume\":-40,\"mute\":false}",
+        "payloadType": "json",
+        "z": "tab-es8311-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "es8311"
+            ]
+        ]
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 10 s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-es8311-demo",
+        "x": 130,
+        "y": 180,
+        "wires": [
+            [
+                "fn-alternate"
+            ]
+        ]
+    },
+    {
+        "id": "fn-alternate",
+        "type": "function",
+        "name": "alternate -20 / -60 dB",
+        "func": "const loud = context.get('loud') || false;\ncontext.set('loud', !loud);\nmsg.payload = { volume: loud ? -60 : -20 };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-es8311-demo",
+        "x": 330,
+        "y": 180,
+        "wires": [
+            [
+                "es8311",
+                "delay-1s"
+            ]
+        ]
+    },
+    {
+        "id": "fn-readback",
+        "type": "change",
+        "name": "read back",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "z": "tab-es8311-demo",
+        "x": 360,
+        "y": 260,
+        "wires": [
+            [
+                "es8311"
+            ]
+        ]
+    },
+    {
+        "id": "delay-1s",
+        "type": "delay",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "z": "tab-es8311-demo",
+        "x": 350,
+        "y": 220,
+        "wires": [
+            [
+                "fn-readback"
+            ]
+        ]
+    },
+    {
+        "id": "es8311",
+        "type": "periph-es8311",
+        "name": "ES8311",
+        "device": "cfg-es8311",
+        "z": "tab-es8311-demo",
+        "x": 560,
+        "y": 180,
+        "wires": [
+            [
+                "dbg-output"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-output",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-es8311-demo",
+        "x": 760,
+        "y": 180,
+        "wires": []
+    }
+]
