@@ -123,7 +123,7 @@ so CI has two scopes (logic: `scripts/ci/changed.sh`, called from
 | Trigger | Scope |
 |---|---|
 | Pull request / push to `main` | **Reduced.** Jobs whose inputs did not change are skipped (docs, `specs/`, `datasheets/`, wiki: nothing runs). C++ jobs build only the chips named in the diff plus one chip per transport from `scripts/ci/smoke.txt`. Changes to shared C++ code (`connection/`, `storage/`, build scripts), the CI definition, or any unrecognised path run everything. |
-| Manual run (`gh workflow run ci.yml --ref main`; GitLab: Run pipeline) | **Full.** Everything, with Arduino AVR, ESP-IDF and Zephyr split into 4 parallel shards. |
+| Manual run (`gh workflow run ci.yml --ref main`; GitLab: Run pipeline) | **Full.** Everything, not narrowed to the diff. |
 
 Locally, `scripts/ci/run.sh <job>` runs everything unless `PERIPH_CI_BASE=<sha>` is set;
 preview a scope with `PERIPH_CI_BASE=$(git merge-base HEAD main) scripts/ci/changed.sh <job>`
