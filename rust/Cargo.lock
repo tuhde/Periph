@@ -2907,7 +2907,7 @@ dependencies = [
 
 [[package]]
 name = "periph"
-version = "1.3.2"
+version = "1.3.3"
 dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-mock",
@@ -3362,6 +3362,54 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "tmc2130_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "tmc2130_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "tmc2130_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "tmc2130_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
 ]
 
 [[package]]

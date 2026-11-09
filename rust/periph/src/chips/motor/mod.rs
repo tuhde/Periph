@@ -18,3 +18,9 @@ pub use drv8830::{
     Output as Drv8830Output, Fault as Drv8830Fault,
     DRV8830_I2C_ADDRESS, DRV8830_VREF, DRV8830_VSET_MIN, DRV8830_VSET_MAX,
 };
+pub mod tmc2130;
+pub use tmc2130::{
+    Tmc2130Minimal, Tmc2130Full, Tmc2130Error, NoPin as Tmc2130NoPin, Tmc2130Status, Tmc2130GlobalStatus,
+    Tmc2130Ioin, TMC2130_FAULT_OVERTEMP_WARNING, TMC2130_FAULT_OVERTEMP, TMC2130_FAULT_SHORT_GND,
+    TMC2130_FAULT_OPEN_LOAD,
+};
