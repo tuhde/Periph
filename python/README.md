@@ -127,6 +127,7 @@ Each chip exposes two classes:
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | ST7036 | Display driver | Character LCD controller |
+| TMC2130 | Motor driver | Trinamic TMC2130 stepper driver over SPI. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
 | UC1611S | Display driver | Graphic LCD controller-driver |

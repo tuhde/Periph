@@ -121,6 +121,7 @@ Each chip exposes two structs:
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
+| TMC2130 | Motor driver | -- Trinamic TMC2130 stepper driver over SPI (Mode 3). |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
 | UC1611S | Display driver | 160 COM x 256 SEG graphic LCD controller-driver (UltraChip), as used on the EA DOGXL240-7. |
