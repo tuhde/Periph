@@ -1,0 +1,112 @@
+# GitLab CI mirror of .github/workflows/ci.yml. Runs on a self-hosted GitLab
+# Runner with the shell executor and the tag "periph", on a host with the
+# toolchains from TOOLCHAINS.md preinstalled. Job logic lives in
+# scripts/ci/run.sh, shared with GitHub Actions.
+
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+  # Scope: merge-request and main pipelines are reduced (scripts/ci/changed.sh
+  # skips jobs the diff cannot affect and narrows the C++ jobs to the touched
+  # chips). A "web" pipeline (Build > Pipelines > Run pipeline) runs the full
+  # matrix, with the slow C++ jobs split into 4 parallel shards.
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        PERIPH_CI_BASE: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        PERIPH_CI_BASE: $CI_COMMIT_BEFORE_SHA
+    - if: $CI_PIPELINE_SOURCE == "web"
+      variables:
+        PERIPH_CI_SCOPE: full
+
+default:
+  tags: [periph]
+  timeout: 2h
+  interruptible: true
+
+stages: [check]
+
+arduino-avr:
+  stage: check
+  script: scripts/ci/run.sh arduino-avr --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+arduino-avr-full:
+  stage: check
+  script: scripts/ci/run.sh arduino-avr --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+arduino-checks:
+  stage: check
+  script: scripts/ci/run.sh arduino-checks
+
+linux-gcc:
+  stage: check
+  script: scripts/ci/run.sh linux-gcc
+
+pico-sdk:
+  stage: check
+  script: scripts/ci/run.sh pico-sdk
+
+stm32cube:
+  stage: check
+  script: scripts/ci/run.sh stm32cube
+
+python:
+  stage: check
+  script: scripts/ci/run.sh python
+
+registry:
+  stage: check
+  script: scripts/ci/run.sh registry
+
+nodejs:
+  stage: check
+  script: scripts/ci/run.sh nodejs
+
+java:
+  stage: check
+  script: scripts/ci/run.sh java
+
+esp-idf:
+  stage: check
+  script: scripts/ci/run.sh esp-idf --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+esp-idf-full:
+  stage: check
+  script: scripts/ci/run.sh esp-idf --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+zephyr:
+  stage: check
+  script: scripts/ci/run.sh zephyr --shard 1/1
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+zephyr-full:
+  stage: check
+  script: scripts/ci/run.sh zephyr --shard $CI_NODE_INDEX/$CI_NODE_TOTAL
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+rust:
+  stage: check
+  script: scripts/ci/run.sh rust
+
+go-linux:
+  stage: check
+  script: scripts/ci/run.sh go-linux
+
+go-tinygo:
+  stage: check
+  script: scripts/ci/run.sh go-tinygo

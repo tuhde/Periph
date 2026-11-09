@@ -25,7 +25,16 @@
 #
 # --shard I/N  build only every N-th app starting at the I-th (1-based), so
 #              CI can split a slow platform across parallel jobs.
-# filter       optional substring of the app path (e.g. "pressure/").
+# -j N, --jobs N  build N apps at the same time (env: BUILD_JOBS). Default:
+#              nproc for linux, nproc/2 for espidf, 2 for the other
+#              toolchain-heavy platforms (their
+#              own build tool already runs in parallel inside each app).
+#              Each app builds in its own directory; results print as they
+#              finish, so lines may come out of order.
+# filter       optional substring of the app path (e.g. "pressure/"), matched
+#              case-insensitively. Comma-separate several to build the union
+#              (e.g. "power/ina226,led/ws2812b").
+# --list       print the selected apps and exit without building.
 #
 # Build output goes to a temporary directory; nothing is written into the
 # source tree. Set KEEP_LOGS=<dir> to keep each app's build log.
@@ -39,9 +48,13 @@ shift || true
 SHARD_I=1
 SHARD_N=1
 FILTER=""
+JOBS="${BUILD_JOBS:-}"
+LIST_ONLY=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --shard) SHARD_I="${2%/*}"; SHARD_N="${2#*/}"; shift 2 ;;
+        -j|--jobs) JOBS="$2"; shift 2 ;;
+        --list) LIST_ONLY=1; shift ;;
         *) FILTER="$1"; shift ;;
     esac
 done
@@ -69,15 +82,37 @@ list_apps() {
     esac
 }
 
+NPROC="$(nproc)"
+if [ -z "$JOBS" ]; then
+    case "$PLATFORM" in
+        linux) JOBS="$NPROC" ;;
+        # ESP-IDF's per-app work (cmake, ldgen, bootloader) is mostly
+        # single-threaded, so run many apps side by side.
+        espidf) JOBS=$(( NPROC / 2 )); [ "$JOBS" -ge 2 ] || JOBS=2 ;;
+        *) JOBS=2 ;;
+    esac
+fi
+[ "$JOBS" -ge 1 ] 2>/dev/null || { echo "invalid --jobs: $JOBS" >&2; exit 2; }
+# CPU threads each app's own build tool may use, so the total stays near nproc.
+INNER_JOBS=$(( NPROC / JOBS )); [ "$INNER_JOBS" -ge 1 ] || INNER_JOBS=1
+
 # Linux apps have no build files; linux-sources.py works out what to compile.
 LINUX_INCLUDES=(-I"$CPP_DIR/src/connection" -I"$CPP_DIR/src/discovery" -I"$CPP_DIR/src/storage")
 for d in "$CPP_DIR"/src/chips/*/; do LINUX_INCLUDES+=(-I"$d"); done
 
+# Compile each source to its own object so ccache can cache it (ccache skips
+# compile-and-link commands). Most apps share the same connection and chip
+# sources, so after the first app nearly everything is a cache hit.
 build_linux() {
-    local app="$1" out="$2" srcs
+    local app="$1" out="$2" srcs objs=() i=0 s cc=(g++)
+    command -v ccache >/dev/null 2>&1 && cc=(ccache g++)
     mapfile -t srcs < <(python3 "$SCRIPT_DIR/linux-sources.py" "$app")
-    g++ -std=c++17 -Wall -Wextra -Werror -O1 -I"$app" "${LINUX_INCLUDES[@]}" \
-        "${srcs[@]}" -o "$out/app" -lgpiod -lpthread -lm || return 1
+    for s in "${srcs[@]}"; do
+        objs+=("$out/$((i++)).o")
+        "${cc[@]}" -std=c++17 -Wall -Wextra -Werror -O1 -I"$app" "${LINUX_INCLUDES[@]}" \
+            -c "$s" -o "${objs[-1]}" || return 1
+    done
+    g++ "${objs[@]}" -o "$out/app" -lgpiod -lpthread -lm || return 1
     # Unit tests run against mocks, so run them too.
     if [[ "$app" == *_test_unit ]]; then
         "$out/app" || return 1
@@ -88,9 +123,11 @@ build_picosdk() {
     local app="$1" out="$2"
     cmake -S "$app" -B "$out/b" -DPICO_BOARD="${PICO_BOARD:-pico}" \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache &&
-    cmake --build "$out/b" -- -j"$(nproc)"
+    cmake --build "$out/b" -- -j"$INNER_JOBS"
 }
 
+# COMPONENTS=main builds only main and what it (transitively) REQUIRES instead
+# of all ~300 IDF components: about half the configure and link-script work.
 # Every app recompiles the same ~1,000 ESP-IDF sources. For ccache to share
 # them between apps it must ignore the per-project -fmacro-prefix-map and
 # hash the specs file ESP-IDF regenerates per build by content, not mtime.
@@ -98,7 +135,7 @@ build_espidf() {
     local app="$1" out="$2" rc
     ( cd "$app" && IDF_TARGET="${ESPIDF_TARGET:-esp32}" IDF_CCACHE_ENABLE=1 \
         CCACHE_IGNOREOPTIONS='-fmacro-prefix-map=*' CCACHE_COMPILERCHECK=content \
-        idf.py -B "$out/b" -D SDKCONFIG="$out/b/sdkconfig" build )
+        idf.py -B "$out/b" -D SDKCONFIG="$out/b/sdkconfig" -DCOMPONENTS=main build )
     rc=$?
     rm -f "$app/dependencies.lock"
     return $rc
@@ -107,45 +144,104 @@ build_espidf() {
 ZEPHYR_BOARD="${ZEPHYR_BOARD:-rpi_pico2/rp2350a/m33}"
 ZEPHYR_OVERLAY="$CPP_DIR/boards/zephyr/$(echo "$ZEPHYR_BOARD" | tr / _).overlay"
 
+# ccache stat()s -specs=picolibc.specs relative to the build dir and gives up
+# ("bad compiler arguments", nothing cached) when it is missing, so link the SDK's
+# copy into every build dir.
+ZEPHYR_SPECS=""
+if [ "$PLATFORM" = zephyr ]; then
+    ZEPHYR_SPECS="$(find "${ZEPHYR_SDK_INSTALL_DIR:-$(ls -d "$HOME"/zephyr-sdk-* 2>/dev/null | tail -1)}" \
+        -name picolibc.specs 2>/dev/null | head -1)"
+fi
+
+# devicetree_generated.h embeds the build dir in a comment and nearly every
+# source includes it, so a random per-run build path changes its hash and makes
+# every ccache direct-mode lookup miss (each hit then costs a preprocessor run).
+# Build each app in a stable path instead -- removed afterwards, and serialised
+# per app with flock so two concurrent CI runs cannot collide. Must stay under
+# CCACHE_BASEDIR (/tmp).
 build_zephyr() {
-    local app="$1" out="$2" extra=()
+    local app="$1" out="$2" extra=() b
     [ -f "$ZEPHYR_OVERLAY" ] && extra=(-- -DEXTRA_DTC_OVERLAY_FILE="$ZEPHYR_OVERLAY")
-    west build -p always -b "$ZEPHYR_BOARD" -d "$out/b" "$app" "${extra[@]}"
+    b="/tmp/periph-zephyr-$(id -u)/${app#"$CPP_DIR"/}/b"
+    mkdir -p "${b%/b}"
+    (
+        flock 9
+        rc=0
+        rm -rf "$b"; mkdir -p "$b"
+        [ -n "$ZEPHYR_SPECS" ] && ln -s "$ZEPHYR_SPECS" "$b/picolibc.specs"
+        west build -b "$ZEPHYR_BOARD" -d "$b" "$app" "${extra[@]}" || rc=$?
+        rm -rf "$b"
+        exit $rc
+    ) 9>"${b%/b}/.lock"
 }
 
 build_stm32cube() {
     local app="$1" out="$2"
     cmake -S "$app" -B "$out/b" \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache &&
-    cmake --build "$out/b" -- -j"$(nproc)"
+    cmake --build "$out/b" -- -j"$INNER_JOBS"
 }
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 [ -n "${KEEP_LOGS:-}" ] && mkdir -p "$KEEP_LOGS"
 
-OK=0
-FAILED=()
+# True if <path> contains one of the comma-separated FILTER patterns (any path
+# if FILTER is empty), ignoring case.
+filter_match() {
+    [ -n "$FILTER" ] || return 0
+    local p="${1,,}" f fs
+    IFS=, read -ra fs <<< "${FILTER,,}"
+    for f in "${fs[@]}"; do [[ "$p" == *"$f"* ]] && return 0; done
+    return 1
+}
+
+# Select the apps of this shard.
+APPS=()
 n=0
 while IFS= read -r app; do
     rel="${app#"$CPP_DIR"/}"
-    case "$rel" in *"$FILTER"*) ;; *) continue ;; esac
+    filter_match "$rel" || continue
     n=$((n + 1))
     [ $(( (n - 1) % SHARD_N + 1 )) -eq "$SHARD_I" ] || continue
+    APPS+=("$app")
+done < <(list_apps | sort)
+echo "=== $PLATFORM: ${#APPS[@]} apps, $JOBS at a time ==="
+if [ "$LIST_ONLY" -eq 1 ]; then
+    for app in "${APPS[@]+"${APPS[@]}"}"; do echo "${app#"$CPP_DIR"/}"; done
+    exit 0
+fi
 
-    out="$WORK/app"
-    rm -rf "$out"; mkdir -p "$out"
-    log="$WORK/build.log"
-    if "build_$PLATFORM" "$app" "$out" > "$log" 2>&1; then
-        OK=$((OK + 1))
-        echo "ok   $rel"
+# Build one app in its own directory. Writes "<idx>.ok" or "<idx>.fail" to
+# $WORK and prints its result as a single block, so parallel output stays intact.
+build_one() {
+    local idx="$1" app="$2" rel t out log msg rc
+    rel="${app#"$CPP_DIR"/}"
+    out="$WORK/$idx"; log="$WORK/$idx.log"
+    mkdir -p "$out"
+    t=$SECONDS
+    if "build_$PLATFORM" "$app" "$out" > "$log" 2>&1; then rc=0; else rc=1; fi
+    if [ $rc -eq 0 ]; then
+        printf '[%s] %s ... ok (%ss)\n' "$(date +%H:%M:%S)" "$rel" "$((SECONDS - t))"
+        : > "$WORK/$idx.ok"
     else
-        FAILED+=("$rel")
-        echo "FAIL $rel"
-        grep -E 'error|Error|undefined reference|FAIL ' "$log" | head -15 | sed 's/^/     /'
+        msg="$(grep -E 'error|Error|undefined reference|FAIL ' "$log" | head -15 | sed 's/^/     /')"
+        printf '[%s] %s ... FAILED (%ss)\n%s\n' "$(date +%H:%M:%S)" "$rel" "$((SECONDS - t))" "$msg"
+        echo "$rel" > "$WORK/$idx.fail"
     fi
     [ -n "${KEEP_LOGS:-}" ] && cp "$log" "$KEEP_LOGS/$(echo "$rel" | tr / _).log"
-done < <(list_apps | sort)
+    rm -rf "$out" "$log"
+}
 
+idx=0
+for app in "${APPS[@]+"${APPS[@]}"}"; do
+    while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do wait -n || true; done
+    idx=$((idx + 1))
+    build_one "$idx" "$app" &
+done
+wait
+
+OK=$(find "$WORK" -maxdepth 1 -name '*.ok' | wc -l)
+mapfile -t FAILED < <(cat "$WORK"/*.fail 2>/dev/null | sort)
 echo "=== $PLATFORM (shard $SHARD_I/$SHARD_N): $OK built, ${#FAILED[@]} failed ==="
 [ "${#FAILED[@]}" -eq 0 ] || { printf '  %s\n' "${FAILED[@]}"; exit 1; }

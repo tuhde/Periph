@@ -66,7 +66,7 @@ Add one test file per platform following the naming convention in `TESTING.md`. 
 
 - One commit per implementation stage (Minimal, then Full)
 - Link the datasheet in the PR description
-- CI must pass (compile checks on Arduino, Linux GCC, Python syntax, Node.js syntax)
+- CI must pass. PR CI is *reduced*: jobs the diff cannot affect are skipped and the C++ jobs build only the touched chips plus a smoke set (see "CI scope" below)
 
 ## Code conventions (summary)
 
@@ -113,3 +113,47 @@ rust/test_linux.sh   --compile-only power/ina226
 ## Reporting issues
 
 Open a GitHub issue. Include the chip name, platform, and a minimal reproduction if it's a driver bug.
+
+## CI scope and releases
+
+Compiling every example and test on every platform takes too long for each PR,
+so CI has two scopes (logic: `scripts/ci/changed.sh`, called from
+`scripts/ci/run.sh`, shared by GitHub Actions and GitLab):
+
+| Trigger | Scope |
+|---|---|
+| Pull request / push to `main` | **Reduced.** Jobs whose inputs did not change are skipped (docs, `specs/`, `datasheets/`, wiki: nothing runs). C++ jobs build only the chips named in the diff plus one chip per transport from `scripts/ci/smoke.txt`. Changes to shared C++ code (`connection/`, `storage/`, build scripts), the CI definition, or any unrecognised path run everything. |
+| Manual run (`gh workflow run ci.yml --ref main`; GitLab: Run pipeline) | **Full.** Everything, with Arduino AVR, ESP-IDF and Zephyr split into 4 parallel shards. |
+
+Locally, `scripts/ci/run.sh <job>` runs everything unless `PERIPH_CI_BASE=<sha>` is set;
+preview a scope with `PERIPH_CI_BASE=$(git merge-base HEAD main) scripts/ci/changed.sh <job>`
+and list the apps a filter selects with `cpp/scripts/build-all.sh <platform> --list <filter>`.
+
+**Releasing:** `release.yml` refuses to publish unless the full CI passed on the tagged
+commit. So before tagging: `gh workflow run ci.yml --ref main`, wait for green, then push the tag.
+
+## Self-hosted CI runner
+
+CI runs on your own hardware instead of GitHub-/GitLab-hosted containers. Both
+pipelines (`.github/workflows/ci.yml`, `.gitlab-ci.yml`) call
+`scripts/ci/run.sh <job>`; edit job logic there.
+
+Runner host (Debian 13, bare, no Docker): install everything in
+`TOOLCHAINS.md` as the runner's user, plus `arduino-lint`
+(<https://arduino.github.io/arduino-lint/>) and `python3-smbus2`. Expected
+locations (override via env in the runner's `.env`): `~/pico-sdk`,
+`~/esp-idf`, `~/STM32CubeF4` (with FatFs), `~/zephyrproject` +
+`~/.venvs/zephyr`. The cargo target dir persists in
+`~/.cache/periph-ci`; ccache lives in `/var/cache/ccache/<platform>`
+(override with `PERIPH_CCACHE_ROOT`) — create it once with
+`sudo install -d -o <runner-user> /var/cache/ccache`.
+
+- **GitHub Actions:** register the runner with labels `self-hosted,linux,periph`
+  (Settings → Actions → Runners). Only `ci.yml` uses it; release and Claude
+  workflows stay on GitHub-hosted runners. Because this repo is public, set
+  Settings → Actions → General → "Require approval for all outside
+  collaborators" so fork PRs can't run code on your machine unreviewed.
+- **GitLab:** `gitlab-runner register` with the **shell** executor and tag
+  `periph`; disable shared runners for the project if you want only yours.
+- Run one runner instance per host: jobs share `~/.arduino15` and the SDK dirs.
+- Check a single job locally: `scripts/ci/run.sh go-linux`.

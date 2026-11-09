@@ -280,8 +280,20 @@ func TestFailedIdentityReadIsNoMatch(t *testing.T) {
 	b := newBus(single(0x76, map[uint32]byte{0xD0: 0x60}))
 	b.readError = true
 	got, _ := DiscoverBus(b, registry, false)
-	if got[0].Identified != "" || len(got[0].Candidates) != 0 {
+	// Chips without an identity register stay candidates: nothing can rule them out.
+	noID := map[string]bool{}
+	for _, c := range registry {
+		if c.Probe == nil {
+			noID[c.ID] = true
+		}
+	}
+	if got[0].Identified != "" {
 		t.Errorf("%+v", got[0])
+	}
+	for _, id := range got[0].Candidates {
+		if !noID[id] {
+			t.Errorf("%s has an identity register but matched after a failed read: %+v", id, got[0])
+		}
 	}
 }
 

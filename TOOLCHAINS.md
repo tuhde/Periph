@@ -100,12 +100,21 @@ cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
 ### 2c. Raspberry Pi Pico SDK
 
 ```sh
-sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi gcc g++ python3 ccache
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib gcc g++ python3 ccache
 
 git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
 cd ~/pico-sdk && git submodule update --init --depth 1 && cd -
 echo 'export PICO_SDK_PATH="$HOME/pico-sdk"' >> ~/.bashrc
 export PICO_SDK_PATH="$HOME/pico-sdk"
+
+# Install picotool once. Without it the SDK clones and builds picotool from
+# GitHub in every app's configure (~25 s per app, and needs the network).
+# scripts/ci/run.sh finds it via $PICOTOOL_PREFIX (default ~/picotool).
+git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/picotool.git /tmp/picotool-src
+cmake -S /tmp/picotool-src -B /tmp/picotool-build -DPICO_SDK_PATH="$PICO_SDK_PATH" \
+  -DPICOTOOL_NO_LIBUSB=1 -DPICOTOOL_FLAT_INSTALL=1 -DCMAKE_INSTALL_PREFIX="$HOME/picotool"
+cmake --build /tmp/picotool-build -j"$(nproc)" && cmake --install /tmp/picotool-build
+export CMAKE_PREFIX_PATH="$HOME/picotool"   # only needed outside run.sh
 
 PICO_BOARD=pico cpp/scripts/build-all.sh picosdk
 ```
@@ -164,12 +173,12 @@ source zephyr/zephyr-env.sh
 ### 2f. STM32Cube (STM32CubeF4 v1.28.3, NUCLEO-F411RE)
 
 ```sh
-sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi g++ ccache
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib g++ ccache
 
 # Sparse + blobless: only Drivers/CMSIS and the HAL driver are needed (~145 MB instead of ~1 GB).
 git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
   https://github.com/STMicroelectronics/STM32CubeF4.git ~/STM32CubeF4
-git -C ~/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver
+git -C ~/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver Middlewares/Third_Party/FatFs
 git -C ~/STM32CubeF4 submodule update --init --depth 1 \
   Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
 echo 'export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"' >> ~/.bashrc

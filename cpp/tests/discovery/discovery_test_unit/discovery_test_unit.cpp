@@ -197,7 +197,12 @@ int main() {
     {
         FakeBus bus; bus.with(0x76, {{0xD0, 0x60}}); bus.readError = true;
         DiscoveredDevice d = only(bus);
-        check_true(d.identified.empty() && d.candidates.empty(), "failed_read_is_no_match");
+        // Chips without an identity register stay candidates: nothing can rule them out.
+        std::set<std::string> noId;
+        for (size_t i = 0; i < kChipCount; i++) if (kChips[i].probe == nullptr) noId.insert(kChips[i].id);
+        bool ok = d.identified.empty();
+        for (const auto& c : d.candidates) ok = ok && noId.count(c) > 0;
+        check_true(ok, "failed_read_is_no_match");
     }
 
     // --- aliased 24AA02UID ---

@@ -182,7 +182,9 @@ check_true('kernel_bound_not_probed', all(a != 0x77 for a, _ in bus.writes))
 
 # --- failed identity read ---
 d = discover(FakeBus({0x76: bme}, read_error=True))[0]
-check_true('failed_read_is_no_match', d.identified is None and d.candidates == [])
+# Chips without an identity register stay candidates: nothing can rule them out.
+no_id = {c['id'] for c in CHIPS if c['probe'] is None}
+check_true('failed_read_is_no_match', d.identified is None and all(c in no_id for c in d.candidates))
 
 # --- aliased 24AA02UID ---
 bus = FakeBus({a: {} for a in range(0x50, 0x58)})

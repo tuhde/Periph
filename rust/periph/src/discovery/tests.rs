@@ -268,7 +268,11 @@ fn failed_identity_read_is_no_match() {
     bus.read_error = true;
     let d = only(&mut bus, false);
     assert_eq!(d.identified, None);
-    assert!(d.candidates.is_empty());
+    // Chips without an identity register stay candidates: nothing can rule them out.
+    assert!(d
+        .candidates
+        .iter()
+        .all(|c| CHIPS.iter().any(|e| e.id == *c && e.probe.is_none())));
 }
 
 #[test]
