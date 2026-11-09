@@ -1,0 +1,1 @@
+_periph_pcf85063a.set_alarm(second=(None if ${_second} < 0 else ${_second}), minute=(None if ${_minute} < 0 else ${_minute}), hour=(None if ${_hour} < 0 else ${_hour}), day=(None if ${_day} < 0 else ${_day}), weekday=(None if ${_weekday} < 0 else ${_weekday}))
