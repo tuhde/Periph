@@ -206,6 +206,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TMC2208 | Stepper motor driver (Step/Dir, UART; TMC2202/2208/2224) |  |  |  |  |  |  |  |  |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
