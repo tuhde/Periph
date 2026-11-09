@@ -13,6 +13,10 @@
       "github:tuhde/Periph/python/periph/chips/motor/drv8830.py"
     ],
     [
+      "periph/chips/motor/tmc5160.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc5160.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
@@ -43,6 +47,22 @@
     [
       "periph/connection/register_connection.py",
       "github:tuhde/Periph/python/periph/connection/register_connection.py"
+    ],
+    [
+      "periph/connection/spi_auto.py",
+      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
+    ],
+    [
+      "periph/connection/spi_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
+    ],
+    [
+      "periph/connection/uart_auto.py",
+      "github:tuhde/Periph/python/periph/connection/uart_auto.py"
+    ],
+    [
+      "periph/connection/uart_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/uart_micropython.py"
     ]
   ],
   "deps": [
