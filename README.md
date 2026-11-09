@@ -209,6 +209,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | TMC2130 | Stepper motor driver (Step/Dir, SPI, StallGuard2) |  |  |  |  |  |  |  |  |
 | TMC2208 | Stepper motor driver (Step/Dir, UART; TMC2202/2208/2224) |  |  |  |  |  |  |  |  |
 | TMC2209 | Stepper motor driver (Step/Dir, UART, StallGuard4) |  |  |  |  |  |  |  |  |
+| TMC5160 | Stepper motor controller/driver (ramp generator, SPI/UART, StallGuard2) |  |  |  |  |  |  |  |  |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
