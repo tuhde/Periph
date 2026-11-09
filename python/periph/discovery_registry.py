@@ -123,7 +123,7 @@ CHIPS = (
     {"id": "pcf8591", "driver": "pcf8591", "write_sensitive": True, "aliased": False,
      "addresses": (0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,),
      "probe": None},
-    {"id": "es8311", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "es8311", "driver": "es8311", "write_sensitive": False, "aliased": False,
      "addresses": (0x18, 0x19,),
      "probe": None},
     {"id": "rda5807m", "driver": "rda5807m", "write_sensitive": True, "aliased": False,

@@ -565,7 +565,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "es8311",
       "datasheet": "datasheets/adc_dac/es8311.pdf"
     },
     {
