@@ -10,5 +10,7 @@ pub mod neopixel;
 pub mod sipo;
 pub mod spi;
 pub mod uart;
+#[cfg(feature = "std")]
+pub mod uart_mock;
 #[cfg(feature = "uart-linux")]
 pub mod uart_linux;
