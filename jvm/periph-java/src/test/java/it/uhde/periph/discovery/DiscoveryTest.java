@@ -215,7 +215,7 @@ class DiscoveryTest {
         bus.readError = true;
         var d = only(bus, false);
         assertNull(d.identified());
-        assertTrue(d.candidates().isEmpty());
+        assertFalse(d.candidates().contains("bme280"));
     }
 
     @Test

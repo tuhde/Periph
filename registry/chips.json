@@ -361,7 +361,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -373,7 +373,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -385,7 +385,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -397,7 +397,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -409,7 +409,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -421,7 +421,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -433,7 +433,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -445,7 +445,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx.pdf"
     },
     {
@@ -457,7 +457,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -469,7 +469,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -481,7 +481,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -493,7 +493,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -505,7 +505,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -517,7 +517,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -529,7 +529,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {
@@ -541,7 +541,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "mcp4xxx",
       "datasheet": "datasheets/adc_dac/mcp4xxx_nv.pdf"
     },
     {

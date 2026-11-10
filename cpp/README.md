@@ -96,6 +96,8 @@ Each chip exposes two classes:
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
+| MCP4XXX | ADC/DAC | `chips/adc_dac/MCP4XXX.h` |
+| MCP4XXXParts | ADC/DAC | `chips/adc_dac/MCP4XXXParts.h` |
 | MCP9808 | Temperature sensor | `chips/temperature/MCP9808.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
 | MMA8451Q | Accelerometer | `chips/accelerometer/MMA8451Q.h` |
