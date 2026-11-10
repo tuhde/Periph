@@ -15,7 +15,8 @@
       "drv2605": "nodes/drv2605/drv2605.js",
       "drv8830": "nodes/drv8830/drv8830.js",
       "tmc2208": "nodes/tmc2208/tmc2208.js",
-      "tmc2209": "nodes/tmc2209/tmc2209.js"
+      "tmc2209": "nodes/tmc2209/tmc2209.js",
+      "tmc2130": "nodes/tmc2130/tmc2130.js"
     }
   },
   "dependencies": {

@@ -1,0 +1,356 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tmc2130_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init TMC2130 (SPI bus)",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "CS pin",
+          "type": "label"
+        },
+        {
+          "name": "_cs_pin",
+          "type": "number"
+        },
+        {
+          "name": "STEP pin",
+          "type": "label"
+        },
+        {
+          "name": "_step",
+          "type": "number"
+        },
+        {
+          "name": "DIR pin",
+          "type": "label"
+        },
+        {
+          "name": "_dir",
+          "type": "number"
+        },
+        {
+          "name": "ENN pin",
+          "type": "label"
+        },
+        {
+          "name": "_en",
+          "type": "number"
+        },
+        {
+          "name": "sense resistor (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_rsense",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_enable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 enable driver",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_disable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 disable driver",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set run current (A RMS)",
+          "type": "label"
+        },
+        {
+          "name": "current",
+          "type": "label"
+        },
+        {
+          "name": "_i",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_hold_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set hold current (A RMS)",
+          "type": "label"
+        },
+        {
+          "name": "current",
+          "type": "label"
+        },
+        {
+          "name": "_i",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_move",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 move full steps",
+          "type": "label"
+        },
+        {
+          "name": "steps",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        },
+        {
+          "name": "speed (full steps/s)",
+          "type": "label"
+        },
+        {
+          "name": "_speed",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_microsteps",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set microsteps",
+          "type": "label"
+        },
+        {
+          "name": "microsteps (1-256)",
+          "type": "label"
+        },
+        {
+          "name": "_n",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_interpolation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set interpolation (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_e",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_chopper_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set SpreadCycle (1) / StealthChop (0)",
+          "type": "label"
+        },
+        {
+          "name": "SpreadCycle",
+          "type": "label"
+        },
+        {
+          "name": "_s",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_stealthchop_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set StealthChop threshold",
+          "type": "label"
+        },
+        {
+          "name": "TPWMTHRS",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_direction_inverted",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 invert direction (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "inverted",
+          "type": "label"
+        },
+        {
+          "name": "_i",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_freewheel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set standstill mode (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "mode",
+          "type": "label"
+        },
+        {
+          "name": "_m",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_stall_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set StallGuard threshold (-64..63)",
+          "type": "label"
+        },
+        {
+          "name": "SGT",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_set_coolstep_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2130 set CoolStep/stall threshold",
+          "type": "label"
+        },
+        {
+          "name": "TCOOLTHRS",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_is_standstill",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 is standstill",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_read_fault",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 fault flags",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_read_stallguard",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 SG_RESULT",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_is_stalled",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 is stalled",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_microstep_position",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 microstep position",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_read_current_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 current scale",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2130_read_tstep",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2130 TSTEP",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

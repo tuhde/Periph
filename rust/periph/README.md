@@ -126,6 +126,7 @@ Each chip exposes two structs:
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
+| TMC2130 | Motor driver | -- Trinamic TMC2130 stepper driver over SPI (Mode 3). |
 | TMC2208 | Motor driver | -- Trinamic TMC2202 / TMC2208 / TMC2224 stepper driver over single-wire UART. |
 | TMC2209 | Motor driver | -- Trinamic TMC2209 stepper driver over single-wire UART. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
