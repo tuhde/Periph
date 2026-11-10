@@ -177,7 +177,7 @@ CHIPS = (
     {"id": "icm20948", "driver": "icm20948", "write_sensitive": False, "aliased": False,
      "addresses": (0x68, 0x69,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xEA,)}},
-    {"id": "qmi8658a", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "qmi8658a", "driver": "qmi8658a", "write_sensitive": False, "aliased": False,
      "addresses": (0x6A, 0x6B,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x05,)}},
     {"id": "mpu9250", "driver": "mpu9250", "write_sensitive": False, "aliased": False,

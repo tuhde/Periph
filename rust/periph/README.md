@@ -116,6 +116,7 @@ Each chip exposes two structs:
 | PCF8578 | Display driver | Row/column LCD dot-matrix driver (NXP). |
 | PCF8579 | Display driver | LCD column driver (NXP), companion of the PCF8578. |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
+| QMI8658A | IMU | 6-axis inertial measurement unit (QST): 3-axis gyroscope, 3-axis accelerometer and |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
 | SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |

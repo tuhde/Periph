@@ -1,0 +1,119 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-qmi8658a', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            transport:  { value: 'i2c', required: true },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            device:     { value: '0' },
+            address:    { value: '0x6B' },
+            accelRange: { value: '0', required: true, validate: RED.validators.number() },
+            gyroRange:  { value: '4', required: true, validate: RED.validators.number() },
+            odr:        { value: '5', required: true, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label: function() {
+            return this.name || ('QMI8658A ' + (this.transport === 'spi' ? 'SPI ' + this.bus + '.' + this.device
+                                                                          : '@ ' + this.address + ' (bus ' + this.bus + ')'));
+        },
+        oneditprepare: function() {
+            function toggle() {
+                var spi = $('#node-input-transport').val() === 'spi';
+                $('.qmi-i2c').toggle(!spi);
+                $('.qmi-spi').toggle(spi);
+            }
+            $('#node-input-transport').on('change', toggle);
+            toggle();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-qmi8658a">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="QMI8658A">
+    </div>
+    <div class="form-row">
+        <label for="node-input-transport"><i class="fa fa-exchange"></i> Transport</label>
+        <select id="node-input-transport" style="width:120px">
+            <option value="i2c" selected>I²C</option>
+            <option value="spi">SPI</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> Bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N or /dev/spidevN.M)
+    </div>
+    <div class="form-row qmi-spi">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI device</label>
+        <input type="number" id="node-input-device" min="0" style="width:80px"> &nbsp;(chip select N in /dev/spidevB.N)
+    </div>
+    <div class="form-row qmi-i2c">
+        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-input-address" style="width:160px">
+            <option value="0x6B" selected>0x6B (SA0 = GND)</option>
+            <option value="0x6A">0x6A (SA0 = VDDIO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-accelRange"><i class="fa fa-cog"></i> Accelerometer range</label>
+        <select id="node-input-accelRange" style="width:120px">
+            <option value="0" selected>±2 g</option>
+            <option value="1">±4 g</option>
+            <option value="2">±8 g</option>
+            <option value="3">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gyroRange"><i class="fa fa-cog"></i> Gyroscope range</label>
+        <select id="node-input-gyroRange" style="width:120px">
+            <option value="0">±16 dps</option>
+            <option value="1">±32 dps</option>
+            <option value="2">±64 dps</option>
+            <option value="3">±128 dps</option>
+            <option value="4" selected>±256 dps</option>
+            <option value="5">±512 dps</option>
+            <option value="6">±1024 dps</option>
+            <option value="7">±2048 dps</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-odr"><i class="fa fa-clock-o"></i> Output data rate</label>
+        <select id="node-input-odr" style="width:120px">
+            <option value="8">28 Hz</option>
+            <option value="7">56 Hz</option>
+            <option value="6">112 Hz</option>
+            <option value="5" selected>224 Hz</option>
+            <option value="4">448 Hz</option>
+            <option value="3">897 Hz</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-qmi8658a">
+    <p>Reads acceleration, angular rate and die temperature from a QST QMI8658A 6-axis IMU over I²C (0x6B with
+    SA0 = GND, 0x6A with SA0 = VDDIO) or 4-wire SPI. The three values come from one 14-byte burst, so they belong
+    to the same sample.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one coherent measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.accel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, z }</code> acceleration in m/s².</dd>
+        <dt>payload.gyro <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, z }</code> angular rate in rad/s.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Die temperature in °C (refreshed at 8 Hz).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>Transport (I²C or SPI), the I²C bus number or SPI bus and chip select, the I²C address, the accelerometer
+    range (±2/±4/±8/±16 g), the gyroscope range (±16 … ±2048 dps) and the output data rate (28 … 897 Hz, shared by
+    both sensors). Allow ≈165 ms after deploying before the first message — the gyroscope needs that long to
+    turn on.</p>
+</script>

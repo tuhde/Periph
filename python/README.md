@@ -122,6 +122,7 @@ Each chip exposes two classes:
 | PCF8578 | Display driver | Row/column LCD dot-matrix driver |
 | PCF8579 | Display driver | LCD column driver |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
+| QMI8658A | IMU | Acceleration and angular rate. |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
 | SD_SPI | Memory | SD card in SPI mode |

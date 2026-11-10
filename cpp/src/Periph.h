@@ -77,6 +77,7 @@
 #include "chips/imu/MPU6050.h"
 #include "chips/imu/MPU9250.h"
 #include "chips/imu/MPU9255.h"
+#include "chips/imu/QMI8658A.h"
 #include "chips/io_expander/MCP23008.h"
 #include "chips/io_expander/MCP23017.h"
 #include "chips/io_expander/PCF8574.h"

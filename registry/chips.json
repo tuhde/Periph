@@ -854,7 +854,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "qmi8658a",
       "datasheet": "datasheets/imu/qmi8658a.pdf"
     },
     {
