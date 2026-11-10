@@ -21,6 +21,7 @@ npm install node-red-contrib-periph-motor
 | `periph-tmc2130` | input | Drives a two-phase bipolar stepper motor through a Trinamic TMC2130 over SPI (Mode 3). The chip has no internal step generator, so the node pulses the STEP and DIR GPIOs; moves are blocking. |
 | `periph-tmc2208` | input | Drives a two-phase bipolar stepper motor through a Trinamic TMC2202 / TMC2208 / TMC2224 over its single-wire UART. The chip's internal step generator moves the motor, so no STEP pulses are needed. |
 | `periph-tmc2209` | input | Drives a two-phase bipolar stepper motor through a Trinamic TMC2209 over its single-wire UART. The chip's internal step generator moves the motor, so no STEP pulses are needed. |
+| `periph-tmc5160` | input | Drives a two-phase bipolar stepper motor through a Trinamic TMC5160 over SPI (Mode 3) or single-wire UART. The chip's internal SixPoint ramp generator moves the motor; positions are in full steps, speeds in full steps/s and accelerations in full steps/s². |
 
 ## Links
 

@@ -317,6 +317,10 @@
       "github:tuhde/Periph/python/periph/chips/motor/tmc2209.py"
     ],
     [
+      "periph/chips/motor/tmc5160.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc5160.py"
+    ],
+    [
       "periph/chips/other/mpr121.py",
       "github:tuhde/Periph/python/periph/chips/other/mpr121.py"
     ],

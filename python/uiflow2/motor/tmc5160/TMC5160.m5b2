@@ -1,0 +1,574 @@
+{
+  "category": "TMC5160",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_TMC5160_LANGUAGES = {\n  \"CUSTOM_TMC5160_INIT\": {\n    \"en\": \"%1 init SPI bus %2 CS pin %3 ENN pin %4 sense resistor (ohm) %5\"\n  },\n  \"CUSTOM_TMC5160_ENABLE\": {\n    \"en\": \"%1 enable driver\"\n  },\n  \"CUSTOM_TMC5160_DISABLE\": {\n    \"en\": \"%1 disable driver\"\n  },\n  \"CUSTOM_TMC5160_SET_CURRENT\": {\n    \"en\": \"%1 set run current (A RMS) %2\"\n  },\n  \"CUSTOM_TMC5160_SET_SPEED\": {\n    \"en\": \"%1 set speed (full steps/s) %2\"\n  },\n  \"CUSTOM_TMC5160_SET_ACCELERATION\": {\n    \"en\": \"%1 set acceleration (full steps/s2) %2\"\n  },\n  \"CUSTOM_TMC5160_MOVE_TO\": {\n    \"en\": \"%1 move to position (full steps) %2\"\n  },\n  \"CUSTOM_TMC5160_MOVE\": {\n    \"en\": \"%1 move relative and wait (full steps) %2\"\n  },\n  \"CUSTOM_TMC5160_RUN\": {\n    \"en\": \"%1 run at velocity (full steps/s) %2\"\n  },\n  \"CUSTOM_TMC5160_STOP\": {\n    \"en\": \"%1 stop\"\n  },\n  \"CUSTOM_TMC5160_SET_POSITION\": {\n    \"en\": \"%1 define position (full steps) %2\"\n  },\n  \"CUSTOM_TMC5160_SET_MICROSTEPS\": {\n    \"en\": \"%1 set microsteps (1-256) %2\"\n  },\n  \"CUSTOM_TMC5160_SET_CHOPPER_MODE\": {\n    \"en\": \"%1 set SpreadCycle (1) / StealthChop (0) %2\"\n  },\n  \"CUSTOM_TMC5160_SET_STALL_THRESHOLD\": {\n    \"en\": \"%1 set StallGuard threshold (SGT) %2\"\n  },\n  \"CUSTOM_TMC5160_SET_COOLSTEP_THRESHOLD\": {\n    \"en\": \"%1 set CoolStep/stall threshold (TCOOLTHRS) %2\"\n  },\n  \"CUSTOM_TMC5160_ENABLE_STALL_STOP\": {\n    \"en\": \"%1 stop on stall (0/1) %2\"\n  },\n  \"CUSTOM_TMC5160_CLEAR_RAMP_EVENTS\": {\n    \"en\": \"%1 clear ramp events\"\n  },\n  \"CUSTOM_TMC5160_POSITION\": {\n    \"en\": \"%1 position (full steps)\"\n  },\n  \"CUSTOM_TMC5160_VELOCITY\": {\n    \"en\": \"%1 velocity (full steps/s)\"\n  },\n  \"CUSTOM_TMC5160_IS_POSITION_REACHED\": {\n    \"en\": \"%1 position reached\"\n  },\n  \"CUSTOM_TMC5160_IS_STANDSTILL\": {\n    \"en\": \"%1 is standstill\"\n  },\n  \"CUSTOM_TMC5160_READ_FAULT\": {\n    \"en\": \"%1 fault flags\"\n  },\n  \"CUSTOM_TMC5160_READ_STALLGUARD\": {\n    \"en\": \"%1 StallGuard result (SG_RESULT)\"\n  },\n  \"CUSTOM_TMC5160_IS_STALLED\": {\n    \"en\": \"%1 is stalled\"\n  },\n  \"CUSTOM_TMC5160_READ_CURRENT_SCALE\": {\n    \"en\": \"%1 current scale\"\n  }\n};\n\nconst initType = 'custom_tmc5160_init';\nBlockly.BlockRegExpList['custom_tmc5160'] = {\n  regexp: new RegExp(/^custom_tmc5160_/),\n  code: \"from TMC5160 import TMC5160\",\n  initBlockType: initType,\n  categoryId: 'custom_tmc5160',\n}\nBlockly.utils.registerLanguages(CUSTOM_TMC5160_LANGUAGES)\n\nBlockly.Msg.CUSTOM_TMC5160_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_TMC5160 = 'TMC5160'\n\nBlockly.utils.getcustom_tmc5160Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['tmc5160_0', 'tmc5160_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_tmc5160_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_tmc5160Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'tmc5160_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'en_pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_sense'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var en_pin = Blockly.Python.valueToCode(block, 'en_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_sense = Blockly.Python.valueToCode(block, 'r_sense', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = TMC5160(${bus}, ${cs_pin}, ${en_pin}, ${r_sense})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_enable\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_ENABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_enable\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_disable\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_DISABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_disable\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'current'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var current = Blockly.Python.valueToCode(block, 'current', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_current(${current})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_speed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_SPEED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'speed'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_speed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var speed = Blockly.Python.valueToCode(block, 'speed', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_speed(${speed})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_acceleration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_ACCELERATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'accel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_acceleration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var accel = Blockly.Python.valueToCode(block, 'accel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_acceleration(${accel})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_move_to\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_MOVE_TO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_move_to\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.move_to(${position})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_move\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_MOVE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_move\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.move(${steps})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_run\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_RUN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'velocity'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_run\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var velocity = Blockly.Python.valueToCode(block, 'velocity', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.run(${velocity})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_position(${position})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_microsteps\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_MICROSTEPS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'n'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_microsteps\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var n = Blockly.Python.valueToCode(block, 'n', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_microsteps(${n})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_chopper_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_CHOPPER_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'spreadcycle'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_chopper_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var spreadcycle = Blockly.Python.valueToCode(block, 'spreadcycle', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_chopper_mode(${spreadcycle})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_stall_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_STALL_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'sgt'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_stall_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sgt = Blockly.Python.valueToCode(block, 'sgt', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_stall_threshold(${sgt})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_set_coolstep_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_SET_COOLSTEP_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'tcoolthrs'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_set_coolstep_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var tcoolthrs = Blockly.Python.valueToCode(block, 'tcoolthrs', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_coolstep_threshold(${tcoolthrs})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_enable_stall_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_ENABLE_STALL_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_enable_stall_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_stall_stop(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_clear_ramp_events\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_CLEAR_RAMP_EVENTS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_clear_ramp_events\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_ramp_events()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc5160_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.position()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_velocity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_VELOCITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_velocity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.velocity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_is_position_reached\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_IS_POSITION_REACHED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_is_position_reached\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_position_reached()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_is_standstill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_IS_STANDSTILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_is_standstill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_standstill()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_read_fault\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_READ_FAULT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_read_fault\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_fault()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_read_stallguard\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_READ_STALLGUARD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_read_stallguard\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_stallguard()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_is_stalled\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_IS_STALLED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_is_stalled\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_stalled()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc5160_read_current_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC5160_READ_CURRENT_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc5160Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc5160_read_current_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_current_scale()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"TMC5160\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tmc5160\">\n<title text=\"TMC5160\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_tmc5160_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n  <value name=\"en_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"r_sense\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.075</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_enable\"/><block type=\"custom_tmc5160_disable\"/><block type=\"custom_tmc5160_set_current\">\n  <value name=\"current\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_set_speed\">\n  <value name=\"speed\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">200</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_set_acceleration\">\n  <value name=\"accel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">400</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_move_to\">\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_move\">\n  <value name=\"steps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">400</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_run\">\n  <value name=\"velocity\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">200</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_stop\"/><block type=\"custom_tmc5160_set_position\">\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_set_microsteps\">\n  <value name=\"n\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">256</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_set_chopper_mode\">\n  <value name=\"spreadcycle\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_set_stall_threshold\">\n  <value name=\"sgt\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_set_coolstep_threshold\">\n  <value name=\"tcoolthrs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_enable_stall_stop\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc5160_clear_ramp_events\"/><block type=\"custom_tmc5160_position\"/><block type=\"custom_tmc5160_velocity\"/><block type=\"custom_tmc5160_is_position_reached\"/><block type=\"custom_tmc5160_is_standstill\"/><block type=\"custom_tmc5160_read_fault\"/><block type=\"custom_tmc5160_read_stallguard\"/><block type=\"custom_tmc5160_is_stalled\"/><block type=\"custom_tmc5160_read_current_scale\"/>\n</category>\n",
+    "toolboxitemid": "custom_tmc5160",
+    "block_type": [
+      "custom_tmc5160___init__",
+      "custom_tmc5160_enable",
+      "custom_tmc5160_disable",
+      "custom_tmc5160_set_current",
+      "custom_tmc5160_set_speed",
+      "custom_tmc5160_set_acceleration",
+      "custom_tmc5160_move_to",
+      "custom_tmc5160_move",
+      "custom_tmc5160_run",
+      "custom_tmc5160_stop",
+      "custom_tmc5160_set_position",
+      "custom_tmc5160_set_microsteps",
+      "custom_tmc5160_set_chopper_mode",
+      "custom_tmc5160_set_stall_threshold",
+      "custom_tmc5160_set_coolstep_threshold",
+      "custom_tmc5160_enable_stall_stop",
+      "custom_tmc5160_clear_ramp_events",
+      "custom_tmc5160_position",
+      "custom_tmc5160_velocity",
+      "custom_tmc5160_is_position_reached",
+      "custom_tmc5160_is_standstill",
+      "custom_tmc5160_read_fault",
+      "custom_tmc5160_read_stallguard",
+      "custom_tmc5160_is_stalled",
+      "custom_tmc5160_read_current_scale"
+    ]
+  },
+  "data": {
+    "name": "TMC5160",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "TMC5160",
+      "time": "2026-11-09",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.motor.tmc5160 import TMC5160Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SPI bus %2 CS pin %3 ENN pin %4 sense resistor (ohm) %5"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "en_pin",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_sense",
+            "type": "float",
+            "default": "0.075",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin, polarity=1, phase=1)\n        self._driver = TMC5160Full(connection, r_sense_ohm=r_sense, en_pin=MicroPythonOutputPin(en_pin))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable",
+        "note": {},
+        "label": {
+          "en": "%1 enable driver"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable",
+        "note": {},
+        "label": {
+          "en": "%1 disable driver"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_current",
+        "note": {},
+        "label": {
+          "en": "%1 set run current (A RMS) %2"
+        },
+        "params": [
+          {
+            "name": "current",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_current(current)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_speed",
+        "note": {},
+        "label": {
+          "en": "%1 set speed (full steps/s) %2"
+        },
+        "params": [
+          {
+            "name": "speed",
+            "type": "float",
+            "default": "200",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_speed(speed)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_acceleration",
+        "note": {},
+        "label": {
+          "en": "%1 set acceleration (full steps/s2) %2"
+        },
+        "params": [
+          {
+            "name": "accel",
+            "type": "float",
+            "default": "400",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_acceleration(accel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "move_to",
+        "note": {},
+        "label": {
+          "en": "%1 move to position (full steps) %2"
+        },
+        "params": [
+          {
+            "name": "position",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.move_to(position)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "move",
+        "note": {},
+        "label": {
+          "en": "%1 move relative and wait (full steps) %2"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "float",
+            "default": "400",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.move(steps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "run",
+        "note": {},
+        "label": {
+          "en": "%1 run at velocity (full steps/s) %2"
+        },
+        "params": [
+          {
+            "name": "velocity",
+            "type": "float",
+            "default": "200",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.run(velocity)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop",
+        "note": {},
+        "label": {
+          "en": "%1 stop"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_position",
+        "note": {},
+        "label": {
+          "en": "%1 define position (full steps) %2"
+        },
+        "params": [
+          {
+            "name": "position",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_position(position)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_microsteps",
+        "note": {},
+        "label": {
+          "en": "%1 set microsteps (1-256) %2"
+        },
+        "params": [
+          {
+            "name": "n",
+            "type": "int",
+            "default": "256",
+            "note": {},
+            "field": "number",
+            "max": "256",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_microsteps(n)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_chopper_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set SpreadCycle (1) / StealthChop (0) %2"
+        },
+        "params": [
+          {
+            "name": "spreadcycle",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_chopper_mode(bool(spreadcycle))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_stall_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 set StallGuard threshold (SGT) %2"
+        },
+        "params": [
+          {
+            "name": "sgt",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "-64"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_stall_threshold(sgt)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_coolstep_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 set CoolStep/stall threshold (TCOOLTHRS) %2"
+        },
+        "params": [
+          {
+            "name": "tcoolthrs",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1048575",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_coolstep_threshold(tcoolthrs)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_stall_stop",
+        "note": {},
+        "label": {
+          "en": "%1 stop on stall (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_stall_stop(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_ramp_events",
+        "note": {},
+        "label": {
+          "en": "%1 clear ramp events"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_ramp_events()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "position",
+        "note": {},
+        "label": {
+          "en": "%1 position (full steps)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.position()",
+        "ast_return": {
+          "code": "self._driver.position()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "velocity",
+        "note": {},
+        "label": {
+          "en": "%1 velocity (full steps/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.velocity()",
+        "ast_return": {
+          "code": "self._driver.velocity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_position_reached",
+        "note": {},
+        "label": {
+          "en": "%1 position reached"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_position_reached()",
+        "ast_return": {
+          "code": "self._driver.is_position_reached()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_standstill",
+        "note": {},
+        "label": {
+          "en": "%1 is standstill"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_standstill()",
+        "ast_return": {
+          "code": "self._driver.is_standstill()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_fault",
+        "note": {},
+        "label": {
+          "en": "%1 fault flags"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fault()",
+        "ast_return": {
+          "code": "self._driver.read_fault()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_stallguard",
+        "note": {},
+        "label": {
+          "en": "%1 StallGuard result (SG_RESULT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_stallguard()",
+        "ast_return": {
+          "code": "self._driver.read_stallguard()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_stalled",
+        "note": {},
+        "label": {
+          "en": "%1 is stalled"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_stalled()",
+        "ast_return": {
+          "code": "self._driver.is_stalled()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_current_scale",
+        "note": {},
+        "label": {
+          "en": "%1 current scale"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_current_scale()",
+        "ast_return": {
+          "code": "self._driver.read_current_scale()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "tmc5160"
+  },
+  "pyCode": "\"\"\"\nfile     TMC5160\ntime     2026-11-09\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.motor.tmc5160 import TMC5160Full\n\n\nclass TMC5160:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 1, cs_pin: int = 5, en_pin: int = 4, r_sense: float = 0.075):\n        \"\"\"\n        label:\n            en: '%1 init SPI bus %2 CS pin %3 ENN pin %4 sense resistor (ohm) %5'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '1'\n                field: number\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n            en_pin:\n                name: en_pin\n                type: int\n                default: '4'\n                field: number\n            r_sense:\n                name: r_sense\n                type: float\n                default: '0.075'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin, polarity=1, phase=1)\n        self._driver = TMC5160Full(connection, r_sense_ohm=r_sense, en_pin=MicroPythonOutputPin(en_pin))\n\n    def enable(self):\n        \"\"\"\n        label:\n            en: '%1 enable driver'\n        \"\"\"\n        self._driver.enable()\n\n    def disable(self):\n        \"\"\"\n        label:\n            en: '%1 disable driver'\n        \"\"\"\n        self._driver.disable()\n\n    def set_current(self, current: float):\n        \"\"\"\n        label:\n            en: '%1 set run current (A RMS) %2'\n        params:\n            current:\n                name: current\n                type: float\n                default: '0.5'\n                field: number\n        \"\"\"\n        self._driver.set_current(current)\n\n    def set_speed(self, speed: float):\n        \"\"\"\n        label:\n            en: '%1 set speed (full steps/s) %2'\n        params:\n            speed:\n                name: speed\n                type: float\n                default: '200'\n                field: number\n        \"\"\"\n        self._driver.set_speed(speed)\n\n    def set_acceleration(self, accel: float):\n        \"\"\"\n        label:\n            en: '%1 set acceleration (full steps/s2) %2'\n        params:\n            accel:\n                name: accel\n                type: float\n                default: '400'\n                field: number\n        \"\"\"\n        self._driver.set_acceleration(accel)\n\n    def move_to(self, position: float):\n        \"\"\"\n        label:\n            en: '%1 move to position (full steps) %2'\n        params:\n            position:\n                name: position\n                type: float\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.move_to(position)\n\n    def move(self, steps: float):\n        \"\"\"\n        label:\n            en: '%1 move relative and wait (full steps) %2'\n        params:\n            steps:\n                name: steps\n                type: float\n                default: '400'\n                field: number\n        \"\"\"\n        self._driver.move(steps)\n\n    def run(self, velocity: float):\n        \"\"\"\n        label:\n            en: '%1 run at velocity (full steps/s) %2'\n        params:\n            velocity:\n                name: velocity\n                type: float\n                default: '200'\n                field: number\n        \"\"\"\n        self._driver.run(velocity)\n\n    def stop(self):\n        \"\"\"\n        label:\n            en: '%1 stop'\n        \"\"\"\n        self._driver.stop()\n\n    def set_position(self, position: float):\n        \"\"\"\n        label:\n            en: '%1 define position (full steps) %2'\n        params:\n            position:\n                name: position\n                type: float\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_position(position)\n\n    def set_microsteps(self, n: int):\n        \"\"\"\n        label:\n            en: '%1 set microsteps (1-256) %2'\n        params:\n            n:\n                name: n\n                type: int\n                default: '256'\n                field: number\n                min: '1'\n                max: '256'\n        \"\"\"\n        self._driver.set_microsteps(n)\n\n    def set_chopper_mode(self, spreadcycle: int):\n        \"\"\"\n        label:\n            en: '%1 set SpreadCycle (1) / StealthChop (0) %2'\n        params:\n            spreadcycle:\n                name: spreadcycle\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_chopper_mode(bool(spreadcycle))\n\n    def set_stall_threshold(self, sgt: int):\n        \"\"\"\n        label:\n            en: '%1 set StallGuard threshold (SGT) %2'\n        params:\n            sgt:\n                name: sgt\n                type: int\n                default: '0'\n                field: number\n                min: '-64'\n                max: '63'\n        \"\"\"\n        self._driver.set_stall_threshold(sgt)\n\n    def set_coolstep_threshold(self, tcoolthrs: int):\n        \"\"\"\n        label:\n            en: '%1 set CoolStep/stall threshold (TCOOLTHRS) %2'\n        params:\n            tcoolthrs:\n                name: tcoolthrs\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1048575'\n        \"\"\"\n        self._driver.set_coolstep_threshold(tcoolthrs)\n\n    def enable_stall_stop(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 stop on stall (0/1) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.enable_stall_stop(bool(enabled))\n\n    def clear_ramp_events(self):\n        \"\"\"\n        label:\n            en: '%1 clear ramp events'\n        \"\"\"\n        self._driver.clear_ramp_events()\n\n    def position(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 position (full steps)'\n        \"\"\"\n\n        return self._driver.position()\n\n    def velocity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 velocity (full steps/s)'\n        \"\"\"\n\n        return self._driver.velocity()\n\n    def is_position_reached(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 position reached'\n        \"\"\"\n\n        return self._driver.is_position_reached()\n\n    def is_standstill(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is standstill'\n        \"\"\"\n\n        return self._driver.is_standstill()\n\n    def read_fault(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 fault flags'\n        \"\"\"\n\n        return self._driver.read_fault()\n\n    def read_stallguard(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 StallGuard result (SG_RESULT)'\n        \"\"\"\n\n        return self._driver.read_stallguard()\n\n    def is_stalled(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is stalled'\n        \"\"\"\n\n        return self._driver.is_stalled()\n\n    def read_current_scale(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 current scale'\n        \"\"\"\n\n        return self._driver.read_current_scale()\n",
+  "version": "alpha2"
+}

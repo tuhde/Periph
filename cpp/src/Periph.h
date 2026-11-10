@@ -105,6 +105,7 @@
 #include "chips/motor/TMC2130.h"
 #include "chips/motor/TMC2208.h"
 #include "chips/motor/TMC2209.h"
+#include "chips/motor/TMC5160.h"
 #include "chips/other/Mpr121.h"
 #include "chips/power/ADE7953.h"
 #include "chips/power/AXP2101.h"

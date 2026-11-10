@@ -127,6 +127,7 @@ Each chip exposes two classes:
 | TMC2130 | Motor driver | `chips/motor/TMC2130.h` |
 | TMC2208 | Motor driver | `chips/motor/TMC2208.h` |
 | TMC2209 | Motor driver | `chips/motor/TMC2209.h` |
+| TMC5160 | Motor driver | `chips/motor/TMC5160.h` |
 | TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
 | UC1611s | Display driver | `chips/display/UC1611s.h` |
 | VL53L0X | Time-of-flight | `chips/tof/VL53L0X.h` |

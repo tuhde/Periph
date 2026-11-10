@@ -1,0 +1,95 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-tmc5160', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: 'spi', required: true },
+            spiBus:       { value: '0', validate: RED.validators.number() },
+            spiDevice:    { value: '0', validate: RED.validators.number() },
+            port:         { value: '/dev/ttyS0' },
+            baudrate:     { value: '115200', validate: RED.validators.number() },
+            address:      { value: '0', validate: RED.validators.number() },
+            echo:         { value: true },
+            enGpio:       { value: '' },
+            diag0Gpio:    { value: '' },
+            diag1Gpio:    { value: '' },
+            rsense:       { value: '0.075', required: true, validate: RED.validators.number() },
+            fclk:         { value: '12000000', validate: RED.validators.number() },
+            current:      { value: '1.0', validate: RED.validators.number() },
+            speed:        { value: '200', validate: RED.validators.number() },
+            acceleration: { value: '400', validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-cog',
+        label:   function() { return this.name || 'TMC5160'; },
+        paletteLabel: 'TMC5160'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-tmc5160">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="TMC5160">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-plug"></i> Bus</label>
+        <select id="node-input-bus" style="width:100px"><option value="spi">SPI</option><option value="uart">UART</option></select>
+    </div>
+    <div class="form-row"><label for="node-input-spiBus">SPI bus</label><input type="number" id="node-input-spiBus" min="0" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-spiDevice">SPI device (CS)</label><input type="number" id="node-input-spiDevice" min="0" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-port">Serial port</label><input type="text" id="node-input-port" placeholder="/dev/ttyS0"></div>
+    <div class="form-row"><label for="node-input-baudrate">Baud rate</label><input type="number" id="node-input-baudrate" min="9000" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-address">Node address</label><input type="number" id="node-input-address" min="0" max="253" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-echo">UART echo</label><input type="checkbox" id="node-input-echo" style="width:auto"></div>
+    <div class="form-row"><label for="node-input-enGpio">DRV_ENN GPIO (optional)</label><input type="text" id="node-input-enGpio" placeholder="not wired, e.g. 0:17" style="width:140px"></div>
+    <div class="form-row"><label for="node-input-diag0Gpio">DIAG0 GPIO (SPI, optional)</label><input type="text" id="node-input-diag0Gpio" placeholder="e.g. 0:23" style="width:140px"></div>
+    <div class="form-row"><label for="node-input-diag1Gpio">DIAG1 GPIO (SPI, optional)</label><input type="text" id="node-input-diag1Gpio" placeholder="e.g. 0:24" style="width:140px"></div>
+    <div class="form-row"><label for="node-input-rsense">Sense resistor (Ω)</label><input type="number" id="node-input-rsense" min="0.01" step="0.005" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-fclk">Chip clock (Hz)</label><input type="number" id="node-input-fclk" min="4000000" style="width:120px"></div>
+    <div class="form-row"><label for="node-input-current">Default current (A RMS)</label><input type="number" id="node-input-current" min="0" step="0.1" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-speed">Default speed (full steps/s)</label><input type="number" id="node-input-speed" min="1" style="width:100px"></div>
+    <div class="form-row"><label for="node-input-acceleration">Default acceleration (full steps/s²)</label><input type="number" id="node-input-acceleration" min="1" style="width:100px"></div>
+</script>
+
+<script type="text/html" data-help-name="periph-tmc5160">
+    <p>Drives a two-phase bipolar stepper motor through a Trinamic TMC5160 over SPI (Mode 3) or single-wire UART. The chip's internal SixPoint ramp generator moves the motor; positions are in full steps, speeds in full steps/s and accelerations in full steps/s².</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.move_to <span class="property-type">number</span></dt>
+        <dd>Absolute target position in full steps (non-blocking).</dd>
+        <dt>payload.move <span class="property-type">number</span></dt>
+        <dd>Relative move in full steps; blocks until reached. <code>payload.speed</code> overrides the speed.</dd>
+        <dt>payload.speed <span class="property-type">number</span></dt>
+        <dd>Velocity mode in full steps/s (negative = reverse, <code>0</code> stops).</dd>
+        <dt>payload.stop <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> decelerates to standstill.</dd>
+        <dt>payload.current / acceleration / stall_threshold <span class="property-type">number</span></dt>
+        <dd>Run current in A RMS; acceleration in full steps/s²; StallGuard2 threshold −64…63.</dd>
+        <dt>payload.zero <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> defines the current position as 0.</dd>
+        <dt>payload.enable <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> switches the power stage on, <code>false</code> off.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message polls the driver status.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.position, velocity <span class="property-type">number</span></dt>
+        <dd>Actual position (full steps) and velocity (full steps/s).</dd>
+        <dt>payload.position_reached, standstill <span class="property-type">boolean</span></dt>
+        <dd>Ramp and driver state.</dd>
+        <dt>payload.fault <span class="property-type">number</span></dt>
+        <dd>Bitmask: 1 over-temperature pre-warning, 2 over-temperature, 4 short to GND, 8 short to supply, 16 open load; <code>0</code> = none.</dd>
+        <dt>payload.cs_actual, sg_result <span class="property-type">number</span></dt>
+        <dd>Actual current scale 0–31 and StallGuard2 result 0–1023.</dd>
+        <dt>payload.tstep, stallguard, otpw, ot</dt>
+        <dd>Status polls only.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Choose the bus. SPI: bus and device numbers (<code>/dev/spidevB.D</code>), optional DIAG0/DIAG1 GPIOs. UART: serial port, baud rate, node address and echo (TX through 1 kΩ to SWP, RX directly). GPIOs are given as <code>chip:line</code> and need the <code>opengpio</code> package. Set the sense resistor (0.075 Ω on common boards), the chip clock and the default current, speed and acceleration. The motor is stopped and the driver disabled when the node is closed.</p>
+</script>

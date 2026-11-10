@@ -135,6 +135,7 @@ Each chip exposes two classes:
 | TMC2130 | Motor driver | Trinamic TMC2130 stepper driver over SPI. |
 | TMC2208 | Motor driver | Trinamic TMC2202 / TMC2208 / TMC2224 stepper driver over single-wire UART. |
 | TMC2209 | Motor driver | Trinamic TMC2209 stepper driver over single-wire UART. |
+| TMC5160 | Motor driver | Trinamic TMC5160 stepper controller/driver over SPI or single-wire UART. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
 | UC1611S | Display driver | Graphic LCD controller-driver |
