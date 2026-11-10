@@ -1,0 +1,9 @@
+[package]
+name = "tmc2209_complete"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true, features = ["uart-linux"] }
+linux-embedded-hal = { workspace = true }
+gpio-cdev = { workspace = true }

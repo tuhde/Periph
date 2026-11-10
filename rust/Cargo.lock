@@ -3462,6 +3462,76 @@ dependencies = [
 ]
 
 [[package]]
+name = "tmc2208_complete"
+version = "0.1.0"
+dependencies = [
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2208_demo"
+version = "0.1.0"
+dependencies = [
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2208_minimal"
+version = "0.1.0"
+dependencies = [
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2208_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2209_complete"
+version = "0.1.0"
+dependencies = [
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2209_demo"
+version = "0.1.0"
+dependencies = [
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2209_minimal"
+version = "0.1.0"
+dependencies = [
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "tmc2209_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "tmp117_complete"
 version = "0.1.0"
 dependencies = [

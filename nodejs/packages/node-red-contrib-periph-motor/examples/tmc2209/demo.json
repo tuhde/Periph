@@ -1,0 +1,151 @@
+[
+    {
+        "id": "tab-tmc2209-demo",
+        "type": "tab",
+        "label": "TMC2209 Stepper Demo",
+        "disabled": false,
+        "info": "A StallGuard4 stall-monitoring slider controller. One Inject node sends {enable: true, current: 0.8, microsteps: 16, stall_threshold: 60} once at start. A second Inject node ticks every 5 s into a Function node that cycles the commands {speed: 200}, {speed: -200}, {stop: true}, so the TMC2209's internal step generator turns the motor forward, backward and stops, without any STEP pulses. A third Inject node polls the driver status every 2 s (any other message); a Function node checks msg.payload.fault and sg_result (below 2 * stall_threshold) and raises a Node-RED warning, while a Debug node shows every reply."
+    },
+    {
+        "id": "inj-setup",
+        "type": "inject",
+        "name": "Enable 0.8 A, 16 microsteps, SGTHRS 60",
+        "topic": "",
+        "payload": "{\"enable\":true,\"current\":0.8,\"microsteps\":16,\"stall_threshold\":60}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-tmc2209-demo",
+        "x": 190,
+        "y": 80,
+        "wires": [
+            [
+                "tmc2209-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-cycle",
+        "type": "inject",
+        "name": "Cycle tick (5 s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 3,
+        "z": "tab-tmc2209-demo",
+        "x": 140,
+        "y": 160,
+        "wires": [
+            [
+                "fn-cycle"
+            ]
+        ]
+    },
+    {
+        "id": "fn-cycle",
+        "type": "function",
+        "name": "speed 200 / -200 / stop",
+        "func": "const seq = [{ speed: 200 }, { speed: -200 }, { stop: true }];\nconst i = context.get('step') || 0;\ncontext.set('step', (i + 1) % seq.length);\nmsg.payload = seq[i];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-tmc2209-demo",
+        "x": 350,
+        "y": 160,
+        "wires": [
+            [
+                "tmc2209-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-poll",
+        "type": "inject",
+        "name": "Poll status (2 s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2,
+        "z": "tab-tmc2209-demo",
+        "x": 140,
+        "y": 240,
+        "wires": [
+            [
+                "tmc2209-node"
+            ]
+        ]
+    },
+    {
+        "id": "tmc2209-node",
+        "type": "periph-tmc2209",
+        "z": "tab-tmc2209-demo",
+        "name": "TMC2209",
+        "port": "/dev/ttyS0",
+        "baudrate": "115200",
+        "rsense": "0.11",
+        "current": "0.5",
+        "microsteps": "16",
+        "enGpio": "",
+        "x": 570,
+        "y": 160,
+        "wires": [
+            [
+                "fn-fault",
+                "dbg-status"
+            ]
+        ]
+    },
+    {
+        "id": "fn-fault",
+        "type": "function",
+        "name": "warn on fault",
+        "func": "if (msg.payload.fault) {\n    node.warn('TMC2209 fault bitmask: ' + msg.payload.fault);\n    return msg;\n}\nif (msg.payload.speed === undefined && msg.payload.sg_result < 120) {\n    node.warn('TMC2209 possible stall, SG_RESULT ' + msg.payload.sg_result);\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-tmc2209-demo",
+        "x": 790,
+        "y": 120,
+        "wires": [
+            [
+                "dbg-fault"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-status",
+        "type": "debug",
+        "name": "Driver status",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-tmc2209-demo",
+        "x": 790,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "dbg-fault",
+        "type": "debug",
+        "name": "Fault",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-tmc2209-demo",
+        "x": 970,
+        "y": 120,
+        "wires": []
+    }
+]

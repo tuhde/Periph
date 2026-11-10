@@ -1,4 +1,4 @@
-//! Scripted TMC2208-style UART chip simulator for unit tests (`std` only).
+//! Scripted TMC2208/TMC2209-style UART chip simulator for unit tests (`std` only).
 //!
 //! [`UartMock`] implements [`embedded_io::Read`] + [`embedded_io::Write`] and
 //! behaves like a Trinamic single-wire UART slave: 8-byte write datagrams
@@ -43,7 +43,7 @@ pub struct UartMock {
 }
 
 impl UartMock {
-    /// New mock with a TMC2208-like `IOIN` (SEL_A = 1, VERSION 0x21).
+    /// New mock with a TMC2208/TMC2209-like `IOIN` (SEL_A = 1, VERSION 0x21).
     pub fn new(echo: bool) -> Self {
         let mut regs = BTreeMap::new();
         regs.insert(0x06, 0x2100_0100);
