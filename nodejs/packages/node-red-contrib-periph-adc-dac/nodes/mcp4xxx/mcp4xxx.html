@@ -1,0 +1,167 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mcp4xxx-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            part:     { value: 'MCP4532', required: true },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '58', required: true, validate: RED.validators.regex(/^[0-9a-fA-F]{1,2}$/) },
+            rab:      { value: '10000', required: true, validate: RED.validators.number() },
+            rwiper:   { value: '75', required: true, validate: RED.validators.number() },
+            gpioChip: { value: '0' },
+            hvcPin:   { value: '' }
+        },
+        label: function() {
+            return this.name || (this.part + ' @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        },
+        oneditprepare: function() {
+            // Part digits "4 S M P": S = 5 single / 6 dual, M = 3/5 volatile, 4/6 non-volatile, P = 1 pot / 2 rheostat.
+            // The address range follows the part: 45X1 0x2E-0x2F, 45X2 / 46X2 0x58-0x5B, 46X1 0x28-0x2F.
+            function fill() {
+                const d = $('#node-config-input-part').val().slice(3);
+                const dual = d[1] === '6';
+                const nv = d[2] === '4' || d[2] === '6';
+                const pot = d[3] === '1';
+                const lo = pot ? (dual ? 0x28 : 0x2E) : 0x58;
+                const hi = pot ? 0x2F : 0x5B;
+                const sel = $('#node-config-input-address');
+                const cur = parseInt(sel.val() || '0', 16);
+                sel.empty();
+                for (let a = lo; a <= hi; a++) sel.append($('<option>').val(a.toString(16).toUpperCase()).text('0x' + a.toString(16).toUpperCase()));
+                sel.val((cur >= lo && cur <= hi ? cur : lo).toString(16).toUpperCase());
+                $('#mcp4xxx-hvc-row').toggle(nv);
+            }
+            $('#node-config-input-part').on('change', fill);
+            fill();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mcp4xxx-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MCP4XXX">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-part">Part</label>
+        <select id="node-config-input-part" style="width:120px">
+            <option value="MCP4531">MCP4531</option>
+            <option value="MCP4532">MCP4532</option>
+            <option value="MCP4541">MCP4541</option>
+            <option value="MCP4542">MCP4542</option>
+            <option value="MCP4551">MCP4551</option>
+            <option value="MCP4552">MCP4552</option>
+            <option value="MCP4561">MCP4561</option>
+            <option value="MCP4562">MCP4562</option>
+            <option value="MCP4631">MCP4631</option>
+            <option value="MCP4632">MCP4632</option>
+            <option value="MCP4641">MCP4641</option>
+            <option value="MCP4642">MCP4642</option>
+            <option value="MCP4651">MCP4651</option>
+            <option value="MCP4652">MCP4652</option>
+            <option value="MCP4661">MCP4661</option>
+            <option value="MCP4662">MCP4662</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <select id="node-config-input-address" style="width:100px"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rab">RAB (Ω)</label>
+        <select id="node-config-input-rab" style="width:100px">
+            <option value="5000">5 kΩ</option>
+            <option value="10000">10 kΩ</option>
+            <option value="50000">50 kΩ</option>
+            <option value="100000">100 kΩ</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rwiper">Wiper R (Ω)</label>
+        <input type="number" id="node-config-input-rwiper" min="0" style="width:100px"> &nbsp;typical 75 Ω
+    </div>
+    <div class="form-row" id="mcp4xxx-hvc-row">
+        <label for="node-config-input-hvcPin">HVC GPIO</label>
+        <input type="number" id="node-config-input-hvcPin" min="0" style="width:80px" placeholder="none"> &nbsp;chip
+        <input type="number" id="node-config-input-gpioChip" min="0" style="width:60px">
+        <div class="form-tips">Non-volatile parts only: GPIO line that switches the external 8.5-12.5 V circuit on HVC/A0 (enables WiperLock / write-protect commands). Leave empty if unused.</div>
+    </div>
+</script>
+
+<!-- Node: set or read the wipers -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp4xxx', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mcp4xxx-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sliders',
+        label:   function() { return this.name || 'MCP4XXX'; },
+        paletteLabel: 'MCP4XXX'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp4xxx">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP4XXX">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp4xxx">
+    <p>Sets or reads the volatile wiper(s) of an MCP4XXX I²C digital potentiometer / rheostat
+    (MCP4531 … MCP4662: 7 / 8-bit, one or two networks, volatile or non-volatile). The device is
+    configured via an <b>mcp4xxx-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel <span class="property-type">number</span></dt>
+        <dd>Network 0 (default) or 1 (dual parts).</dd>
+        <dt>payload.code <span class="property-type">number</span></dt>
+        <dd>Wiper position 0–128 (7-bit parts) / 0–256 (8-bit parts). Takes precedence over the other set fields.</dd>
+        <dt>payload.ohms <span class="property-type">number</span></dt>
+        <dd>Target wiper-to-B resistance in ohms; the nearest reachable code is used.</dd>
+        <dt>payload.ratio <span class="property-type">number</span></dt>
+        <dd>Divider ratio 0–1.</dd>
+        <dt>payload.step <span class="property-type">number</span></dt>
+        <dd>Increment (positive) or decrement (negative) the wiper by that many steps.</dd>
+        <dt>payload.shutdown <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> shuts the network down (A open, W tied to B), <code>false</code> resumes.</dd>
+        <dt>payload.store <span class="property-type">boolean</span></dt>
+        <dd>Non-volatile parts: store the current wiper in the EEPROM wiper.</dd>
+        <dt>payload.data <span class="property-type">object</span></dt>
+        <dd>Non-volatile parts: <code>{ index: 0-9, value?: 0-511 }</code> reads (and, with <code>value</code>, writes) a general-purpose EEPROM register.</dd>
+    </dl>
+    <p>Any other message reads back all networks.</p>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel, payload.code, payload.resistance</dt>
+        <dd>After a write: the network, the resulting wiper code and its W–B resistance (Ω); plus
+        <code>shutdown</code> / <code>stored</code> where requested.</dd>
+        <dt>payload.index, payload.value</dt>
+        <dd>After an EEPROM data access.</dd>
+        <dt>payload.wiper, payload.resistance <span class="property-type">array</span></dt>
+        <dd>After a read: one entry per network; non-volatile parts also return <code>payload.status</code>
+        (<code>eepromBusy</code>, <code>wiperLock</code>, <code>writeProtect</code>).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Choose the part, I²C bus and address (limited to the part's range), the end-to-end resistance RAB
+    (5 / 10 / 50 / 100 kΩ) and the wiper resistance RW. Volatile wipers return to mid-scale at power-up;
+    non-volatile parts restore the stored EEPROM wiper. The optional HVC GPIO (non-volatile parts) drives the
+    external high-voltage circuit needed for WiperLock / write-protect changes.</p>
+</script>

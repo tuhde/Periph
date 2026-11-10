@@ -1,0 +1,145 @@
+#include <Wire.h>
+#include <Periph.h>
+
+I2CConnection connection(Wire, 0x34);
+
+void setup() {
+    Serial.begin(115200);
+    Wire.begin();
+
+    AXP2101Full chip(connection);                       // Create AXP2101 Full driver, (connection)
+
+    uint8_t onSrc = chip.powerOnSource();               // Power on source, () → uint8_t
+                                                        // PWRON_STATUS flags: key, IRQ pin, VBUS, battery
+    Serial.print("power on source: "); Serial.print(onSrc, HEX); Serial.println();
+    uint8_t offSrc = chip.powerOffSource();             // Power off source, () → uint8_t
+                                                        // PWROFF_STATUS flags: why the PMIC last powered off
+    Serial.print("power off source: "); Serial.print(offSrc, HEX); Serial.println();
+    float vbus = chip.vbusVoltage();                    // Vbus voltage, () → float V
+                                                        // VBUS ADC channel, 1 mV per LSB
+    Serial.print("vbus voltage: "); Serial.print(vbus, 3); Serial.println();
+    float vsys = chip.systemVoltage();                  // System voltage, () → float V
+                                                        // VSYS ADC channel, 1 mV per LSB
+    Serial.print("system voltage: "); Serial.print(vsys, 3); Serial.println();
+    float ts = chip.tsVoltage();                        // Ts voltage, () → float V
+                                                        // TS pin ADC channel, 0.5 mV per LSB
+    Serial.print("ts voltage: "); Serial.print(ts, 3); Serial.println();
+    float tdie = chip.dieTemperature();                 // Die temperature, () → float °C
+                                                        // die-temperature channel, vendor formula (verify on hardware)
+    Serial.print("die temperature: "); Serial.print(tdie, 1); Serial.println();
+    AXP2101Readings snapshot;
+    chip.readAll(snapshot);                             // Read all, () → void (fills a struct)
+                                                        // one call returns every measurement plus charge state and VBUS flag
+    Serial.print("read all: "); Serial.print(snapshot.batteryVoltage, 3); Serial.print(" V"); Serial.println();
+    AXP2101Status flags;
+    chip.status(flags);                                 // Status, () → void (fills a struct)
+                                                        // decodes STATUS1 / STATUS2 into named flags
+    Serial.print("status: "); Serial.print(flags.batteryDirection); Serial.println();
+    chip.setAdcChannels(true, true, true, true, true, false); // Set adc channels, (vbat=True, ts=True, vbus=True, vsys=True, tdie=True, gpadc=False) → bool
+                                                        // ADC_ENABLE channel mask; GPADC stays off
+    chip.setAdcLowFrequency(false);                     // Set adc low frequency, (enabled) → bool
+                                                        // TS_H bit 7: slow 64 s sampling only when powered off on battery
+    chip.setCharging(true);                             // Set charging, (enabled) → bool
+                                                        // MODULE_ENABLE bit 1: main-cell charging
+    chip.setChargeVoltage(4.2f);                        // Set charge voltage, (volts 4.0/4.1/4.2/4.35/4.4) → bool
+                                                        // CV register; 4.35 / 4.4 V are for high-voltage cells only
+    chip.setChargeCurrent(0.5f);                        // Set charge current, (amps 0–1.5) → bool
+                                                        // ICC: 25 mA steps up to 0.2 A, 100 mA steps above; capped by the charge voltage
+    chip.setPrechargeCurrent(0.125f);                   // Set precharge current, (amps 0–0.2) → bool
+                                                        // IPRECHG in 25 mA steps
+    chip.setTermination(0.125f, true);                  // Set termination, (amps 0–0.2, enabled=True) → bool
+                                                        // ITERM current in 25 mA steps plus the enable bit
+    chip.setInputCurrentLimit(1.5f);                    // Set input current limit, (amps 0.1/0.5/0.9/1.0/1.5/2.0) → bool
+                                                        // IINLIM: input current limit
+    chip.setInputVoltageLimit(4.36f);                   // Set input voltage limit, (volts 3.88–5.08) → bool
+                                                        // VINDPM in 80 mV steps
+    chip.setMinSystemVoltage(3.7f);                     // Set min system voltage, (volts 3.2–3.9) → bool
+                                                        // MIN_VSYS in 100 mV steps
+    chip.setChargeTimers(60, 12, true, true, true);     // Set charge timers, (precharge_min=60, done_hours=12, precharge_enabled=True, done_enabled=True, slow_in_dpm=True) → bool
+                                                        // CHG_TIMER: pre-charge 40–70 min, charge-done 5–20 h
+    chip.setThermalRegulation(100);                     // Set thermal regulation, (celsius 60/80/100/120) → bool
+                                                        // THERMAL_REG: charger thermal-regulation threshold
+    chip.setDieProtection(125, true);                   // Set die protection, (level1_celsius=125, detect=True) → bool
+                                                        // DIE_TEMP_CTRL: die over-temperature level 1 and detection
+    chip.setBatteryDetection(true);                     // Set battery detection, (enabled) → bool
+                                                        // BAT_DETECT bit 0
+    chip.setBackupCharging(false, 2.9f);                // Set backup charging, (enabled, volts=2.9 V) → bool
+                                                        // MODULE_ENABLE bit 2 and BTN_BAT_VTERM for the coin cell
+    chip.setChgled("type_a", "hiz");                    // Set chgled, (mode='type_a', output='hiz') → bool
+                                                        // CHGLED_CTRL: charge indicator behaviour
+    chip.configureTs(true, 50, "when_adc");             // Configure ts, (battery_sensor=True, current_ua=50 µA, source='when_adc') → bool
+                                                        // TS_CTRL: thermistor mode, injected current and source mode
+    chip.setTsLimits(1.312f, 0.176f, 1.984f, 0.152f);   // Set ts limits, (charge_cold, charge_hot, work_cold, work_hot) → bool V
+                                                        // VLTF/VHTF thresholds as TS voltages (32 mV / 2 mV steps)
+    chip.setTsHysteresis(0.032f, 0.004f);               // Set ts hysteresis, (low_to_normal=0.032 V, high_to_normal=0.004 V) → bool
+                                                        // TS_HYS_L2H (16 mV steps) and TS_HYS_H2L (4 mV steps)
+    chip.configureJeita(false, -1.0f, -1.0f, true, false, 0, 1); // Configure jeita, (enabled, cool_voltage=None, warm_voltage=None, cool_half_current=True, warm_half_current=False, cool_voltage_drop=0, warm_voltage_drop=1) → bool
+                                                        // JEITA profile; thresholds are left unchanged when None
+    bool railEnabled = false;
+    float railVolts = 0.0f;
+    chip.getRail("aldo1", railEnabled, railVolts);      // Get rail, (name) → bool, (enabled, volts V)
+                                                        // enable bit and programmed voltage of one rail
+    Serial.print("rail aldo1: "); Serial.print((railEnabled) ? "true" : "false"); Serial.print(" "); Serial.print(railVolts, 2); Serial.print(" V"); Serial.println();
+    chip.setRailVoltage("aldo1", railVolts);            // Set rail voltage, (name, volts) → bool V
+                                                        // rounds to the nearest step inside the rail range; raises outside it
+    chip.setRailEnabled("aldo1", railEnabled);          // Set rail enabled, (name, enabled) → bool
+                                                        // enable bit in DCDC_EN / LDO_EN0 / LDO_EN1
+    chip.configureDcdc("dcdc1", false, -1);             // Configure dcdc, (name, always_pwm=False, dvm=None) → bool
+                                                        // forced-PWM bit per DCDC; DVM only for DCDC2 / DCDC3
+    chip.configureDcdcGlobal(false, false, false, false, 60); // Configure dcdc global, (force_ccm=False, slow_ramp=False, frequency_spread=False, spread_100khz=False, uvp_debounce_us=60 µs) → bool
+                                                        // DCDC_EN bits 6 / 5 and DCDC_PWM bits 7:6, 1:0
+    chip.setOffDischarge(true);                         // Set off discharge, (enabled) → bool
+                                                        // COMMON_CONFIG bit 5: discharge outputs when off
+    chip.configureSleep(false, true, false);            // Configure sleep, (wake_on_irq=False, pwrok_low=True, restore_voltages=False) → bool
+                                                        // SLEEP_CTRL bits 4, 3, 2
+    chip.configurePowerKey(512, 6.0f, 1.5f, true, false, false); // Configure power key, (on_ms=512, off_s=6, irq_s=1.5, long_press_off=True, restart_instead=False, force_off_16s=False) → bool
+                                                        // power-key timing and the actions of a long press
+    chip.configurePowerOff(true, 2.6f, true, 0x0F);     // Configure power off, (die_over_temp=True, off_voltage=2.6 V, dcdc_ovp=True, dcdc_uvp=0x0F) → bool
+                                                        // power-off sources: die over-temperature, VOFF threshold, DCDC OVP / UVP
+    chip.configurePwrok(true, 8, true, false, false);   // Configure pwrok, (check=True, delay_ms=8 ms, off_delay=True, reverse_off_sequence=False, restart_on_low=False) → bool
+                                                        // PWROK_CTRL delay and sequencing
+    chip.setBatfetOffEnable(false);                     // Set batfet off enable, (enabled) → bool
+                                                        // BATFET_CTRL bit 3: BATFET on when powered off on battery only
+    chip.configureFastPoweron(false, false);            // Configure fast poweron, (poweron, wakeup, sequence=None) → bool
+                                                        // FAST_PWRON enables; the per-rail start sequence is left untouched
+    chip.configureWatchdog(false, 64, "irq");           // Configure watchdog, (enabled, timeout_s=64 s, action='irq') → bool
+                                                        // watchdog disabled here; timeout and action are still programmed
+    chip.feedWatchdog();                                // Feed watchdog, () → bool
+                                                        // WATCHDOG_CTRL bit 3: clears the watchdog counter
+    chip.configureBatteryWarning(10, 1);                // Configure battery warning, (level2=10 %, level1=1 %) → bool
+                                                        // LOWBAT_WARN: warning levels 2 (5–20 %) and 1 (0–15 %)
+    chip.setGaugeEnabled(true);                         // Set gauge enabled, (enabled) → bool
+                                                        // MODULE_ENABLE bit 3: fuel gauge
+    chip.resetGauge(false);                             // Reset gauge, (full=False) → bool
+                                                        // GAUGE_RESET bit 3 (bit 2 for the deeper reset)
+    chip.setGpio1(false);                               // Set gpio1, (low) → bool
+                                                        // GPIO1 open-drain output: False = Hi-Z
+    chip.writeDataBuffer(0, 0x5A);                      // Write data buffer, (index 0–3, value 0–255) → bool
+                                                        // stores a byte that survives soft restarts
+    uint8_t stored = 0;
+    chip.readDataBuffer(0, stored);                     // Read data buffer, (index 0–3) → uint8_t
+                                                        // reads the byte back
+    Serial.print("data buffer 0: "); Serial.print(stored); Serial.println();
+    chip.enableInterrupt(AXP2101Full::SOURCE_VBUS_INSERT); // Enable interrupt, (source) → bool
+                                                        // sets the source bits in IRQ_EN0..2
+    chip.disableInterrupt(AXP2101Full::SOURCE_VBUS_INSERT); // Disable interrupt, (source) → bool
+                                                        // clears the source bits in IRQ_EN0..2
+    uint32_t irq = chip.pollInterrupt();                // Poll interrupt, () → uint8_t
+                                                        // reads IRQ_STATUS0..2, clears the bits seen and returns the 24-bit status
+    Serial.print("interrupt status: "); Serial.print(irq); Serial.println();
+
+    // Destructive commands stay disabled; set kEnableDangerous only on a bench supply.
+    const bool kEnableDangerous = false;
+    if (kEnableDangerous) {
+        chip.powerOff();                                // Power off, () → bool
+                                                        // COMMON_CONFIG bit 0: soft power-off, cuts every output except RTCLDO
+        chip.restart();                                 // Restart, () → bool
+                                                        // COMMON_CONFIG bit 1: restarts the system
+        chip.sleep();                                   // Sleep, () → bool
+                                                        // SLEEP_CTRL bit 0: enter sleep
+        chip.wakeup();                                  // Wakeup, () → bool
+                                                        // SLEEP_CTRL bit 1: wake up
+    }
+}
+
+void loop() {}

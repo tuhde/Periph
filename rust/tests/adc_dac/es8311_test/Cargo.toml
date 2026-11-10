@@ -1,0 +1,12 @@
+[package]
+name = "es8311_test"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "es8311_test"
+path = "src/main.rs"
+
+[dependencies]
+periph = { workspace = true }
+linux-embedded-hal = { workspace = true }

@@ -1,0 +1,815 @@
+{
+  "category": "PCF85063A",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCF85063A_LANGUAGES = {\n  \"CUSTOM_PCF85063A_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PCF85063A_SET_DATETIME\": {\n    \"en\": \"%1 set date/time year %2 month %3 day %4 weekday (0=Sun) %5 hour %6 minute %7 second %8\"\n  },\n  \"CUSTOM_PCF85063A_YEAR\": {\n    \"en\": \"%1 year\"\n  },\n  \"CUSTOM_PCF85063A_MONTH\": {\n    \"en\": \"%1 month\"\n  },\n  \"CUSTOM_PCF85063A_DAY\": {\n    \"en\": \"%1 day\"\n  },\n  \"CUSTOM_PCF85063A_WEEKDAY\": {\n    \"en\": \"%1 weekday\"\n  },\n  \"CUSTOM_PCF85063A_HOUR\": {\n    \"en\": \"%1 hour\"\n  },\n  \"CUSTOM_PCF85063A_MINUTE\": {\n    \"en\": \"%1 minute\"\n  },\n  \"CUSTOM_PCF85063A_SECOND\": {\n    \"en\": \"%1 second\"\n  },\n  \"CUSTOM_PCF85063A_SET_ALARM\": {\n    \"en\": \"%1 set alarm (-1 = ignore) second %2 minute %3 hour %4 day %5 weekday %6\"\n  },\n  \"CUSTOM_PCF85063A_ALARM_SECOND\": {\n    \"en\": \"%1 alarm second (-1 = ignored)\"\n  },\n  \"CUSTOM_PCF85063A_ALARM_MINUTE\": {\n    \"en\": \"%1 alarm minute (-1 = ignored)\"\n  },\n  \"CUSTOM_PCF85063A_ALARM_HOUR\": {\n    \"en\": \"%1 alarm hour (-1 = ignored)\"\n  },\n  \"CUSTOM_PCF85063A_ALARM_DAY\": {\n    \"en\": \"%1 alarm day (-1 = ignored)\"\n  },\n  \"CUSTOM_PCF85063A_ALARM_WEEKDAY\": {\n    \"en\": \"%1 alarm weekday (-1 = ignored)\"\n  },\n  \"CUSTOM_PCF85063A_CONFIGURE_TIMER\": {\n    \"en\": \"%1 start timer value %2 source clock (0=4096Hz 1=64Hz 2=1Hz 3=1/60Hz) %3 pulsed (0/1) %4\"\n  },\n  \"CUSTOM_PCF85063A_DISABLE_TIMER\": {\n    \"en\": \"%1 stop timer\"\n  },\n  \"CUSTOM_PCF85063A_READ_TIMER\": {\n    \"en\": \"%1 timer counter\"\n  },\n  \"CUSTOM_PCF85063A_SET_MINUTE_INTERRUPT\": {\n    \"en\": \"%1 minute interrupt (0=off 1=minute 2=half-minute) %2\"\n  },\n  \"CUSTOM_PCF85063A_SET_CLOCK_OUTPUT\": {\n    \"en\": \"%1 CLKOUT frequency (Hz: 32768, 16384, 8192, 4096, 2048, 1024, 1) %2\"\n  },\n  \"CUSTOM_PCF85063A_DISABLE_CLOCK_OUTPUT\": {\n    \"en\": \"%1 disable CLKOUT\"\n  },\n  \"CUSTOM_PCF85063A_OFFSET\": {\n    \"en\": \"%1 offset (LSB)\"\n  },\n  \"CUSTOM_PCF85063A_SET_OFFSET\": {\n    \"en\": \"%1 set offset (LSB) %2 course mode (0/1) %3\"\n  },\n  \"CUSTOM_PCF85063A_SET_OSCILLATOR_LOAD\": {\n    \"en\": \"%1 oscillator load (0=7pF 1=12.5pF) %2\"\n  },\n  \"CUSTOM_PCF85063A_READ_RAM\": {\n    \"en\": \"%1 RAM byte\"\n  },\n  \"CUSTOM_PCF85063A_WRITE_RAM\": {\n    \"en\": \"%1 write RAM byte %2\"\n  },\n  \"CUSTOM_PCF85063A_OSCILLATOR_STOPPED\": {\n    \"en\": \"%1 oscillator stopped?\"\n  },\n  \"CUSTOM_PCF85063A_CLEAR_OSCILLATOR_STOP\": {\n    \"en\": \"%1 clear oscillator-stop flag\"\n  },\n  \"CUSTOM_PCF85063A_STOP_CLOCK\": {\n    \"en\": \"%1 stop clock\"\n  },\n  \"CUSTOM_PCF85063A_START_CLOCK\": {\n    \"en\": \"%1 start clock\"\n  },\n  \"CUSTOM_PCF85063A_SOFTWARE_RESET\": {\n    \"en\": \"%1 software reset (resets time)\"\n  },\n  \"CUSTOM_PCF85063A_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt source (1=alarm 2=timer 4=minute 8=half-minute 16=correction) %2\"\n  },\n  \"CUSTOM_PCF85063A_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt source (1=alarm 2=timer 4=minute 8=half-minute 16=correction) %2\"\n  },\n  \"CUSTOM_PCF85063A_POLL_INTERRUPT\": {\n    \"en\": \"%1 poll interrupt status (1=alarm 2=timer)\"\n  }\n};\n\nconst initType = 'custom_pcf85063a_init';\nBlockly.BlockRegExpList['custom_pcf85063a'] = {\n  regexp: new RegExp(/^custom_pcf85063a_/),\n  code: \"from PCF85063A import PCF85063A\",\n  initBlockType: initType,\n  categoryId: 'custom_pcf85063a',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCF85063A_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCF85063A_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCF85063A = 'PCF85063A'\n\nBlockly.utils.getcustom_pcf85063aOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pcf85063a_0', 'pcf85063a_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pcf85063a_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pcf85063aOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pcf85063a_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = PCF85063A(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_set_datetime\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SET_DATETIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'year'\n        },\n        {\n          'type': 'input_value',\n          'name': 'month'\n        },\n        {\n          'type': 'input_value',\n          'name': 'day'\n        },\n        {\n          'type': 'input_value',\n          'name': 'weekday'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hour'\n        },\n        {\n          'type': 'input_value',\n          'name': 'minute'\n        },\n        {\n          'type': 'input_value',\n          'name': 'second'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_set_datetime\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var year = Blockly.Python.valueToCode(block, 'year', Blockly.Python.ORDER_FUNCTION_CALL);\n  var month = Blockly.Python.valueToCode(block, 'month', Blockly.Python.ORDER_FUNCTION_CALL);\n  var day = Blockly.Python.valueToCode(block, 'day', Blockly.Python.ORDER_FUNCTION_CALL);\n  var weekday = Blockly.Python.valueToCode(block, 'weekday', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hour = Blockly.Python.valueToCode(block, 'hour', Blockly.Python.ORDER_FUNCTION_CALL);\n  var minute = Blockly.Python.valueToCode(block, 'minute', Blockly.Python.ORDER_FUNCTION_CALL);\n  var second = Blockly.Python.valueToCode(block, 'second', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_datetime(${year}, ${month}, ${day}, ${weekday}, ${hour}, ${minute}, ${second})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_year\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_YEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_year\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.year()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_month\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_MONTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_month\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.month()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_day\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_DAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_day\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.day()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_weekday\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_WEEKDAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_weekday\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.weekday()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_hour\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_HOUR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_hour\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.hour()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_minute\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_MINUTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_minute\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.minute()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_second\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SECOND,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_second\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.second()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_set_alarm\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SET_ALARM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'second'\n        },\n        {\n          'type': 'input_value',\n          'name': 'minute'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hour'\n        },\n        {\n          'type': 'input_value',\n          'name': 'day'\n        },\n        {\n          'type': 'input_value',\n          'name': 'weekday'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_set_alarm\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var second = Blockly.Python.valueToCode(block, 'second', Blockly.Python.ORDER_FUNCTION_CALL);\n  var minute = Blockly.Python.valueToCode(block, 'minute', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hour = Blockly.Python.valueToCode(block, 'hour', Blockly.Python.ORDER_FUNCTION_CALL);\n  var day = Blockly.Python.valueToCode(block, 'day', Blockly.Python.ORDER_FUNCTION_CALL);\n  var weekday = Blockly.Python.valueToCode(block, 'weekday', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_alarm(${second}, ${minute}, ${hour}, ${day}, ${weekday})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_alarm_second\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_ALARM_SECOND,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_alarm_second\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.alarm_second()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_alarm_minute\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_ALARM_MINUTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_alarm_minute\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.alarm_minute()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_alarm_hour\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_ALARM_HOUR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_alarm_hour\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.alarm_hour()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_alarm_day\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_ALARM_DAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_alarm_day\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.alarm_day()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_alarm_weekday\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_ALARM_WEEKDAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_alarm_weekday\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.alarm_weekday()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_configure_timer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_CONFIGURE_TIMER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n        {\n          'type': 'input_value',\n          'name': 'source_clock'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pulsed'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_configure_timer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  var source_clock = Blockly.Python.valueToCode(block, 'source_clock', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pulsed = Blockly.Python.valueToCode(block, 'pulsed', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_timer(${value}, ${source_clock}, ${pulsed})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_disable_timer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_DISABLE_TIMER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_disable_timer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_timer()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_read_timer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_READ_TIMER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_read_timer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_timer()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_set_minute_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SET_MINUTE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_set_minute_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_minute_interrupt(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_set_clock_output\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SET_CLOCK_OUTPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'frequency_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_set_clock_output\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frequency_hz = Blockly.Python.valueToCode(block, 'frequency_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_clock_output(${frequency_hz})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_disable_clock_output\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_DISABLE_CLOCK_OUTPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_disable_clock_output\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_clock_output()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.offset()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_set_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SET_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'offset'\n        },\n        {\n          'type': 'input_value',\n          'name': 'course_mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_set_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var offset = Blockly.Python.valueToCode(block, 'offset', Blockly.Python.ORDER_FUNCTION_CALL);\n  var course_mode = Blockly.Python.valueToCode(block, 'course_mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_offset(${offset}, ${course_mode})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_set_oscillator_load\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SET_OSCILLATOR_LOAD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'load_12_5pf'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_set_oscillator_load\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var load_12_5pf = Blockly.Python.valueToCode(block, 'load_12_5pf', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_oscillator_load(${load_12_5pf})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_read_ram\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_READ_RAM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_read_ram\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_ram()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_write_ram\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_WRITE_RAM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_write_ram\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_ram(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_oscillator_stopped\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_OSCILLATOR_STOPPED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_oscillator_stopped\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.oscillator_stopped()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf85063a_clear_oscillator_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_CLEAR_OSCILLATOR_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_clear_oscillator_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_oscillator_stop()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_stop_clock\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_STOP_CLOCK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_stop_clock\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_clock()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_start_clock\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_START_CLOCK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_start_clock\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.start_clock()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_software_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_SOFTWARE_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_software_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.software_reset()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf85063a_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF85063A_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf85063aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf85063a_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"PCF85063A\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pcf85063a\">\n<title text=\"PCF85063A\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pcf85063a_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">81</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_set_datetime\">\n  <value name=\"year\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2026</field>\n    </shadow>\n  </value>\n  <value name=\"month\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"day\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"weekday\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"hour\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"minute\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"second\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_year\"/><block type=\"custom_pcf85063a_month\"/><block type=\"custom_pcf85063a_day\"/><block type=\"custom_pcf85063a_weekday\"/><block type=\"custom_pcf85063a_hour\"/><block type=\"custom_pcf85063a_minute\"/><block type=\"custom_pcf85063a_second\"/><block type=\"custom_pcf85063a_set_alarm\">\n  <value name=\"second\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n  <value name=\"minute\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n  <value name=\"hour\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n  <value name=\"day\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n  <value name=\"weekday\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_alarm_second\"/><block type=\"custom_pcf85063a_alarm_minute\"/><block type=\"custom_pcf85063a_alarm_hour\"/><block type=\"custom_pcf85063a_alarm_day\"/><block type=\"custom_pcf85063a_alarm_weekday\"/><block type=\"custom_pcf85063a_configure_timer\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"source_clock\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n  <value name=\"pulsed\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_disable_timer\"/><block type=\"custom_pcf85063a_read_timer\"/><block type=\"custom_pcf85063a_set_minute_interrupt\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_set_clock_output\">\n  <value name=\"frequency_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">32768</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_disable_clock_output\"/><block type=\"custom_pcf85063a_offset\"/><block type=\"custom_pcf85063a_set_offset\">\n  <value name=\"offset\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"course_mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_set_oscillator_load\">\n  <value name=\"load_12_5pf\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_read_ram\"/><block type=\"custom_pcf85063a_write_ram\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_oscillator_stopped\"/><block type=\"custom_pcf85063a_clear_oscillator_stop\"/><block type=\"custom_pcf85063a_stop_clock\"/><block type=\"custom_pcf85063a_start_clock\"/><block type=\"custom_pcf85063a_software_reset\"/><block type=\"custom_pcf85063a_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf85063a_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_pcf85063a",
+    "block_type": [
+      "custom_pcf85063a___init__",
+      "custom_pcf85063a_set_datetime",
+      "custom_pcf85063a_year",
+      "custom_pcf85063a_month",
+      "custom_pcf85063a_day",
+      "custom_pcf85063a_weekday",
+      "custom_pcf85063a_hour",
+      "custom_pcf85063a_minute",
+      "custom_pcf85063a_second",
+      "custom_pcf85063a_set_alarm",
+      "custom_pcf85063a_alarm_second",
+      "custom_pcf85063a_alarm_minute",
+      "custom_pcf85063a_alarm_hour",
+      "custom_pcf85063a_alarm_day",
+      "custom_pcf85063a_alarm_weekday",
+      "custom_pcf85063a_configure_timer",
+      "custom_pcf85063a_disable_timer",
+      "custom_pcf85063a_read_timer",
+      "custom_pcf85063a_set_minute_interrupt",
+      "custom_pcf85063a_set_clock_output",
+      "custom_pcf85063a_disable_clock_output",
+      "custom_pcf85063a_offset",
+      "custom_pcf85063a_set_offset",
+      "custom_pcf85063a_set_oscillator_load",
+      "custom_pcf85063a_read_ram",
+      "custom_pcf85063a_write_ram",
+      "custom_pcf85063a_oscillator_stopped",
+      "custom_pcf85063a_clear_oscillator_stop",
+      "custom_pcf85063a_stop_clock",
+      "custom_pcf85063a_start_clock",
+      "custom_pcf85063a_software_reset",
+      "custom_pcf85063a_enable_interrupt",
+      "custom_pcf85063a_disable_interrupt",
+      "custom_pcf85063a_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "PCF85063A",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "PCF85063A",
+      "time": "2026-11-09",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rtc.pcf85063a import PCF85063AFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "81",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF85063AFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_datetime",
+        "note": {},
+        "label": {
+          "en": "%1 set date/time year %2 month %3 day %4 weekday (0=Sun) %5 hour %6 minute %7 second %8"
+        },
+        "params": [
+          {
+            "name": "year",
+            "type": "int",
+            "default": "2026",
+            "note": {},
+            "field": "number",
+            "max": "2099",
+            "min": "2000"
+          },
+          {
+            "name": "month",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "12",
+            "min": "1"
+          },
+          {
+            "name": "day",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "1"
+          },
+          {
+            "name": "weekday",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "6",
+            "min": "0"
+          },
+          {
+            "name": "hour",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "23",
+            "min": "0"
+          },
+          {
+            "name": "minute",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "59",
+            "min": "0"
+          },
+          {
+            "name": "second",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "59",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_datetime(year, month, day, weekday, hour, minute, second)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "year",
+        "note": {},
+        "label": {
+          "en": "%1 year"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[0]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "month",
+        "note": {},
+        "label": {
+          "en": "%1 month"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[1]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "day",
+        "note": {},
+        "label": {
+          "en": "%1 day"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[2]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "weekday",
+        "note": {},
+        "label": {
+          "en": "%1 weekday"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[3]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[3]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "hour",
+        "note": {},
+        "label": {
+          "en": "%1 hour"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[4]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[4]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "minute",
+        "note": {},
+        "label": {
+          "en": "%1 minute"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[5]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[5]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "second",
+        "note": {},
+        "label": {
+          "en": "%1 second"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[6]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[6]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_alarm",
+        "note": {},
+        "label": {
+          "en": "%1 set alarm (-1 = ignore) second %2 minute %3 hour %4 day %5 weekday %6"
+        },
+        "params": [
+          {
+            "name": "second",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "59",
+            "min": "-1"
+          },
+          {
+            "name": "minute",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "59",
+            "min": "-1"
+          },
+          {
+            "name": "hour",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "23",
+            "min": "-1"
+          },
+          {
+            "name": "day",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "-1"
+          },
+          {
+            "name": "weekday",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "6",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_alarm(*[None if v < 0 else v for v in (second, minute, hour, day, weekday)])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "alarm_second",
+        "note": {},
+        "label": {
+          "en": "%1 alarm second (-1 = ignored)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        value = self._driver.get_alarm()[0]\n        return -1 if value is None else value",
+        "ast_return": {
+          "code": "-1 if value is None else value",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "alarm_minute",
+        "note": {},
+        "label": {
+          "en": "%1 alarm minute (-1 = ignored)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        value = self._driver.get_alarm()[1]\n        return -1 if value is None else value",
+        "ast_return": {
+          "code": "-1 if value is None else value",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "alarm_hour",
+        "note": {},
+        "label": {
+          "en": "%1 alarm hour (-1 = ignored)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        value = self._driver.get_alarm()[2]\n        return -1 if value is None else value",
+        "ast_return": {
+          "code": "-1 if value is None else value",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "alarm_day",
+        "note": {},
+        "label": {
+          "en": "%1 alarm day (-1 = ignored)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        value = self._driver.get_alarm()[3]\n        return -1 if value is None else value",
+        "ast_return": {
+          "code": "-1 if value is None else value",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "alarm_weekday",
+        "note": {},
+        "label": {
+          "en": "%1 alarm weekday (-1 = ignored)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        value = self._driver.get_alarm()[4]\n        return -1 if value is None else value",
+        "ast_return": {
+          "code": "-1 if value is None else value",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_timer",
+        "note": {},
+        "label": {
+          "en": "%1 start timer value %2 source clock (0=4096Hz 1=64Hz 2=1Hz 3=1/60Hz) %3 pulsed (0/1) %4"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "1"
+          },
+          {
+            "name": "source_clock",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "pulsed",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_timer(value, ('4096hz', '64hz', '1hz', '1_60hz')[source_clock], bool(pulsed))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_timer",
+        "note": {},
+        "label": {
+          "en": "%1 stop timer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_timer()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_timer",
+        "note": {},
+        "label": {
+          "en": "%1 timer counter"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_timer()",
+        "ast_return": {
+          "code": "self._driver.read_timer()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_minute_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 minute interrupt (0=off 1=minute 2=half-minute) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_minute_interrupt(('off', 'minute', 'half_minute')[mode])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_clock_output",
+        "note": {},
+        "label": {
+          "en": "%1 CLKOUT frequency (Hz: 32768, 16384, 8192, 4096, 2048, 1024, 1) %2"
+        },
+        "params": [
+          {
+            "name": "frequency_hz",
+            "type": "int",
+            "default": "32768",
+            "note": {},
+            "field": "number",
+            "max": "32768",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_clock_output(frequency_hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_clock_output",
+        "note": {},
+        "label": {
+          "en": "%1 disable CLKOUT"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_clock_output()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "offset",
+        "note": {},
+        "label": {
+          "en": "%1 offset (LSB)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_offset()[0]",
+        "ast_return": {
+          "code": "self._driver.get_offset()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_offset",
+        "note": {},
+        "label": {
+          "en": "%1 set offset (LSB) %2 course mode (0/1) %3"
+        },
+        "params": [
+          {
+            "name": "offset",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "-64"
+          },
+          {
+            "name": "course_mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_offset(offset, 'course' if course_mode else 'normal')",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_oscillator_load",
+        "note": {},
+        "label": {
+          "en": "%1 oscillator load (0=7pF 1=12.5pF) %2"
+        },
+        "params": [
+          {
+            "name": "load_12_5pf",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_oscillator_load(12.5 if load_12_5pf else 7)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_ram",
+        "note": {},
+        "label": {
+          "en": "%1 RAM byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_ram()",
+        "ast_return": {
+          "code": "self._driver.read_ram()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_ram",
+        "note": {},
+        "label": {
+          "en": "%1 write RAM byte %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_ram(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "oscillator_stopped",
+        "note": {},
+        "label": {
+          "en": "%1 oscillator stopped?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.oscillator_stopped()",
+        "ast_return": {
+          "code": "self._driver.oscillator_stopped()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_oscillator_stop",
+        "note": {},
+        "label": {
+          "en": "%1 clear oscillator-stop flag"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_oscillator_stop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_clock",
+        "note": {},
+        "label": {
+          "en": "%1 stop clock"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_clock()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_clock",
+        "note": {},
+        "label": {
+          "en": "%1 start clock"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.start_clock()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "software_reset",
+        "note": {},
+        "label": {
+          "en": "%1 software reset (resets time)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.software_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt source (1=alarm 2=timer 4=minute 8=half-minute 16=correction) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt source (1=alarm 2=timer 4=minute 8=half-minute 16=correction) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 poll interrupt status (1=alarm 2=timer)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pcf85063a"
+  },
+  "pyCode": "\"\"\"\nfile     PCF85063A\ntime     2026-11-09\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rtc.pcf85063a import PCF85063AFull\n\n\nclass PCF85063A:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 81):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '81'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF85063AFull(connection)\n\n    def set_datetime(self, year: int, month: int, day: int, weekday: int, hour: int, minute: int, second: int):\n        \"\"\"\n        label:\n            en: '%1 set date/time year %2 month %3 day %4 weekday (0=Sun) %5 hour %6 minute %7 second %8'\n        params:\n            year:\n                name: year\n                type: int\n                default: '2026'\n                field: number\n                max: '2099'\n                min: '2000'\n            month:\n                name: month\n                type: int\n                default: '1'\n                field: number\n                max: '12'\n                min: '1'\n            day:\n                name: day\n                type: int\n                default: '1'\n                field: number\n                max: '31'\n                min: '1'\n            weekday:\n                name: weekday\n                type: int\n                default: '0'\n                field: number\n                max: '6'\n                min: '0'\n            hour:\n                name: hour\n                type: int\n                default: '0'\n                field: number\n                max: '23'\n                min: '0'\n            minute:\n                name: minute\n                type: int\n                default: '0'\n                field: number\n                max: '59'\n                min: '0'\n            second:\n                name: second\n                type: int\n                default: '0'\n                field: number\n                max: '59'\n                min: '0'\n        \"\"\"\n        self._driver.set_datetime(year, month, day, weekday, hour, minute, second)\n\n    def year(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 year'\n        \"\"\"\n        return self._driver.get_datetime()[0]\n\n    def month(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 month'\n        \"\"\"\n        return self._driver.get_datetime()[1]\n\n    def day(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 day'\n        \"\"\"\n        return self._driver.get_datetime()[2]\n\n    def weekday(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 weekday'\n        \"\"\"\n        return self._driver.get_datetime()[3]\n\n    def hour(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 hour'\n        \"\"\"\n        return self._driver.get_datetime()[4]\n\n    def minute(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 minute'\n        \"\"\"\n        return self._driver.get_datetime()[5]\n\n    def second(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 second'\n        \"\"\"\n        return self._driver.get_datetime()[6]\n\n    def set_alarm(self, second: int, minute: int, hour: int, day: int, weekday: int):\n        \"\"\"\n        label:\n            en: '%1 set alarm (-1 = ignore) second %2 minute %3 hour %4 day %5 weekday %6'\n        params:\n            second:\n                name: second\n                type: int\n                default: '-1'\n                field: number\n                max: '59'\n                min: '-1'\n            minute:\n                name: minute\n                type: int\n                default: '-1'\n                field: number\n                max: '59'\n                min: '-1'\n            hour:\n                name: hour\n                type: int\n                default: '-1'\n                field: number\n                max: '23'\n                min: '-1'\n            day:\n                name: day\n                type: int\n                default: '-1'\n                field: number\n                max: '31'\n                min: '-1'\n            weekday:\n                name: weekday\n                type: int\n                default: '-1'\n                field: number\n                max: '6'\n                min: '-1'\n        \"\"\"\n        self._driver.set_alarm(*[None if v < 0 else v for v in (second, minute, hour, day, weekday)])\n\n    def alarm_second(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 alarm second (-1 = ignored)'\n        \"\"\"\n        value = self._driver.get_alarm()[0]\n        return -1 if value is None else value\n\n    def alarm_minute(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 alarm minute (-1 = ignored)'\n        \"\"\"\n        value = self._driver.get_alarm()[1]\n        return -1 if value is None else value\n\n    def alarm_hour(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 alarm hour (-1 = ignored)'\n        \"\"\"\n        value = self._driver.get_alarm()[2]\n        return -1 if value is None else value\n\n    def alarm_day(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 alarm day (-1 = ignored)'\n        \"\"\"\n        value = self._driver.get_alarm()[3]\n        return -1 if value is None else value\n\n    def alarm_weekday(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 alarm weekday (-1 = ignored)'\n        \"\"\"\n        value = self._driver.get_alarm()[4]\n        return -1 if value is None else value\n\n    def configure_timer(self, value: int, source_clock: int, pulsed: int):\n        \"\"\"\n        label:\n            en: '%1 start timer value %2 source clock (0=4096Hz 1=64Hz 2=1Hz 3=1/60Hz) %3 pulsed (0/1) %4'\n        params:\n            value:\n                name: value\n                type: int\n                default: '10'\n                field: number\n                max: '255'\n                min: '1'\n            source_clock:\n                name: source_clock\n                type: int\n                default: '2'\n                field: number\n                max: '3'\n                min: '0'\n            pulsed:\n                name: pulsed\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.configure_timer(value, ('4096hz', '64hz', '1hz', '1_60hz')[source_clock], bool(pulsed))\n\n    def disable_timer(self):\n        \"\"\"\n        label:\n            en: '%1 stop timer'\n        \"\"\"\n        self._driver.disable_timer()\n\n    def read_timer(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 timer counter'\n        \"\"\"\n        return self._driver.read_timer()\n\n    def set_minute_interrupt(self, mode: int):\n        \"\"\"\n        label:\n            en: '%1 minute interrupt (0=off 1=minute 2=half-minute) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        self._driver.set_minute_interrupt(('off', 'minute', 'half_minute')[mode])\n\n    def set_clock_output(self, frequency_hz: int):\n        \"\"\"\n        label:\n            en: '%1 CLKOUT frequency (Hz: 32768, 16384, 8192, 4096, 2048, 1024, 1) %2'\n        params:\n            frequency_hz:\n                name: frequency_hz\n                type: int\n                default: '32768'\n                field: number\n                max: '32768'\n                min: '1'\n        \"\"\"\n        self._driver.set_clock_output(frequency_hz)\n\n    def disable_clock_output(self):\n        \"\"\"\n        label:\n            en: '%1 disable CLKOUT'\n        \"\"\"\n        self._driver.disable_clock_output()\n\n    def offset(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 offset (LSB)'\n        \"\"\"\n        return self._driver.get_offset()[0]\n\n    def set_offset(self, offset: int, course_mode: int):\n        \"\"\"\n        label:\n            en: '%1 set offset (LSB) %2 course mode (0/1) %3'\n        params:\n            offset:\n                name: offset\n                type: int\n                default: '0'\n                field: number\n                max: '63'\n                min: '-64'\n            course_mode:\n                name: course_mode\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_offset(offset, 'course' if course_mode else 'normal')\n\n    def set_oscillator_load(self, load_12_5pf: int):\n        \"\"\"\n        label:\n            en: '%1 oscillator load (0=7pF 1=12.5pF) %2'\n        params:\n            load_12_5pf:\n                name: load_12_5pf\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_oscillator_load(12.5 if load_12_5pf else 7)\n\n    def read_ram(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 RAM byte'\n        \"\"\"\n        return self._driver.read_ram()\n\n    def write_ram(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 write RAM byte %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n                max: '255'\n                min: '0'\n        \"\"\"\n        self._driver.write_ram(value)\n\n    def oscillator_stopped(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 oscillator stopped?'\n        \"\"\"\n        return self._driver.oscillator_stopped()\n\n    def clear_oscillator_stop(self):\n        \"\"\"\n        label:\n            en: '%1 clear oscillator-stop flag'\n        \"\"\"\n        self._driver.clear_oscillator_stop()\n\n    def stop_clock(self):\n        \"\"\"\n        label:\n            en: '%1 stop clock'\n        \"\"\"\n        self._driver.stop_clock()\n\n    def start_clock(self):\n        \"\"\"\n        label:\n            en: '%1 start clock'\n        \"\"\"\n        self._driver.start_clock()\n\n    def software_reset(self):\n        \"\"\"\n        label:\n            en: '%1 software reset (resets time)'\n        \"\"\"\n        self._driver.software_reset()\n\n    def enable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt source (1=alarm 2=timer 4=minute 8=half-minute 16=correction) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                max: '31'\n                min: '0'\n        \"\"\"\n        self._driver.enable_interrupt(source)\n\n    def disable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt source (1=alarm 2=timer 4=minute 8=half-minute 16=correction) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                max: '31'\n                min: '0'\n        \"\"\"\n        self._driver.disable_interrupt(source)\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 poll interrupt status (1=alarm 2=timer)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}

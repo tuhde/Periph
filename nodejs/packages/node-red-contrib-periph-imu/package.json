@@ -15,7 +15,8 @@
       "icm20948": "nodes/icm20948/icm20948.js",
       "mpu6050": "nodes/mpu6050/mpu6050.js",
       "mpu9250": "nodes/mpu9250/mpu9250.js",
-      "mpu9255": "nodes/mpu9255/mpu9255.js"
+      "mpu9255": "nodes/mpu9255/mpu9255.js",
+      "qmi8658a": "nodes/qmi8658a/qmi8658a.js"
     }
   },
   "dependencies": {

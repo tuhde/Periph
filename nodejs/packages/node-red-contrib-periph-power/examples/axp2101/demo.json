@@ -1,0 +1,86 @@
+[
+    {
+        "id": "tab-axp2101-demo",
+        "type": "tab",
+        "label": "AXP2101 Battery Dashboard",
+        "disabled": false,
+        "info": "Reads battery voltage, state of charge, charge state, VBUS and die temperature from an AXP2101 every 5 s. A function node keeps the last VBUS state and adds a vbus_event field (inserted / removed) whenever it changes, and a debug node prints the result. Demonstrates a battery and charger dashboard. Adjust the I2C bus and address in the device config node; set a charge voltage / current there only if you know your cell's limits (the 4.35 V and 4.4 V options are for high-voltage Li-ion cells only)."
+    },
+    {
+        "id": "cfg-axp2101",
+        "type": "axp2101-device",
+        "name": "AXP2101",
+        "bus": "1",
+        "address": "34",
+        "chargeVoltage": "",
+        "chargeCurrent": ""
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-axp2101-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            [
+                "read-axp2101"
+            ]
+        ]
+    },
+    {
+        "id": "read-axp2101",
+        "type": "axp2101",
+        "name": "AXP2101",
+        "device": "cfg-axp2101",
+        "z": "tab-axp2101-demo",
+        "x": 300,
+        "y": 100,
+        "wires": [
+            [
+                "fn-vbus"
+            ]
+        ]
+    },
+    {
+        "id": "fn-vbus",
+        "type": "function",
+        "name": "flag VBUS change",
+        "func": "const last = context.get('vbus');\nconst now = msg.payload.vbus_present;\nif (last !== undefined && last !== now) {\n    msg.payload.vbus_event = now ? 'inserted' : 'removed';\n}\ncontext.set('vbus', now);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-axp2101-demo",
+        "x": 520,
+        "y": 100,
+        "wires": [
+            [
+                "dbg-axp2101"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-axp2101",
+        "type": "debug",
+        "name": "battery state",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-axp2101-demo",
+        "x": 740,
+        "y": 100,
+        "wires": []
+    }
+]

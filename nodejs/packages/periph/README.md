@@ -49,6 +49,7 @@ Each chip exposes two classes:
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
+| AXP2101 | Power monitor | `periph/src/chips/power/axp2101` |
 | BMA150 | Accelerometer | `periph/src/chips/accelerometer/bma150` |
 | BMA180 | Accelerometer | `periph/src/chips/accelerometer/bma180` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
@@ -63,6 +64,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | `periph/src/chips/motor/drv8830` |
 | DS3231 | RTC | `periph/src/chips/rtc/ds3231` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
+| ES8311 | ADC/DAC | `periph/src/chips/adc_dac/es8311` |
 | FXOS8700 | Accelerometer | `periph/src/chips/accelerometer/fxos8700` |
 | HMC5883L | Magnetometer | `periph/src/chips/magnetometer/hmc5883l` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
@@ -87,6 +89,7 @@ Each chip exposes two classes:
 | MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
+| MCP4XXX | ADC/DAC | `periph/src/chips/adc_dac/mcp4xxx` |
 | MCP9808 | Temperature sensor | `periph/src/chips/temperature/mcp9808` |
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MMA8451Q | Accelerometer | `periph/src/chips/accelerometer/mma8451q` |
@@ -98,6 +101,7 @@ Each chip exposes two classes:
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |
+| PCF85063A | RTC | `periph/src/chips/rtc/pcf85063a` |
 | PCF8523 | RTC | `periph/src/chips/rtc/pcf8523` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
@@ -105,12 +109,17 @@ Each chip exposes two classes:
 | PCF8578 | Display driver | `periph/src/chips/display/pcf8578` |
 | PCF8579 | Display driver | `periph/src/chips/display/pcf8579` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
+| QMI8658A | IMU | `periph/src/chips/imu/qmi8658a` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
 | ST7036 | Display driver | `periph/src/chips/display/st7036` |
+| TMC2130 | Motor driver | `periph/src/chips/motor/tmc2130` |
+| TMC2208 | Motor driver | `periph/src/chips/motor/tmc2208` |
+| TMC2209 | Motor driver | `periph/src/chips/motor/tmc2209` |
+| TMC5160 | Motor driver | `periph/src/chips/motor/tmc5160` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
 | UC1611S | Display driver | `periph/src/chips/display/uc1611s` |

@@ -17,6 +17,8 @@ npm install node-red-contrib-periph-power
 | Node | Kind | Description |
 |------|------|-------------|
 | `periph-ade7953` | input | Reads bus voltage, load current, active power, and accumulated active energy from an ADE7953 single-phase multifunction metering IC. |
+| `axp2101-device` | config | I²C bus and address for an AXP2101 |
+| `axp2101` | input | Reads battery, charger and power-input state from an AXP2101 single-cell power-management IC over I²C. |
 | `ina219-device` | config | I²C bus and address for an INA219 |
 | `ina219` | input | Reads voltage, current, power, and shunt voltage from an INA219 power monitor over I²C. |
 | `ina226-device` | config | I²C bus and address for an INA226 |

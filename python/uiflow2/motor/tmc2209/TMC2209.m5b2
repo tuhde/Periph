@@ -1,0 +1,556 @@
+{
+  "category": "TMC2209",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_TMC2209_LANGUAGES = {\n  \"CUSTOM_TMC2209_INIT\": {\n    \"en\": \"%1 init UART port %2 baudrate %3 TX pin %4 RX pin %5 sense resistor (ohm) %6 node address %7\"\n  },\n  \"CUSTOM_TMC2209_ENABLE\": {\n    \"en\": \"%1 enable driver\"\n  },\n  \"CUSTOM_TMC2209_DISABLE\": {\n    \"en\": \"%1 disable driver\"\n  },\n  \"CUSTOM_TMC2209_SET_CURRENT\": {\n    \"en\": \"%1 set run current (A RMS) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_HOLD_CURRENT\": {\n    \"en\": \"%1 set hold current (A RMS) %2\"\n  },\n  \"CUSTOM_TMC2209_RUN\": {\n    \"en\": \"%1 run (full steps/s, negative = reverse) %2\"\n  },\n  \"CUSTOM_TMC2209_STOP\": {\n    \"en\": \"%1 stop\"\n  },\n  \"CUSTOM_TMC2209_SET_MICROSTEPS\": {\n    \"en\": \"%1 set microsteps (1-256) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_INTERPOLATION\": {\n    \"en\": \"%1 set interpolation (0/1) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_CHOPPER_MODE\": {\n    \"en\": \"%1 set SpreadCycle (0 = StealthChop, 1 = SpreadCycle) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_STEALTHCHOP_THRESHOLD\": {\n    \"en\": \"%1 set StealthChop threshold (TPWMTHRS) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_DIRECTION_INVERTED\": {\n    \"en\": \"%1 invert direction (0/1) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_FREEWHEEL\": {\n    \"en\": \"%1 set freewheel mode (0-3) %2\"\n  },\n  \"CUSTOM_TMC2209_STANDSTILL\": {\n    \"en\": \"%1 standstill\"\n  },\n  \"CUSTOM_TMC2209_FAULT\": {\n    \"en\": \"%1 fault bitmask\"\n  },\n  \"CUSTOM_TMC2209_MICROSTEP_POSITION\": {\n    \"en\": \"%1 microstep position (0-1023)\"\n  },\n  \"CUSTOM_TMC2209_CURRENT_SCALE\": {\n    \"en\": \"%1 current scale (0-31)\"\n  },\n  \"CUSTOM_TMC2209_TSTEP\": {\n    \"en\": \"%1 TSTEP\"\n  },\n  \"CUSTOM_TMC2209_TEMPERATURE_FLAGS\": {\n    \"en\": \"%1 temperature flags (0-15)\"\n  },\n  \"CUSTOM_TMC2209_IFCNT\": {\n    \"en\": \"%1 write counter (IFCNT)\"\n  },\n  \"CUSTOM_TMC2209_SET_STALL_THRESHOLD\": {\n    \"en\": \"%1 set StallGuard threshold (SGTHRS) %2\"\n  },\n  \"CUSTOM_TMC2209_SET_COOLSTEP_THRESHOLD\": {\n    \"en\": \"%1 set CoolStep/stall threshold (TCOOLTHRS) %2\"\n  },\n  \"CUSTOM_TMC2209_READ_STALLGUARD\": {\n    \"en\": \"%1 StallGuard result (SG_RESULT)\"\n  }\n};\n\nconst initType = 'custom_tmc2209_init';\nBlockly.BlockRegExpList['custom_tmc2209'] = {\n  regexp: new RegExp(/^custom_tmc2209_/),\n  code: \"from TMC2209 import TMC2209\",\n  initBlockType: initType,\n  categoryId: 'custom_tmc2209',\n}\nBlockly.utils.registerLanguages(CUSTOM_TMC2209_LANGUAGES)\n\nBlockly.Msg.CUSTOM_TMC2209_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_TMC2209 = 'TMC2209'\n\nBlockly.utils.getcustom_tmc2209Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['tmc2209_0', 'tmc2209_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_tmc2209_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_tmc2209Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'tmc2209_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'port'\n        },\n        {\n          'type': 'input_value',\n          'name': 'baudrate'\n        },\n        {\n          'type': 'input_value',\n          'name': 'tx'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rx'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_sense'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var port = Blockly.Python.valueToCode(block, 'port', Blockly.Python.ORDER_FUNCTION_CALL);\n  var baudrate = Blockly.Python.valueToCode(block, 'baudrate', Blockly.Python.ORDER_FUNCTION_CALL);\n  var tx = Blockly.Python.valueToCode(block, 'tx', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rx = Blockly.Python.valueToCode(block, 'rx', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_sense = Blockly.Python.valueToCode(block, 'r_sense', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = TMC2209(${port}, ${baudrate}, ${tx}, ${rx}, ${r_sense}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_enable\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_ENABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_enable\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_disable\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_DISABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_disable\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'current'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var current = Blockly.Python.valueToCode(block, 'current', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_current(${current})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_hold_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_HOLD_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'current'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_hold_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var current = Blockly.Python.valueToCode(block, 'current', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_hold_current(${current})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_run\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_RUN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'speed'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_run\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var speed = Blockly.Python.valueToCode(block, 'speed', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.run(${speed})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop()\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_microsteps\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_MICROSTEPS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'n'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_microsteps\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var n = Blockly.Python.valueToCode(block, 'n', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_microsteps(${n})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_interpolation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_INTERPOLATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_interpolation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interpolation(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_chopper_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_CHOPPER_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'spreadcycle'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_chopper_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var spreadcycle = Blockly.Python.valueToCode(block, 'spreadcycle', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_chopper_mode(${spreadcycle})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_stealthchop_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_STEALTHCHOP_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'tpwmthrs'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_stealthchop_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var tpwmthrs = Blockly.Python.valueToCode(block, 'tpwmthrs', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_stealthchop_threshold(${tpwmthrs})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_direction_inverted\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_DIRECTION_INVERTED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'inverted'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_direction_inverted\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var inverted = Blockly.Python.valueToCode(block, 'inverted', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_direction_inverted(${inverted})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_freewheel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_FREEWHEEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_freewheel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_freewheel(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_standstill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_STANDSTILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_standstill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.standstill()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_fault\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_FAULT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_fault\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fault()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_microstep_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_MICROSTEP_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_microstep_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.microstep_position()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_current_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_CURRENT_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_current_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.current_scale()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_tstep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_TSTEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_tstep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.tstep()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_temperature_flags\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_TEMPERATURE_FLAGS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_temperature_flags\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature_flags()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_ifcnt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_IFCNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_ifcnt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ifcnt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_stall_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_STALL_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'sgthrs'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_stall_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sgthrs = Blockly.Python.valueToCode(block, 'sgthrs', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_stall_threshold(${sgthrs})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_set_coolstep_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_SET_COOLSTEP_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'tcoolthrs'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_set_coolstep_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var tcoolthrs = Blockly.Python.valueToCode(block, 'tcoolthrs', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_coolstep_threshold(${tcoolthrs})\\n`\n}\n\nBlockly.Blocks[\"custom_tmc2209_read_stallguard\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMC2209_READ_STALLGUARD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmc2209Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmc2209_read_stallguard\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_stallguard()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"TMC2209\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tmc2209\">\n<title text=\"TMC2209\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_tmc2209_init\">\n  <value name=\"port\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"baudrate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">115200</field>\n    </shadow>\n  </value>\n  <value name=\"tx\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">17</field>\n    </shadow>\n  </value>\n  <value name=\"rx\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"r_sense\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.11</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_enable\"/><block type=\"custom_tmc2209_disable\"/><block type=\"custom_tmc2209_set_current\">\n  <value name=\"current\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_hold_current\">\n  <value name=\"current\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.15</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_run\">\n  <value name=\"speed\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">200</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_stop\"/><block type=\"custom_tmc2209_set_microsteps\">\n  <value name=\"n\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_interpolation\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_chopper_mode\">\n  <value name=\"spreadcycle\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_stealthchop_threshold\">\n  <value name=\"tpwmthrs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_direction_inverted\">\n  <value name=\"inverted\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_freewheel\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_standstill\"/><block type=\"custom_tmc2209_fault\"/><block type=\"custom_tmc2209_microstep_position\"/><block type=\"custom_tmc2209_current_scale\"/><block type=\"custom_tmc2209_tstep\"/><block type=\"custom_tmc2209_temperature_flags\"/><block type=\"custom_tmc2209_ifcnt\"/><block type=\"custom_tmc2209_set_stall_threshold\">\n  <value name=\"sgthrs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">60</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_set_coolstep_threshold\">\n  <value name=\"tcoolthrs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmc2209_read_stallguard\"/>\n</category>\n",
+    "toolboxitemid": "custom_tmc2209",
+    "block_type": [
+      "custom_tmc2209___init__",
+      "custom_tmc2209_enable",
+      "custom_tmc2209_disable",
+      "custom_tmc2209_set_current",
+      "custom_tmc2209_set_hold_current",
+      "custom_tmc2209_run",
+      "custom_tmc2209_stop",
+      "custom_tmc2209_set_microsteps",
+      "custom_tmc2209_set_interpolation",
+      "custom_tmc2209_set_chopper_mode",
+      "custom_tmc2209_set_stealthchop_threshold",
+      "custom_tmc2209_set_direction_inverted",
+      "custom_tmc2209_set_freewheel",
+      "custom_tmc2209_standstill",
+      "custom_tmc2209_fault",
+      "custom_tmc2209_microstep_position",
+      "custom_tmc2209_current_scale",
+      "custom_tmc2209_tstep",
+      "custom_tmc2209_temperature_flags",
+      "custom_tmc2209_ifcnt",
+      "custom_tmc2209_set_stall_threshold",
+      "custom_tmc2209_set_coolstep_threshold",
+      "custom_tmc2209_read_stallguard"
+    ]
+  },
+  "data": {
+    "name": "TMC2209",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "TMC2209",
+      "time": "2026-11-09",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.uart_auto import UARTConnection\nfrom periph.chips.motor.tmc2209 import TMC2209Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init UART port %2 baudrate %3 TX pin %4 RX pin %5 sense resistor (ohm) %6 node address %7"
+        },
+        "params": [
+          {
+            "name": "port",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "baudrate",
+            "type": "int",
+            "default": "115200",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "tx",
+            "type": "int",
+            "default": "17",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rx",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_sense",
+            "type": "float",
+            "default": "0.11",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        connection = UARTConnection(port=port, baudrate=baudrate, tx=tx, rx=rx)\n        self._driver = TMC2209Full(connection, r_sense_ohm=r_sense, address=address)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable",
+        "note": {},
+        "label": {
+          "en": "%1 enable driver"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable",
+        "note": {},
+        "label": {
+          "en": "%1 disable driver"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_current",
+        "note": {},
+        "label": {
+          "en": "%1 set run current (A RMS) %2"
+        },
+        "params": [
+          {
+            "name": "current",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_current(current)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_hold_current",
+        "note": {},
+        "label": {
+          "en": "%1 set hold current (A RMS) %2"
+        },
+        "params": [
+          {
+            "name": "current",
+            "type": "float",
+            "default": "0.15",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_hold_current(current)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "run",
+        "note": {},
+        "label": {
+          "en": "%1 run (full steps/s, negative = reverse) %2"
+        },
+        "params": [
+          {
+            "name": "speed",
+            "type": "float",
+            "default": "200",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.run(speed)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop",
+        "note": {},
+        "label": {
+          "en": "%1 stop"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_microsteps",
+        "note": {},
+        "label": {
+          "en": "%1 set microsteps (1-256) %2"
+        },
+        "params": [
+          {
+            "name": "n",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "256",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_microsteps(n)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interpolation",
+        "note": {},
+        "label": {
+          "en": "%1 set interpolation (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interpolation(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_chopper_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set SpreadCycle (0 = StealthChop, 1 = SpreadCycle) %2"
+        },
+        "params": [
+          {
+            "name": "spreadcycle",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_chopper_mode(bool(spreadcycle))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_stealthchop_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 set StealthChop threshold (TPWMTHRS) %2"
+        },
+        "params": [
+          {
+            "name": "tpwmthrs",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1048575",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_stealthchop_threshold(tpwmthrs)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_direction_inverted",
+        "note": {},
+        "label": {
+          "en": "%1 invert direction (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "inverted",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_direction_inverted(bool(inverted))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_freewheel",
+        "note": {},
+        "label": {
+          "en": "%1 set freewheel mode (0-3) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_freewheel(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "standstill",
+        "note": {},
+        "label": {
+          "en": "%1 standstill"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_standstill()",
+        "ast_return": {
+          "code": "self._driver.is_standstill()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fault",
+        "note": {},
+        "label": {
+          "en": "%1 fault bitmask"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fault()",
+        "ast_return": {
+          "code": "self._driver.read_fault()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "microstep_position",
+        "note": {},
+        "label": {
+          "en": "%1 microstep position (0-1023)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.microstep_position()",
+        "ast_return": {
+          "code": "self._driver.microstep_position()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "current_scale",
+        "note": {},
+        "label": {
+          "en": "%1 current scale (0-31)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_current_scale()",
+        "ast_return": {
+          "code": "self._driver.read_current_scale()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tstep",
+        "note": {},
+        "label": {
+          "en": "%1 TSTEP"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_tstep()",
+        "ast_return": {
+          "code": "self._driver.read_tstep()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature_flags",
+        "note": {},
+        "label": {
+          "en": "%1 temperature flags (0-15)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature_flags()",
+        "ast_return": {
+          "code": "self._driver.read_temperature_flags()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ifcnt",
+        "note": {},
+        "label": {
+          "en": "%1 write counter (IFCNT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_ifcnt()",
+        "ast_return": {
+          "code": "self._driver.read_ifcnt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_stall_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 set StallGuard threshold (SGTHRS) %2"
+        },
+        "params": [
+          {
+            "name": "sgthrs",
+            "type": "int",
+            "default": "60",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_stall_threshold(sgthrs)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_coolstep_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 set CoolStep/stall threshold (TCOOLTHRS) %2"
+        },
+        "params": [
+          {
+            "name": "tcoolthrs",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1048575",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_coolstep_threshold(tcoolthrs)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_stallguard",
+        "note": {},
+        "label": {
+          "en": "%1 StallGuard result (SG_RESULT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_stallguard()",
+        "ast_return": {
+          "code": "self._driver.read_stallguard()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "tmc2209"
+  },
+  "pyCode": "\"\"\"\nfile     TMC2209\ntime     2026-11-09\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.uart_auto import UARTConnection\nfrom periph.chips.motor.tmc2209 import TMC2209Full\n\n\nclass TMC2209:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, port: int = 1, baudrate: int = 115200, tx: int = 17, rx: int = 16, r_sense: float = 0.11, address: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init UART port %2 baudrate %3 TX pin %4 RX pin %5 sense resistor (ohm) %6 node address %7'\n        params:\n            port:\n                name: port\n                type: int\n                default: '1'\n                field: number\n            baudrate:\n                name: baudrate\n                type: int\n                default: '115200'\n                field: number\n            tx:\n                name: tx\n                type: int\n                default: '17'\n                field: number\n            rx:\n                name: rx\n                type: int\n                default: '16'\n                field: number\n            r_sense:\n                name: r_sense\n                type: float\n                default: '0.11'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        connection = UARTConnection(port=port, baudrate=baudrate, tx=tx, rx=rx)\n        self._driver = TMC2209Full(connection, r_sense_ohm=r_sense, address=address)\n\n    def enable(self):\n        \"\"\"\n        label:\n            en: '%1 enable driver'\n        \"\"\"\n        self._driver.enable()\n\n    def disable(self):\n        \"\"\"\n        label:\n            en: '%1 disable driver'\n        \"\"\"\n        self._driver.disable()\n\n    def set_current(self, current: float):\n        \"\"\"\n        label:\n            en: '%1 set run current (A RMS) %2'\n        params:\n            current:\n                name: current\n                type: float\n                default: '0.5'\n                field: number\n        \"\"\"\n        self._driver.set_current(current)\n\n    def set_hold_current(self, current: float):\n        \"\"\"\n        label:\n            en: '%1 set hold current (A RMS) %2'\n        params:\n            current:\n                name: current\n                type: float\n                default: '0.15'\n                field: number\n        \"\"\"\n        self._driver.set_hold_current(current)\n\n    def run(self, speed: float):\n        \"\"\"\n        label:\n            en: '%1 run (full steps/s, negative = reverse) %2'\n        params:\n            speed:\n                name: speed\n                type: float\n                default: '200'\n                field: number\n        \"\"\"\n        self._driver.run(speed)\n\n    def stop(self):\n        \"\"\"\n        label:\n            en: '%1 stop'\n        \"\"\"\n        self._driver.stop()\n\n    def set_microsteps(self, n: int):\n        \"\"\"\n        label:\n            en: '%1 set microsteps (1-256) %2'\n        params:\n            n:\n                name: n\n                type: int\n                default: '16'\n                field: number\n                min: '1'\n                max: '256'\n        \"\"\"\n        self._driver.set_microsteps(n)\n\n    def set_interpolation(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set interpolation (0/1) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_interpolation(bool(enabled))\n\n    def set_chopper_mode(self, spreadcycle: int):\n        \"\"\"\n        label:\n            en: '%1 set SpreadCycle (0 = StealthChop, 1 = SpreadCycle) %2'\n        params:\n            spreadcycle:\n                name: spreadcycle\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_chopper_mode(bool(spreadcycle))\n\n    def set_stealthchop_threshold(self, tpwmthrs: int):\n        \"\"\"\n        label:\n            en: '%1 set StealthChop threshold (TPWMTHRS) %2'\n        params:\n            tpwmthrs:\n                name: tpwmthrs\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1048575'\n        \"\"\"\n        self._driver.set_stealthchop_threshold(tpwmthrs)\n\n    def set_direction_inverted(self, inverted: int):\n        \"\"\"\n        label:\n            en: '%1 invert direction (0/1) %2'\n        params:\n            inverted:\n                name: inverted\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_direction_inverted(bool(inverted))\n\n    def set_freewheel(self, mode: int):\n        \"\"\"\n        label:\n            en: '%1 set freewheel mode (0-3) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_freewheel(mode)\n\n    def standstill(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 standstill'\n        \"\"\"\n        return self._driver.is_standstill()\n\n    def fault(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 fault bitmask'\n        \"\"\"\n        return self._driver.read_fault()\n\n    def microstep_position(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 microstep position (0-1023)'\n        \"\"\"\n        return self._driver.microstep_position()\n\n    def current_scale(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 current scale (0-31)'\n        \"\"\"\n        return self._driver.read_current_scale()\n\n    def tstep(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 TSTEP'\n        \"\"\"\n        return self._driver.read_tstep()\n\n    def temperature_flags(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 temperature flags (0-15)'\n        \"\"\"\n        return self._driver.read_temperature_flags()\n\n    def ifcnt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 write counter (IFCNT)'\n        \"\"\"\n        return self._driver.read_ifcnt()\n\n    def set_stall_threshold(self, sgthrs: int):\n        \"\"\"\n        label:\n            en: '%1 set StallGuard threshold (SGTHRS) %2'\n        params:\n            sgthrs:\n                name: sgthrs\n                type: int\n                default: '60'\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.set_stall_threshold(sgthrs)\n\n    def set_coolstep_threshold(self, tcoolthrs: int):\n        \"\"\"\n        label:\n            en: '%1 set CoolStep/stall threshold (TCOOLTHRS) %2'\n        params:\n            tcoolthrs:\n                name: tcoolthrs\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1048575'\n        \"\"\"\n        self._driver.set_coolstep_threshold(tcoolthrs)\n\n    def read_stallguard(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 StallGuard result (SG_RESULT)'\n        \"\"\"\n\n        return self._driver.read_stallguard()\n",
+  "version": "alpha2"
+}

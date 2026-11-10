@@ -1,0 +1,89 @@
+[
+  {
+    "id": "qmi8658a-tab",
+    "type": "tab",
+    "label": "QMI8658A tilt estimator",
+    "disabled": false,
+    "info": "Reads a QMI8658A every 100 ms and estimates roll and pitch with a complementary filter: the gyro rate is integrated for the fast response and the accelerometer gravity vector (roll/pitch from atan2) corrects the slow drift. Demonstrates 6-DOF tilt estimation. The function node keeps its state in the node context, so the first message after deploy starts from the accelerometer-only angles."
+  },
+  {
+    "id": "qmi8658a-inject",
+    "type": "inject",
+    "z": "qmi8658a-tab",
+    "name": "100 ms timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "0.1",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 160,
+    "wires": [
+      [
+        "qmi8658a-node"
+      ]
+    ]
+  },
+  {
+    "id": "qmi8658a-node",
+    "type": "periph-qmi8658a",
+    "z": "qmi8658a-tab",
+    "name": "QMI8658A",
+    "transport": "i2c",
+    "bus": "1",
+    "device": "0",
+    "address": "0x6B",
+    "accelRange": "1",
+    "gyroRange": "4",
+    "odr": "5",
+    "x": 400,
+    "y": 160,
+    "wires": [
+      [
+        "qmi8658a-tilt"
+      ]
+    ]
+  },
+  {
+    "id": "qmi8658a-tilt",
+    "type": "function",
+    "z": "qmi8658a-tab",
+    "name": "Complementary-filter roll/pitch",
+    "func": "const { accel, gyro, temperature } = msg.payload;\nconst now = Date.now();\nconst last = context.get('t') || now;\nconst dt = Math.min(0.5, (now - last) / 1000);\ncontext.set('t', now);\nconst D = 180 / Math.PI;\n// accelerometer-only angles (degrees)\nconst accRoll = Math.atan2(accel.y, accel.z) * D;\nconst accPitch = Math.atan2(-accel.x, Math.sqrt(accel.y * accel.y + accel.z * accel.z)) * D;\nlet roll = context.get('roll');\nlet pitch = context.get('pitch');\nif (roll === undefined) { roll = accRoll; pitch = accPitch; }\nconst alpha = 0.98;\nroll = alpha * (roll + gyro.x * D * dt) + (1 - alpha) * accRoll;\npitch = alpha * (pitch + gyro.y * D * dt) + (1 - alpha) * accPitch;\ncontext.set('roll', roll);\ncontext.set('pitch', pitch);\nmsg.payload = { roll, pitch, temperature };\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 700,
+    "y": 160,
+    "wires": [
+      [
+        "qmi8658a-debug"
+      ]
+    ]
+  },
+  {
+    "id": "qmi8658a-debug",
+    "type": "debug",
+    "z": "qmi8658a-tab",
+    "name": "Tilt",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 930,
+    "y": 160,
+    "wires": []
+  }
+]

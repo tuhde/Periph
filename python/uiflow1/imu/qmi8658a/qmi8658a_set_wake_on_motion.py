@@ -1,0 +1,1 @@
+_periph_qmi8658a.set_wake_on_motion(int(${_threshold}))

@@ -77,6 +77,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/ads1115.py"
     ],
     [
+      "periph/chips/adc_dac/es8311.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/es8311.py"
+    ],
+    [
       "periph/chips/adc_dac/hx710a.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/hx710a.py"
     ],
@@ -99,6 +103,10 @@
     [
       "periph/chips/adc_dac/mcp4728.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/mcp4728.py"
+    ],
+    [
+      "periph/chips/adc_dac/mcp4xxx.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/mcp4xxx.py"
     ],
     [
       "periph/chips/adc_dac/pcf8591.py",
@@ -201,6 +209,10 @@
       "github:tuhde/Periph/python/periph/chips/imu/mpu9255.py"
     ],
     [
+      "periph/chips/imu/qmi8658a.py",
+      "github:tuhde/Periph/python/periph/chips/imu/qmi8658a.py"
+    ],
+    [
       "periph/chips/io_expander/mcp23008.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/mcp23008.py"
     ],
@@ -293,12 +305,32 @@
       "github:tuhde/Periph/python/periph/chips/motor/drv8830.py"
     ],
     [
+      "periph/chips/motor/tmc2130.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc2130.py"
+    ],
+    [
+      "periph/chips/motor/tmc2208.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc2208.py"
+    ],
+    [
+      "periph/chips/motor/tmc2209.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc2209.py"
+    ],
+    [
+      "periph/chips/motor/tmc5160.py",
+      "github:tuhde/Periph/python/periph/chips/motor/tmc5160.py"
+    ],
+    [
       "periph/chips/other/mpr121.py",
       "github:tuhde/Periph/python/periph/chips/other/mpr121.py"
     ],
     [
       "periph/chips/power/ade7953.py",
       "github:tuhde/Periph/python/periph/chips/power/ade7953.py"
+    ],
+    [
+      "periph/chips/power/axp2101.py",
+      "github:tuhde/Periph/python/periph/chips/power/axp2101.py"
     ],
     [
       "periph/chips/power/ina219.py",
@@ -351,6 +383,10 @@
     [
       "periph/chips/rtc/ds3231.py",
       "github:tuhde/Periph/python/periph/chips/rtc/ds3231.py"
+    ],
+    [
+      "periph/chips/rtc/pcf85063a.py",
+      "github:tuhde/Periph/python/periph/chips/rtc/pcf85063a.py"
     ],
     [
       "periph/chips/rtc/pcf8523.py",

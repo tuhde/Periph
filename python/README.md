@@ -67,6 +67,7 @@ Each chip exposes two classes:
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor |
+| AXP2101 | Power monitor | PMIC |
 | BMA150 | Accelerometer | 3-axis accelerometer |
 | BMA180 | Accelerometer | 3-axis accelerometer |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor |
@@ -81,6 +82,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | Low-voltage motor driver |
 | DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
+| ES8311 | ADC/DAC | Bring-up for voice playback and recording. |
 | FXOS8700 | Accelerometer | Acceleration and magnetic field. |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
 | HX710A | ADC/DAC | 24-bit ADC |
@@ -105,6 +107,7 @@ Each chip exposes two classes:
 | MCP2515 | Comms | Send/recv with default configuration. |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC |
+| MCP4XXX | ADC/DAC | Family |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor |
 | MFRC522 | RFID/NFC | 13.56 MHz RFID/NFC reader |
 | MMA8451Q | Accelerometer | 3-axis accelerometer |
@@ -114,6 +117,7 @@ Each chip exposes two classes:
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | MX25L12845E | Memory | — minimal driver: byte-addressed read, erase-aware write. |
 | NEO-6 | GNSS/GPS | U-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status. |
+| PCF85063A | RTC | Low-power I2C real-time clock |
 | PCF8523 | RTC | Low-power I2C real-time clock |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander |
@@ -121,12 +125,17 @@ Each chip exposes two classes:
 | PCF8578 | Display driver | Row/column LCD dot-matrix driver |
 | PCF8579 | Display driver | LCD column driver |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
+| QMI8658A | IMU | Acceleration and angular rate. |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
 | SD_SPI | Memory | SD card in SPI mode |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | ST7036 | Display driver | Character LCD controller |
+| TMC2130 | Motor driver | Trinamic TMC2130 stepper driver over SPI. |
+| TMC2208 | Motor driver | Trinamic TMC2202 / TMC2208 / TMC2224 stepper driver over single-wire UART. |
+| TMC2209 | Motor driver | Trinamic TMC2209 stepper driver over single-wire UART. |
+| TMC5160 | Motor driver | Trinamic TMC5160 stepper controller/driver over SPI or single-wire UART. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
 | UC1611S | Display driver | Graphic LCD controller-driver |

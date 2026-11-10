@@ -291,114 +291,114 @@ Decoder id `mcp4xxx`, input `['i2c']`. Matches I²C addresses `0x28`–`0x2F` an
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/adc_dac/mcp4xxx.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/adc_dac/mcp4xxx/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/adc_dac/mcp4xxx/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/adc_dac/mcp4xxx/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/adc_dac/mcp4xxx_test.py` (MicroPython)
-- [ ] Tests `python/tests/adc_dac/mcp4xxx_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/adc_dac/mcp4xxx_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/adc_dac/mcp4xxx_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `python/periph/chips/adc_dac/mcp4xxx.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/adc_dac/mcp4xxx/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/adc_dac/mcp4xxx/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/adc_dac/mcp4xxx/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/adc_dac/mcp4xxx_test.py` (MicroPython)
+- [x] Tests `python/tests/adc_dac/mcp4xxx_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/adc_dac/mcp4xxx_test_linux.py` (Linux)
+- [x] Unit test `python/tests/adc_dac/mcp4xxx_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/adc_dac/mcp4xxx/mcp4xxx.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/adc_dac/mcp4xxx/mcp4xxx_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/adc_dac/mcp4xxx/mcp4xxx.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/adc_dac/mcp4xxx/mcp4xxx.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/adc_dac/mcp4xxx/mcp4xxx_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [x] Generated `python/uiflow1/adc_dac/mcp4xxx/mcp4xxx.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/adc_dac/mcp4xxx/MCP4XXX.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
-- [ ] Exported `python/uiflow2/adc_dac/mcp4xxx/MCP4XXX.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
+- [x] Wrapper class `python/uiflow2/adc_dac/mcp4xxx/MCP4XXX.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [x] Exported `python/uiflow2/adc_dac/mcp4xxx/MCP4XXX.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/adc_dac/MCP4XXX.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/adc_dac/MCP4XXX.cpp`
-- [ ] Examples `cpp/examples/arduino/adc_dac/MCP4XXX/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/adc_dac/MCP4XXX/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/adc_dac/MCP4XXX/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/adc_dac/MCP4XXX/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/adc_dac/MCP4XXX/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/adc_dac/MCP4XXX/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/adc_dac/MCP4XXX/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/adc_dac/MCP4XXX/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/adc_dac/MCP4XXX/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/adc_dac/MCP4XXX/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/adc_dac/MCP4XXX/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/adc_dac/MCP4XXX/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/adc_dac/MCP4XXX/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/adc_dac/MCP4XXX/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/adc_dac/MCP4XXX/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/stm32cube/adc_dac/MCP4XXX/minimal/Core/Src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/stm32cube/adc_dac/MCP4XXX/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/stm32cube/adc_dac/MCP4XXX/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/adc_dac/mcp4xxx_test/mcp4xxx_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/adc_dac/mcp4xxx_test_linux/mcp4xxx_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/adc_dac/mcp4xxx_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/adc_dac/mcp4xxx_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/adc_dac/mcp4xxx_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Tests `cpp/tests/adc_dac/mcp4xxx_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
-- [ ] Unit test `cpp/tests/adc_dac/mcp4xxx_test_unit/mcp4xxx_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/adc_dac/MCP4XXX.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/adc_dac/MCP4XXX.cpp`
+- [x] Examples `cpp/examples/arduino/adc_dac/MCP4XXX/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/adc_dac/MCP4XXX/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/adc_dac/MCP4XXX/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
+- [x] Examples `cpp/examples/linux/adc_dac/MCP4XXX/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/adc_dac/MCP4XXX/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/adc_dac/MCP4XXX/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/adc_dac/MCP4XXX/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/adc_dac/MCP4XXX/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/adc_dac/MCP4XXX/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/adc_dac/MCP4XXX/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/adc_dac/MCP4XXX/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/adc_dac/MCP4XXX/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/adc_dac/MCP4XXX/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/adc_dac/MCP4XXX/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/adc_dac/MCP4XXX/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/adc_dac/MCP4XXX/minimal/Core/Src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/adc_dac/MCP4XXX/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/adc_dac/MCP4XXX/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/adc_dac/mcp4xxx_test/mcp4xxx_test.ino` (Arduino)
+- [x] Tests `cpp/tests/adc_dac/mcp4xxx_test_linux/mcp4xxx_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/adc_dac/mcp4xxx_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/adc_dac/mcp4xxx_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/adc_dac/mcp4xxx_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/adc_dac/mcp4xxx_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
+- [x] Unit test `cpp/tests/adc_dac/mcp4xxx_test_unit/mcp4xxx_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/adc_dac/mcp4xxx.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/adc_dac/mcp4xxx/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/adc_dac/mcp4xxx/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/adc_dac/mcp4xxx/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/adc_dac/mcp4xxx_test.js`
-- [ ] Unit test `nodejs/tests/adc_dac/mcp4xxx_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/adc_dac/mcp4xxx.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/adc_dac/mcp4xxx/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/adc_dac/mcp4xxx/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/adc_dac/mcp4xxx/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/adc_dac/mcp4xxx_test.js`
+- [x] Unit test `nodejs/tests/adc_dac/mcp4xxx_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-adc-dac/nodes/mcp4xxx/mcp4xxx.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-adc-dac/nodes/mcp4xxx/mcp4xxx.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-adc-dac/examples/mcp4xxx/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-adc-dac/nodes/mcp4xxx/mcp4xxx.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-adc-dac/nodes/mcp4xxx/mcp4xxx.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-adc-dac/examples/mcp4xxx/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/adc_dac/mcp4xxx.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/adc_dac/mcp4xxx/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/adc_dac/mcp4xxx/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/adc_dac/mcp4xxx/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/adc_dac/mcp4xxx_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/adc_dac/mcp4xxx_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/adc_dac/mcp4xxx.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `rust/periph/src/chips/adc_dac/mcp4xxx.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/linux/adc_dac/mcp4xxx/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/adc_dac/mcp4xxx/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/adc_dac/mcp4xxx/demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/adc_dac/mcp4xxx_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/adc_dac/mcp4xxx_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/adc_dac/mcp4xxx.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Go
-- [ ] Driver `go/periph/chips/adc_dac/mcp4xxx.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/adc_dac/mcp4xxx/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/adc_dac/mcp4xxx/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/adc_dac/mcp4xxx/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/adc_dac/mcp4xxx/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/adc_dac/mcp4xxx/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/adc_dac/mcp4xxx/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/adc_dac/mcp4xxx_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/adc_dac/mcp4xxx_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/adc_dac/mcp4xxx_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/adc_dac/mcp4xxx.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/linux/adc_dac/mcp4xxx/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/adc_dac/mcp4xxx/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/adc_dac/mcp4xxx/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/adc_dac/mcp4xxx/minimal/minimal.go` — Tier-1 (TinyGo)
+- [x] Examples `go/examples/tinygo/adc_dac/mcp4xxx/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [x] Examples `go/examples/tinygo/adc_dac/mcp4xxx/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [x] Tests `go/tests/adc_dac/mcp4xxx_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [x] Tests `go/tests/adc_dac/mcp4xxx_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [x] Unit test `go/periph/chips/adc_dac/mcp4xxx_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/adc_dac/MCP4XXXMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/adc_dac/MCP4XXXFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/adc_dac/MCP4XXXMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/adc_dac/MCP4XXXFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/adc_dac/MCP4XXXMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/adc_dac/MCP4XXXFull.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/adc_dac/mcp4xxx/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/adc_dac/mcp4xxx/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/adc_dac/mcp4xxx/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/adc_dac/mcp4xxx/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/adc_dac/mcp4xxx/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/adc_dac/mcp4xxx/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/adc_dac/mcp4xxx/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/adc_dac/mcp4xxx/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/adc_dac/mcp4xxx/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/adc_dac/mcp4xxx/MCP4XXXTest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/adc_dac/MCP4XXXTest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/adc_dac/MCP4XXXTest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/adc_dac/MCP4XXXSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/adc_dac/MCP4XXXMinimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/adc_dac/MCP4XXXFull.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/adc_dac/MCP4XXXMinimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/adc_dac/MCP4XXXFull.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/adc_dac/MCP4XXXMinimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/adc_dac/MCP4XXXFull.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/adc_dac/mcp4xxx/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/adc_dac/mcp4xxx/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/adc_dac/mcp4xxx/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/adc_dac/mcp4xxx/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/adc_dac/mcp4xxx/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/adc_dac/mcp4xxx/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/adc_dac/mcp4xxx/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/adc_dac/mcp4xxx/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/adc_dac/mcp4xxx/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/adc_dac/mcp4xxx/MCP4XXXTest.java` (Pi hardware, JBang)
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/adc_dac/MCP4XXXTest.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/adc_dac/MCP4XXXTest.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/adc_dac/MCP4XXXSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
-- [ ] Decoder `sigrok/mcp4xxx/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/mcp4xxx/pd.py` — annotates the register accesses as described in the Sigrok Decoder section (no timing annotation pair: no conformance-checked constraints)
+- [x] Decoder `sigrok/mcp4xxx/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/mcp4xxx/pd.py` — annotates the register accesses as described in the Sigrok Decoder section (no timing annotation pair: no conformance-checked constraints)
 
 ### Conformance
-- [ ] Checker `conformance/adc_dac/mcp4xxx_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
-- [ ] Timing config `specs/adc_dac/mcp4xxx_timing.conf` — already committed; defines no checks (see its header)
-- [ ] Decoder `sigrok/mcp4xxx/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
+- [x] Checker `conformance/adc_dac/mcp4xxx_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [x] Timing config `specs/adc_dac/mcp4xxx_timing.conf` — already committed; defines no checks (see its header)
+- [x] Decoder `sigrok/mcp4xxx/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

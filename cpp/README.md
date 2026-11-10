@@ -59,6 +59,7 @@ Each chip exposes two classes:
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
+| AXP2101 | Power monitor | `chips/power/AXP2101.h` |
 | BMA150 | Accelerometer | `chips/accelerometer/BMA150.h` |
 | BMA180 | Accelerometer | `chips/accelerometer/BMA180.h` |
 | BME280 | Environmental sensor | `chips/environmental/BME280.h` |
@@ -73,6 +74,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | `chips/motor/DRV8830.h` |
 | DS3231 | RTC | `chips/rtc/DS3231.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
+| ES8311 | ADC/DAC | `chips/adc_dac/ES8311.h` |
 | FXOS8700 | Accelerometer | `chips/accelerometer/FXOS8700.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
@@ -96,6 +98,8 @@ Each chip exposes two classes:
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
+| MCP4XXX | ADC/DAC | `chips/adc_dac/MCP4XXX.h` |
+| MCP4XXXParts | ADC/DAC | `chips/adc_dac/MCP4XXXParts.h` |
 | MCP9808 | Temperature sensor | `chips/temperature/MCP9808.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
 | MMA8451Q | Accelerometer | `chips/accelerometer/MMA8451Q.h` |
@@ -107,6 +111,7 @@ Each chip exposes two classes:
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
 | NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |
+| PCF85063A | RTC | `chips/rtc/PCF85063A.h` |
 | PCF8523 | RTC | `chips/rtc/PCF8523.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |
 | PCF8575 | IO expander | `chips/io_expander/PCF8575.h` |
@@ -114,10 +119,15 @@ Each chip exposes two classes:
 | PCF8578 | Display driver | `chips/display/PCF8578.h` |
 | PCF8579 | Display driver | `chips/display/PCF8579.h` |
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
+| QMI8658A | IMU | `chips/imu/QMI8658A.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SD_SPI | Memory | `chips/memory/SD_SPI.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
+| TMC2130 | Motor driver | `chips/motor/TMC2130.h` |
+| TMC2208 | Motor driver | `chips/motor/TMC2208.h` |
+| TMC2209 | Motor driver | `chips/motor/TMC2209.h` |
+| TMC5160 | Motor driver | `chips/motor/TMC5160.h` |
 | TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
 | UC1611s | Display driver | `chips/display/UC1611s.h` |
 | VL53L0X | Time-of-flight | `chips/tof/VL53L0X.h` |

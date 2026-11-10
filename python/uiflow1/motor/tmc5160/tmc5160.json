@@ -1,0 +1,380 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tmc5160_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init TMC5160 (SPI bus)",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "CS pin",
+          "type": "label"
+        },
+        {
+          "name": "_cs_pin",
+          "type": "number"
+        },
+        {
+          "name": "ENN pin",
+          "type": "label"
+        },
+        {
+          "name": "_en",
+          "type": "number"
+        },
+        {
+          "name": "sense resistor (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_rsense",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_enable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 enable driver",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_disable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 disable driver",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set run current (A RMS)",
+          "type": "label"
+        },
+        {
+          "name": "current",
+          "type": "label"
+        },
+        {
+          "name": "_i",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_speed",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set speed (full steps/s)",
+          "type": "label"
+        },
+        {
+          "name": "speed",
+          "type": "label"
+        },
+        {
+          "name": "_v",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_acceleration",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set acceleration (full steps/s2)",
+          "type": "label"
+        },
+        {
+          "name": "acceleration",
+          "type": "label"
+        },
+        {
+          "name": "_a",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_move_to",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 move to position (full steps)",
+          "type": "label"
+        },
+        {
+          "name": "position",
+          "type": "label"
+        },
+        {
+          "name": "_p",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_move",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 move relative and wait (full steps)",
+          "type": "label"
+        },
+        {
+          "name": "steps",
+          "type": "label"
+        },
+        {
+          "name": "_s",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_run",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 run at velocity (full steps/s)",
+          "type": "label"
+        },
+        {
+          "name": "velocity",
+          "type": "label"
+        },
+        {
+          "name": "_v",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_stop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 stop",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_position",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 define position (full steps)",
+          "type": "label"
+        },
+        {
+          "name": "position",
+          "type": "label"
+        },
+        {
+          "name": "_p",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_microsteps",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set microsteps",
+          "type": "label"
+        },
+        {
+          "name": "microsteps (1-256)",
+          "type": "label"
+        },
+        {
+          "name": "_n",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_chopper_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set SpreadCycle (1) / StealthChop (0)",
+          "type": "label"
+        },
+        {
+          "name": "SpreadCycle",
+          "type": "label"
+        },
+        {
+          "name": "_s",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_stall_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set StallGuard threshold (-64..63)",
+          "type": "label"
+        },
+        {
+          "name": "SGT",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_set_coolstep_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 set CoolStep/stall threshold",
+          "type": "label"
+        },
+        {
+          "name": "TCOOLTHRS",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_enable_stall_stop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 stop on stall (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_e",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_clear_ramp_events",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC5160 clear ramp events",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_position",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 position",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_velocity",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 velocity",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_is_position_reached",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 position reached",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_is_standstill",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 is standstill",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_read_fault",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 fault flags",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_read_stallguard",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 SG_RESULT",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_is_stalled",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 is stalled",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc5160_read_current_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC5160 current scale",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

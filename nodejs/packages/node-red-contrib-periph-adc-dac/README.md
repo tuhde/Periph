@@ -28,6 +28,8 @@ npm install node-red-contrib-periph-adc-dac
 | `periph-ads1113` | input | Reads the ADS1113 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), fixed ±2.048 V) over I²C. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the ADDR strap. |
 | `periph-ads1114` | input | Reads the ADS1114 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1) with programmable gain) over I²C. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the ADDR strap. |
 | `periph-ads1115` | input | Reads the ADS1115 16-bit ΔΣ ADC (four single-ended or two differential inputs with programmable gain) over I²C. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the ADDR strap. |
+| `es8311-device` | config | I²C bus and address for an ES8311 |
+| `periph-es8311` | input | Controls an ES8311 low-power mono audio codec over its I²C control port. The audio stream itself (I²S) is not handled by this node. |
 | `periph-hx710a` | input | Reads weight from an HX710A 24-bit ADC connected to a load cell via two GPIO pins. Also exposes the chip's on-chip temperature sensor as a raw ADC code. |
 | `periph-hx710b` | input | Reads weight from an HX710B 24-bit ADC connected to a load cell via two GPIO pins. Also exposes the chip's DVDD-AVDD supply-voltage-difference channel as a raw ADC code for battery-monitoring applications. |
 | `periph-hx711` | input | Reads weight from an HX711 24-bit ADC connected to a load cell via two GPIO pins. |
@@ -37,6 +39,8 @@ npm install node-red-contrib-periph-adc-dac
 | `periph-mcp4725` | output | Sets the output voltage of an MCP4725 12-bit DAC over I²C. |
 | `mcp4728-device` | config | I²C bus and address for a MCP4728 |
 | `periph-mcp4728` | output | Sets the output voltage of one channel (A–D) of an MCP4728 quad-channel 12-bit DAC over I²C. |
+| `mcp4xxx-device` | config | I²C bus and address for a MCP4XXX |
+| `periph-mcp4xxx` | input | Sets or reads the volatile wiper(s) of an MCP4XXX I²C digital potentiometer / rheostat (MCP4531 … MCP4662: 7 / 8-bit, one or two networks, volatile or non-volatile). The device is configured via an mcp4xxx-device config node. |
 | `periph-pcf8591` | input | Reads the four analog inputs of a PCF8591 8-bit ADC/DAC over I²C. Default address is 0x48 ; any address in the range 0x48 – 0x4F is valid depending on the A0/A1/A2 pin states. |
 
 ## Links

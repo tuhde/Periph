@@ -1,0 +1,116 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-tmc2130', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '0', required: true, validate: RED.validators.number() },
+            device:     { value: '0', required: true, validate: RED.validators.number() },
+            speedHz:    { value: '1000000', validate: RED.validators.number() },
+            stepGpio:   { value: '0:27', required: true },
+            dirGpio:    { value: '0:22', required: true },
+            enGpio:     { value: '' },
+            rsense:     { value: '0.11', required: true, validate: RED.validators.number() },
+            current:    { value: '0.5', validate: RED.validators.number() },
+            microsteps: { value: '16' },
+            speed:      { value: '200', validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-cog',
+        label:   function() { return this.name || 'TMC2130'; },
+        paletteLabel: 'TMC2130'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-tmc2130">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="TMC2130">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-plug"></i> SPI bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-plug"></i> SPI device (CS)</label>
+        <input type="number" id="node-input-device" min="0" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-speedHz"><i class="fa fa-tachometer"></i> SPI clock (Hz)</label>
+        <input type="number" id="node-input-speedHz" min="100000" max="4000000" style="width:120px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-stepGpio"><i class="fa fa-microchip"></i> STEP GPIO</label>
+        <input type="text" id="node-input-stepGpio" placeholder="e.g. 0:27" style="width:140px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dirGpio"><i class="fa fa-microchip"></i> DIR GPIO</label>
+        <input type="text" id="node-input-dirGpio" placeholder="e.g. 0:22" style="width:140px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-enGpio"><i class="fa fa-microchip"></i> ENN GPIO (optional)</label>
+        <input type="text" id="node-input-enGpio" placeholder="not wired, e.g. 0:17" style="width:140px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-rsense"><i class="fa fa-bolt"></i> Sense resistor (Ω)</label>
+        <input type="number" id="node-input-rsense" min="0.01" step="0.01" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-current"><i class="fa fa-bolt"></i> Default current (A RMS)</label>
+        <input type="number" id="node-input-current" min="0" max="1.4" step="0.05" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-microsteps"><i class="fa fa-th"></i> Default microsteps</label>
+        <select id="node-input-microsteps" style="width:100px">
+            <option value="1">1</option><option value="2">2</option><option value="4">4</option>
+            <option value="8">8</option><option value="16">16</option><option value="32">32</option>
+            <option value="64">64</option><option value="128">128</option><option value="256">256</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-speed"><i class="fa fa-forward"></i> Default speed (full steps/s)</label>
+        <input type="number" id="node-input-speed" min="1" style="width:100px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-tmc2130">
+    <p>Drives a two-phase bipolar stepper motor through a Trinamic TMC2130 over SPI (Mode 3). The chip has no internal step generator, so the node pulses the STEP and DIR GPIOs; moves are blocking.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.move <span class="property-type">number</span></dt>
+        <dd>Full steps to move; negative = reverse. Blocks until finished.</dd>
+        <dt>payload.speed <span class="property-type">number</span></dt>
+        <dd>Speed in full steps per second for <code>move</code>; defaults to the configured speed.</dd>
+        <dt>payload.current <span class="property-type">number</span></dt>
+        <dd>Run current in A RMS (at most 1.4); hold current becomes one third of it.</dd>
+        <dt>payload.microsteps <span class="property-type">number</span></dt>
+        <dd>Microstep resolution: 1, 2, 4, 8, 16, 32, 64, 128 or 256.</dd>
+        <dt>payload.stall_threshold <span class="property-type">number</span></dt>
+        <dd>StallGuard2 threshold <code>sgt</code> −64…63; lower is more sensitive.</dd>
+        <dt>payload.spreadcycle <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> selects SpreadCycle only (needed for StallGuard2), <code>false</code> StealthChop.</dd>
+        <dt>payload.enable <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> switches the power stage on, <code>false</code> off (the motor freewheels).</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message polls the driver status.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.standstill <span class="property-type">boolean</span></dt>
+        <dd>The motor is at standstill.</dd>
+        <dt>payload.fault <span class="property-type">number</span></dt>
+        <dd>Fault bitmask: 1 over-temperature pre-warning, 2 over-temperature, 4 short to GND, 16 open load (informative only); <code>0</code> = none.</dd>
+        <dt>payload.cs_actual <span class="property-type">number</span></dt>
+        <dd>Actual current scale 0–31.</dd>
+        <dt>payload.sg_result <span class="property-type">number</span></dt>
+        <dd>StallGuard2 result 0–1023 (0 = highest load).</dd>
+        <dt>payload.tstep, stallguard, otpw, ot</dt>
+        <dd>Status polls only: time between microsteps, stall flag, over-temperature pre-warning and shutdown flags.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Connect the chip to the SPI bus (SPI_MODE pin high, SCK idles high) and set the bus and device numbers (<code>/dev/spidevB.D</code>). STEP and DIR GPIOs are given as <code>chip:line</code> (e.g. <code>0:27</code>, needs the <code>opengpio</code> package); the optional ENN GPIO drives the enable pin, otherwise the node switches the power stage through the chopper (<code>TOFF</code>). Set the external sense resistor value (0.11 Ω on common boards) and the default current, microsteps and speed applied at start. The driver is disabled when the node is closed.</p>
+</script>

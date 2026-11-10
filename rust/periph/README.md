@@ -61,6 +61,7 @@ Each chip exposes two structs:
 | APDS-9930 | Light sensor | Digital ambient light and proximity sensor (Broadcom/Avago). |
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor (AMS OSRAM). |
+| AXP2101 | Power monitor | Single-cell Li-ion NVDC power-management IC (X-Powers). |
 | BMA150 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BMA180 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor (Bosch Sensortec). |
@@ -75,6 +76,7 @@ Each chip exposes two structs:
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |
 | DS3231 | RTC | Extremely accurate I²C-integrated RTC/TCXO/crystal (Analog |
 | ENS160 | Gas sensor | Digital multi-gas sensor driver. |
+| ES8311 | ADC/DAC | Low-power mono audio codec, I²C control port (Everest Semiconductor). |
 | FXOS8700 | Accelerometer | 6-axis e-compass: 14-bit accelerometer + 16-bit magnetometer (NXP). |
 | HMC5883L | Magnetometer | 3-axis anisotropic magnetoresistive magnetometer (Honeywell). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
@@ -99,6 +101,7 @@ Each chip exposes two structs:
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC (Microchip). |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC (Microchip). |
+| MCP4XXX | ADC/DAC | MCP453X / 454X / 455X / 456X / 463X / 464X / 465X / 466X I²C digital |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor (Microchip). |
 | MFRC522 | RFID/NFC | 13.56 MHz contactless reader/writer (NXP). |
 | MMA8451Q | Accelerometer | 3-axis MEMS accelerometer (NXP / Freescale). |
@@ -108,6 +111,7 @@ Each chip exposes two structs:
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | MX25L12845E | Memory | Macronix 128-Mbit (16 MiB) serial NOR flash (`specs/memory/mx25l12845e.md`). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
+| PCF85063A | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander (NXP). |
@@ -115,12 +119,17 @@ Each chip exposes two structs:
 | PCF8578 | Display driver | Row/column LCD dot-matrix driver (NXP). |
 | PCF8579 | Display driver | LCD column driver (NXP), companion of the PCF8578. |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
+| QMI8658A | IMU | 6-axis inertial measurement unit (QST): 3-axis gyroscope, 3-axis accelerometer and |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
 | SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
+| TMC2130 | Motor driver | -- Trinamic TMC2130 stepper driver over SPI (Mode 3). |
+| TMC2208 | Motor driver | -- Trinamic TMC2202 / TMC2208 / TMC2224 stepper driver over single-wire UART. |
+| TMC2209 | Motor driver | -- Trinamic TMC2209 stepper driver over single-wire UART. |
+| TMC5160 | Motor driver | -- Trinamic TMC5160 stepper controller/driver over SPI or single-wire UART. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
 | UC1611S | Display driver | 160 COM x 256 SEG graphic LCD controller-driver (UltraChip), as used on the EA DOGXL240-7. |
