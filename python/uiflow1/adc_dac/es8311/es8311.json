@@ -1,0 +1,692 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "es8311_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ES8311",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "MCLK Hz",
+          "type": "label"
+        },
+        {
+          "name": "_mclk",
+          "type": "number"
+        },
+        {
+          "name": "sample rate Hz",
+          "type": "label"
+        },
+        {
+          "name": "_fs",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set DAC volume (dB, -95.5..32)",
+          "type": "label"
+        },
+        {
+          "name": "db",
+          "type": "label"
+        },
+        {
+          "name": "_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_get_volume",
+      "type": "value",
+      "params": [
+        {
+          "name": "ES8311 get DAC volume (dB)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_mute",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set DAC mute (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "muted",
+          "type": "label"
+        },
+        {
+          "name": "_muted",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_mic_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set mic PGA gain (dB, 0..30)",
+          "type": "label"
+        },
+        {
+          "name": "db",
+          "type": "label"
+        },
+        {
+          "name": "_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_get_mic_gain",
+      "type": "value",
+      "params": [
+        {
+          "name": "ES8311 get mic PGA gain (dB)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "es8311_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 software reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "es8311_power_up",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 power up",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "es8311_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 power down (standby)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_low_power",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set low-power bits (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "dac",
+          "type": "label"
+        },
+        {
+          "name": "_dac",
+          "type": "number"
+        },
+        {
+          "name": "pga",
+          "type": "label"
+        },
+        {
+          "name": "_pga",
+          "type": "number"
+        },
+        {
+          "name": "pga_out",
+          "type": "label"
+        },
+        {
+          "name": "_pga_out",
+          "type": "number"
+        },
+        {
+          "name": "adc",
+          "type": "label"
+        },
+        {
+          "name": "_adc",
+          "type": "number"
+        },
+        {
+          "name": "adc_ref",
+          "type": "label"
+        },
+        {
+          "name": "_adc_ref",
+          "type": "number"
+        },
+        {
+          "name": "dac_ref",
+          "type": "label"
+        },
+        {
+          "name": "_dac_ref",
+          "type": "number"
+        },
+        {
+          "name": "flash",
+          "type": "label"
+        },
+        {
+          "name": "_flash",
+          "type": "number"
+        },
+        {
+          "name": "integrator",
+          "type": "label"
+        },
+        {
+          "name": "_integrator",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_configure_clock",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 configure clock (MCLK Hz, sample rate Hz)",
+          "type": "label"
+        },
+        {
+          "name": "mclk_hz",
+          "type": "label"
+        },
+        {
+          "name": "_mclk_hz",
+          "type": "number"
+        },
+        {
+          "name": "sample_rate_hz",
+          "type": "label"
+        },
+        {
+          "name": "_sample_rate_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_configure_serial",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 configure serial port (i2s/left_justified/dsp_a/dsp_b, bits, master 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "format",
+          "type": "label"
+        },
+        {
+          "name": "_format",
+          "type": "variable"
+        },
+        {
+          "name": "word_length",
+          "type": "label"
+        },
+        {
+          "name": "_word_length",
+          "type": "number"
+        },
+        {
+          "name": "master",
+          "type": "label"
+        },
+        {
+          "name": "_master",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_tristate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set tri-state (BCLK/LRCK 1/0, ADCDAT 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "bclk_lrck",
+          "type": "label"
+        },
+        {
+          "name": "_bclk_lrck",
+          "type": "number"
+        },
+        {
+          "name": "adcdat",
+          "type": "label"
+        },
+        {
+          "name": "_adcdat",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_input",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set input (analog/digital/none)",
+          "type": "label"
+        },
+        {
+          "name": "source",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "es8311_configure_dmic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set PDM latch edge (falling 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "latch_falling_edge",
+          "type": "label"
+        },
+        {
+          "name": "_latch_falling_edge",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_adc_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set ADC volume (dB, -95.5..32)",
+          "type": "label"
+        },
+        {
+          "name": "db",
+          "type": "label"
+        },
+        {
+          "name": "_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_configure_adc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 configure ADC (scale dB, OSR, double speed 1/0, HPF 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "scale_db",
+          "type": "label"
+        },
+        {
+          "name": "_scale_db",
+          "type": "number"
+        },
+        {
+          "name": "osr",
+          "type": "label"
+        },
+        {
+          "name": "_osr",
+          "type": "number"
+        },
+        {
+          "name": "double_speed",
+          "type": "label"
+        },
+        {
+          "name": "_double_speed",
+          "type": "number"
+        },
+        {
+          "name": "hpf",
+          "type": "label"
+        },
+        {
+          "name": "_hpf",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_adc_ramp",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set ADC ramp rate (0..15)",
+          "type": "label"
+        },
+        {
+          "name": "rate",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_configure_alc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 configure ALC (enable 1/0, max dB, min dB, window, automute 1/0, automute window, noise gate dB)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "max_level_db",
+          "type": "label"
+        },
+        {
+          "name": "_max_level_db",
+          "type": "number"
+        },
+        {
+          "name": "min_level_db",
+          "type": "label"
+        },
+        {
+          "name": "_min_level_db",
+          "type": "number"
+        },
+        {
+          "name": "window",
+          "type": "label"
+        },
+        {
+          "name": "_window",
+          "type": "number"
+        },
+        {
+          "name": "automute",
+          "type": "label"
+        },
+        {
+          "name": "_automute",
+          "type": "number"
+        },
+        {
+          "name": "automute_window",
+          "type": "label"
+        },
+        {
+          "name": "_automute_window",
+          "type": "number"
+        },
+        {
+          "name": "noise_gate_db",
+          "type": "label"
+        },
+        {
+          "name": "_noise_gate_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_dac_ramp",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set DAC ramp rate (0..15)",
+          "type": "label"
+        },
+        {
+          "name": "rate",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_configure_drc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 configure DRC (enable 1/0, max dB, min dB, window)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "max_level_db",
+          "type": "label"
+        },
+        {
+          "name": "_max_level_db",
+          "type": "number"
+        },
+        {
+          "name": "min_level_db",
+          "type": "label"
+        },
+        {
+          "name": "_min_level_db",
+          "type": "number"
+        },
+        {
+          "name": "window",
+          "type": "label"
+        },
+        {
+          "name": "_window",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_dac_mute_options",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set DAC mute options (DSM, DEM, DSM target 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "dsm",
+          "type": "label"
+        },
+        {
+          "name": "_dsm",
+          "type": "number"
+        },
+        {
+          "name": "dem",
+          "type": "label"
+        },
+        {
+          "name": "_dem",
+          "type": "number"
+        },
+        {
+          "name": "dsm_target",
+          "type": "label"
+        },
+        {
+          "name": "_dsm_target",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_loopback",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set ADC-to-DAC loopback (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_adcdat_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 set ADCDAT mode (adc_adc/adc_zero/zero_adc/dac_adc/adc_dac/dac_dac)",
+          "type": "label"
+        },
+        {
+          "name": "mode",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "es8311_set_sdp_mute",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 mute serial port (input 1/0, output 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "input",
+          "type": "label"
+        },
+        {
+          "name": "_input",
+          "type": "number"
+        },
+        {
+          "name": "output",
+          "type": "label"
+        },
+        {
+          "name": "_output",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_read_register",
+      "type": "value",
+      "params": [
+        {
+          "name": "ES8311 read register",
+          "type": "label"
+        },
+        {
+          "name": "register",
+          "type": "label"
+        },
+        {
+          "name": "_register",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "es8311_write_register",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ES8311 write register",
+          "type": "label"
+        },
+        {
+          "name": "register",
+          "type": "label"
+        },
+        {
+          "name": "_register",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

@@ -63,7 +63,7 @@ var registry = []Chip{
 	{ID: "mcp4661", Driver: "mcp4xxx", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F}, Probe: nil},
 	{ID: "mcp4662", Driver: "mcp4xxx", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x58, 0x59, 0x5A, 0x5B}, Probe: nil},
 	{ID: "pcf8591", Driver: "pcf8591", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: nil},
-	{ID: "es8311", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x18, 0x19}, Probe: nil},
+	{ID: "es8311", Driver: "es8311", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x18, 0x19}, Probe: nil},
 	{ID: "rda5807m", Driver: "rda5807m", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x10}, Probe: nil},
 	{ID: "pcf8576", Driver: "pcf8576", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39}, Probe: nil},
 	{ID: "pcf8578", Driver: "pcf8578", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},

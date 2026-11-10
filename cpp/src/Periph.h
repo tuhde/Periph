@@ -44,6 +44,7 @@
 #include "chips/adc_dac/ADS1114.h"
 #include "chips/adc_dac/ADS1115.h"
 #include "chips/adc_dac/ADS111xBase.h"
+#include "chips/adc_dac/ES8311.h"
 #include "chips/adc_dac/HX710A.h"
 #include "chips/adc_dac/HX710B.h"
 #include "chips/adc_dac/HX711.h"

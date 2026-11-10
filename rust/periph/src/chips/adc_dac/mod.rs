@@ -4,6 +4,13 @@ pub mod hx710b;
 pub use hx710b::{Hx710bMinimal, Hx710bFull};
 pub mod hx711;
 pub use hx711::{Hx711Minimal, Hx711Full};
+pub mod es8311;
+pub use es8311::{
+    Es8311Minimal, Es8311Full, Es8311Error, ES8311_I2C_ADDRESS,
+    Format as Es8311Format, Input as Es8311Input, AdcdatMode as Es8311AdcdatMode,
+    SerialConfig as Es8311SerialConfig, AdcConfig as Es8311AdcConfig,
+    AlcConfig as Es8311AlcConfig, DrcConfig as Es8311DrcConfig, LowPower as Es8311LowPower,
+};
 pub mod mcp4725;
 pub use mcp4725::{Mcp4725Minimal, Mcp4725Full};
 pub mod mcp4728;

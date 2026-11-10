@@ -82,6 +82,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | Low-voltage motor driver |
 | DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
+| ES8311 | ADC/DAC | Bring-up for voice playback and recording. |
 | FXOS8700 | Accelerometer | Acceleration and magnetic field. |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
 | HX710A | ADC/DAC | 24-bit ADC |
