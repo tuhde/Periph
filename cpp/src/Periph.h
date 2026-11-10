@@ -102,6 +102,7 @@
 #include "chips/memory/SD_SPI.h"
 #include "chips/motor/DRV2605.h"
 #include "chips/motor/DRV8830.h"
+#include "chips/motor/TMC2208.h"
 #include "chips/other/Mpr121.h"
 #include "chips/power/ADE7953.h"
 #include "chips/power/AXP2101.h"
