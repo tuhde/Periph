@@ -1,7 +1,7 @@
-<!-- periph-version: 1.3.3 -->
+<!-- periph-version: 1.4.0 -->
 # Installing Periph
 
-Version **1.3.3** · [Release notes](../../releases/tag/v1.3.3)
+Version **1.4.0** · [Release notes](../../releases/tag/v1.4.0)
 
 ---
 
@@ -10,19 +10,19 @@ Version **1.3.3** · [Release notes](../../releases/tag/v1.3.3)
 Linux host (the `linux` extra pulls in smbus2, spidev, gpiod, pyserial):
 
 ```sh
-pip install "periph[linux]==1.3.3"
+pip install "periph[linux]==1.4.0"
 ```
 
 MicroPython, with `mpremote` from the host. Install the whole library, one
 category, or a single chip; each package brings the connection files it needs:
 
 ```sh
-mpremote mip install github:tuhde/Periph/python/periph@v1.3.3
-mpremote mip install github:tuhde/Periph/python/periph/chips/power@v1.3.3
-mpremote mip install github:tuhde/Periph/python/periph/chips/power/ina226.json@v1.3.3
+mpremote mip install github:tuhde/Periph/python/periph@v1.4.0
+mpremote mip install github:tuhde/Periph/python/periph/chips/power@v1.4.0
+mpremote mip install github:tuhde/Periph/python/periph/chips/power/ina226.json@v1.4.0
 ```
 
-On a networked board, `import mip; mip.install("github:...", version="v1.3.3")`
+On a networked board, `import mip; mip.install("github:...", version="v1.4.0")`
 takes the same URLs. CircuitPython: copy the `periph/` package onto the board.
 
 ---
@@ -30,7 +30,7 @@ takes the same URLs. CircuitPython: copy the `periph/` package onto the board.
 ## Node.js
 
 ```sh
-npm install periph@1.3.3
+npm install periph@1.4.0
 ```
 
 ---
@@ -40,8 +40,8 @@ npm install periph@1.3.3
 Install category packages via Node-RED's **Manage Palette**, or from the command line in your Node-RED user directory:
 
 ```sh
-npm install node-red-contrib-periph-temperature@1.3.3
-npm install node-red-contrib-periph-power@1.3.3
+npm install node-red-contrib-periph-temperature@1.4.0
+npm install node-red-contrib-periph-power@1.4.0
 ```
 
 Available categories: `accelerometer` · `adc-dac` · `color` · `comms` · `display` · `environmental` · `gas` · `gnss` · `gpio` · `gyroscope` · `humidity` · `io-expander` · `led` · `light` · `magnetometer` · `memory` · `motor` · `power` · `pressure` · `rfid` · `rtc` · `temperature` · `tof`
@@ -51,28 +51,28 @@ Available categories: `accelerometer` · `adc-dac` · `color` · `comms` · `dis
 ## Rust
 
 ```sh
-cargo add periph@1.3.3
+cargo add periph@1.4.0
 ```
 
 Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-periph = "1.3.3"
+periph = "1.4.0"
 ```
 
 ---
 
 ## C++ / Arduino
 
-Download [`Periph-1.3.3.zip`](../../releases/download/v1.3.3/Periph-1.3.3.zip) from the release assets and install in the Arduino IDE:
+Download [`Periph-1.4.0.zip`](../../releases/download/v1.4.0/Periph-1.4.0.zip) from the release assets and install in the Arduino IDE:
 
 **Sketch → Include Library → Add .ZIP Library…**
 
 Or via `arduino-cli`:
 
 ```sh
-arduino-cli lib install --zip-path Periph-1.3.3.zip
+arduino-cli lib install --zip-path Periph-1.4.0.zip
 ```
 
 For Linux GCC or Zephyr, copy `cpp/src/` into your project and include the relevant headers.
@@ -81,23 +81,23 @@ For Linux GCC or Zephyr, copy `cpp/src/` into your project and include the relev
 
 ## Java / Kotlin / Groovy (JVM)
 
-Download the JARs from the [release assets](../../releases/tag/v1.3.3):
+Download the JARs from the [release assets](../../releases/tag/v1.4.0):
 
 | JAR | Required by |
 |-----|-------------|
-| `periph-connection-1.3.3.jar` | all JVM languages |
-| `periph-java-1.3.3.jar` | Java |
-| `periph-kotlin-1.3.3.jar` | Kotlin |
-| `periph-groovy-1.3.3.jar` | Groovy |
+| `periph-connection-1.4.0.jar` | all JVM languages |
+| `periph-java-1.4.0.jar` | Java |
+| `periph-kotlin-1.4.0.jar` | Kotlin |
+| `periph-groovy-1.4.0.jar` | Groovy |
 
 Install into your local Maven repository:
 
 ```sh
-mvn install:install-file -Dfile=periph-connection-1.3.3.jar \
-    -DgroupId=it.uhde -DartifactId=periph-connection -Dversion=1.3.3 -Dpackaging=jar
+mvn install:install-file -Dfile=periph-connection-1.4.0.jar \
+    -DgroupId=it.uhde -DartifactId=periph-connection -Dversion=1.4.0 -Dpackaging=jar
 
-mvn install:install-file -Dfile=periph-java-1.3.3.jar \
-    -DgroupId=it.uhde -DartifactId=periph-java -Dversion=1.3.3 -Dpackaging=jar
+mvn install:install-file -Dfile=periph-java-1.4.0.jar \
+    -DgroupId=it.uhde -DartifactId=periph-java -Dversion=1.4.0 -Dpackaging=jar
 ```
 
 Then declare in `pom.xml`:
@@ -106,18 +106,18 @@ Then declare in `pom.xml`:
 <dependency>
     <groupId>it.uhde</groupId>
     <artifactId>periph-connection</artifactId>
-    <version>1.3.3</version>
+    <version>1.4.0</version>
 </dependency>
 <dependency>
     <groupId>it.uhde</groupId>
     <artifactId>periph-java</artifactId>
-    <version>1.3.3</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
 For JBang, run the `install:install-file` commands above first, then reference in your script:
 
 ```java
-//DEPS it.uhde:periph-connection:1.3.3
-//DEPS it.uhde:periph-java:1.3.3
+//DEPS it.uhde:periph-connection:1.4.0
+//DEPS it.uhde:periph-java:1.4.0
 ```

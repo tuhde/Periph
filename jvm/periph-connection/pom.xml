@@ -7,7 +7,7 @@
     <parent>
         <groupId>it.uhde</groupId>
         <artifactId>periph</artifactId>
-        <version>1.3.3</version>
+        <version>1.4.0</version>
     </parent>
 
     <artifactId>periph-connection</artifactId>

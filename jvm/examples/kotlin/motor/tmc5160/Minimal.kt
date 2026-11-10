@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.3.3
-//DEPS it.uhde:periph-kotlin:1.3.3
+//DEPS it.uhde:periph-connection:1.4.0
+//DEPS it.uhde:periph-kotlin:1.4.0
 
 // TMC5160 minimal: ramp-generator positioning moves.
 // Wiring: SPI Mode 3, 1 MHz; DRV_ENN tied low (or on GPIO 17); SD_MODE strapped low (SPI + ramp generator).

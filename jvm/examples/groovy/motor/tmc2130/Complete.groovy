@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.3.3
-//DEPS it.uhde:periph-groovy:1.3.3
+//DEPS it.uhde:periph-connection:1.4.0
+//DEPS it.uhde:periph-groovy:1.4.0
 
 // TMC2130 complete: exercise every method in the public API.
 // Wiring: SPI Mode 3 (SPI_MODE pin high); STEP/DIR/ENN on GPIO 27/22/17 (DIAG0 on GPIO 23 for the complete example).
