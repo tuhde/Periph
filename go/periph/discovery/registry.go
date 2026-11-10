@@ -104,7 +104,7 @@ var registry = []Chip{
 	{ID: "mpr121", Driver: "mpr121", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5A, 0x5B, 0x5C, 0x5D}, Probe: nil},
 	{ID: "pca9541", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77}, Probe: nil},
 	{ID: "ade7953", Driver: "ade7953", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},
-	{ID: "axp2101", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x34}, Probe: nil},
+	{ID: "axp2101", Driver: "axp2101", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x34}, Probe: nil},
 	{ID: "ina219", Driver: "ina219", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: nil},
 	{ID: "ina226", Driver: "ina226", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: &IdProbe{Register: 0xFF, RegBytes: 1, Length: 2, LittleEndian: false, Mask: 0xFFFF, Expected: []uint32{0x2260}}},
 	{ID: "ina3221", Driver: "ina3221", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x40, 0x41, 0x42, 0x43}, Probe: &IdProbe{Register: 0xFF, RegBytes: 1, Length: 2, LittleEndian: false, Mask: 0xFFFF, Expected: []uint32{0x3220}}},

@@ -1185,7 +1185,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "axp2101",
       "datasheet": "datasheets/power/axp2101.pdf"
     },
     {

@@ -67,6 +67,7 @@ Each chip exposes two classes:
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor |
+| AXP2101 | Power monitor | PMIC |
 | BMA150 | Accelerometer | 3-axis accelerometer |
 | BMA180 | Accelerometer | 3-axis accelerometer |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor |

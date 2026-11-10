@@ -103,6 +103,7 @@
 #include "chips/motor/DRV8830.h"
 #include "chips/other/Mpr121.h"
 #include "chips/power/ADE7953.h"
+#include "chips/power/AXP2101.h"
 #include "chips/power/INA219.h"
 #include "chips/power/INA226.h"
 #include "chips/power/INA3221.h"

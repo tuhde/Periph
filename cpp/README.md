@@ -59,6 +59,7 @@ Each chip exposes two classes:
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
+| AXP2101 | Power monitor | `chips/power/AXP2101.h` |
 | BMA150 | Accelerometer | `chips/accelerometer/BMA150.h` |
 | BMA180 | Accelerometer | `chips/accelerometer/BMA180.h` |
 | BME280 | Environmental sensor | `chips/environmental/BME280.h` |
