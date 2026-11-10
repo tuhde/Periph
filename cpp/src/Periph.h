@@ -117,6 +117,7 @@
 #include "chips/pressure/Lps33hw.h"
 #include "chips/rfid/MFRC522.h"
 #include "chips/rtc/DS3231.h"
+#include "chips/rtc/PCF85063A.h"
 #include "chips/rtc/PCF8523.h"
 #include "chips/temperature/MCP9808.h"
 #include "chips/temperature/TMP117.h"

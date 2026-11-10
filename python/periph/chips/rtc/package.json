@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/rtc/ds3231.py"
     ],
     [
+      "periph/chips/rtc/pcf85063a.py",
+      "github:tuhde/Periph/python/periph/chips/rtc/pcf85063a.py"
+    ],
+    [
       "periph/chips/rtc/pcf8523.py",
       "github:tuhde/Periph/python/periph/chips/rtc/pcf8523.py"
     ],

@@ -1,0 +1,112 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf85063a', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:           { value: '' },
+            bus:            { value: '1', required: true, validate: RED.validators.number() },
+            oscillatorLoad: { value: '7' },
+
+            alarmEnabled:        { value: false },
+            alarmSecondEnabled:  { value: true },
+            alarmSecond:         { value: '0' },
+            alarmMinuteEnabled:  { value: true },
+            alarmMinute:         { value: '0' },
+            alarmHourEnabled:    { value: false },
+            alarmHour:           { value: '0' },
+            alarmDayEnabled:     { value: false },
+            alarmDay:            { value: '1' },
+            alarmWeekdayEnabled: { value: false },
+            alarmWeekday:        { value: '0' },
+
+            timerEnabled: { value: false },
+            timerClock:   { value: '1hz' },
+            timerValue:   { value: '10' },
+            timerPulsed:  { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-clock-o',
+        label:   function() { return this.name || 'PCF85063A'; },
+        paletteLabel: 'PCF85063A'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf85063a">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF85063A">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N; address is fixed at 0x51)
+    </div>
+    <div class="form-row">
+        <label for="node-input-oscillatorLoad"><i class="fa fa-circle-o"></i> Oscillator load</label>
+        <select id="node-input-oscillatorLoad" style="width:120px">
+            <option value="7">7 pF</option>
+            <option value="12.5">12.5 pF</option>
+        </select>
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-alarmEnabled"><i class="fa fa-bell"></i> Alarm</label>
+        <input type="checkbox" id="node-input-alarmEnabled" style="width:auto"> enabled (fires when every ticked field matches)
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-alarmSecondEnabled" style="width:auto"> Sec <input type="number" id="node-input-alarmSecond" min="0" max="59" style="width:50px">
+        <input type="checkbox" id="node-input-alarmMinuteEnabled" style="width:auto"> Min <input type="number" id="node-input-alarmMinute" min="0" max="59" style="width:50px">
+        <input type="checkbox" id="node-input-alarmHourEnabled" style="width:auto"> Hour <input type="number" id="node-input-alarmHour" min="0" max="23" style="width:50px">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-alarmDayEnabled" style="width:auto"> Day <input type="number" id="node-input-alarmDay" min="1" max="31" style="width:50px">
+        <input type="checkbox" id="node-input-alarmWeekdayEnabled" style="width:auto"> Weekday (0=Sun) <input type="number" id="node-input-alarmWeekday" min="0" max="6" style="width:50px">
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-timerEnabled"><i class="fa fa-hourglass-half"></i> Timer</label>
+        <input type="checkbox" id="node-input-timerEnabled" style="width:auto">
+        <input type="number" id="node-input-timerValue" min="1" max="255" style="width:60px"> ×
+        <select id="node-input-timerClock" style="width:110px">
+            <option value="4096hz">1/4096 s</option>
+            <option value="64hz">1/64 s</option>
+            <option value="1hz">1 s</option>
+            <option value="1_60hz">1 min</option>
+        </select>
+        <input type="checkbox" id="node-input-timerPulsed" style="width:auto"> pulsed
+    </div>
+    <div class="form-row">
+        <em>Alarm and timer interrupts use the INT pin (open-drain, needs a pull-up); CLKOUT is a separate pin.</em>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf85063a">
+    <p>Reads and sets the calendar clock of a PCF85063A low-power I²C RTC and reports its oscillator-stop flag. Fixed address <code>0x51</code>.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a read of the clock and the oscillator-stop flag.</dd>
+        <dt>payload.datetime <span class="property-type">object</span> (optional)</dt>
+        <dd>If set (<code>{year, month, day, weekday, hour, minute, second}</code>, <code>weekday</code> 0=Sunday..6=Saturday, <code>year</code> 2000-2099), sets the clock instead of reading it.</dd>
+        <dt>payload.alarm <span class="property-type">object</span> (optional)</dt>
+        <dd>If set (<code>{second, minute, hour, day, weekday}</code>, any field omitted to ignore it), reprograms the alarm instead of reading.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.year / month / day / weekday / hour / minute / second <span class="property-type">number</span></dt>
+        <dd>Current calendar clock. <code>weekday</code> is 0=Sunday..6=Saturday.</dd>
+        <dt>payload.oscillator_stopped <span class="property-type">boolean</span></dt>
+        <dd>The oscillator stopped since the flag was last cleared — the time may be invalid until the clock is set.</dd>
+        <dt>payload.source <span class="property-type">string</span></dt>
+        <dd>Emitted separately, independent of the polling trigger above, when a configured alarm or timer fires: <code>"alarm"</code> or <code>"timer"</code>.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number (address is fixed) and the oscillator load capacitance (7 pF or 12.5 pF, to match the crystal). Optionally enable the alarm with any combination of second/minute/hour/day/weekday fields and/or the countdown timer with a source clock, value and level/pulsed mode — each enabled one arms the interrupt-driven <code>source</code> output above.</p>
+</script>

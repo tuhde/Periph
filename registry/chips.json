@@ -1465,7 +1465,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "pcf85063a",
       "datasheet": "datasheets/rtc/pcf85063a.pdf"
     },
     {

@@ -13,6 +13,7 @@
   "node-red": {
     "nodes": {
       "ds3231": "nodes/ds3231/ds3231.js",
+      "pcf85063a": "nodes/pcf85063a/pcf85063a.js",
       "pcf8523": "nodes/pcf8523/pcf8523.js"
     }
   },
