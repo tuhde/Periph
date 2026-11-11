@@ -128,6 +128,7 @@ Each chip exposes two structs:
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
 | SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
+| SH1106 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Sino Wealth), the chip behind the common |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
