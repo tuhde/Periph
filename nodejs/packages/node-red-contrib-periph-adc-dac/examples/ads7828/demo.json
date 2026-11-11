@@ -1,0 +1,129 @@
+[
+  {
+    "id": "tab-ads7828-demo",
+    "type": "tab",
+    "label": "ADS7828 Supply Monitor Demo",
+    "disabled": false,
+    "info": "Eight-channel supply monitor on an ADS7828 with its internal 2.5 V reference. An Inject node ticks every second into the periph-ads7828 node, which scans CH0-CH7 and returns {channels, raw}. A Function node splits the eight voltages into separate messages with topics ch0 ... ch7 and a Debug node prints them. A second Inject node sends msg.differential = \"0-1\" to read a bridge sensor on CH0/CH1 as a differential pair."
+  },
+  {
+    "id": "inj-scan",
+    "type": "inject",
+    "name": "Scan every 1 s",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.5,
+    "z": "tab-ads7828-demo",
+    "x": 150,
+    "y": 100,
+    "wires": [
+      [
+        "ads7828-node"
+      ]
+    ]
+  },
+  {
+    "id": "inj-diff",
+    "type": "inject",
+    "name": "Pair 0-1",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.5,
+    "z": "tab-ads7828-demo",
+    "x": 150,
+    "y": 180,
+    "wires": [
+      [
+        "fn-diff"
+      ]
+    ]
+  },
+  {
+    "id": "fn-diff",
+    "type": "function",
+    "name": "differential 0-1",
+    "func": "msg.differential = '0-1';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "z": "tab-ads7828-demo",
+    "x": 340,
+    "y": 180,
+    "wires": [
+      [
+        "ads7828-node"
+      ]
+    ]
+  },
+  {
+    "id": "ads7828-node",
+    "type": "periph-ads7828",
+    "name": "ADS7828",
+    "bus": "1",
+    "address": "0x48",
+    "reference": "internal",
+    "vref": "5.0",
+    "z": "tab-ads7828-demo",
+    "x": 560,
+    "y": 140,
+    "wires": [
+      [
+        "fn-split",
+        "dbg-raw"
+      ]
+    ]
+  },
+  {
+    "id": "fn-split",
+    "type": "function",
+    "name": "split channels",
+    "func": "if (!msg.payload.channels) return null;\nreturn [msg.payload.channels.map((v, i) => ({ topic: 'ch' + i, payload: v }))];",
+    "outputs": 1,
+    "noerr": 0,
+    "z": "tab-ads7828-demo",
+    "x": 780,
+    "y": 100,
+    "wires": [
+      [
+        "dbg-ch"
+      ]
+    ]
+  },
+  {
+    "id": "dbg-ch",
+    "type": "debug",
+    "name": "channel voltages",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "z": "tab-ads7828-demo",
+    "x": 990,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "dbg-raw",
+    "type": "debug",
+    "name": "full result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "z": "tab-ads7828-demo",
+    "x": 780,
+    "y": 180,
+    "wires": []
+  }
+]

@@ -1,0 +1,82 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ads7828', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            address:   { value: '0x48' },
+            reference: { value: 'internal' },
+            vref:      { value: '5.0' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || 'ADS7828'; },
+        paletteLabel: 'ADS7828',
+        oneditprepare: function() {
+            $('#node-input-reference').on('change', function() {
+                $('#row-vref').toggle($(this).val() === 'external');
+            }).trigger('change');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ads7828">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ADS7828">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:160px">
+            <option value="0x48">0x48 (A1 = A0 = GND)</option>
+            <option value="0x49">0x49 (A1 = GND, A0 = VDD)</option>
+            <option value="0x4A">0x4A (A1 = VDD, A0 = GND)</option>
+            <option value="0x4B">0x4B (A1 = A0 = VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-reference"><i class="fa fa-bolt"></i> Reference</label>
+        <select id="node-input-reference" style="width:200px">
+            <option value="internal">Internal 2.5 V</option>
+            <option value="external">External</option>
+        </select>
+    </div>
+    <div class="form-row" id="row-vref">
+        <label for="node-input-vref"><i class="fa fa-bolt"></i> External VREF</label>
+        <input type="number" id="node-input-vref" min="0.05" step="0.01" style="width:80px"> &nbsp;V (0.05 V … VDD)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ads7828">
+    <p>Reads the 12-bit, 8-channel ADS7828 ADC over I²C as eight single-ended inputs or four differential pairs. Default address is <code>0x48</code>; <code>0x48</code>–<code>0x4B</code> are valid depending on the A1/A0 straps. With the internal 2.5 V reference the REFIN/REFOUT pin must be decoupled with 0.1 µF and nothing else may drive it.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">channel <span class="property-type">number</span></dt>
+        <dd>0–7: read only this single-ended channel (CHn against COM).</dd>
+        <dt class="optional">differential <span class="property-type">string</span></dt>
+        <dd><code>"0-1"</code>, <code>"1-0"</code>, <code>"2-3"</code>, <code>"3-2"</code>, <code>"4-5"</code>, <code>"5-4"</code>, <code>"6-7"</code> or <code>"7-6"</code>: read that pair; the first number is the positive input.</dd>
+    </dl>
+    <p>Any other message scans all eight single-ended channels.</p>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channels <span class="property-type">number[]</span></dt>
+        <dd>Scan only: voltages of CH0…CH7 in volts.</dd>
+        <dt>payload.raw <span class="property-type">number | number[]</span></dt>
+        <dd>12-bit code(s), 0–4095.</dd>
+        <dt>payload.channel / payload.voltage <span class="property-type">number</span></dt>
+        <dd>Single-channel and differential reads: the channel and the voltage in volts.</dd>
+        <dt>payload.pair / payload.inverted</dt>
+        <dd>Differential reads: pair index 0–3 and whether the odd input was positive.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>I²C bus number, address (<code>0x48</code>–<code>0x4B</code>) and reference: internal 2.5 V, or an external reference voltage (0.05 V … VDD).</p>
+</script>
