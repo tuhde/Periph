@@ -181,7 +181,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MPU-9255 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MX25L12845E | NOR flash (128 Mbit, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCA6408A | IO expander (8-bit, low-voltage) |  |  |  |  |  |  |  |  |
+| PCA6408A | IO expander (8-bit, low-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA9536 | IO expander (4-bit) |  |  |  |  |  |  |  |  |
 | PCA9539 | IO expander (16-bit) |  |  |  |  |  |  |  |  |
 | PCA9541 | I²C master selector (2-to-1, dual-master failover) |  |  |  |  |  |  |  |  |

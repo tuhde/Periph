@@ -111,6 +111,7 @@ Each chip exposes two classes:
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
 | NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |
+| PCA6408A | IO expander | `chips/io_expander/PCA6408A.h` |
 | PCF85063A | RTC | `chips/rtc/PCF85063A.h` |
 | PCF8523 | RTC | `chips/rtc/PCF8523.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |

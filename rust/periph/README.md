@@ -111,6 +111,7 @@ Each chip exposes two structs:
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | MX25L12845E | Memory | Macronix 128-Mbit (16 MiB) serial NOR flash (`specs/memory/mx25l12845e.md`). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
+| PCA6408A | IO expander | 8-bit I/O expander (NXP), I²C / SMBus. |
 | PCF85063A | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |

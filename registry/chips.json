@@ -932,7 +932,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "pca6408a",
       "datasheet": "datasheets/io_expander/pca6408a.pdf"
     },
     {

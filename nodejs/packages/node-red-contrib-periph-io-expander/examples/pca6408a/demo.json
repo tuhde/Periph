@@ -1,0 +1,167 @@
+[
+  {
+    "id": "tab_pca6408a_demo",
+    "type": "tab",
+    "label": "PCA6408A Demo",
+    "info": "Output control and input polling on the PCA6408A 8-bit I²C / SMBus IO expander.\n\nHardware:\n- P0–P3: four LEDs (anode through 220 Ω, cathode to GND; active-high)\n- P4–P7: push buttons to GND (external pull-ups required: the chip has none)\n\nHow it works:\n1. An Inject node every 200 ms feeds a Function node that writes a rotating one-hot pattern to the LEDs (P0→P3), one pin at a time.\n2. A second Inject node reads the full 8-bit port every second; a Function node formats the hex value for a Debug node.\n3. A third Inject node reads P4 (a button input); a Debug node shows the 0/1 level.\n\nWith the INT line wired (set the INT GPIO line in the node's config panel) the node also emits { port: 0, changed, value } whenever a button on P4–P7 changes.\n\nTo observe: watch the LEDs chase and press the buttons; the port value changes in the debug sidebar."
+  },
+  {
+    "id": "inj_rotate",
+    "type": "inject",
+    "z": "tab_pca6408a_demo",
+    "name": "Rotate 200ms",
+    "repeat": "0.2",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 60,
+    "wires": [
+      [
+        "fn_rotate"
+      ]
+    ]
+  },
+  {
+    "id": "fn_rotate",
+    "type": "function",
+    "z": "tab_pca6408a_demo",
+    "name": "One-hot pattern",
+    "func": "const i = Math.floor(Date.now() / 200) % 4;\nconst prev = (i + 3) % 4;\nreturn [[{ payload: { pin: prev, value: 0 } }, { payload: { pin: i, value: 1 } }]];",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 330,
+    "y": 60,
+    "wires": [
+      [
+        "mcp_write"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_write",
+    "type": "periph-pca6408a",
+    "z": "tab_pca6408a_demo",
+    "name": "Write LEDs",
+    "bus": "1",
+    "address": "20",
+    "gpioChip": "0",
+    "intPin": "",
+    "x": 560,
+    "y": 60,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "inj_port",
+    "type": "inject",
+    "z": "tab_pca6408a_demo",
+    "name": "Read port 1s",
+    "repeat": "1",
+    "payload": "{\"port\":0}",
+    "payloadType": "json",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 160,
+    "wires": [
+      [
+        "mcp_port"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_port",
+    "type": "periph-pca6408a",
+    "z": "tab_pca6408a_demo",
+    "name": "Read port",
+    "bus": "1",
+    "address": "20",
+    "gpioChip": "0",
+    "intPin": "",
+    "x": 330,
+    "y": 160,
+    "wires": [
+      [
+        "fn_hex"
+      ]
+    ]
+  },
+  {
+    "id": "fn_hex",
+    "type": "function",
+    "z": "tab_pca6408a_demo",
+    "name": "Format hex",
+    "func": "msg.payload = 'PIO=0x' + msg.payload.value.toString(16).padStart(2, '0');\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 540,
+    "y": 160,
+    "wires": [
+      [
+        "dbg_port"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_port",
+    "type": "debug",
+    "z": "tab_pca6408a_demo",
+    "name": "Port value",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 740,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "inj_btn",
+    "type": "inject",
+    "z": "tab_pca6408a_demo",
+    "name": "Read P4 500ms",
+    "repeat": "0.5",
+    "payload": "{\"pin\":4}",
+    "payloadType": "json",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 260,
+    "wires": [
+      [
+        "mcp_btn"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_btn",
+    "type": "periph-pca6408a",
+    "z": "tab_pca6408a_demo",
+    "name": "Read P4",
+    "bus": "1",
+    "address": "20",
+    "gpioChip": "0",
+    "intPin": "",
+    "x": 330,
+    "y": 260,
+    "wires": [
+      [
+        "dbg_btn"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_btn",
+    "type": "debug",
+    "z": "tab_pca6408a_demo",
+    "name": "P4 level",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 540,
+    "y": 260,
+    "wires": []
+  }
+]
