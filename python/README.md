@@ -121,6 +121,7 @@ Each chip exposes two classes:
 | NEO-6 | GNSS/GPS | U-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status. |
 | PCA6408A | IO expander | 8-bit I/O expander (I²C / SMBus) |
 | PCA6416A | IO expander | 16-bit I/O expander (I²C / SMBus) |
+| PCA9536 | IO expander | 4-bit I/O expander (I²C / SMBus) |
 | PCF85063A | RTC | Low-power I2C real-time clock |
 | PCF8523 | RTC | Low-power I2C real-time clock |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
