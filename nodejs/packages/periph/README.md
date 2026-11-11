@@ -118,6 +118,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
+| SH1106 | Display driver | `periph/src/chips/display/sh1106` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
 | ST7036 | Display driver | `periph/src/chips/display/st7036` |
