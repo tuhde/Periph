@@ -52,6 +52,7 @@ Each chip exposes two classes:
 | ADS1113 | ADC/DAC | `chips/adc_dac/ADS1113.h` |
 | ADS1114 | ADC/DAC | `chips/adc_dac/ADS1114.h` |
 | ADS1115 | ADC/DAC | `chips/adc_dac/ADS1115.h` |
+| ADS7828 | ADC/DAC | `chips/adc_dac/ADS7828.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
