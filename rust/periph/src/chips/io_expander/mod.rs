@@ -2,6 +2,7 @@ pub mod pcf8574;
 pub mod mcp23017;
 pub mod mcp23008;
 pub mod pca6408a;
+pub mod pca9536;
 pub mod pca6416a;
 pub mod pcf8575;
 pub mod tpic6b595;
@@ -11,4 +12,5 @@ pub use pcf8575::{Pcf8575Minimal, Pcf8575Full, ExPin as Pcf8575ExPin, PinError a
 pub use tpic6b595::{Tpic6b595Minimal, Tpic6b595Full, ExPin as Tpic6b595ExPin, MAX_DEVICES};
 pub use mcp23008::{Mcp23008Minimal, Mcp23008Full, Mcp23S08Minimal, Mcp23S08Full, Mcp23x08Minimal, Mcp23x08Full, ExPin as Mcp23008ExPin, PinError as Mcp23008PinError};
 pub use pca6408a::{Pca6408aMinimal, Pca6408aFull, ExPin as Pca6408aExPin, PinError as Pca6408aPinError};
+pub use pca9536::{Pca9536Minimal, Pca9536Full, ExPin as Pca9536ExPin, PinError as Pca9536PinError, PCA9536_I2C_ADDRESS};
 pub use pca6416a::{Pca6416aMinimal, Pca6416aFull, ExPin as Pca6416aExPin, PinError as Pca6416aPinError};

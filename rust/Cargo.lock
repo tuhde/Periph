@@ -2908,6 +2908,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "pca9536_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pca9536_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pca9536_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pca9536_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "pcf85063a_complete"
 version = "0.1.0"
 dependencies = [
