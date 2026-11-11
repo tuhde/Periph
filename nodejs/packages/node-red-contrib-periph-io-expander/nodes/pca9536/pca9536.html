@@ -1,0 +1,65 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pca9536', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1',  required: true, validate: RED.validators.number() },
+            pollInterval: { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() {
+            return this.name || ('PCA9536 (bus ' + this.bus + ')');
+        },
+        paletteLabel: 'PCA9536'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pca9536">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCA9536">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(/dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-pollInterval">Poll interval</label>
+        <input type="number" id="node-input-pollInterval" min="0" style="width:80px" placeholder="off"> &nbsp;ms (the chip has no INT pin; address is fixed at 0x41)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pca9536">
+    <p>Controls and reads a 4-bit PCA9536 I/O expander (I²C / SMBus, TI). The chip has the fixed address <code>0x41</code>, no interrupt pin, and a weak (about 100 kΩ) pull-up that is always on each pin, so an open input reads 1.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (0–3); the pin is switched to output first.<br>
+            <code>{ pin: N }</code> — read pin N; reply sent on output.<br>
+            <code>{ port: 0 }</code> — read the 4-bit port; reply sent on output.
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pin <span class="property-type">number</span></dt>
+        <dd>Pin index (0–3), present when reading a single pin.</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Logic level (0 or 1) when reading a pin; 4-bit bitmask when reading the port.</dd>
+        <dt>payload.port <span class="property-type">number</span></dt>
+        <dd>Always 0 (the chip has a single port), present when reading the full port or on a change message.</dd>
+        <dt>payload.changed <span class="property-type">number</span></dt>
+        <dd>Only when a poll interval is configured: mask of the input pins whose level changed since the last poll (sent together with <code>port</code> and <code>value</code>).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>I²C bus number (Linux <code>/dev/i2c-N</code>). The optional <b>poll interval</b> (ms) emits a message whenever an input changes.</p>
+
+    <h3>Notes</h3>
+    <p>All four pins (P0–P3) are bidirectional. Pins start as inputs; writing a value switches the pin to output.</p>
+</script>
