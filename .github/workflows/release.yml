@@ -10,35 +10,47 @@ env:
 
 jobs:
   # -----------------------------------------------------------------------
-  # Release gate -- CI on PRs/main is reduced; publish only a commit on which
-  # the FULL matrix passed. Before tagging, run it on the release commit:
-  #   gh workflow run ci.yml --ref main     (then wait for green)
-  # Every other job needs `meta`, which needs this.
+  # Release gate -- the release runs CI itself and waits for it. The CI run is
+  # diffed against the newest ancestor of the tagged commit on which a CI run
+  # on main passed (`base`). If CI already passed on the tagged commit,
+  # scripts/ci/changed.sh finds nothing changed and every job is skipped;
+  # otherwise only what the tagged commit changed since `base` is built. With
+  # no such ancestor, `base` is empty and CI runs everything.
+  # Every other job needs `meta`, which needs `ci`.
   # -----------------------------------------------------------------------
-  gate:
+  base:
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
+    outputs:
+      sha: ${{ steps.find.outputs.sha }}
     steps:
-      - env:
+      - id: find
+        env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          n=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
-                --event workflow_dispatch --commit "$GITHUB_SHA" --status success \
-                --json databaseId --jq length)
-          if [ "${n:-0}" -lt 1 ]; then
-            echo "::error::No successful full CI run (workflow_dispatch of ci.yml) for $GITHUB_SHA."
-            echo "Run: gh workflow run ci.yml --ref main   -- wait for green, then re-run this release."
-            exit 1
-          fi
-          echo "Full CI passed on $GITHUB_SHA"
+          sha=""
+          for c in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+                       --branch main --event push --status success --limit 50 \
+                       --json headSha --jq '.[].headSha'); do
+            st=$(gh api "repos/$GITHUB_REPOSITORY/compare/$c...$GITHUB_SHA" --jq .status 2>/dev/null || true)
+            if [ "$st" = identical ] || [ "$st" = ahead ]; then sha=$c; break; fi
+          done
+          echo "CI base: ${sha:-none (CI will run everything)}"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  ci:
+    needs: base
+    uses: ./.github/workflows/ci.yml
+    with:
+      base: ${{ needs.base.outputs.sha }}
 
   # -----------------------------------------------------------------------
   # Extract version number from the tag (v1.2.3 → 1.2.3)
   # -----------------------------------------------------------------------
   meta:
-    needs: gate
+    needs: ci
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.ver.outputs.version }}

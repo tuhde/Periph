@@ -7,15 +7,23 @@ name: CI
 #
 # Scope: pull requests and pushes to main run a reduced CI -- run.sh skips jobs
 # the diff cannot affect and builds only the touched C++ chips plus a smoke set
-# (scripts/ci/changed.sh). The full matrix runs only for workflow_dispatch;
-# release.yml refuses to publish a tag unless such a run passed on that commit.
+# (scripts/ci/changed.sh). The full matrix runs only for workflow_dispatch.
+# release.yml calls this workflow (workflow_call) on the tagged commit and waits
+# for it; it passes `base` = the last commit on main whose CI passed, so a
+# release of an already-verified commit finds nothing to do.
 # ESP-IDF (5 shards) and Zephyr (4) are sharded on every run; Arduino AVR is 1.
 
 on:
   push:
     branches: [main]
   pull_request:
-  workflow_dispatch:   # always the full matrix (the release gate)
+  workflow_dispatch:   # always the full matrix
+  workflow_call:       # release.yml; reduced scope, diffed against `base`
+    inputs:
+      base:
+        description: Commit already verified by CI; only what differs from it is built
+        type: string
+        default: ''
 
 # A new push to a PR supersedes its running CI; main pushes always finish.
 # The event is part of the group so a queued full run is not replaced by a push.
@@ -29,7 +37,7 @@ defaults:
 
 env:
   PERIPH_CI_SCOPE: ${{ github.event_name == 'workflow_dispatch' && 'full' || 'auto' }}
-  PERIPH_CI_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+  PERIPH_CI_BASE: ${{ inputs.base || github.event.pull_request.base.sha || github.event.before }}
 
 jobs:
   arduino-avr:
