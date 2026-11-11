@@ -13,6 +13,10 @@
       "github:tuhde/Periph/python/periph/chips/io_expander/mcp23017.py"
     ],
     [
+      "periph/chips/io_expander/pca6408a.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/pca6408a.py"
+    ],
+    [
       "periph/chips/io_expander/pcf8574.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/pcf8574.py"
     ],
@@ -59,6 +63,14 @@
     [
       "periph/connection/sipo_micropython.py",
       "github:tuhde/Periph/python/periph/connection/sipo_micropython.py"
+    ],
+    [
+      "periph/connection/smbus_auto.py",
+      "github:tuhde/Periph/python/periph/connection/smbus_auto.py"
+    ],
+    [
+      "periph/connection/smbus_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/smbus_micropython.py"
     ],
     [
       "periph/connection/spi_auto.py",

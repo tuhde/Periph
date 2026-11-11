@@ -75,6 +75,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [DHT11](humidity/dht11/) | humidity | `dht11_init`, `dht11_read_temperature`, `dht11_read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | `mpu6050_init`, `mpu6050_accel_x`, `mpu6050_accel_y`, `mpu6050_accel_z`, `mpu6050_gyro_x`, `mpu6050_gyro_y`, `mpu6050_gyro_z`, `mpu6050_temperature`, `mpu6050_data_ready` |
 | [MCP23008](io_expander/mcp23008/) | io_expander | `mcp23008_init`, `mcp23008_set_pin_mode`, `mcp23008_write_pin`, `mcp23008_read_pin`, `mcp23008_read_port`, `mcp23008_write_port`, `mcp23008_configure_pullup`, `mcp23008_configure_polarity`, `mcp23008_set_default_value`, `mcp23008_enable_pin_interrupt`, `mcp23008_poll_interrupt`, `mcp23008_read_capture`, `mcp23008_reset` |
+| [PCA6408A](io_expander/pca6408a/) | io_expander | `pca6408a_init`, `pca6408a_set_pin_mode`, `pca6408a_write_pin`, `pca6408a_read_pin`, `pca6408a_read_port`, `pca6408a_write_port`, `pca6408a_configure_polarity`, `pca6408a_set_direction`, `pca6408a_get_direction`, `pca6408a_poll_interrupt`, `pca6408a_reset` |
 | [MCP23017](io_expander/mcp23017/) | io_expander | `mcp23017_init`, `mcp23017_set_pin_mode`, `mcp23017_write_pin`, `mcp23017_read_pin` |
 | [PCF8574](io_expander/pcf8574/) | io_expander | `pcf8574_init`, `pcf8574_set_pin_mode`, `pcf8574_write_pin`, `pcf8574_read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | `pcf8575_init`, `pcf8575_set_pin_mode`, `pcf8575_write_pin`, `pcf8575_read_pin` |
