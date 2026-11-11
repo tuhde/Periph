@@ -114,7 +114,7 @@ while IFS= read -r f; do
             mark arduino-checks ;;
 
         # --- known not to affect CI -----------------------------------------
-        specs/*|datasheets/*|wiki|wiki/*|sigrok/*|.github/*|*.md|LICENSE*|.gitignore|.gitmodules) ;;
+        specs/*|datasheets/*|wiki|wiki/*|sigrok/*|conformance/*|chip_defaults|.github/*|*.md|LICENSE*|.gitignore|.gitmodules) ;;
 
         *) everything "unrecognised path $f" ;;
     esac
