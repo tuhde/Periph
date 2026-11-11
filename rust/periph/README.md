@@ -115,6 +115,7 @@ Each chip exposes two structs:
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
 | PCA6408A | IO expander | 8-bit I/O expander (NXP), I²C / SMBus. |
 | PCA6416A | IO expander | 16-bit I/O expander (NXP), I²C / SMBus. |
+| PCA9536 | IO expander | 4-bit I/O expander (TI), I²C / SMBus. |
 | PCF85063A | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |

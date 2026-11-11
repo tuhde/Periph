@@ -105,6 +105,7 @@ Each chip exposes two classes:
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |
 | PCA6408A | IO expander | `periph/src/chips/io_expander/pca6408a` |
 | PCA6416A | IO expander | `periph/src/chips/io_expander/pca6416a` |
+| PCA9536 | IO expander | `periph/src/chips/io_expander/pca9536` |
 | PCF85063A | RTC | `periph/src/chips/rtc/pcf85063a` |
 | PCF8523 | RTC | `periph/src/chips/rtc/pcf8523` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |

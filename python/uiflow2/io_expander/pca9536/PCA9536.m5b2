@@ -1,0 +1,284 @@
+{
+  "category": "PCA9536",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCA9536_LANGUAGES = {\n  \"CUSTOM_PCA9536_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PCA9536_SET_PIN_MODE\": {\n    \"en\": \"%1 set pin mode: IN=0, OUT=1 pin %2 mode %3\"\n  },\n  \"CUSTOM_PCA9536_WRITE_PIN\": {\n    \"en\": \"%1 write pin value (0/1) pin %2 value %3\"\n  },\n  \"CUSTOM_PCA9536_READ_PIN\": {\n    \"en\": \"%1 read pin pin %2\"\n  },\n  \"CUSTOM_PCA9536_READ_PORT\": {\n    \"en\": \"%1 read port (4 pins)\"\n  },\n  \"CUSTOM_PCA9536_WRITE_PORT\": {\n    \"en\": \"%1 write port mask (0-15) mask %2\"\n  },\n  \"CUSTOM_PCA9536_CONFIGURE_POLARITY\": {\n    \"en\": \"%1 input polarity mask (0-15) mask %2\"\n  },\n  \"CUSTOM_PCA9536_SET_DIRECTION\": {\n    \"en\": \"%1 direction mask, 1=input (0-15) mask %2\"\n  },\n  \"CUSTOM_PCA9536_GET_DIRECTION\": {\n    \"en\": \"%1 read direction mask\"\n  },\n  \"CUSTOM_PCA9536_POLL_CHANGES\": {\n    \"en\": \"%1 poll changed-pin mask\"\n  },\n  \"CUSTOM_PCA9536_RESET\": {\n    \"en\": \"%1 reset registers to defaults\"\n  }\n};\n\nconst initType = 'custom_pca9536_init';\nBlockly.BlockRegExpList['custom_pca9536'] = {\n  regexp: new RegExp(/^custom_pca9536_/),\n  code: \"from PCA9536 import PCA9536\",\n  initBlockType: initType,\n  categoryId: 'custom_pca9536',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCA9536_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCA9536_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCA9536 = 'PCA9536'\n\nBlockly.utils.getcustom_pca9536Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pca9536_0', 'pca9536_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pca9536_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pca9536Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pca9536_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = PCA9536(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9536_set_pin_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_SET_PIN_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_set_pin_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pin_mode(${pin}, ${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9536_write_pin\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_WRITE_PIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_write_pin\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_pin(${pin}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9536_read_pin\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_READ_PIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_read_pin\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_pin(${pin})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9536_read_port\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_READ_PORT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_read_port\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_port()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9536_write_port\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_WRITE_PORT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_write_port\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_port(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9536_configure_polarity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_CONFIGURE_POLARITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_configure_polarity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_polarity(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9536_set_direction\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_SET_DIRECTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_set_direction\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_direction(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9536_get_direction\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_GET_DIRECTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_get_direction\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_direction()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9536_poll_changes\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_POLL_CHANGES,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_poll_changes\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_changes()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9536_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9536_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9536Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9536_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"PCA9536\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pca9536\">\n<title text=\"PCA9536\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pca9536_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">65</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_set_pin_mode\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_write_pin\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_read_pin\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_read_port\"/><block type=\"custom_pca9536_write_port\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_configure_polarity\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_set_direction\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9536_get_direction\"/><block type=\"custom_pca9536_poll_changes\"/><block type=\"custom_pca9536_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_pca9536",
+    "block_type": [
+      "custom_pca9536___init__",
+      "custom_pca9536_set_pin_mode",
+      "custom_pca9536_write_pin",
+      "custom_pca9536_read_pin",
+      "custom_pca9536_read_port",
+      "custom_pca9536_write_port",
+      "custom_pca9536_configure_polarity",
+      "custom_pca9536_set_direction",
+      "custom_pca9536_get_direction",
+      "custom_pca9536_poll_changes",
+      "custom_pca9536_reset"
+    ]
+  },
+  "data": {
+    "name": "PCA9536",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "PCA9536",
+      "time": "2026-11-11",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.io_expander.pca9536 import Pca9536Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "65",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = Pca9536Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pin_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set pin mode: IN=0, OUT=1 pin %2 mode %3"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mode",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.pin(pin).init(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_pin",
+        "note": {},
+        "label": {
+          "en": "%1 write pin value (0/1) pin %2 value %3"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.pin(pin).value(bool(value))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_pin",
+        "note": {},
+        "label": {
+          "en": "%1 read pin pin %2"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return bool(self._driver.pin(pin).value())",
+        "ast_return": {
+          "code": "bool(self._driver.pin(pin).value())",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_port",
+        "note": {},
+        "label": {
+          "en": "%1 read port (4 pins)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_port()",
+        "ast_return": {
+          "code": "self._driver.read_port()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_port",
+        "note": {},
+        "label": {
+          "en": "%1 write port mask (0-15) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_port(0, mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_polarity",
+        "note": {},
+        "label": {
+          "en": "%1 input polarity mask (0-15) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_polarity(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_direction",
+        "note": {},
+        "label": {
+          "en": "%1 direction mask, 1=input (0-15) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_direction(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_direction",
+        "note": {},
+        "label": {
+          "en": "%1 read direction mask"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_direction()",
+        "ast_return": {
+          "code": "self._driver.get_direction()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_changes",
+        "note": {},
+        "label": {
+          "en": "%1 poll changed-pin mask"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_changes()",
+        "ast_return": {
+          "code": "self._driver.poll_changes()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset registers to defaults"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pca9536"
+  },
+  "pyCode": "\"\"\"\nfile     PCA9536\ntime     2026-11-11\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.io_expander.pca9536 import Pca9536Full\n\n\nclass PCA9536:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 65):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '65'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = Pca9536Full(connection)\n\n    def set_pin_mode(self, pin: int, mode: int):\n        \"\"\"\n        label:\n            en: '%1 set pin mode: IN=0, OUT=1 pin %2 mode %3'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n            mode:\n                name: mode\n                type: int\n                field: number\n        \"\"\"\n        self._driver.pin(pin).init(mode)\n\n    def write_pin(self, pin: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write pin value (0/1) pin %2 value %3'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.pin(pin).value(bool(value))\n\n    def read_pin(self, pin: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 read pin pin %2'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n        \"\"\"\n        return bool(self._driver.pin(pin).value())\n\n    def read_port(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read port (4 pins)'\n        \"\"\"\n        return self._driver.read_port()\n\n    def write_port(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 write port mask (0-15) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_port(0, mask)\n\n    def configure_polarity(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 input polarity mask (0-15) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.configure_polarity(mask)\n\n    def set_direction(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 direction mask, 1=input (0-15) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_direction(mask)\n\n    def get_direction(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read direction mask'\n        \"\"\"\n        return self._driver.get_direction()\n\n    def poll_changes(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 poll changed-pin mask'\n        \"\"\"\n        return self._driver.poll_changes()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset registers to defaults'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

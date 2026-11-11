@@ -1,0 +1,161 @@
+[
+  {
+    "id": "tab_pca9536_demo",
+    "type": "tab",
+    "label": "PCA9536 Demo",
+    "info": "Output control, input reading and change polling on the PCA9536 4-bit I²C / SMBus IO expander.\n\nHardware:\n- P0–P1: two LEDs (anode through 220 Ω, cathode to GND; active-high)\n- P2–P3: push buttons to GND (the chip's built-in weak pull-up holds an open input high; no external resistor needed)\n\nHow it works:\n1. An Inject node every 200 ms feeds a Function node that writes a rotating one-hot pattern to the LEDs (P0→P1), one pin at a time.\n2. A second Inject node reads the 4-bit port every second; a Function node formats the hex value for a Debug node.\n3. A third Inject node reads P2 (a button input); a Debug node shows the 0/1 level.\n\nThe chip has no INT pin. Set a poll interval (ms) in the node's config panel and the node also emits { port: 0, changed, value } whenever a button on P2–P3 changes.\n\nTo observe: watch the LEDs chase and press the buttons; the port value changes in the debug sidebar."
+  },
+  {
+    "id": "inj_rotate",
+    "type": "inject",
+    "z": "tab_pca9536_demo",
+    "name": "Rotate 200ms",
+    "repeat": "0.2",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 60,
+    "wires": [
+      [
+        "fn_rotate"
+      ]
+    ]
+  },
+  {
+    "id": "fn_rotate",
+    "type": "function",
+    "z": "tab_pca9536_demo",
+    "name": "One-hot pattern",
+    "func": "const i = Math.floor(Date.now() / 200) % 2;\nconst prev = (i + 1) % 2;\nreturn [[{ payload: { pin: prev, value: 0 } }, { payload: { pin: i, value: 1 } }]];",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 330,
+    "y": 60,
+    "wires": [
+      [
+        "mcp_write"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_write",
+    "type": "periph-pca9536",
+    "z": "tab_pca9536_demo",
+    "name": "Write LEDs",
+    "bus": "1",
+    "x": 560,
+    "y": 60,
+    "wires": [
+      []
+    ],
+    "pollInterval": ""
+  },
+  {
+    "id": "inj_port",
+    "type": "inject",
+    "z": "tab_pca9536_demo",
+    "name": "Read port 1s",
+    "repeat": "1",
+    "payload": "{\"port\":0}",
+    "payloadType": "json",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 160,
+    "wires": [
+      [
+        "mcp_port"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_port",
+    "type": "periph-pca9536",
+    "z": "tab_pca9536_demo",
+    "name": "Read port",
+    "bus": "1",
+    "x": 330,
+    "y": 160,
+    "wires": [
+      [
+        "fn_hex"
+      ]
+    ],
+    "pollInterval": ""
+  },
+  {
+    "id": "fn_hex",
+    "type": "function",
+    "z": "tab_pca9536_demo",
+    "name": "Format hex",
+    "func": "msg.payload = 'PIO=0x' + msg.payload.value.toString(16);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 540,
+    "y": 160,
+    "wires": [
+      [
+        "dbg_port"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_port",
+    "type": "debug",
+    "z": "tab_pca9536_demo",
+    "name": "Port value",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 740,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "inj_btn",
+    "type": "inject",
+    "z": "tab_pca9536_demo",
+    "name": "Read P2 500ms",
+    "repeat": "0.5",
+    "payload": "{\"pin\":2}",
+    "payloadType": "json",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 260,
+    "wires": [
+      [
+        "mcp_btn"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_btn",
+    "type": "periph-pca9536",
+    "z": "tab_pca9536_demo",
+    "name": "Read P2",
+    "bus": "1",
+    "x": 330,
+    "y": 260,
+    "wires": [
+      [
+        "dbg_btn"
+      ]
+    ],
+    "pollInterval": ""
+  },
+  {
+    "id": "dbg_btn",
+    "type": "debug",
+    "z": "tab_pca9536_demo",
+    "name": "P2 level",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 540,
+    "y": 260,
+    "wires": []
+  }
+]
