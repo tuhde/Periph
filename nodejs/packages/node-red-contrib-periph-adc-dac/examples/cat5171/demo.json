@@ -1,0 +1,157 @@
+[
+    {
+        "id": "tab-cat5171-demo",
+        "type": "tab",
+        "label": "CAT5171 Wiper Sweep Demo",
+        "disabled": false,
+        "info": "Two scenarios on one CAT5171 digital potentiometer. An Inject node ticks every 500 ms into a Function node that steps the wiper through 16 evenly spaced codes (0, 16, ... 240), producing the staircase; the periph-cat5171 node returns {code, resistance} which a Debug node shows. A second Inject node sets a 22 kOhm W-B resistance once, a third reads back the wiper, and a fourth and fifth toggle shutdown on and off."
+    },
+    {
+        "id": "inj-sweep",
+        "type": "inject",
+        "name": "Sweep tick (500 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-cat5171-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "fn-sweep"
+            ]
+        ]
+    },
+    {
+        "id": "fn-sweep",
+        "type": "function",
+        "name": "sweep wiper",
+        "func": "// 16 steps of 16 codes: 0, 16, ... 240, then wrap.\nlet i = context.get('step') || 0;\ncontext.set('step', (i + 1) % 16);\nmsg.payload = { code: i * 16 };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-cat5171-demo",
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "cat5171-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-rheo",
+        "type": "inject",
+        "name": "W-B = 22 kOhm",
+        "topic": "",
+        "payload": "{\"ohms\":22000}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-cat5171-demo",
+        "x": 160,
+        "y": 180,
+        "wires": [
+            [
+                "cat5171-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-sd-on",
+        "type": "inject",
+        "name": "Shutdown on",
+        "topic": "",
+        "payload": "{\"shutdown\":true}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-cat5171-demo",
+        "x": 160,
+        "y": 300,
+        "wires": [
+            [
+                "cat5171-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-sd-off",
+        "type": "inject",
+        "name": "Shutdown off",
+        "topic": "",
+        "payload": "{\"shutdown\":false}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-cat5171-demo",
+        "x": 160,
+        "y": 360,
+        "wires": [
+            [
+                "cat5171-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read wiper",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-cat5171-demo",
+        "x": 160,
+        "y": 240,
+        "wires": [
+            [
+                "cat5171-node"
+            ]
+        ]
+    },
+    {
+        "id": "cat5171-node",
+        "type": "periph-cat5171",
+        "name": "CAT5171",
+        "bus": "1",
+        "rab": "100000",
+        "rwiper": "50",
+        "z": "tab-cat5171-demo",
+        "x": 560,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-cat5171"
+            ]
+        ],
+        "address": "0x2C"
+    },
+    {
+        "id": "dbg-cat5171",
+        "type": "debug",
+        "name": "wiper / resistance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-cat5171-demo",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    }
+]

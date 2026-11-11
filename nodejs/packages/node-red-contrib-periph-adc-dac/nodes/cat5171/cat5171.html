@@ -1,0 +1,74 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-cat5171', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x2C' },
+            rab:     { value: '100000', required: true },
+            rwiper:  { value: '50', required: true, validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sliders',
+        label:   function() { return this.name || 'CAT5171'; },
+        paletteLabel: 'CAT5171'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-cat5171">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="CAT5171">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:160px">
+            <option value="0x2C">0x2C (AD0 = GND)</option>
+            <option value="0x2D">0x2D (AD0 = VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-rab"><i class="fa fa-sliders"></i> RAB</label>
+        <select id="node-input-rab" style="width:120px">
+            <option value="50000">50 kΩ</option>
+            <option value="100000">100 kΩ</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-rwiper"><i class="fa fa-sliders"></i> Wiper RW</label>
+        <input type="number" id="node-input-rwiper" min="0" style="width:80px"> &nbsp;Ω (typ. 50 Ω at 5 V, 100 Ω at 3 V)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-cat5171">
+    <p>Sets and reads the 256-position wiper of a CAT5171 I²C digital potentiometer. The wiper is volatile: it powers up at midscale (128).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.code <span class="property-type">number</span></dt>
+        <dd>Wiper position 0–255 (clamped).</dd>
+        <dt>payload.ohms <span class="property-type">number</span></dt>
+        <dd>Without <code>code</code>: target W–B resistance in ohms, set to the nearest code.</dd>
+        <dt>payload.shutdown <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> opens terminal A and shorts the wiper to B (the wiper position is kept); <code>false</code> restores it. Produces no output message.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads back the wiper.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.code, payload.resistance <span class="property-type">number</span></dt>
+        <dd>After a set: the wiper code read back and the resulting W–B resistance in ohms.</dd>
+        <dt>payload.wiper, payload.resistance <span class="property-type">number</span></dt>
+        <dd>After any other message: the wiper code and the W–B resistance in ohms.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number, the address (0x2C with AD0 at GND, 0x2D with AD0 at VDD), the part's end-to-end resistance RAB (50 or 100 kΩ, as ordered) and the wiper resistance RW. Absolute resistance is only accurate to the part's tolerance (±20 %); ratios are exact.</p>
+</script>

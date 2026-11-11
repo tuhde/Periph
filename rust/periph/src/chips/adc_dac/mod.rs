@@ -1,3 +1,5 @@
+pub mod cat5171;
+pub use cat5171::{CAT5171Minimal, CAT5171Full, CAT5171_I2C_ADDRESS, CAT5171_I2C_ADDRESS_AD0_HIGH};
 pub mod hx710a;
 pub use hx710a::{Hx710aMinimal, Hx710aFull};
 pub mod hx710b;

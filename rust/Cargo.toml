@@ -19,6 +19,7 @@ exclude = [
     "tests/gyroscope/l3g4200d_test_esp32s3",
     "tests/adc_dac/mcp4725_test_esp32s3",
     "tests/adc_dac/ad5243_test_esp32s3",
+    "tests/adc_dac/cat5171_test_esp32s3",
     "tests/adc_dac/ad5248_test_esp32s3",
     "tests/adc_dac/mcp4xxx_test_esp32s3",
     "tests/adc_dac/mcp4728_test_esp32s3",
@@ -244,6 +245,7 @@ members = [
     "tests/adc_dac/ad7706_test",
     "tests/adc_dac/hy3131_test",
     "tests/adc_dac/ad5243_test",
+    "tests/adc_dac/cat5171_test",
     "tests/adc_dac/ad5248_test",
     "tests/adc_dac/mcp4xxx_test",
 ]
