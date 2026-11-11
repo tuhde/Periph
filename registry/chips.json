@@ -625,7 +625,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "sh1106",
       "datasheet": "datasheets/display/sh1106.pdf"
     },
     {

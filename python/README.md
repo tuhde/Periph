@@ -134,6 +134,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
 | SD_SPI | Memory | SD card in SPI mode |
+| SH1106 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | ST7036 | Display driver | Character LCD controller |
