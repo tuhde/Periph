@@ -71,6 +71,22 @@ if [ "$CI_RUN" != 1 ]; then
     log "skipped: nothing this job checks has changed"
     exit 0
 fi
+# Small reduced scope: shard 1 builds everything as 1/1, the others have no work.
+if [ "${CI_SHARDS:-}" = 1 ]; then
+    args=()
+    while [ $# -gt 0 ]; do
+        if [ "$1" = --shard ]; then
+            if [ "${2%/*}" != 1 ]; then
+                log "skipped: reduced scope fits in shard 1"
+                exit 0
+            fi
+            args+=(--shard 1/1); shift 2
+        else
+            args+=("$1"); shift
+        fi
+    done
+    set -- "${args[@]+"${args[@]}"}"
+fi
 [ -z "$CI_FILTER" ] || set -- "$@" "$CI_FILTER"
 
 CACHE_ROOT="${PERIPH_CI_CACHE:-$HOME/.cache/periph-ci}"

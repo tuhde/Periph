@@ -9,6 +9,9 @@
 #   CI_FILTER=...     C++ platform jobs: comma-separated app filter for
 #                     cpp/scripts/build-all.sh / cpp/test_arduino_examples.sh;
 #                     empty = build everything
+#   CI_SHARDS=1       C++ platform jobs: the reduced app set is small enough
+#                     for one runner; run.sh then runs shard 1 as 1/1 and
+#                     skips the other shards. Empty = keep the CI matrix split
 #   CI_REASON=...     one line for the log
 #
 # Scope:
@@ -27,7 +30,7 @@ CPP_JOBS=(arduino-avr linux-gcc pico-sdk stm32cube esp-idf zephyr)
 OTHER_JOBS=(arduino-checks python registry nodejs java rust go-linux go-tinygo)
 
 emit() { # <run 0|1> <filter> <reason>
-    printf 'CI_RUN=%s\nCI_FILTER=%q\nCI_REASON=%q\n' "$1" "$2" "$3"
+    printf 'CI_RUN=%s\nCI_FILTER=%q\nCI_SHARDS=%q\nCI_REASON=%q\n' "$1" "$2" "${4:-}" "$3"
     exit 0
 }
 everything() { emit 1 "" "full scope: $1"; }
@@ -114,7 +117,7 @@ while IFS= read -r f; do
             mark arduino-checks ;;
 
         # --- known not to affect CI -----------------------------------------
-        specs/*|datasheets/*|wiki|wiki/*|sigrok/*|.github/*|*.md|LICENSE*|.gitignore|.gitmodules) ;;
+        specs/*|datasheets/*|wiki|wiki/*|sigrok/*|conformance/*|chip_defaults|.github/*|*.md|LICENSE*|.gitignore|.gitmodules) ;;
 
         *) everything "unrecognised path $f" ;;
     esac
@@ -129,7 +132,10 @@ if printf '%s\n' "${CPP_JOBS[@]}" | grep -qx -- "$JOB"; then
     done < scripts/ci/smoke.txt
     [ "$cpp_everything" = 0 ] || everything "unusable chip name"
     filter="$(IFS=,; echo "${chips[*]}")"
-    emit 1 "$filter" "reduced scope: $filter"
+    # Few chips (smoke set included): one shard builds them all faster than
+    # spreading them over several runners that each pay setup cost.
+    shards=""; [ "${#chips[@]}" -le "${CI_SINGLE_SHARD_MAX_CHIPS:-20}" ] && shards=1
+    emit 1 "$filter" "reduced scope: $filter" "$shards"
 fi
 
 [ -n "${need[$JOB]:-}" ] || emit 0 "" "no change relevant to $JOB"
