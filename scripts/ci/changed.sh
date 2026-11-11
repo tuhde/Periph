@@ -12,7 +12,7 @@
 #   CI_REASON=...     one line for the log
 #
 # Scope:
-#   PERIPH_CI_SCOPE=full   everything (release gate: workflow_dispatch / GitLab "web")
+#   PERIPH_CI_SCOPE=full   everything (workflow_dispatch / GitLab "web")
 #   PERIPH_CI_BASE=<sha>   reduced scope: only what differs from this commit
 #   neither set            everything (local runs, unknown base)
 #   PERIPH_CI_HEAD=<rev>   compare against this instead of HEAD (testing)

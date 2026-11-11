@@ -15,7 +15,7 @@
 # and PERIPH_CI_SCOPE is not "full", scripts/ci/changed.sh skips jobs the change
 # cannot affect and narrows the C++ jobs to the touched chips plus a smoke set
 # (scripts/ci/smoke.txt). Without PERIPH_CI_BASE (local runs) everything runs.
-# The release gate is a full run: workflow_dispatch / GitLab "web" pipeline.
+# A full run is workflow_dispatch / GitLab "web" pipeline; release.yml runs reduced.
 #
 # Persistent state lives under $PERIPH_CI_CACHE (default ~/.cache/periph-ci):
 # the cargo target dir; ccache lives under $PERIPH_CCACHE_ROOT (default

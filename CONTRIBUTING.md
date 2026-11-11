@@ -129,8 +129,11 @@ Locally, `scripts/ci/run.sh <job>` runs everything unless `PERIPH_CI_BASE=<sha>`
 preview a scope with `PERIPH_CI_BASE=$(git merge-base HEAD main) scripts/ci/changed.sh <job>`
 and list the apps a filter selects with `cpp/scripts/build-all.sh <platform> --list <filter>`.
 
-**Releasing:** `release.yml` refuses to publish unless the full CI passed on the tagged
-commit. So before tagging: `gh workflow run ci.yml --ref main`, wait for green, then push the tag.
+**Releasing:** pushing the tag starts `release.yml`, which calls `ci.yml` itself and waits for
+it to pass before publishing. That CI run is diffed against the newest ancestor of the tagged
+commit on which CI passed on `main`, so a commit CI has already verified has nothing left to build.
+There is no manual step before tagging; run `gh workflow run ci.yml --ref main` only if you want the
+full matrix.
 
 ## Self-hosted CI runner
 
