@@ -128,6 +128,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SD_SPI | Memory | `chips/memory/SD_SPI.h` |
+| SH1106 | Display driver | `chips/display/SH1106.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | TMC2130 | Motor driver | `chips/motor/TMC2130.h` |
 | TMC2208 | Motor driver | `chips/motor/TMC2208.h` |
