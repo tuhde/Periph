@@ -11,7 +11,8 @@ name: CI
 # release.yml calls this workflow (workflow_call) on the tagged commit and waits
 # for it; it passes `base` = the last commit on main whose CI passed, so a
 # release of an already-verified commit finds nothing to do.
-# ESP-IDF (5 shards) and Zephyr (4) are sharded on every run; Arduino AVR is 1.
+# ESP-IDF (5 shards) and Zephyr (4) are sharded in the full matrix; a reduced scope
+# of few chips runs entirely in shard 1 (CI_SHARDS, changed.sh), the rest skip.
 
 on:
   push:
