@@ -1,0 +1,238 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "cat5171_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init CAT5171",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_set_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 set wiper",
+          "type": "label"
+        },
+        {
+          "name": "code (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_get_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT5171 wiper code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_set_resistance",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 set W-B resistance",
+          "type": "label"
+        },
+        {
+          "name": "ohms",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_get_resistance",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT5171 W-B resistance (ohm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_set_ratio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 set ratio",
+          "type": "label"
+        },
+        {
+          "name": "ratio (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_get_ratio",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT5171 ratio",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_set_resistance_wa",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 set W-A resistance",
+          "type": "label"
+        },
+        {
+          "name": "ohms",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_get_resistance_wa",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT5171 W-A resistance (ohm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_increment",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT5171 step wiper (returns new code)",
+          "type": "label"
+        },
+        {
+          "name": "steps",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_midscale",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 move to midscale",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 shutdown",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_resume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 resume",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_is_shutdown",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT5171 is shut down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 reset to midscale",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat5171_set_rab",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT5171 set RAB / RW",
+          "type": "label"
+        },
+        {
+          "name": "RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        },
+        {
+          "name": "RW (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_wiper",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

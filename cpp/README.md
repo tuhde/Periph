@@ -69,6 +69,7 @@ Each chip exposes two classes:
 | BMP280 | Pressure sensor | `chips/pressure/BMP280.h` |
 | BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
 | BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
+| CAT5171 | ADC/DAC | `chips/adc_dac/CAT5171.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
 | DRV2605 | Motor driver | `chips/motor/DRV2605.h` |
 | DRV8830 | Motor driver | `chips/motor/DRV8830.h` |

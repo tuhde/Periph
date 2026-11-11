@@ -136,7 +136,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP384 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP581 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| CAT5171 | Digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
+| CAT5171 | Digital potentiometer (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | CS43L22 | Stereo audio DAC with HP/speaker amps |  |  |  |  |  |  |  |  |
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

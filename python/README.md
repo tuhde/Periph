@@ -77,6 +77,7 @@ Each chip exposes two classes:
 | BMP280 | Pressure sensor | Piezo-resistive pressure + temperature sensor |
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor |
+| CAT5171 | ADC/DAC | Digital potentiometer |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |
 | DRV2605 | Motor driver | Haptic driver |
 | DRV8830 | Motor driver | Low-voltage motor driver |
