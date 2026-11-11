@@ -2808,6 +2808,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "pca6416a_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pca6416a_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pca6416a_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pca6416a_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "pcf85063a_complete"
 version = "0.1.0"
 dependencies = [

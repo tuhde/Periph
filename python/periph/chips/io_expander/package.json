@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/io_expander/pca6408a.py"
     ],
     [
+      "periph/chips/io_expander/pca6416a.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/pca6416a.py"
+    ],
+    [
       "periph/chips/io_expander/pcf8574.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/pcf8574.py"
     ],

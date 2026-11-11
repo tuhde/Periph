@@ -82,6 +82,7 @@
 #include "chips/io_expander/MCP23008.h"
 #include "chips/io_expander/MCP23017.h"
 #include "chips/io_expander/PCA6408A.h"
+#include "chips/io_expander/PCA6416A.h"
 #include "chips/io_expander/PCF8574.h"
 #include "chips/io_expander/PCF8575.h"
 #include "chips/io_expander/TPIC6B595.h"

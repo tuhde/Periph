@@ -195,7 +195,7 @@ CHIPS = (
     {"id": "pca6408a", "driver": "pca6408a", "write_sensitive": False, "aliased": False,
      "addresses": (0x20, 0x21,),
      "probe": None},
-    {"id": "pca6416a", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "pca6416a", "driver": "pca6416a", "write_sensitive": False, "aliased": False,
      "addresses": (0x20, 0x21,),
      "probe": None},
     {"id": "pca9536", "driver": None, "write_sensitive": False, "aliased": False,

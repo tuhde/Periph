@@ -112,6 +112,7 @@ Each chip exposes two structs:
 | MX25L12845E | Memory | Macronix 128-Mbit (16 MiB) serial NOR flash (`specs/memory/mx25l12845e.md`). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
 | PCA6408A | IO expander | 8-bit I/O expander (NXP), I²C / SMBus. |
+| PCA6416A | IO expander | 16-bit I/O expander (NXP), I²C / SMBus. |
 | PCF85063A | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
