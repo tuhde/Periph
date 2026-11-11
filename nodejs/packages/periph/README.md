@@ -42,6 +42,7 @@ Each chip exposes two classes:
 | ADS1113 | ADC/DAC | `periph/src/chips/adc_dac/ads1113` |
 | ADS1114 | ADC/DAC | `periph/src/chips/adc_dac/ads1114` |
 | ADS1115 | ADC/DAC | `periph/src/chips/adc_dac/ads1115` |
+| ADS7828 | ADC/DAC | `periph/src/chips/adc_dac/ads7828` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | ADXL362 | Accelerometer | `periph/src/chips/accelerometer/adxl362` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |

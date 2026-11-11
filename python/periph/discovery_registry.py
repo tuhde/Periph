@@ -63,7 +63,7 @@ CHIPS = (
     {"id": "ads1115", "driver": "ads1115", "write_sensitive": False, "aliased": False,
      "addresses": (0x48, 0x49, 0x4A, 0x4B,),
      "probe": None},
-    {"id": "ads7828", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ads7828", "driver": "ads7828", "write_sensitive": True, "aliased": False,
      "addresses": (0x48, 0x49, 0x4A, 0x4B,),
      "probe": None},
     {"id": "mcp4725", "driver": "mcp4725", "write_sensitive": True, "aliased": False,

@@ -60,6 +60,7 @@ Each chip exposes two classes:
 | ADS1113 | ADC/DAC | Single-shot AIN0 − AIN1 at ±2.048 V, 128 SPS. |
 | ADS1114 | ADC/DAC | Single-shot AIN0 − AIN1 at ±2.048 V, 128 SPS. |
 | ADS1115 | ADC/DAC | Single-shot single-ended reads at ±2.048 V, 128 SPS. |
+| ADS7828 | ADC/DAC | 12-bit ADC |
 | ADXL345 | Accelerometer | 3-axis accelerometer |
 | ADXL362 | Accelerometer | Read X, Y, Z acceleration in *g*. |
 | AHT21 | Environmental sensor | Temperature and humidity sensor |

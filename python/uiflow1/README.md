@@ -92,6 +92,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [BMP180](pressure/bmp180/) | pressure | `bmp180_init`, `bmp180_read_temperature`, `bmp180_read_pressure`, `bmp180_read_altitude` |
 | [BMP280](pressure/bmp280/) | pressure | `bmp280_init`, `bmp280_read_temperature`, `bmp280_read_pressure`, `bmp280_read_altitude` |
 | [MFRC522](rfid/mfrc522/) | rfid | `mfrc522_init`, `mfrc522_is_card_present`, `mfrc522_read_uid` |
+| [ADS7828](adc_dac/ads7828/) | adc_dac | `ads7828_init`, `ads7828_read_raw`, `ads7828_read_voltage`, `ads7828_read_differential`, `ads7828_read_signed_differential`, `ads7828_set_reference`, `ads7828_power_down` |
 
 ## Using these blocks
 

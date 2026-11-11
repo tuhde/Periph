@@ -54,6 +54,7 @@ Each chip exposes two structs:
 | ADS1113 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), fixed ±2.048 V) (Texas Instruments). |
 | ADS1114 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), PGA and comparator) (Texas Instruments). |
 | ADS1115 | ADC/DAC | 16-bit ΔΣ ADC (four-channel multiplexer, PGA and comparator) (Texas Instruments). |
+| ADS7828 | ADC/DAC | 12-bit, 8-channel sampling ADC with internal 2.5 V reference |
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |

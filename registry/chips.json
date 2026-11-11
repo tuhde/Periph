@@ -325,7 +325,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ads7828",
       "datasheet": "datasheets/adc_dac/ads7828.pdf"
     },
     {

@@ -28,6 +28,7 @@ npm install node-red-contrib-periph-adc-dac
 | `periph-ads1113` | input | Reads the ADS1113 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), fixed ±2.048 V) over I²C. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the ADDR strap. |
 | `periph-ads1114` | input | Reads the ADS1114 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1) with programmable gain) over I²C. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the ADDR strap. |
 | `periph-ads1115` | input | Reads the ADS1115 16-bit ΔΣ ADC (four single-ended or two differential inputs with programmable gain) over I²C. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the ADDR strap. |
+| `periph-ads7828` | input | Reads the 12-bit, 8-channel ADS7828 ADC over I²C as eight single-ended inputs or four differential pairs. Default address is 0x48 ; 0x48 – 0x4B are valid depending on the A1/A0 straps. With the internal 2.5 V reference the REFIN/REFOUT pin must be decoupled with 0.1 µF and nothing else may drive it. |
 | `periph-cat5171` | input | Sets and reads the 256-position wiper of a CAT5171 I²C digital potentiometer. The wiper is volatile: it powers up at midscale (128). |
 | `es8311-device` | config | I²C bus and address for an ES8311 |
 | `periph-es8311` | input | Controls an ES8311 low-power mono audio codec over its I²C control port. The audio stream itself (I²S) is not handled by this node. |
