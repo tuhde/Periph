@@ -122,6 +122,7 @@ Each chip exposes two classes:
 | SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
 | SH1106 | Display driver | `periph/src/chips/display/sh1106` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| SSD1305 | Display driver | `periph/src/chips/display/ssd1305` |
 | SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
 | ST7036 | Display driver | `periph/src/chips/display/st7036` |
 | TMC2130 | Motor driver | `periph/src/chips/motor/tmc2130` |

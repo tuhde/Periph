@@ -18,3 +18,5 @@ pub mod pcf8579;
 pub use pcf8579::{Pcf8579Minimal, Pcf8579Full};
 pub mod sh1106;
 pub use sh1106::{Sh1106Minimal, Sh1106Full};
+pub mod ssd1305;
+pub use ssd1305::{Ssd1305Minimal, Ssd1305Full};

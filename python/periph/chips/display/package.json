@@ -25,6 +25,10 @@
       "github:tuhde/Periph/python/periph/chips/display/sh1106.py"
     ],
     [
+      "periph/chips/display/ssd1305.py",
+      "github:tuhde/Periph/python/periph/chips/display/ssd1305.py"
+    ],
+    [
       "periph/chips/display/ssd1331.py",
       "github:tuhde/Periph/python/periph/chips/display/ssd1331.py"
     ],

@@ -201,7 +201,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SD card (SPI mode) | SD / SDHC / microSD block storage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| SSD1305 | OLED display (132×64) |  |  |  |  |  |  |  |  |
+| SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) |  |  |  |  |  |  |  |  |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
