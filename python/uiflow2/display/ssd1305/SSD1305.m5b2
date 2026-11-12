@@ -71,7 +71,7 @@
           {
             "name": "column_offset",
             "type": "int",
-            "default": "2",
+            "default": "4",
             "note": {},
             "field": "number"
           }
