@@ -94,6 +94,9 @@ DRV2605Full	KEYWORD1
 DRV2605Minimal	KEYWORD1
 DRV8830Full	KEYWORD1
 DRV8830Minimal	KEYWORD1
+DS1881Config	KEYWORD1
+DS1881Full	KEYWORD1
+DS1881Minimal	KEYWORD1
 DS3231Full	KEYWORD1
 DS3231Minimal	KEYWORD1
 DateTime	KEYWORD1
@@ -523,6 +526,7 @@ cursor	KEYWORD2
 dataRateSps	KEYWORD2
 dataReady	KEYWORD2
 data_ready	KEYWORD2
+dbToPosition	KEYWORD2
 decrement	KEYWORD2
 decrement_value	KEYWORD2
 deep_power_down	KEYWORD2
@@ -651,6 +655,7 @@ getAgingOffset	KEYWORD2
 getAlarm	KEYWORD2
 getAlarm1	KEYWORD2
 getAlarm2	KEYWORD2
+getAttenuation	KEYWORD2
 getCalibration	KEYWORD2
 getConfig	KEYWORD2
 getCriticalLimit	KEYWORD2
@@ -663,6 +668,7 @@ getLowLimit	KEYWORD2
 getLowerLimit	KEYWORD2
 getMagOffset	KEYWORD2
 getOffset	KEYWORD2
+getPosition	KEYWORD2
 getRail	KEYWORD2
 getRatio	KEYWORD2
 getReference	KEYWORD2
@@ -788,6 +794,7 @@ magnetic_field	KEYWORD2
 magnitude	KEYWORD2
 manufacturer_id	KEYWORD2
 mark_bad	KEYWORD2
+maxPosition	KEYWORD2
 max_angle	KEYWORD2
 max_chunk	KEYWORD2
 max_position	KEYWORD2
@@ -839,6 +846,7 @@ pollInterrupt	KEYWORD2
 pollUbx	KEYWORD2
 poll_interrupt	KEYWORD2
 position	KEYWORD2
+positionToDb	KEYWORD2
 power	KEYWORD2
 powerDown	KEYWORD2
 powerFactor	KEYWORD2
@@ -1081,6 +1089,8 @@ setAlarm	KEYWORD2
 setAlarm1	KEYWORD2
 setAlarm2	KEYWORD2
 setAnalogScaling	KEYWORD2
+setAttenuation	KEYWORD2
+setAttenuationBoth	KEYWORD2
 setAudioToVibe	KEYWORD2
 setAutoSleep	KEYWORD2
 setAxes	KEYWORD2
@@ -1171,10 +1181,12 @@ setMinuteInterrupt	KEYWORD2
 setMode	KEYWORD2
 setMotionInterrupt	KEYWORD2
 setNaoPolarity	KEYWORD2
+setNonvolatile	KEYWORD2
 setOffDischarge	KEYWORD2
 setOffset	KEYWORD2
 setOffsetCalibration	KEYWORD2
 setOpenLoop	KEYWORD2
+setOption	KEYWORD2
 setOrientation	KEYWORD2
 setOscillatorLoad	KEYWORD2
 setOutput	KEYWORD2
@@ -1234,6 +1246,7 @@ setUpperLimit	KEYWORD2
 setVcselPulsePeriod	KEYWORD2
 setVsense	KEYWORD2
 setWiper	KEYWORD2
+setZeroCrossing	KEYWORD2
 setZeroWait	KEYWORD2
 set_accel_offset	KEYWORD2
 set_activity	KEYWORD2
@@ -1482,6 +1495,7 @@ stopClock	KEYWORD2
 stopContinuous	KEYWORD2
 stop_crypto	KEYWORD2
 stop_receive	KEYWORD2
+store	KEYWORD2
 store_wiper	KEYWORD2
 summation_value	KEYWORD2
 sync	KEYWORD2
@@ -1520,6 +1534,7 @@ voltage	KEYWORD2
 wait	KEYWORD2
 waitBusy	KEYWORD2
 waitDone	KEYWORD2
+waitReady	KEYWORD2
 waitUntilReached	KEYWORD2
 wait_busy	KEYWORD2
 wait_ready	KEYWORD2
