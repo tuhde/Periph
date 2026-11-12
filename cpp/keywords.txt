@@ -80,6 +80,11 @@ BlockError	KEYWORD1
 BlockInfo	KEYWORD1
 CAT5171Full	KEYWORD1
 CAT5171Minimal	KEYWORD1
+CS43L22Clocking	KEYWORD1
+CS43L22Full	KEYWORD1
+CS43L22Minimal	KEYWORD1
+CS43L22SpeakerStatus	KEYWORD1
+CS43L22Status	KEYWORD1
 Calibration	KEYWORD1
 CanFrame	KEYWORD1
 CardType	KEYWORD1
@@ -434,6 +439,7 @@ clear_interrupt	KEYWORD2
 clear_overcurrent	KEYWORD2
 clear_overflow	KEYWORD2
 clear_proximity_interrupt	KEYWORD2
+clockingFor	KEYWORD2
 close	KEYWORD2
 coldStart	KEYWORD2
 color	KEYWORD2
@@ -642,6 +648,7 @@ fix	KEYWORD2
 forceTemperatureConversion	KEYWORD2
 forced	KEYWORD2
 found	KEYWORD2
+freeze	KEYWORD2
 frequency	KEYWORD2
 fullScale	KEYWORD2
 gainCalibration	KEYWORD2
@@ -678,6 +685,7 @@ getResolution	KEYWORD2
 getTemperatureOffset	KEYWORD2
 getThresholdsRaw	KEYWORD2
 getUpperLimit	KEYWORD2
+getVolume	KEYWORD2
 getWiper	KEYWORD2
 get_accel_offset	KEYWORD2
 get_brightness	KEYWORD2
@@ -708,6 +716,7 @@ hardware_reset	KEYWORD2
 has_red	KEYWORD2
 hdop	KEYWORD2
 heading	KEYWORD2
+headphoneGain	KEYWORD2
 heater_stable	KEYWORD2
 height	KEYWORD2
 high	KEYWORD2
@@ -731,6 +740,7 @@ interMeasurement	KEYWORD2
 interruptThresholds	KEYWORD2
 interrupt_source	KEYWORD2
 interrupt_status	KEYWORD2
+invertPcm	KEYWORD2
 is32kHzEnabled	KEYWORD2
 isAlertAsserted	KEYWORD2
 isBatteryLow	KEYWORD2
@@ -809,6 +819,9 @@ move	KEYWORD2
 moveSteps	KEYWORD2
 moveTo	KEYWORD2
 mute	KEYWORD2
+muteOutputs	KEYWORD2
+mutePassthrough	KEYWORD2
+mutePcm	KEYWORD2
 needs_erase	KEYWORD2
 neopixel_hsv_to_rgb	KEYWORD2
 newAccelData	KEYWORD2
@@ -899,6 +912,7 @@ readFifo	KEYWORD2
 readFifoStatus	KEYWORD2
 readGlobalStatus	KEYWORD2
 readHybrid	KEYWORD2
+readId	KEYWORD2
 readIfcnt	KEYWORD2
 readInterruptSource	KEYWORD2
 readIoin	KEYWORD2
@@ -928,6 +942,7 @@ readRawMag	KEYWORD2
 readRegister	KEYWORD2
 readScan	KEYWORD2
 readSignedDifferential	KEYWORD2
+readSpeakerStatus	KEYWORD2
 readStallguard	KEYWORD2
 readStatus	KEYWORD2
 readSupplyVoltage	KEYWORD2
@@ -942,6 +957,7 @@ readTimerB	KEYWORD2
 readTransientSource	KEYWORD2
 readTstep	KEYWORD2
 readVoltage	KEYWORD2
+readVpVoltage	KEYWORD2
 read_8bit	KEYWORD2
 read_ad2_raw	KEYWORD2
 read_adc	KEYWORD2
@@ -1096,11 +1112,14 @@ setAutoSleep	KEYWORD2
 setAxes	KEYWORD2
 setBackupCharging	KEYWORD2
 setBatfetOffEnable	KEYWORD2
+setBatteryCompensation	KEYWORD2
 setBatteryDetection	KEYWORD2
+setBeep	KEYWORD2
 setBidirectional	KEYWORD2
 setBoth	KEYWORD2
 setCalibration	KEYWORD2
 setChargeCurrent	KEYWORD2
+setChargePumpFrequency	KEYWORD2
 setChargeTimers	KEYWORD2
 setChargeVoltage	KEYWORD2
 setCharging	KEYWORD2
@@ -1109,6 +1128,7 @@ setChopperMode	KEYWORD2
 setChopperSync	KEYWORD2
 setClick	KEYWORD2
 setClockOutput	KEYWORD2
+setClocking	KEYWORD2
 setCoilCurrents	KEYWORD2
 setCoolstepThreshold	KEYWORD2
 setCriticalLimit	KEYWORD2
@@ -1119,6 +1139,7 @@ setCurrentScale	KEYWORD2
 setDataRate	KEYWORD2
 setDatetime	KEYWORD2
 setDcstep	KEYWORD2
+setDeemphasis	KEYWORD2
 setDieProtection	KEYWORD2
 setDirectMode	KEYWORD2
 setDirectionInverted	KEYWORD2
@@ -1143,6 +1164,8 @@ setGainCalibration	KEYWORD2
 setGaugeEnabled	KEYWORD2
 setGlobalScaler	KEYWORD2
 setGpio1	KEYWORD2
+setHeadphoneGain	KEYWORD2
+setHeadphoneVolume	KEYWORD2
 setHiZ	KEYWORD2
 setHighLimit	KEYWORD2
 setHighPass	KEYWORD2
@@ -1156,6 +1179,7 @@ setInput	KEYWORD2
 setInputCurrentLimit	KEYWORD2
 setInputVoltageLimit	KEYWORD2
 setInterMeasurement	KEYWORD2
+setInterface	KEYWORD2
 setInternalRsense	KEYWORD2
 setInterpolation	KEYWORD2
 setInterruptPins	KEYWORD2
@@ -1163,6 +1187,7 @@ setInterruptPolarity	KEYWORD2
 setInterruptThresholds	KEYWORD2
 setLatch	KEYWORD2
 setLibrary	KEYWORD2
+setLimiter	KEYWORD2
 setLowLimit	KEYWORD2
 setLowNoise	KEYWORD2
 setLowThresholdRaw	KEYWORD2
@@ -1190,8 +1215,13 @@ setOption	KEYWORD2
 setOrientation	KEYWORD2
 setOscillatorLoad	KEYWORD2
 setOutput	KEYWORD2
+setOutputs	KEYWORD2
 setOverdriveClamp	KEYWORD2
 setOverdriveClampCode	KEYWORD2
+setPassthrough	KEYWORD2
+setPassthroughVolume	KEYWORD2
+setPcmSwap	KEYWORD2
+setPcmVolume	KEYWORD2
 setPga	KEYWORD2
 setPhaseCalibration	KEYWORD2
 setPlatform	KEYWORD2
@@ -1227,6 +1257,9 @@ setSigmaThreshold	KEYWORD2
 setSignalRateLimit	KEYWORD2
 setSlaveAddress	KEYWORD2
 setSmallHysteresis	KEYWORD2
+setSoftRamp	KEYWORD2
+setSpeakerMode	KEYWORD2
+setSpeakerVolume	KEYWORD2
 setSpeed	KEYWORD2
 setStallThreshold	KEYWORD2
 setStallguardFilter	KEYWORD2
@@ -1238,14 +1271,18 @@ setThermalRegulation	KEYWORD2
 setThresholds	KEYWORD2
 setTimeOffsets	KEYWORD2
 setTimingBudget	KEYWORD2
+setTone	KEYWORD2
 setTrace	KEYWORD2
 setTransient	KEYWORD2
 setTsHysteresis	KEYWORD2
 setTsLimits	KEYWORD2
 setUpperLimit	KEYWORD2
 setVcselPulsePeriod	KEYWORD2
+setVolume	KEYWORD2
+setVolumeChannels	KEYWORD2
 setVsense	KEYWORD2
 setWiper	KEYWORD2
+setZeroCross	KEYWORD2
 setZeroCrossing	KEYWORD2
 setZeroWait	KEYWORD2
 set_accel_offset	KEYWORD2
@@ -1491,6 +1528,7 @@ step	KEYWORD2
 step_count	KEYWORD2
 steps	KEYWORD2
 stop	KEYWORD2
+stopBeep	KEYWORD2
 stopClock	KEYWORD2
 stopContinuous	KEYWORD2
 stop_crypto	KEYWORD2
@@ -1638,6 +1676,10 @@ BAND_US_EUROPE	LITERAL1
 BAND_WORLD	LITERAL1
 BANK_0	LITERAL1
 BANK_1	LITERAL1
+BEEP_CONTINUOUS	LITERAL1
+BEEP_MULTIPLE	LITERAL1
+BEEP_OFF	LITERAL1
+BEEP_SINGLE	LITERAL1
 BIAS_1_2	LITERAL1
 BIAS_1_3	LITERAL1
 BLACK	LITERAL1
@@ -1916,6 +1958,9 @@ FLAG_BORF	LITERAL1
 FLAG_CTF	LITERAL1
 FLAG_LPFF	LITERAL1
 FLAG_RMSF	LITERAL1
+FMT_I2S	LITERAL1
+FMT_LJ	LITERAL1
+FMT_RJ	LITERAL1
 FORMAT_DSP_A	LITERAL1
 FORMAT_DSP_B	LITERAL1
 FORMAT_I2S	LITERAL1
@@ -1925,9 +1970,17 @@ FS_250_DPS	LITERAL1
 FS_500_DPS	LITERAL1
 FS_MODE_1	LITERAL1
 FS_MODE_2	LITERAL1
+GAIN_0_3959	LITERAL1
+GAIN_0_4571	LITERAL1
+GAIN_0_5111	LITERAL1
+GAIN_0_6047	LITERAL1
+GAIN_0_7099	LITERAL1
+GAIN_0_8399	LITERAL1
 GAIN_1	LITERAL1
 GAIN_128	LITERAL1
 GAIN_16	LITERAL1
+GAIN_1_000	LITERAL1
+GAIN_1_143	LITERAL1
 GAIN_2	LITERAL1
 GAIN_32	LITERAL1
 GAIN_4	LITERAL1
@@ -2113,6 +2166,10 @@ OT_12BIT_MASK	LITERAL1
 OUTS_ANALOG	LITERAL1
 OUTS_ANALOG2	LITERAL1
 OUTS_PWM	LITERAL1
+OUT_FOLLOW_HIGH	LITERAL1
+OUT_FOLLOW_LOW	LITERAL1
+OUT_OFF	LITERAL1
+OUT_ON	LITERAL1
 OVERSAMPLE_HIGH_RESOLUTION	LITERAL1
 OVERSAMPLE_LOW_NOISE_LOW_POWER	LITERAL1
 OVERSAMPLE_LOW_POWER	LITERAL1
@@ -2274,6 +2331,9 @@ SPACE_200K	LITERAL1
 SPACE_25K	LITERAL1
 SPACE_50K	LITERAL1
 SPI_CHUNK	LITERAL1
+SRC_MIX	LITERAL1
+SRC_NORMAL	LITERAL1
+SRC_SWAPPED	LITERAL1
 STATUS_ALERT_PHASE	LITERAL1
 STATUS_ALL_ON	LITERAL1
 STATUS_BLANK	LITERAL1

@@ -46,6 +46,7 @@
 #include "chips/adc_dac/ADS111xBase.h"
 #include "chips/adc_dac/ADS7828.h"
 #include "chips/adc_dac/CAT5171.h"
+#include "chips/adc_dac/CS43L22.h"
 #include "chips/adc_dac/DS1881.h"
 #include "chips/adc_dac/ES8311.h"
 #include "chips/adc_dac/HX710A.h"
