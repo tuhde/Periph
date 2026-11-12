@@ -18,7 +18,7 @@ const CHIPS = [
     {"id":"ds3502","driver":null,"writeSensitive":false,"aliased":false,"addresses":[40,41,42,43],"probe":null},
     {"id":"cat5171","driver":"cat5171","writeSensitive":true,"aliased":false,"addresses":[44,45],"probe":null},
     {"id":"ds1881","driver":"ds1881","writeSensitive":true,"aliased":false,"addresses":[40,41,42,43,44,45,46,47],"probe":null},
-    {"id":"cs43l22","driver":null,"writeSensitive":false,"aliased":false,"addresses":[74,75],"probe":{"register":1,"regBytes":1,"length":1,"order":"big","mask":248,"expected":[224]}},
+    {"id":"cs43l22","driver":"cs43l22","writeSensitive":false,"aliased":false,"addresses":[74,75],"probe":{"register":1,"regBytes":1,"length":1,"order":"big","mask":248,"expected":[224]}},
     {"id":"ads1013","driver":"ads1013","writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":null},
     {"id":"ads1014","driver":"ads1014","writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":null},
     {"id":"ads1015","driver":null,"writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":null},

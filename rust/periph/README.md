@@ -73,6 +73,7 @@ Each chip exposes two structs:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor (Bosch Sensortec). |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor (Bosch Sensortec). |
 | CAT5171 | ADC/DAC | 256-position I²C digital potentiometer (ON Semiconductor). |
+| CS43L22 | ADC/DAC | Low-power stereo DAC with headphone and Class-D speaker amplifiers (Cirrus Logic). |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor (ASAIR / Aosong). |
 | DRV2605 | Motor driver | Haptic driver for ERM and LRA actuators with I²C interface (Texas Instruments). |
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |

@@ -1,0 +1,158 @@
+[
+    {
+        "id": "tab-cs43l22-demo",
+        "type": "tab",
+        "label": "CS43L22 Headphone Demo",
+        "disabled": false,
+        "info": "Headphone amplifier bring-up with a CS43L22 stereo DAC. The audio stream (MCLK, SCLK, LRCK, SDIN) comes from the board's I2S master; Node-RED only drives the control port. An Inject node sends {start: true} once (MCLK must already be running), a second Inject ticks every 5 s into a Function node that steps the master volume 0 -> -30 dB -> 0 in 2 dB steps, a third sends a single-beep command, and a Debug node shows the volume and the status register read back (reading the status clears its flags). A fourth Inject sends {stop: true} for the power-down sequence."
+    },
+    {
+        "id": "inj-start",
+        "type": "inject",
+        "name": "Start (once)",
+        "topic": "",
+        "payload": "{\"start\":true}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-cs43l22-demo",
+        "x": 150,
+        "y": 60,
+        "wires": [
+            [
+                "cs43l22-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "Volume tick (5 s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.5,
+        "z": "tab-cs43l22-demo",
+        "x": 150,
+        "y": 120,
+        "wires": [
+            [
+                "fn-ramp"
+            ]
+        ]
+    },
+    {
+        "id": "fn-ramp",
+        "type": "function",
+        "name": "volume ramp",
+        "func": "// 0, -2 ... -30 dB, then back up, then wrap.\nlet i = context.get('step') || 0;\ncontext.set('step', (i + 1) % 30);\nconst db = i <= 15 ? -i * 2 : -(30 - i) * 2;\nmsg.payload = { volume: db };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-cs43l22-demo",
+        "x": 350,
+        "y": 120,
+        "wires": [
+            [
+                "cs43l22-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-beep",
+        "type": "inject",
+        "name": "Beep",
+        "topic": "",
+        "payload": "{\"beep\":{\"frequency\":1,\"onTime\":2,\"offTime\":0,\"volume\":-6,\"mode\":1}}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.5,
+        "z": "tab-cs43l22-demo",
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "cs43l22-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read back",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.5,
+        "z": "tab-cs43l22-demo",
+        "x": 150,
+        "y": 240,
+        "wires": [
+            [
+                "cs43l22-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-stop",
+        "type": "inject",
+        "name": "Stop",
+        "topic": "",
+        "payload": "{\"stop\":true}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.5,
+        "z": "tab-cs43l22-demo",
+        "x": 150,
+        "y": 300,
+        "wires": [
+            [
+                "cs43l22-node"
+            ]
+        ]
+    },
+    {
+        "id": "cs43l22-node",
+        "type": "periph-cs43l22",
+        "z": "tab-cs43l22-demo",
+        "name": "CS43L22",
+        "bus": "1",
+        "address": "0x4A",
+        "gpioChip": "0",
+        "resGpio": "",
+        "format": "i2s",
+        "x": 580,
+        "y": 150,
+        "wires": [
+            [
+                "dbg-out"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-out",
+        "type": "debug",
+        "z": "tab-cs43l22-demo",
+        "name": "volume + status",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 820,
+        "y": 150,
+        "wires": []
+    }
+]

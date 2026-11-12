@@ -61,6 +61,7 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | `periph/src/chips/pressure/bmp384` |
 | BMP581 | Pressure sensor | `periph/src/chips/pressure/bmp581` |
 | CAT5171 | ADC/DAC | `periph/src/chips/adc_dac/cat5171` |
+| CS43L22 | ADC/DAC | `periph/src/chips/adc_dac/cs43l22` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | DRV2605 | Motor driver | `periph/src/chips/motor/drv2605` |
 | DRV8830 | Motor driver | `periph/src/chips/motor/drv8830` |

@@ -1,0 +1,660 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "cs43l22_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init CS43L22",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x4A / 0x4B)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_start",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 power up (MCLK running)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_stop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 power down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set master volume (dB, -102..12)",
+          "type": "label"
+        },
+        {
+          "name": "dB",
+          "type": "label"
+        },
+        {
+          "name": "_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_get_volume",
+      "type": "value",
+      "params": [
+        {
+          "name": "CS43L22 master volume (dB)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_mute",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 mute headphones (1 = mute)",
+          "type": "label"
+        },
+        {
+          "name": "mute",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 reset via RESET pin",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_outputs",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set output power (0 low,1 high,2 on,3 off)",
+          "type": "label"
+        },
+        {
+          "name": "headphone",
+          "type": "label"
+        },
+        {
+          "name": "_headphone",
+          "type": "number"
+        },
+        {
+          "name": "speaker",
+          "type": "label"
+        },
+        {
+          "name": "_speaker",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_volume_channels",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set channel volumes (dB)",
+          "type": "label"
+        },
+        {
+          "name": "left dB",
+          "type": "label"
+        },
+        {
+          "name": "_left_db",
+          "type": "number"
+        },
+        {
+          "name": "right dB",
+          "type": "label"
+        },
+        {
+          "name": "_right_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_headphone_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set headphone volume (dB, 0..-96)",
+          "type": "label"
+        },
+        {
+          "name": "left dB",
+          "type": "label"
+        },
+        {
+          "name": "_left_db",
+          "type": "number"
+        },
+        {
+          "name": "right dB",
+          "type": "label"
+        },
+        {
+          "name": "_right_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_speaker_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set speaker volume (dB, 0..-96)",
+          "type": "label"
+        },
+        {
+          "name": "left dB",
+          "type": "label"
+        },
+        {
+          "name": "_left_db",
+          "type": "number"
+        },
+        {
+          "name": "right dB",
+          "type": "label"
+        },
+        {
+          "name": "_right_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_pcm_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set PCM volume (dB, -51.5..12)",
+          "type": "label"
+        },
+        {
+          "name": "left dB",
+          "type": "label"
+        },
+        {
+          "name": "_left_db",
+          "type": "number"
+        },
+        {
+          "name": "right dB",
+          "type": "label"
+        },
+        {
+          "name": "_right_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_headphone_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set headphone gain index (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "index",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_headphone_gain",
+      "type": "value",
+      "params": [
+        {
+          "name": "CS43L22 headphone gain multiplier",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_mute_outputs",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 mute outputs (1 mute, 0 unmute, -1 keep)",
+          "type": "label"
+        },
+        {
+          "name": "headphone",
+          "type": "label"
+        },
+        {
+          "name": "_headphone",
+          "type": "number"
+        },
+        {
+          "name": "speaker",
+          "type": "label"
+        },
+        {
+          "name": "_speaker",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_tone",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set tone shelves (dB)",
+          "type": "label"
+        },
+        {
+          "name": "treble dB",
+          "type": "label"
+        },
+        {
+          "name": "_treble_db",
+          "type": "number"
+        },
+        {
+          "name": "bass dB",
+          "type": "label"
+        },
+        {
+          "name": "_bass_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_beep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 play beep",
+          "type": "label"
+        },
+        {
+          "name": "frequency (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_frequency",
+          "type": "number"
+        },
+        {
+          "name": "on time (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_on_time",
+          "type": "number"
+        },
+        {
+          "name": "off time (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_off_time",
+          "type": "number"
+        },
+        {
+          "name": "volume dB",
+          "type": "label"
+        },
+        {
+          "name": "_volume_db",
+          "type": "number"
+        },
+        {
+          "name": "mode (1 single,2 multiple,3 continuous)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_stop_beep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 stop beep",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_limiter",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set limiter",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "max dB",
+          "type": "label"
+        },
+        {
+          "name": "_max_db",
+          "type": "number"
+        },
+        {
+          "name": "cushion dB",
+          "type": "label"
+        },
+        {
+          "name": "_cushion_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_soft_ramp",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set digital soft ramp",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_digital",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_zero_cross",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set digital zero cross",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_digital",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_deemphasis",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set de-emphasis",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_invert_pcm",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 invert PCM polarity",
+          "type": "label"
+        },
+        {
+          "name": "left",
+          "type": "label"
+        },
+        {
+          "name": "_left",
+          "type": "number"
+        },
+        {
+          "name": "right",
+          "type": "label"
+        },
+        {
+          "name": "_right",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_passthrough",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set analog passthrough",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "left input (1-4)",
+          "type": "label"
+        },
+        {
+          "name": "_left_input",
+          "type": "number"
+        },
+        {
+          "name": "right input (1-4)",
+          "type": "label"
+        },
+        {
+          "name": "_right_input",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_passthrough_volume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set passthrough volume (dB)",
+          "type": "label"
+        },
+        {
+          "name": "left dB",
+          "type": "label"
+        },
+        {
+          "name": "_left_db",
+          "type": "number"
+        },
+        {
+          "name": "right dB",
+          "type": "label"
+        },
+        {
+          "name": "_right_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_freeze",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 freeze register changes",
+          "type": "label"
+        },
+        {
+          "name": "freeze",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_read_vp_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "CS43L22 VP voltage (V)",
+          "type": "label"
+        },
+        {
+          "name": "VA volts",
+          "type": "label"
+        },
+        {
+          "name": "_va_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_clock_error",
+      "type": "value",
+      "params": [
+        {
+          "name": "CS43L22 clock error flag (clears status)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_read_register",
+      "type": "value",
+      "params": [
+        {
+          "name": "CS43L22 read register",
+          "type": "label"
+        },
+        {
+          "name": "register",
+          "type": "label"
+        },
+        {
+          "name": "_reg",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_write_register",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 write register",
+          "type": "label"
+        },
+        {
+          "name": "register",
+          "type": "label"
+        },
+        {
+          "name": "_reg",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cs43l22_set_charge_pump_frequency",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CS43L22 set charge pump divider (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "n",
+          "type": "label"
+        },
+        {
+          "name": "_n",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

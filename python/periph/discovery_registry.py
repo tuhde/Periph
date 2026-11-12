@@ -42,7 +42,7 @@ CHIPS = (
     {"id": "ds1881", "driver": "ds1881", "write_sensitive": True, "aliased": False,
      "addresses": (0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,),
      "probe": None},
-    {"id": "cs43l22", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "cs43l22", "driver": "cs43l22", "write_sensitive": False, "aliased": False,
      "addresses": (0x4A, 0x4B,),
      "probe": {"register": 0x01, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xF8, "expected": (0xE0,)}},
     {"id": "ads1013", "driver": "ads1013", "write_sensitive": False, "aliased": False,
