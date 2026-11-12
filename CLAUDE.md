@@ -16,49 +16,9 @@ Implementations:
 
 ## Workflow
 
-**Claude Code** handles orchestration: planning, speccing, coordinating work, and deciding what to build.  
-**OpenCode** handles implementation: writing the actual source code.
+**Claude Code** orchestrates (planning, speccing, deciding what to build); **OpenCode** implements the source code. Entry points are GitHub issues, `backlog.md`, or direct conversation.
 
-### Orchestration entry points
-
-| Method | When to use |
-|---|---|
-| GitHub Issue | Formal request; creates a traceable record |
-| `backlog.md` | Offline or batch work; Claude Code processes pending items |
-| Direct conversation | Ad-hoc exploration or one-off requests |
-
-### Flow for chip issues
-1. Claude Code obtains the datasheet from the issue (download PDF attachment or fetch URL) and commits it to `datasheets/<category>/<chipname>.pdf`
-2. Claude Code reads the datasheet and produces a spec in `specs/<category>/` using `specs/_template_chip.md`
-   - For chips with I²C transport, also add the chip's entry to `registry/chips.json` (address(es), identity register or `null`, probe safety — see `specs/feature_i2c_discovery.md` §4) with `"driver": null` (no driver exists yet; OpenCode sets it to the driver name on implementation) and regenerate the discovery tables with `node registry/scripts/generate.js`
-3. Claude Code creates a wiki page `<ChipName>.md` with key parameters, address table, quick-start snippets, and platform matrix; adds it to the wiki sidebar and links it from the Supported-Chips and Home pages (push the wiki repo, then `git add wiki` in the main repo)
-4. Claude Code adds a row for the chip to the root `README.md` "Supported chips" table (alphabetical), with every language column left empty (not implemented yet; `-` is reserved for "deliberately never implemented"); OpenCode flips each cell to `✓` as that language is implemented
-5. Claude Code lands steps 1–4 on `main` through a **no-CI prep PR**: commit on any branch (conventionally `prep/<chip>`), open a PR to `main`, and end every commit message **and** the PR title (which becomes the squash-merge message) with `[skip ci]`; squash-merge it. Nothing in this PR needs CI (no source code), and committing it directly to `main` would trigger a CI run (#230). Since CI is skipped, run `node registry/scripts/validate.js --check`, `node registry/scripts/generate.js --check`, and the `--check` mode of the README generators locally before opening the PR
-6. Claude Code posts a **"Ready for implementation"** comment on the issue — this is what OpenCode uses to find its work
-7. Claude Code removes the label `needs-spec` and adds the label `needs-implementation` and all relevant `transport:*` labels in the issue.
-8. The chosen coder tool implements against the spec on its own `impl/<chip>/<engine>-<model>` branch cut from `main` (no `feature/<chip>` branch exists) and opens a PR to `main` with CI enabled
-
-### Flow for transport issues
-1. Claude Code obtains the protocol reference from the issue (PDF attachment or URL); if it is a well-known standard with no single document, Claude Code uses its own knowledge
-2. Claude Code produces a spec at `specs/transport_<name>.md` using `specs/_template_transport.md`; no datasheet is committed (transports live outside `datasheets/`), and it lands on `main` via a `[skip ci]` PR as for chips
-3. Claude Code posts a **"Ready for implementation"** comment on the issue
-4. Claude Code removes the label `needs-spec` and adds the label `needs-implementation` in the issue.
-5. The coder tool implements, on an `impl/transport-<name>/<engine>-<model>` branch cut from `main`, the transport across all applicable platforms; it does **not** implement any chip driver
-
-### Ready-for-implementation comment format
-```
-## Ready for implementation
-
-- **Spec:** `specs/<category>/<chip>.md`   ← or `specs/transport_<name>.md`
-- **Stages:** Minimal, Full               ← chips only; transports have no stages
-
-See `AGENTS.md` for implementation guidance.
-```
-
-### Spec templates
-- `specs/_template_chip.md` — for new chip drivers
-- `specs/_template_chip_io_expander.md` — for IO expander chips (adds GPIO interface section)
-- `specs/_template_transport.md` — for new transport implementations
+New chips and transports follow a fixed spec → prep PR (`[skip ci]`) → "Ready for implementation" comment → `impl/...` branch procedure. **Read `docs/chip-workflow.md` before starting one**; it holds the step-by-step flows, the comment format, label updates, and the spec template list. Implementation guidance is in `AGENTS.md`; test runners in `TESTING.md`.
 
 ## Implementation stages
 
@@ -73,266 +33,24 @@ The Full class inherits Minimal and adds the rest — it never duplicates. Specs
 
 ## Repository layout
 
-```
-specs/                  # Chip and transport specs (produced by Claude Code, consumed by OpenCode)
-  <category>/           # One subdirectory per category (see below)
-  _template_chip.md
-  _template_transport.md
-datasheets/
-  <category>/           # Mirrors specs/ category structure
-python/
-  periph/
-    connection/         # Connection base + platform bus implementations (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py), plus InputPin/OutputPin
-    storage/            # BlockDevice protocol + RAM mock + MicroPython VFS shim (specs/feature_block_device.md)
-    chips/
-      <category>/       # One module per chip, grouped by category
-  examples/
-    <category>/
-      <chip>/           # minimal.py, complete.py, demo.py
-  uiflow1/
-    generate.sh         # regenerates every <chip>.m5b; --check verifies they're up to date (CI runs this)
-    <category>/
-      <chip>/           # <chip>.json + one .py per block + generated <chip>.m5b — M5Stack UIFlow 1 Blockly custom blocks wrapping the chip driver; run generate.sh after editing .json/.py files here
-  uiflow2/
-    UIFLOW2_BLOCKS.md   # format reference + workflow for native UIFlow 2 (.m5b2) support — no generator; built by hand in the UiFlow 2 Block Designer
-    <category>/
-      <chip>/           # <Chip>.py (annotated wrapper class) + <Chip>.m5b2 (exported from the Block Designer) — mandatory alongside uiflow1/'s .m5b, the two formats don't interoperate
-  tests/
-cpp/
-  CMakeLists.txt        # Zephyr module build file (see zephyr/module.yml) — builds every chip driver into a "periph" library
-  zephyr/
-    module.yml           # Zephyr module manifest (name: periph); consumed via ZEPHYR_EXTRA_MODULES, not west manifest discovery
-  src/
-    connection/         # Pure virtual Connection base + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK, STM32Cube variants), plus InputPin/OutputPin
-    storage/           # BlockDevice + RamBlockDevice (specs/feature_block_device.md)
-    chips/
-      <category>/       # One header+source per chip, grouped by category
-  examples/
-    linux/
-      <category>/
-        <Chip>/
-          minimal/      # main.cpp  (compiled with g++ directly)
-          complete/
-          demo/
-    arduino/
-      <category>/
-        <Chip>/
-          minimal/      # minimal.ino  (dir name must match .ino filename)
-          complete/     # complete.ino
-          demo/         # demo.ino
-    zephyr/
-      <category>/
-        <Chip>/
-          minimal/      # main.cpp, CMakeLists.txt, prj.conf  (standalone Zephyr app)
-          complete/
-          demo/
-    espidf/
-      <category>/
-        <Chip>/
-          minimal/      # CMakeLists.txt, main/CMakeLists.txt, main/main.cpp, sdkconfig.defaults
-          complete/
-          demo/
-    picosdk/
-      <category>/
-        <Chip>/
-          minimal/      # CMakeLists.txt, src/main.cpp
-          complete/
-          demo/
-    stm32cube/
-      <category>/
-        <Chip>/
-          minimal/      # CMakeLists.txt, Core/Src/main.cpp  (bare-metal STM32Cube HAL, NUCLEO-F411RE)
-          complete/
-          demo/
-  library.properties    # Arduino library metadata; published to tuhde/Periph-Arduino on release (see ARDUINO_LM.md)
-nodejs/
-  package.json          # npm workspaces root
-  packages/
-    periph/             # Single plain JS driver package (name: "periph")
-      src/
-        connection/     # I2C, SPI, NeoPixel connection implementations, plus InputPin/OutputPin
-        storage/        # BlockDevice + RamBlockDevice
-        chips/
-          <category>/   # One module per chip, grouped by category
-      examples/
-        <category>/
-          <chip>/       # minimal.js, complete.js, demo.js
-    node-red-contrib-periph-<category>/  # Per-category Node-RED node packages
-      index.js          # Auto-discovers and registers nodes in nodes/
-      nodes/
-        <chip>/
-          <chip>.js     # Node-RED runtime node (wraps periph driver)
-          <chip>.html   # Node-RED editor UI (config panel)
-      examples/
-        <chip>/
-          demo.json     # Importable Node-RED flow demonstrating the node
-rust/
-  Cargo.toml            # Workspace root (library crate + Linux examples/tests; ESP32-S3 test excluded)
-  periph/
-    src/
-      connection/       # Connection<BUS> wrapper (generic over embedded-hal I2C/SPI) + periph-owned custom-protocol connections (neopixel, etc.)
-      storage/          # BlockDevice trait + RamBlockDevice
-      chips/
-        <category>/     # One module per chip; no_std, generic over embedded-hal traits
-  examples/
-    linux/
-      <category>/
-        <chip>/
-          minimal/      # Cargo.toml + src/main.rs  (Linux host; in workspace)
-          complete/
-          demo/
-    embedded/           # excluded from workspace; build per-crate
-      esp32s3/          # current target; rp2040/, stm32f4/, etc. added here as needed
-        <category>/
-          <chip>/
-            minimal/    # Cargo.toml + src/main.rs + rust-toolchain.toml + .cargo/config.toml
-            complete/
-            demo/
-  tests/
-    <category>/
-      <chip>_test/      # Linux integration test crate
-      <chip>_test_esp32s3/  # ESP32-S3 smoke test (excluded from workspace)
-jvm/
-  pom.xml               # Parent POM: groupId=it.uhde, artifactId=periph, multi-module
-  periph-connection/    # Java-only connection library (JPMS module: it.uhde.periph.connection)
-    src/main/java/
-      module-info.java          # exports it.uhde.periph.connection
-      it/uhde/periph/connection/ # Connection interface + Linux i2c-dev implementations (FFM), plus InputPin/OutputPin
-    pom.xml
-  periph-java/          # Java chip drivers (JPMS module: it.uhde.periph)
-    src/
-      main/java/
-        module-info.java        # exports it.uhde.periph.chips.*; requires it.uhde.periph.connection
-        it/uhde/periph/chips/
-          <category>/   # One class per chip, grouped by category
-      test/java/
-    pom.xml
-  periph-kotlin/        # Kotlin chip drivers (kotlin-maven-plugin; no JPMS)
-    src/
-      main/kotlin/
-        it/uhde/periph/chips/
-          <category>/   # One class per chip, grouped by category
-      test/kotlin/
-    pom.xml
-  periph-groovy/        # Groovy chip drivers (gmavenplus-plugin; no JPMS)
-    src/
-      main/groovy/
-        it/uhde/periph/chips/
-          <category>/   # One class per chip, grouped by category
-      test/groovy/
-    pom.xml
-  examples/             # JBang scripts — run with: jbang Minimal.java (or .kt / .groovy)
-    java/
-      <category>/
-        <chip>/         # Minimal.java, Complete.java, Demo.java  (//DEPS it.uhde:periph-java:...)
-    kotlin/
-      <category>/
-        <chip>/         # Minimal.kt, Complete.kt, Demo.kt        (//DEPS it.uhde:periph-kotlin:...)
-    groovy/
-      <category>/
-        <chip>/         # Minimal.groovy, Complete.groovy, Demo.groovy (//DEPS it.uhde:periph-groovy:...)
-  tests/                # JBang integration test scripts (run on Linux hardware)
-    <category>/
-      <chip>/           # <chip>Test.java (or .kt / .groovy)  (//DEPS it.uhde:periph-java:...)
-go/
-  go.mod                # Module github.com/tuhde/Periph/go
-  periph/
-    connection/         # Connection interface + <protocol>_linux.go / <protocol>_tinygo.go pairs, selected by build tags, plus InputPin/OutputPin
-    storage/          # BlockDevice interface + RamBlockDevice
-    chips/
-      <category>/       # One file per chip, grouped by category; package name drops underscores (adc_dac/ -> package adcdac)
-  examples/
-    linux/
-      <category>/
-        <chip>/
-          minimal/minimal.go     # go build ./go/examples/linux/.../<chip>/minimal/
-          complete/complete.go
-          demo/demo.go
-    tinygo/
-      <category>/
-        <chip>/
-          minimal/minimal.go     # tinygo build -target=pico-w ./go/examples/tinygo/.../<chip>/minimal/
-          complete/complete.go
-          demo/demo.go
-  tests/
-    <category>/
-      <chip>_test/          # Linux host
-      <chip>_test_tinygo/   # Raspberry Pi Pico W smoke test
-sigrok/
-  <chip>/               # Sigrok protocol decoder
-    pd.py               # Decoder implementation
-    __init__.py         # Re-exports Decoder
-  tests/
-    <chip>/             # Captured .sr session for manual verification
-```
+Top-level dirs: `specs/`, `datasheets/`, `registry/`, `python/`, `cpp/`, `nodejs/`, `rust/`, `jvm/`, `go/`, `sigrok/`, `docs/`, plus the `wiki` submodule. `specs/<category>/` and `datasheets/<category>/` mirror each other; run `ls` for the current category list (`adc_dac` maps to the npm package `node-red-contrib-periph-adc-dac`, underscore → hyphen).
 
-Each chip driver depends only on the `Connection` abstraction, never on a concrete bus implementation.
+Every language follows the same shape: `connection/` (Connection base, platform bus implementations, InputPin/OutputPin), `storage/` (BlockDevice + RAM mock), and `chips/<category>/` (one module per chip). Each chip driver depends only on the `Connection` abstraction, never on a concrete bus implementation.
 
-The `adc_dac` directory maps to the package name `node-red-contrib-periph-adc-dac` (underscore → hyphen).
+Examples live at `<lang>/examples/[<platform>/]<category>/<chip>/{minimal,complete,demo}`. Non-obvious details:
 
-### Chip categories
-
-Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `cpp/src/chips/`, `nodejs/packages/periph/src/chips/`, and `nodejs/packages/node-red-contrib-periph-<category>/`:
-
-| Directory | Covers |
-|-----------|--------|
-| `accelerometer` | Standalone accelerometers |
-| `adc_dac` | ADC and DAC converters |
-| `color` | Color sensors |
-| `comms` | Wireless and wired communication modules (LoRa, RF, etc.) |
-| `display` | Display drivers |
-| `environmental` | Combined temperature + humidity + pressure |
-| `gas` | Gas sensors |
-| `gnss` | GNSS / GPS modules |
-| `gpio` | GPIO expanders |
-| `gyroscope` | Standalone gyroscopes |
-| `humidity` | Standalone humidity sensors |
-| `imu` | Combined accelerometer + gyroscope |
-| `io_expander` | IO expanders |
-| `led` | LED drivers |
-| `light` | Light and UV sensors |
-| `magnetometer` | Magnetometers |
-| `memory` | Memory chips (EEPROM, Flash, FRAM, SRAM) |
-| `motor` | Motor drivers |
-| `power` | Power management |
-| `pressure` | Standalone pressure sensors |
-| `rfid` | RFID and NFC reader/writer modules |
-| `rtc` | Real-time clocks |
-| `temperature` | Standalone temperature sensors |
-| `tof` | Time-of-flight / distance sensors |
-| `other` | Anything that doesn't fit above |
+- **Python:** `python/periph/chips/<category>/`; examples in `python/examples/<category>/<chip>/{minimal,complete,demo}.py`. Three targets (MicroPython, CircuitPython, Linux `smbus2`).
+- **UIFlow:** `python/uiflow1/<category>/<chip>/` (`<chip>.json` + one `.py` per block + generated `.m5b`; run `python/uiflow1/generate.sh`, CI checks it with `--check`) and `python/uiflow2/<category>/<chip>/` (`<Chip>.py` wrapper + hand-built `<Chip>.m5b2`; see `python/uiflow2/UIFLOW2_BLOCKS.md`). Both are mandatory per chip.
+- **C++:** `cpp/src/{connection,storage,chips/<category>}`; also a Zephyr module (`cpp/CMakeLists.txt`, `cpp/zephyr/module.yml`) and Arduino metadata (`cpp/library.properties`). Example platforms: `linux` (`main.cpp`), `arduino` (`<tier>/<tier>.ino`, directory name must match the `.ino`), `zephyr` (`main.cpp`, `CMakeLists.txt`, `prj.conf`), `espidf` (`main/main.cpp`, `sdkconfig.defaults`), `picosdk` (`src/main.cpp`), `stm32cube` (`Core/Src/main.cpp`, NUCLEO-F411RE).
+- **Node.js:** npm workspaces under `nodejs/packages/`. `periph/` is the plain driver package; `node-red-contrib-periph-<category>/` has `nodes/<chip>/<chip>.{js,html}` and `examples/<chip>/demo.json`.
+- **Rust:** workspace at `rust/Cargo.toml`; `rust/periph/src/...`; Linux examples in the workspace under `rust/examples/linux/`, embedded ones (excluded, built per crate) under `rust/examples/embedded/esp32s3/`; tests in `rust/tests/<category>/<chip>_test` and `<chip>_test_esp32s3`.
+- **JVM:** `jvm/periph-connection` (Java-only, shared), `periph-java`, `periph-kotlin`, `periph-groovy` (package `it.uhde.periph.chips.<category>`); JBang examples in `jvm/examples/{java,kotlin,groovy}/`; integration tests in `jvm/tests/`.
+- **Go:** module `github.com/tuhde/Periph/go`; `go/periph/connection/` uses `<protocol>_linux.go` / `<protocol>_tinygo.go` build-tag pairs; package names drop underscores (`adc_dac` → `adcdac`); tests in `go/tests/<category>/<chip>_test` and `<chip>_test_tinygo` (Pico W).
+- **Sigrok:** `sigrok/<chip>/{pd.py,__init__.py}`; sample captures in `sigrok/tests/<chip>/`.
 
 ## Examples
 
-Each chip has three examples per language, placed under the `examples/` tree:
-
-| Tier | Class used | Purpose |
-|------|-----------|---------|
-| `minimal` | `*Minimal` | Simplest possible usage — construct, read primary values in a loop |
-| `complete` | `*Full` | Every method in the API exercised |
-| `demo` | `*Full` | A real-world scenario from the spec's Demo section |
-
-The three tiers use an additive comment system — each tier includes everything from the tier below it:
-
-**Tier-1 (all three tiers)** — every call gets a trailing signature comment:
-```
-# <short verb phrase>, (<params>) → <type> <unit>   ← for calls that return a value
-# <short verb phrase>, (<param>=<default> <unit>, …)  ← for void calls and constructors
-```
-
-**Tier-2 (complete adds)** — a second line immediately below each call explaining what it does:
-```python
-v = ina.voltage()    # Read bus voltage, () → float V
-                     # converts raw bus register to volts (1.25 mV LSB)
-```
-
-**Tier-3 (demo adds)** — a multi-line block comment at each logical section boundary explaining context and purpose (the Tier-2 per-call line is dropped in demo):
-```python
-# --- Configure for noise-sensitive power rail monitoring ---
-# 128-sample averaging suppresses switching noise on a noisy 5 V rail;
-# continuous mode avoids re-triggering overhead between measurements.
-ina.configure(avg=7, vbus_ct=4, vsh_ct=4, mode=7)  # Configure ADC, (avg 0–7, vbus_ct 0–7, vsh_ct 0–7, mode 0–7) → None
-```
+Each chip has three examples per language: `minimal` (uses `*Minimal`, construct and read in a loop), `complete` (`*Full`, every API method), `demo` (`*Full`, the spec's Demo scenario). The tiers are additive trailing/block comment styles; the exact format and templates are in `AGENTS.md`.
 
 ## Units
 
@@ -349,10 +67,15 @@ per-category color.
 
 ## Documentation
 
-The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate `docs/` directory.
+The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate reference docs; `docs/` holds process documents only.
 
 Source files carry full inline API documentation in the platform-native format (Python docstrings, C++ Doxygen, JSDoc, Rust `///`, JVM Javadoc/KDoc/Groovydoc). The three example tiers serve as usage documentation, with the demo as the narrative entry point for new users.
 
-## Status
+## Build, test, and generated files
 
-No build system configured yet. Update this file with build, lint, and test commands once established.
+Per-platform test runners: `TESTING.md`. Generated files are never hand-edited; CI runs these in `--check` mode:
+
+- `node registry/scripts/validate.js --check`, `node registry/scripts/generate.js --check` (I²C discovery registry)
+- README generators (`scripts/generate-readme(s).js` in `cpp/`, `nodejs/`, `rust/`, `python/`)
+- `python/uiflow1/generate.sh --check`
+- C++: `cpp/scripts/build-all.sh` builds every app on all platforms
