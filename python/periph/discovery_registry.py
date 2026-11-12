@@ -144,7 +144,7 @@ CHIPS = (
     {"id": "ssd1305", "driver": "ssd1305", "write_sensitive": True, "aliased": False,
      "addresses": (0x3C, 0x3D,),
      "probe": None},
-    {"id": "ssd1306", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ssd1306", "driver": "ssd1306", "write_sensitive": True, "aliased": False,
      "addresses": (0x3C, 0x3D,),
      "probe": None},
     {"id": "uc1611s", "driver": "uc1611s", "write_sensitive": True, "aliased": False,

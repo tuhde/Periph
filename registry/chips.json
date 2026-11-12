@@ -649,7 +649,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ssd1306",
       "datasheet": "datasheets/display/ssd1306.pdf"
     },
     {

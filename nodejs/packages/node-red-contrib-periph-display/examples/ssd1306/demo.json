@@ -1,0 +1,216 @@
+[
+  {
+    "id": "ssd1306_tab",
+    "type": "tab",
+    "label": "info",
+    "disabled": false,
+    "info": "Bounces a 6 x 6 ball inside a frame on a 0.96\" 128 x 64 SSD1306 OLED on I2C bus 1 (address 0x3C). A second inject toggles the inverse display and a third fades the contrast down and back up, and two more start and stop the hardware scroll. Auto-show sends the framebuffer after every drawing message. Stop the scroll before the bouncing-ball frames resume: the display refuses RAM writes while a scroll is active."
+  },
+  {
+    "id": "ssd1306_frame_inject",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "draw frame",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": true,
+    "onceDelay": "2",
+    "payload": "{\"clear\":true,\"rect\":{\"x\":0,\"y\":0,\"w\":128,\"h\":64}}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 80,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_tick",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "every 100 ms",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "0.1",
+    "once": true,
+    "onceDelay": "4",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 160,
+    "wires": [
+      [
+        "ssd1306_ball"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_ball",
+    "type": "function",
+    "z": "ssd1306_tab",
+    "name": "ball",
+    "func": "let s = context.get('s') || { x: 20, y: 12, dx: 3, dy: 2 };\nconst erase = { rect: { x: s.x, y: s.y, w: 6, h: 6, on: false, fill: true } };\ns.x += s.dx; s.y += s.dy;\nif (s.x < 2 || s.x > 120) { s.dx = -s.dx; s.x += 2 * s.dx; }\nif (s.y < 2 || s.y > 56) { s.dy = -s.dy; s.y += 2 * s.dy; }\ncontext.set('s', s);\nreturn [[{ payload: erase }, { payload: { rect: { x: s.x, y: s.y, w: 6, h: 6, on: true, fill: true } } }]];",
+    "outputs": 1,
+    "x": 320,
+    "y": 160,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_invert",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "toggle invert",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "once": false,
+    "onceDelay": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 240,
+    "wires": [
+      [
+        "ssd1306_invert_fn"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_invert_fn",
+    "type": "function",
+    "z": "ssd1306_tab",
+    "name": "flip invert state",
+    "func": "const on = !(context.get('inv') || false);\ncontext.set('inv', on);\nreturn { payload: { invert: on } };",
+    "outputs": 1,
+    "x": 330,
+    "y": 240,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_contrast",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "contrast 0x20",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"contrast\":32}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 320,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_contrast_reset",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "contrast 0x80",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"contrast\":128}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 380,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_scroll_on",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "scroll right",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"scroll\":{\"direction\":\"right\",\"startPage\":0,\"endPage\":7,\"interval\":7}}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 440,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_scroll_off",
+    "type": "inject",
+    "z": "ssd1306_tab",
+    "name": "scroll stop",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"scroll\":false}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 500,
+    "wires": [
+      [
+        "ssd1306_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1306_node",
+    "type": "periph-ssd1306",
+    "z": "ssd1306_tab",
+    "name": "0.96\" OLED",
+    "transport": "i2c",
+    "i2cBus": "1",
+    "address": "0x3C",
+    "width": "128",
+    "height": "64",
+    "autoShow": true,
+    "x": 640,
+    "y": 200,
+    "wires": [],
+    "externalVcc": false
+  }
+]

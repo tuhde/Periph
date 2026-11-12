@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/display/il0373.py"
     ],
     [
+      "periph/chips/display/mono_oled.py",
+      "github:tuhde/Periph/python/periph/chips/display/mono_oled.py"
+    ],
+    [
       "periph/chips/display/pcf8576.py",
       "github:tuhde/Periph/python/periph/chips/display/pcf8576.py"
     ],
@@ -27,6 +31,10 @@
     [
       "periph/chips/display/ssd1305.py",
       "github:tuhde/Periph/python/periph/chips/display/ssd1305.py"
+    ],
+    [
+      "periph/chips/display/ssd1306.py",
+      "github:tuhde/Periph/python/periph/chips/display/ssd1306.py"
     ],
     [
       "periph/chips/display/ssd1331.py",
