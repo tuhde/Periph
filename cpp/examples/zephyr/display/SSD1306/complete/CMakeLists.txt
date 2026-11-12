@@ -7,6 +7,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
 target_sources(app PRIVATE
     main.cpp
     ${CPP_DIR}/src/chips/display/SSD1306.cpp
+    ${CPP_DIR}/src/chips/display/MonoOledBase.cpp
 )
 target_include_directories(app PRIVATE
     ${CPP_DIR}/src/connection

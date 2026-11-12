@@ -18,6 +18,7 @@ add_executable(ssd1306_test_stm32cube
     ${BOARD_DIR}/nucleo-f411re/startup_stm32f411xe.s
     ${BOARD_DIR}/nucleo-f411re/Core/Src/system_clock_config.c
     ${CPP_DIR}/src/chips/display/SSD1306.cpp
+    ${CPP_DIR}/src/chips/display/MonoOledBase.cpp
     ${FW_DIR}/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
     ${FW_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
     ${FW_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c
