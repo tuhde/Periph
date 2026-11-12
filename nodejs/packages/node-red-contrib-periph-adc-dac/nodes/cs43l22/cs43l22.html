@@ -1,0 +1,84 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-cs43l22', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x4A' },
+            gpioChip: { value: '0' },
+            resGpio: { value: '' },
+            format:  { value: 'i2s' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-volume-up',
+        label:   function() { return this.name || 'CS43L22'; },
+        paletteLabel: 'CS43L22'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-cs43l22">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="CS43L22">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x4A">0x4A (AD0 = DGND)</option>
+            <option value="0x4B">0x4B (AD0 = VL)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip"><i class="fa fa-plug"></i> GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resGpio"><i class="fa fa-power-off"></i> RESET GPIO</label>
+        <input type="number" id="node-input-resGpio" min="0" style="width:80px" placeholder="optional"> &nbsp;line of the active-low RESET pin
+    </div>
+    <div class="form-row">
+        <label for="node-input-format"><i class="fa fa-sliders"></i> Audio format</label>
+        <select id="node-input-format" style="width:200px">
+            <option value="i2s">I²S</option>
+            <option value="lj">Left-justified</option>
+            <option value="rj">Right-justified</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-cs43l22">
+    <p>Controls a CS43L22 stereo DAC with headphone and speaker amplifiers over its I²C control port. The audio stream (I²S: MCLK, SCLK, LRCK, SDIN) comes from the board and is not handled by this node. Send <code>{ start: true }</code> only after MCLK is running.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.start, payload.stop <span class="property-type">boolean</span></dt>
+        <dd><code>start: true</code> powers the chip up (MCLK must be running); <code>stop: true</code> runs the power-down sequence (remove MCLK afterwards). No output message.</dd>
+        <dt>payload.volume <span class="property-type">number</span></dt>
+        <dd>Master volume in dB (−102 … +12). Outputs the read-back.</dd>
+        <dt>payload.mute <span class="property-type">boolean</span></dt>
+        <dd>Mute or unmute the headphone outputs. No output message.</dd>
+        <dt>payload.beep <span class="property-type">object</span></dt>
+        <dd><code>{ frequency 0–15, onTime 0–15, offTime 0–7, volume dB, mode 1–3 }</code> triggers the beep generator (mode 0 stops it). No output message.</dd>
+        <dt>payload.tone <span class="property-type">object</span></dt>
+        <dd><code>{ treble, bass }</code> shelving gains in dB (−10.5 … +12). No output message.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads back the volume and the status register.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.volume <span class="property-type">number</span></dt>
+        <dd>Master volume of channel A in dB.</dd>
+        <dt>payload.status <span class="property-type">object</span></dt>
+        <dd><code>clockError</code>, <code>dspAOverflow</code>, <code>dspBOverflow</code>, <code>pcmAOverflow</code>, <code>pcmBOverflow</code>. Reading clears the flags.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number and the address (0x4A with AD0 low, 0x4B with AD0 high). The optional RESET GPIO (needs the <code>opengpio</code> package) is pulsed low during initialization. The audio format selects I²S, left-justified or right-justified input.</p>
+</script>

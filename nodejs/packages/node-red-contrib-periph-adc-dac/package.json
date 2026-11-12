@@ -23,6 +23,7 @@
       "ads1115": "nodes/ads1115/ads1115.js",
       "ads7828": "nodes/ads7828/ads7828.js",
       "cat5171": "nodes/cat5171/cat5171.js",
+      "cs43l22": "nodes/cs43l22/cs43l22.js",
       "ds1881": "nodes/ds1881/ds1881.js",
       "es8311": "nodes/es8311/es8311.js",
       "hx710a": "nodes/hx710a/hx710a.js",
