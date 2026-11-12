@@ -4,7 +4,7 @@
 #include "I2CConnectionLinux.h"
 #include "CS43L22.h"
 
-int main(int argc, char** argv) {
+int main() {
     I2CConnectionLinux connection(1, CS43L22Full::I2C_ADDRESS);
     CS43L22Full dac(connection);                     // Create CS43L22 Full driver, (connection, resPin=nullptr)
 
