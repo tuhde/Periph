@@ -82,6 +82,7 @@ Each chip exposes two classes:
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |
 | DRV2605 | Motor driver | Haptic driver |
 | DRV8830 | Motor driver | Low-voltage motor driver |
+| DS1881 | ADC/DAC | Dual audio potentiometer |
 | DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
 | ES8311 | ADC/DAC | Bring-up for voice playback and recording. |
