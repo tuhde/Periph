@@ -16,5 +16,8 @@ pub mod pcf8578;
 pub use pcf8578::{Pcf8578Minimal, Pcf8578Full};
 pub mod pcf8579;
 pub use pcf8579::{Pcf8579Minimal, Pcf8579Full};
+pub mod mono_oled;
 pub mod sh1106;
 pub use sh1106::{Sh1106Minimal, Sh1106Full};
+pub mod ssd1306;
+pub use ssd1306::{Ssd1306Minimal, Ssd1306Full};

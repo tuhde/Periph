@@ -138,6 +138,7 @@ Each chip exposes two classes:
 | SD_SPI | Memory | SD card in SPI mode |
 | SH1106 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
+| SSD1306 | Display driver | 128 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | ST7036 | Display driver | Character LCD controller |
 | TMC2130 | Motor driver | Trinamic TMC2130 stepper driver over SPI. |

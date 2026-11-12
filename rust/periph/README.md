@@ -132,6 +132,7 @@ Each chip exposes two structs:
 | SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SH1106 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Sino Wealth), the chip behind the common |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
+| SSD1306 | Display driver | 128 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
 | TMC2130 | Motor driver | -- Trinamic TMC2130 stepper driver over SPI (Mode 3). |

@@ -132,6 +132,7 @@ Each chip exposes two classes:
 | SD_SPI | Memory | `chips/memory/SD_SPI.h` |
 | SH1106 | Display driver | `chips/display/SH1106.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
+| SSD1306 | Display driver | `chips/display/SSD1306.h` |
 | TMC2130 | Motor driver | `chips/motor/TMC2130.h` |
 | TMC2208 | Motor driver | `chips/motor/TMC2208.h` |
 | TMC2209 | Motor driver | `chips/motor/TMC2209.h` |
