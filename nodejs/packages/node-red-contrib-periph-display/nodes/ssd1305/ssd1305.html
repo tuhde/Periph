@@ -1,0 +1,131 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ssd1305', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:     { value: '' },
+            transport: { value: 'i2c' },
+            i2cBus:   { value: '1', validate: RED.validators.number() },
+            address:  { value: '0x3C' },
+            spiBus:   { value: '0', validate: RED.validators.number() },
+            spiDevice: { value: '0', validate: RED.validators.number() },
+            gpioChip: { value: '0', validate: RED.validators.number() },
+            dcPin:    { value: '25', validate: RED.validators.number() },
+            resPin:   { value: '17', validate: RED.validators.number() },
+            width:    { value: '128', required: true, validate: RED.validators.number() },
+            height:   { value: '64', required: true, validate: RED.validators.number() },
+            columnOffset: { value: '4', required: true, validate: RED.validators.number() },
+            autoShow: { value: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-television',
+        label:   function() { return this.name || 'SSD1305'; },
+        paletteLabel: 'SSD1305',
+        oneditprepare: function() {
+            function show() {
+                const spi = $('#node-input-transport').val() === 'spi';
+                $('.ssd1305-i2c').toggle(!spi);
+                $('.ssd1305-spi').toggle(spi);
+            }
+            $('#node-input-transport').on('change', show);
+            show();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ssd1305">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SSD1305">
+    </div>
+    <div class="form-row">
+        <label for="node-input-transport"><i class="fa fa-exchange"></i> Interface</label>
+        <select id="node-input-transport" style="width:auto">
+            <option value="i2c">I2C</option>
+            <option value="spi">4-wire SPI</option>
+        </select>
+    </div>
+    <div class="form-row ssd1305-i2c">
+        <label for="node-input-i2cBus"><i class="fa fa-microchip"></i> I2C bus</label>
+        <input type="number" id="node-input-i2cBus" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1305-i2c">
+        <label for="node-input-address">Address</label>
+        <select id="node-input-address" style="width:auto">
+            <option value="0x3C">0x3C (SA0 = low)</option>
+            <option value="0x3D">0x3D (SA0 = high)</option>
+        </select>
+    </div>
+    <div class="form-row ssd1305-spi">
+        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus / device</label>
+        <input type="number" id="node-input-spiBus" min="0" style="width:70px"> /
+        <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1305-spi">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1305-spi">
+        <label for="node-input-dcPin">D/C line</label>
+        <input type="number" id="node-input-dcPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1305-spi">
+        <label for="node-input-resPin">RES line</label>
+        <input type="number" id="node-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-width">Size</label>
+        <input type="number" id="node-input-width" min="1" max="132" style="width:70px"> x
+        <input type="number" id="node-input-height" min="16" max="64" step="8" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-columnOffset">Column offset</label>
+        <input type="number" id="node-input-columnOffset" min="0" max="131" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-autoShow">Auto-show</label>
+        <input type="checkbox" id="node-input-autoShow" style="width:auto; vertical-align:top">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ssd1305">
+    <p>Draws on an SSD1305 monochrome OLED (132 x 64 RAM, typically a 1.3" 128 x 64 module) over I2C (<code>0x3C</code> / <code>0x3D</code>) or 4-wire SPI. On SPI the node needs the SPI bus / chip-select device and the GPIO lines for D/C and RES; <code>payload.status</code> is not available. 128-pixel-wide modules usually show RAM columns 4..131, hence the default column offset of 4 (use 0 for a true 132-column panel, 2 for some panels).</p>
+    <p>Drawing commands change a framebuffer; with <em>Auto-show</em> the framebuffer is sent after every message that draws, otherwise send <code>{ show: true }</code>.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.clear <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> clears the framebuffer.</dd>
+        <dt>payload.pixel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, on }</code>: set or clear one pixel.</dd>
+        <dt>payload.line <span class="property-type">object</span></dt>
+        <dd><code>{ x0, y0, x1, y1, on }</code>: a line.</dd>
+        <dt>payload.rect <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, w, h, on, fill }</code>: a rectangle outline or filled.</dd>
+        <dt>payload.bitmap <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, columns: [..], heightPages }</code>: column bytes, 8 pixels per byte, bit 0 = top; <code>y</code> a multiple of 8.</dd>
+        <dt>payload.contrast <span class="property-type">number</span></dt>
+        <dd>Contrast 0..255.</dd>
+        <dt>payload.invert <span class="property-type">boolean</span></dt>
+        <dd>Invert the displayed image.</dd>
+        <dt>payload.display <span class="property-type">boolean</span></dt>
+        <dd>Display on, or off.</dd>
+        <dt>payload.startLine <span class="property-type">number</span></dt>
+        <dd>Display start line 0..63 (hardware vertical scroll).</dd>
+        <dt>payload.dim <span class="property-type">boolean</span></dt>
+        <dd>Display on in dim mode (<code>true</code>) or normal display on (<code>false</code>).</dd>
+        <dt>payload.scroll <span class="property-type">object | false</span></dt>
+        <dd><code>{ direction: "left"|"right", startPage, endPage, interval (0..6), columns, rows }</code> starts the hardware scroll (with <code>rows</code> &gt; 0 as vertical + horizontal scroll); <code>false</code> stops it and rewrites the display RAM.</dd>
+        <dt>payload.show <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> sends the framebuffer to the display.</dd>
+        <dt>payload.status <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> reads the status byte (I2C only) and sends it as <code>payload.status</code>.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <p>Only for <code>payload.status</code>: <code>msg.payload.status</code> = status byte (bit 6 = 1 when the display is off).</p>
+
+    <h3>Details</h3>
+    <p>I2C pull-ups must go to VDDIO. The SSD1305 has no charge pump: the OLED supply VCC (7-15 V) must be provided by the module.</p>
+</script>

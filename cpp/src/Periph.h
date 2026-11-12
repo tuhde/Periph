@@ -66,6 +66,7 @@
 #include "chips/display/PCF8578.h"
 #include "chips/display/PCF8579.h"
 #include "chips/display/SH1106.h"
+#include "chips/display/SSD1305.h"
 #include "chips/display/SSD1331.h"
 #include "chips/display/ST7036.h"
 #include "chips/display/UC1611s.h"
