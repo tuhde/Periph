@@ -53,6 +53,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/cat5171.py"
     ],
     [
+      "periph/chips/adc_dac/cs43l22.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/cs43l22.py"
+    ],
+    [
       "periph/chips/adc_dac/ds1881.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ds1881.py"
     ],

@@ -241,7 +241,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "cs43l22",
       "datasheet": "datasheets/adc_dac/cs43l22.pdf"
     },
     {
