@@ -39,7 +39,7 @@ CHIPS = (
     {"id": "cat5171", "driver": "cat5171", "write_sensitive": True, "aliased": False,
      "addresses": (0x2C, 0x2D,),
      "probe": None},
-    {"id": "ds1881", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ds1881", "driver": "ds1881", "write_sensitive": True, "aliased": False,
      "addresses": (0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,),
      "probe": None},
     {"id": "cs43l22", "driver": None, "write_sensitive": False, "aliased": False,

@@ -1,0 +1,158 @@
+[
+    {
+        "id": "tab-ds1881-demo",
+        "type": "tab",
+        "label": "DS1881 Volume Demo",
+        "disabled": false,
+        "info": "Stereo volume control with a DS1881 dual audio potentiometer. An Inject node ticks every 200 ms into a Function node that ramps the attenuation from 0 dB to 40 dB in 2 dB steps and back; the periph-ds1881 node sets both channels and returns {position0, position1, db0, db1}, which a Debug node shows. Two more Inject nodes send {mute: true} and {mute: false} (the last volume is restored on unmute), a third reads back both channels with the configuration, and a fourth sends {store: true} to persist the positions to EEPROM (the chip is rated for only 50 000 writes, so leave that one alone unless needed). The wipers are volatile by default, so after a power cycle both channels start muted until the ramp runs."
+    },
+    {
+        "id": "inj-ramp",
+        "type": "inject",
+        "name": "Ramp tick (200 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-ds1881-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "fn-ramp"
+            ]
+        ]
+    },
+    {
+        "id": "fn-ramp",
+        "type": "function",
+        "name": "volume ramp",
+        "func": "// 0, 2 ... 40 dB, then back down to 2 dB, then wrap.\nlet i = context.get('step') || 0;\ncontext.set('step', (i + 1) % 40);\nconst db = i <= 20 ? i * 2 : (40 - i) * 2;\nmsg.payload = { db: db };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-ds1881-demo",
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "ds1881-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-mute",
+        "type": "inject",
+        "name": "Mute",
+        "topic": "",
+        "payload": "{\"mute\":true}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ds1881-demo",
+        "x": 160,
+        "y": 180,
+        "wires": [
+            [
+                "ds1881-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-unmute",
+        "type": "inject",
+        "name": "Unmute",
+        "topic": "",
+        "payload": "{\"mute\":false}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ds1881-demo",
+        "x": 160,
+        "y": 240,
+        "wires": [
+            [
+                "ds1881-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read back",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ds1881-demo",
+        "x": 160,
+        "y": 300,
+        "wires": [
+            [
+                "ds1881-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-store",
+        "type": "inject",
+        "name": "Store to EEPROM",
+        "topic": "",
+        "payload": "{\"store\":true}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ds1881-demo",
+        "x": 160,
+        "y": 360,
+        "wires": [
+            [
+                "ds1881-node"
+            ]
+        ]
+    },
+    {
+        "id": "ds1881-node",
+        "type": "periph-ds1881",
+        "name": "DS1881",
+        "bus": "1",
+        "option": "1",
+        "zerocrossing": true,
+        "nonvolatile": false,
+        "z": "tab-ds1881-demo",
+        "x": 560,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-ds1881"
+            ]
+        ],
+        "address": "0x28"
+    },
+    {
+        "id": "dbg-ds1881",
+        "type": "debug",
+        "name": "positions / dB",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ds1881-demo",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    }
+]

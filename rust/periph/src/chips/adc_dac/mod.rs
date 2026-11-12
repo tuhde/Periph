@@ -4,6 +4,8 @@ pub use ads7828::{
     ADS7828_REF_OFF_ADC_ON, ADS7828_REF_ON_ADC_OFF, ADS7828_REF_ON_ADC_ON,
 };
 pub mod cat5171;
+pub mod ds1881;
+pub use ds1881::{DS1881Minimal, DS1881Full, Ds1881Config, Ds1881Error, DS1881_I2C_ADDRESS};
 pub use cat5171::{CAT5171Minimal, CAT5171Full, CAT5171_I2C_ADDRESS, CAT5171_I2C_ADDRESS_AD0_HIGH};
 pub mod hx710a;
 pub use hx710a::{Hx710aMinimal, Hx710aFull};

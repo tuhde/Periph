@@ -74,6 +74,7 @@ Each chip exposes two classes:
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
 | DRV2605 | Motor driver | `chips/motor/DRV2605.h` |
 | DRV8830 | Motor driver | `chips/motor/DRV8830.h` |
+| DS1881 | ADC/DAC | `chips/adc_dac/DS1881.h` |
 | DS3231 | RTC | `chips/rtc/DS3231.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
 | ES8311 | ADC/DAC | `chips/adc_dac/ES8311.h` |

@@ -1,0 +1,451 @@
+{
+  "category": "DS1881",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_DS1881_LANGUAGES = {\n  \"CUSTOM_DS1881_INIT\": {\n    \"en\": \"%1 init bus %2\"\n  },\n  \"CUSTOM_DS1881_SET_ATTENUATION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_GET_ATTENUATION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_MUTE\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_SET_POSITION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_GET_POSITION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_SET_BOTH\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_SET_ATTENUATION_BOTH\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_SET_OPTION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_SET_ZERO_CROSSING\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_SET_NONVOLATILE\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_STORE\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_POSITION_TO_DB\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_DB_TO_POSITION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_MAX_POSITION\": {\n    \"en\": \"{lab}\"\n  },\n  \"CUSTOM_DS1881_RESET\": {\n    \"en\": \"{lab}\"\n  }\n};\n\nconst initType = 'custom_ds1881_init';\nBlockly.BlockRegExpList['custom_ds1881'] = {\n  regexp: new RegExp(/^custom_ds1881_/),\n  code: \"from DS1881 import DS1881\",\n  initBlockType: initType,\n  categoryId: 'custom_ds1881',\n}\nBlockly.utils.registerLanguages(CUSTOM_DS1881_LANGUAGES)\n\nBlockly.Msg.CUSTOM_DS1881_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_DS1881 = 'DS1881'\n\nBlockly.utils.getcustom_ds1881Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ds1881_0', 'ds1881_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ds1881_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ds1881Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ds1881_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = DS1881(${bus})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_set_attenuation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_ATTENUATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'db'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_attenuation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var db = Blockly.Python.valueToCode(block, 'db', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_attenuation(${channel}, ${db})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_get_attenuation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_GET_ATTENUATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_get_attenuation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_attenuation(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds1881_mute\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_MUTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_mute\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.mute(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_set_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_position(${channel}, ${position})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_get_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_GET_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_get_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_position(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds1881_set_both\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_BOTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'position1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_both\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position0 = Blockly.Python.valueToCode(block, 'position0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var position1 = Blockly.Python.valueToCode(block, 'position1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_both(${position0}, ${position1})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_set_attenuation_both\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_ATTENUATION_BOTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'db0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'db1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_attenuation_both\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var db0 = Blockly.Python.valueToCode(block, 'db0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var db1 = Blockly.Python.valueToCode(block, 'db1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_attenuation_both(${db0}, ${db1})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_set_option\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_OPTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'option'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_option\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var option = Blockly.Python.valueToCode(block, 'option', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_option(${option})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_set_zero_crossing\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_ZERO_CROSSING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_zero_crossing\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_zero_crossing(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_set_nonvolatile\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_SET_NONVOLATILE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_set_nonvolatile\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_nonvolatile(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_store\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_STORE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_store\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.store()\\n`\n}\n\nBlockly.Blocks[\"custom_ds1881_position_to_db\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_POSITION_TO_DB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_position_to_db\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.position_to_db(${position})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds1881_db_to_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_DB_TO_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'db'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_db_to_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var db = Blockly.Python.valueToCode(block, 'db', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.db_to_position(${db})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds1881_max_position\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_MAX_POSITION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_max_position\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.max_position()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds1881_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS1881_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds1881Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds1881_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"DS1881\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ds1881\">\n<title text=\"DS1881\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ds1881_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_attenuation\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"db\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_get_attenuation\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_mute\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_position\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_get_position\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_both\">\n  <value name=\"position0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"position1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_attenuation_both\">\n  <value name=\"db0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10.0</field>\n    </shadow>\n  </value>\n  <value name=\"db1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_option\">\n  <value name=\"option\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_zero_crossing\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_set_nonvolatile\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_store\"/><block type=\"custom_ds1881_position_to_db\">\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_db_to_position\">\n  <value name=\"db\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds1881_max_position\"/><block type=\"custom_ds1881_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_ds1881",
+    "block_type": [
+      "custom_ds1881___init__",
+      "custom_ds1881_set_attenuation",
+      "custom_ds1881_get_attenuation",
+      "custom_ds1881_mute",
+      "custom_ds1881_set_position",
+      "custom_ds1881_get_position",
+      "custom_ds1881_set_both",
+      "custom_ds1881_set_attenuation_both",
+      "custom_ds1881_set_option",
+      "custom_ds1881_set_zero_crossing",
+      "custom_ds1881_set_nonvolatile",
+      "custom_ds1881_store",
+      "custom_ds1881_position_to_db",
+      "custom_ds1881_db_to_position",
+      "custom_ds1881_max_position",
+      "custom_ds1881_reset"
+    ]
+  },
+  "data": {
+    "name": "DS1881",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "DS1881",
+      "time": "2026-11-12",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ds1881 import DS1881Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(0x28, bus=bus)\n        self._driver = DS1881Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_attenuation",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "db",
+            "type": "float",
+            "default": "10.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_attenuation(channel, db)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_attenuation",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_attenuation(channel)",
+        "ast_return": {
+          "code": "self._driver.get_attenuation(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mute",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.mute(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_position",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "position",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_position(channel, position)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_position",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_position(channel)",
+        "ast_return": {
+          "code": "self._driver.get_position(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_both",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "position0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          },
+          {
+            "name": "position1",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_both(position0, position1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_attenuation_both",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "db0",
+            "type": "float",
+            "default": "10.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "db1",
+            "type": "float",
+            "default": "10.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_attenuation_both(db0, db1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_option",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "option",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_option(option)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_zero_crossing",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_zero_crossing(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_nonvolatile",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_nonvolatile(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "store",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.store()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "position_to_db",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "position",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.position_to_db(position)",
+        "ast_return": {
+          "code": "self._driver.position_to_db(position)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "db_to_position",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [
+          {
+            "name": "db",
+            "type": "float",
+            "default": "10.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.db_to_position(db)",
+        "ast_return": {
+          "code": "self._driver.db_to_position(db)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "max_position",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.max_position()",
+        "ast_return": {
+          "code": "self._driver.max_position()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "{lab}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ds1881"
+  },
+  "pyCode": "\"\"\"\nfile     DS1881\ntime     2026-11-12\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ds1881 import DS1881Full\n\n\nclass DS1881:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        connection = I2CConnection(0x28, bus=bus)\n        self._driver = DS1881Full(connection)\n        self._driver.init()\n\n    def set_attenuation(self, channel: int, db: float):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            db:\n                name: db\n                type: float\n                default: '10.0'\n                field: number\n        \"\"\"\n        self._driver.set_attenuation(channel, db)\n\n    def get_attenuation(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.get_attenuation(channel)\n\n    def mute(self, channel: int):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.mute(channel)\n\n    def set_position(self, channel: int, position: int):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            position:\n                name: position\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '63'\n        \"\"\"\n        self._driver.set_position(channel, position)\n\n    def get_position(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.get_position(channel)\n\n    def set_both(self, position0: int, position1: int):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            position0:\n                name: position0\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '63'\n            position1:\n                name: position1\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '63'\n        \"\"\"\n        self._driver.set_both(position0, position1)\n\n    def set_attenuation_both(self, db0: float, db1: float):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            db0:\n                name: db0\n                type: float\n                default: '10.0'\n                field: number\n            db1:\n                name: db1\n                type: float\n                default: '10.0'\n                field: number\n        \"\"\"\n        self._driver.set_attenuation_both(db0, db1)\n\n    def set_option(self, option: int):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            option:\n                name: option\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.set_option(option)\n\n    def set_zero_crossing(self, enabled: int):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_zero_crossing(bool(enabled))\n\n    def set_nonvolatile(self, enabled: int):\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_nonvolatile(bool(enabled))\n\n    def store(self):\n        \"\"\"\n        label:\n            en: '{lab}'\n        \"\"\"\n        self._driver.store()\n\n    def position_to_db(self, position: int) -> float:\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            position:\n                name: position\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '63'\n        \"\"\"\n        return self._driver.position_to_db(position)\n\n    def db_to_position(self, db: float) -> int:\n        \"\"\"\n        label:\n            en: '{lab}'\n        params:\n            db:\n                name: db\n                type: float\n                default: '10.0'\n                field: number\n        \"\"\"\n        return self._driver.db_to_position(db)\n\n    def max_position(self) -> int:\n        \"\"\"\n        label:\n            en: '{lab}'\n        \"\"\"\n        return self._driver.max_position()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '{lab}'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

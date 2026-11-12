@@ -1,0 +1,87 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ds1881', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '1', required: true, validate: RED.validators.number() },
+            address:      { value: '0x28' },
+            option:       { value: '1' },
+            zerocrossing: { value: true },
+            nonvolatile:  { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-volume-up',
+        label:   function() { return this.name || 'DS1881'; },
+        paletteLabel: 'DS1881'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ds1881">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DS1881">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x28">0x28 (A2 A1 A0 = 000)</option>
+            <option value="0x29">0x29 (A2 A1 A0 = 001)</option>
+            <option value="0x2A">0x2A (A2 A1 A0 = 010)</option>
+            <option value="0x2B">0x2B (A2 A1 A0 = 011)</option>
+            <option value="0x2C">0x2C (A2 A1 A0 = 100)</option>
+            <option value="0x2D">0x2D (A2 A1 A0 = 101)</option>
+            <option value="0x2E">0x2E (A2 A1 A0 = 110)</option>
+            <option value="0x2F">0x2F (A2 A1 A0 = 111)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-option"><i class="fa fa-sliders"></i> Option</label>
+        <select id="node-input-option" style="width:260px">
+            <option value="1">1 — 1 dB steps, 0 to −62 dB + mute</option>
+            <option value="2">2 — 1/2/3 dB steps (DS1808 compatible)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-zerocrossing"><i class="fa fa-bolt"></i> Zero-crossing</label>
+        <input type="checkbox" id="node-input-zerocrossing" style="width:auto"> &nbsp;clickless wiper changes (up to 50 ms)
+    </div>
+    <div class="form-row">
+        <label for="node-input-nonvolatile"><i class="fa fa-database"></i> Nonvolatile</label>
+        <input type="checkbox" id="node-input-nonvolatile" style="width:auto"> &nbsp;store every wiper write in EEPROM (50 000 writes)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ds1881">
+    <p>Controls the two audio log-taper channels of a DS1881 dual digital potentiometer. Attenuation is in dB (0 dB = wiper at H); position 63 (Option 1) or 33 (Option 2) is mute. By default the wipers are volatile and power up at mute.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel, payload.db <span class="property-type">number</span></dt>
+        <dd>Set one channel (0 or 1) to the nearest attenuation step.</dd>
+        <dt>payload.db <span class="property-type">number</span></dt>
+        <dd>Without <code>channel</code>: set both channels (stereo volume) in one transaction.</dd>
+        <dt>payload.mute <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> mutes, <code>false</code> restores the last volume set through this node. Optional <code>payload.channel</code> limits it to one channel. Produces no output message.</dd>
+        <dt>payload.store <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> persists the current positions to EEPROM (rated for only 50 000 writes). Produces no output message.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads back both channels.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel, payload.position, payload.db <span class="property-type">number</span></dt>
+        <dd>After a single-channel set: the position read back and its attenuation in dB.</dd>
+        <dt>payload.position0, position1, db0, db1 <span class="property-type">number</span></dt>
+        <dd>After a stereo set or any other message: both positions and their attenuation in dB (80 = mute). Read-back messages also carry <code>payload.config</code> (<code>option</code>, <code>zeroCrossing</code>, <code>nonvolatile</code>, <code>raw</code>).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number and the address (0x28–0x2F from A2, A1, A0). The CE pin must be low for the chip to listen on the bus. Option 1 has 63 one-dB steps plus mute; Option 2 has 1, 2 and 3 dB steps. Zero-crossing detection makes changes clickless; nonvolatile storage writes every change to EEPROM and should stay off for continuous volume control.</p>
+</script>
