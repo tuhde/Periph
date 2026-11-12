@@ -1,0 +1,218 @@
+[
+  {
+    "id": "ssd1305_tab",
+    "type": "tab",
+    "label": "info",
+    "disabled": false,
+    "info": "Bounces a 6 x 6 ball inside a frame on a 1.3\" 128 x 64 SSD1305 OLED on I2C bus 1 (address 0x3C, column offset 4). A second inject toggles the inverse display and a third fades the contrast down and back up, and two more start and stop the hardware scroll. Auto-show sends the framebuffer after every drawing message."
+  },
+  {
+    "id": "ssd1305_frame_inject",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "draw frame",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": true,
+    "onceDelay": "2",
+    "payload": "{\"clear\":true,\"rect\":{\"x\":0,\"y\":0,\"w\":128,\"h\":64}}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 80,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_tick",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "every 100 ms",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "0.1",
+    "once": true,
+    "onceDelay": "4",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 160,
+    "wires": [
+      [
+        "ssd1305_ball"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_ball",
+    "type": "function",
+    "z": "ssd1305_tab",
+    "name": "ball",
+    "func": "let s = context.get('s') || { x: 20, y: 12, dx: 3, dy: 2 };\nconst erase = { rect: { x: s.x, y: s.y, w: 6, h: 6, on: false, fill: true } };\ns.x += s.dx; s.y += s.dy;\nif (s.x < 2 || s.x > 120) { s.dx = -s.dx; s.x += 2 * s.dx; }\nif (s.y < 2 || s.y > 56) { s.dy = -s.dy; s.y += 2 * s.dy; }\ncontext.set('s', s);\nreturn [[{ payload: erase }, { payload: { rect: { x: s.x, y: s.y, w: 6, h: 6, on: true, fill: true } } }]];",
+    "outputs": 1,
+    "x": 320,
+    "y": 160,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_invert",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "toggle invert",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "once": false,
+    "onceDelay": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 240,
+    "wires": [
+      [
+        "ssd1305_invert_fn"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_invert_fn",
+    "type": "function",
+    "z": "ssd1305_tab",
+    "name": "flip invert state",
+    "func": "const on = !(context.get('inv') || false);\ncontext.set('inv', on);\nreturn { payload: { invert: on } };",
+    "outputs": 1,
+    "x": 330,
+    "y": 240,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_contrast",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "contrast 0x20",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"contrast\":32}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 320,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_contrast_reset",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "contrast 0x80",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"contrast\":128}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 380,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_scroll_on",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "scroll right",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"scroll\":{\"direction\":\"right\",\"startPage\":0,\"endPage\":7,\"interval\":0,\"columns\":1}}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 440,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_scroll_off",
+    "type": "inject",
+    "z": "ssd1305_tab",
+    "name": "scroll stop",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "onceDelay": "",
+    "payload": "{\"scroll\":false}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 500,
+    "wires": [
+      [
+        "ssd1305_node"
+      ]
+    ]
+  },
+  {
+    "id": "ssd1305_node",
+    "type": "periph-ssd1305",
+    "z": "ssd1305_tab",
+    "name": "1.3\" OLED",
+    "transport": "i2c",
+    "i2cBus": "1",
+    "address": "0x3C",
+    "width": "128",
+    "height": "64",
+    "columnOffset": "4",
+    "autoShow": true,
+    "x": 640,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  }
+]

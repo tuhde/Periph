@@ -21,3 +21,5 @@ pub mod sh1106;
 pub use sh1106::{Sh1106Minimal, Sh1106Full};
 pub mod ssd1306;
 pub use ssd1306::{Ssd1306Minimal, Ssd1306Full};
+pub mod ssd1305;
+pub use ssd1305::{Ssd1305Minimal, Ssd1305Full};
