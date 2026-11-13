@@ -76,6 +76,7 @@ var registry = []Chip{
 	{ID: "ssd1305", Driver: "ssd1305", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
 	{ID: "ssd1306", Driver: "ssd1306", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
 	{ID: "uc1611s", Driver: "uc1611s", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F}, Probe: nil},
+	{ID: "am2315", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x5C}, Probe: nil},
 	{ID: "am2320", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x5C}, Probe: nil},
 	{ID: "aht10", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},
 	{ID: "aht20", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},

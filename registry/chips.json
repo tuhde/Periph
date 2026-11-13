@@ -713,6 +713,18 @@
       "datasheet": "datasheets/display/uc1611s.pdf"
     },
     {
+      "id": "am2315",
+      "name": "AM2315",
+      "category": "environmental",
+      "addresses": [
+        "0x5C"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/environmental/am2315.pdf"
+    },
+    {
       "id": "am2320",
       "name": "AM2320",
       "category": "environmental",
