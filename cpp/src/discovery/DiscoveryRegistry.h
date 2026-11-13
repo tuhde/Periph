@@ -93,6 +93,7 @@ static constexpr uint8_t kAddr_sh1106[] = {0x3C, 0x3D};
 static constexpr uint8_t kAddr_ssd1305[] = {0x3C, 0x3D};
 static constexpr uint8_t kAddr_ssd1306[] = {0x3C, 0x3D};
 static constexpr uint8_t kAddr_uc1611s[] = {0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F};
+static constexpr uint8_t kAddr_am2320[] = {0x5C};
 static constexpr uint8_t kAddr_aht10[] = {0x38};
 static constexpr uint8_t kAddr_aht20[] = {0x38};
 static constexpr uint8_t kAddr_aht21[] = {0x38};
@@ -263,6 +264,7 @@ static constexpr ChipEntry kChips[] = {
     {"ssd1305", "ssd1305", true, false, kAddr_ssd1305, 2, nullptr},
     {"ssd1306", "ssd1306", true, false, kAddr_ssd1306, 2, nullptr},
     {"uc1611s", "uc1611s", true, false, kAddr_uc1611s, 8, nullptr},
+    {"am2320", nullptr, true, false, kAddr_am2320, 1, nullptr},
     {"aht10", nullptr, true, false, kAddr_aht10, 1, nullptr},
     {"aht20", nullptr, true, false, kAddr_aht20, 1, nullptr},
     {"aht21", "aht21", true, false, kAddr_aht21, 1, nullptr},
@@ -322,7 +324,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 108;
+static constexpr size_t kChipCount = 109;
 
 }  // namespace discovery
 }  // namespace periph
