@@ -121,6 +121,7 @@ const CHIPS = [
     {"id":"vl53l1x","driver":"vl53l1x","writeSensitive":false,"aliased":false,"addresses":[41],"probe":{"register":271,"regBytes":2,"length":2,"order":"big","mask":65535,"expected":[60108]}},
     {"id":"veml7700","driver":null,"writeSensitive":false,"aliased":false,"addresses":[16],"probe":{"register":7,"regBytes":1,"length":2,"order":"little","mask":65535,"expected":[50305]}},
     {"id":"mpl3115a2","driver":null,"writeSensitive":false,"aliased":false,"addresses":[96],"probe":{"register":12,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[196]}},
+    {"id":"shtc3","driver":null,"writeSensitive":true,"aliased":false,"addresses":[112],"probe":{"register":61384,"regBytes":2,"length":2,"order":"big","mask":2111,"expected":[2055]}},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };
