@@ -1249,6 +1249,21 @@
       "datasheet": "datasheets/memory/24aa02uid.pdf"
     },
     {
+      "id": "47xxx",
+      "name": "47XXX",
+      "category": "memory",
+      "addresses": [
+        "0x50",
+        "0x52",
+        "0x54",
+        "0x56"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/memory/47xxx.pdf"
+    },
+    {
       "id": "mb85rc",
       "name": "MB85RC256V",
       "category": "memory",

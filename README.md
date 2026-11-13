@@ -101,6 +101,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 ## Supported chips
 
+| 47XXX | EERAM 47L04/47C04/47L16/47C16 (4/16 Kbit SRAM with EEPROM backup) |  |  |  |  |  |  |  |  |
 | AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) |  |  |  |  |  |  |  |  |
 | BME688 | Gas, pressure, temperature and humidity sensor (forced + parallel mode) |  |  |  |  |  |  |  |  |
 | BQ32000 | Real-time clock (calendar, backup supply, trickle charger, calibration) |  |  |  |  |  |  |  |  |
