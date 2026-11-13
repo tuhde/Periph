@@ -605,6 +605,18 @@
       "datasheet": "datasheets/display/pcf2116.pdf"
     },
     {
+      "id": "pcf8566",
+      "name": "PCF8566",
+      "category": "display",
+      "addresses": [
+        "0x3E..0x3F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/display/pcf8566.pdf"
+    },
+    {
       "id": "pcf8576",
       "name": "PCF8576",
       "category": "display",
