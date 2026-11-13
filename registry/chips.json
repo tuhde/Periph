@@ -1759,6 +1759,27 @@
       "datasheet": "datasheets/temperature/mcp9808.pdf"
     },
     {
+      "id": "tmp007",
+      "name": "TMP007",
+      "category": "temperature",
+      "addresses": [
+        "0x40..0x47"
+      ],
+      "id_probe": {
+        "register": "0x1F",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFFF",
+        "expected": [
+          "0x0078"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/temperature/tmp007.pdf"
+    },
+    {
       "id": "tmp117",
       "name": "TMP117",
       "category": "temperature",
