@@ -677,6 +677,18 @@
       "datasheet": "datasheets/display/uc1611s.pdf"
     },
     {
+      "id": "aht10",
+      "name": "AHT10",
+      "category": "environmental",
+      "addresses": [
+        "0x38"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/environmental/aht10.pdf"
+    },
+    {
       "id": "aht21",
       "name": "AHT21",
       "category": "environmental",
