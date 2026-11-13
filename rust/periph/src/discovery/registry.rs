@@ -140,4 +140,5 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "veml7700", driver: None, write_sensitive: false, aliased: false, addresses: &[0x10], probe: Some(IdProbe { register: 0x07, reg_bytes: 1, length: 2, little_endian: true, mask: 0xFFFF, expected: &[0xC481] }) },
     ChipEntry { id: "mpl3115a2", driver: None, write_sensitive: false, aliased: false, addresses: &[0x60], probe: Some(IdProbe { register: 0x0C, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xC4] }) },
     ChipEntry { id: "shtc3", driver: None, write_sensitive: true, aliased: false, addresses: &[0x70], probe: Some(IdProbe { register: 0xEFC8, reg_bytes: 2, length: 2, little_endian: false, mask: 0x083F, expected: &[0x0807] }) },
+    ChipEntry { id: "tsl2561", driver: None, write_sensitive: false, aliased: false, addresses: &[0x29, 0x39, 0x49], probe: Some(IdProbe { register: 0x8A, reg_bytes: 1, length: 1, little_endian: false, mask: 0xF0, expected: &[0x10] }) },
 ];
