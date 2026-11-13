@@ -93,18 +93,20 @@ check_true('scan_empty_bus', scan(FakeBus()) == [])
 
 # --- discover: identity probes ---
 bme = device(**{'x0xD0': 0x60})
-devs = by_id(discover(FakeBus({0x76: bme})))
+# HT16K33 (0x70-0x77) is write-sensitive, so identification at 0x76 needs active=True.
+devs = by_id(discover(FakeBus({0x76: bme}), active=True))
 check_true('bme280_identified', devs[0x76].identified == 'bme280' and devs[0x76].candidates == ['bme280'])
 check_true('bme280_driver', devs[0x76].driver == 'bme280')
 
 for chip_id, reg, value, addr in [('bmp280', 0xD0, 0x58, 0x76), ('bme680', 0xD0, 0x61, 0x77),
                                    ('bmp384', 0x00, 0x50, 0x76), ('mpu6050', 0x75, 0x68, 0x68),
                                    ('mpu9250', 0x75, 0x71, 0x68), ('mpu9255', 0x75, 0x73, 0x69),
-                                   ('l3g4200d', 0x0F, 0xD3, 0x68), ('lps33hw', 0x0F, 0xB1, 0x5C),
+                                   ('l3g4200d', 0x0F, 0xD3, 0x68),
                                    ('adxl345', 0x00, 0xE5, 0x53), ('vl53l0x', 0xC0, 0xEE, 0x29),
                                    ('mfrc522', 0x37, 0x92, 0x28)]:
-    # 0x28-0x2F also hosts the write-sensitive DS1881, so those need active=True.
-    d = discover(FakeBus({addr: {reg: value}}), active=addr in (0x28, 0x29))[0]
+    # Many of these addresses also host write-sensitive chips (DS1881 at 0x28-0x2F,
+    # HT16K33 at 0x70-0x77, MCP3422 at 0x68, ...), so identification needs active=True.
+    d = discover(FakeBus({addr: {reg: value}}), active=True)[0]
     check_true('identify_' + chip_id, d.identified == chip_id)
 
 # multi-byte identity registers
@@ -139,25 +141,30 @@ d = discover(FakeBus({0x1E: {0x0A: 0x48, 0x0B: 0x34, 0x0C: 0x33}}))[0]
 check_true('hmc5883l_lsm303_mag_ambiguous', d.identified is None and d.candidates == ['hmc5883l', 'lsm303-mag'])
 
 # --- ambiguity is a final answer ---
-d = discover(FakeBus({0x5C: {0x0F: 0xB4}}))[0]
+d = discover(FakeBus({0x5C: {0x0F: 0xB4}}), active=True)[0]
 check_true('lps22df_lps28dfw_ambiguous', d.identified is None and d.candidates == ['lps22df', 'lps28dfw'])
-d = discover(FakeBus({0x77: {0xD0: 0x55}}))[0]
+# LPS22HB and LPS33HW both answer WHO_AM_I = 0xB1 (registry/known_ambiguities.json).
+d = discover(FakeBus({0x5C: {0x0F: 0xB1}}), active=True)[0]
+check_true('lps22hb_lps33hw_ambiguous', d.identified is None and d.candidates == ['lps22hb', 'lps33hw'])
+d = discover(FakeBus({0x77: {0xD0: 0x55}}), active=True)[0]
 check_true('bmp085_bmp180_ambiguous', d.identified is None and d.candidates == ['bmp085', 'bmp180'])
 
 # --- no ID match falls back to ID-less candidates ---
 d = discover(FakeBus({0x68: {}}))[0]
-check_true('ds3231_pcf8523_remain', d.identified is None and d.candidates == ['drv8830', 'ds3231', 'pcf8523'])
+# 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
+check_true('0x68_candidates_unprobed', d.identified is None and d.probe_skipped_reason == 'write_sensitive_candidate'
+           and d.candidates == ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'l3g4200d', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523'])
 d = discover(FakeBus({0x40: {}}))[0]
-check_true('ina219_by_elimination', d.identified is None and d.candidates == ['ina219'])
+check_true('ina219_by_elimination', d.identified is None and d.candidates == ['hdc1008', 'htu21df', 'ina219'])
 d = discover(FakeBus({0x36: {}}))[0]
 check_true('as5600_sole_candidate_unconfirmed', d.identified is None and d.candidates == ['as5600'])
 d = discover(FakeBus({0x0B: {}}))[0]
-check_true('unknown_device', d.candidates == [] and d.identified is None)
+check_true('unknown_device', d.candidates == ['lc709203f'] and d.identified is None)
 
 # --- write-sensitive gating ---
 bus = FakeBus({0x38: {}})
 d = discover(bus)[0]
-check_true('aht21_cands', d.candidates == ['ade7953', 'aht21', 'bma150', 'pcf8574', 'pcf8576', 'uc1611s'])
+check_true('aht21_cands', d.candidates == ['ade7953', 'aht10', 'aht20', 'aht21', 'bma150', 'pcf8574', 'pcf8576', 'saa1064', 'uc1611s'])
 check_true('no_probe_when_write_sensitive_candidate', d.probe_skipped_reason == 'write_sensitive_candidate' and not bus.writes)
 
 custom = [
@@ -181,7 +188,7 @@ check_true('kernel_bound_reported', d[0x77].in_use_by_kernel and d[0x77].probe_s
 check_true('kernel_bound_not_probed', all(a != 0x77 for a, _ in bus.writes))
 
 # --- failed identity read ---
-d = discover(FakeBus({0x76: bme}, read_error=True))[0]
+d = discover(FakeBus({0x76: bme}, read_error=True), active=True)[0]
 # Chips without an identity register stay candidates: nothing can rule them out.
 no_id = {c['id'] for c in CHIPS if c['probe'] is None}
 check_true('failed_read_is_no_match', d.identified is None and all(c in no_id for c in d.candidates))
@@ -189,7 +196,7 @@ check_true('failed_read_is_no_match', d.identified is None and all(c in no_id fo
 # --- aliased 24AA02UID ---
 bus = FakeBus({a: {} for a in range(0x50, 0x58)})
 devs = discover(bus)
-check_true('alias_block_merged', len(devs) == 1 and devs[0].address == 0x50 and devs[0].candidates == ['24aa025uid', '24aa02uid', 'mb85rc']
+check_true('alias_block_merged', len(devs) == 1 and devs[0].address == 0x50 and devs[0].candidates == ['24aa025uid', '24aa02uid', 'at24c02n', 'at24c64', 'cat24c512', 'lm25066', 'mb85rc']
            and devs[0].aliases == list(range(0x51, 0x58)))
 bus = FakeBus({0x50: {}, 0x51: {}})
 devs = discover(bus)

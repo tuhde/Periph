@@ -86,19 +86,21 @@ int main() {
 
     // --- identity probes ---
     {
-        DiscoveredDevice d = one(0x76, {{0xD0, 0x60}});
+        // HT16K33 (0x70-0x77) is write-sensitive, so identification at 0x76 needs active probing.
+        DiscoveredDevice d = one(0x76, {{0xD0, 0x60}}, true);
         check_true(d.identified == "bme280" && d.candidates == Ids({"bme280"}) && d.driver == "bme280", "bme280_identified");
     }
     struct Row { const char* id; uint32_t reg; uint8_t value; uint8_t addr; };
     const Row rows[] = {
         {"bmp280", 0xD0, 0x58, 0x76}, {"bme680", 0xD0, 0x61, 0x77}, {"bmp384", 0x00, 0x50, 0x76},
         {"mpu6050", 0x75, 0x68, 0x68}, {"mpu9250", 0x75, 0x71, 0x68}, {"mpu9255", 0x75, 0x73, 0x69},
-        {"l3g4200d", 0x0F, 0xD3, 0x68}, {"lps33hw", 0x0F, 0xB1, 0x5C}, {"adxl345", 0x00, 0xE5, 0x53},
+        {"l3g4200d", 0x0F, 0xD3, 0x68}, {"adxl345", 0x00, 0xE5, 0x53},
         {"vl53l0x", 0xC0, 0xEE, 0x29}, {"mfrc522", 0x37, 0x92, 0x28},
     };
     for (const Row& r : rows) {
-        // 0x28-0x2F also hosts the write-sensitive DS1881, so those need active probing.
-        DiscoveredDevice d = one(r.addr, {{r.reg, r.value}}, r.addr == 0x28 || r.addr == 0x29);
+        // Many of these addresses also host write-sensitive chips (DS1881 at 0x28-0x2F,
+        // HT16K33 at 0x70-0x77, MCP3422 at 0x68, ...), so identification needs active probing.
+        DiscoveredDevice d = one(r.addr, {{r.reg, r.value}}, true);
         check_true(d.identified == r.id, (std::string("identify_") + r.id).c_str());
     }
     check_true(one(0x52, {{0x00, 0x60}, {0x01, 0x01}}).identified == "ens160", "identify_ens160_little_endian");
@@ -143,24 +145,30 @@ int main() {
 
     // --- ambiguity is a final answer ---
     {
-        DiscoveredDevice d = one(0x5C, {{0x0F, 0xB4}});
+        DiscoveredDevice d = one(0x5C, {{0x0F, 0xB4}}, true);
         check_true(d.identified.empty() && d.candidates == Ids({"lps22df", "lps28dfw"}), "lps22df_lps28dfw_ambiguous");
-        d = one(0x77, {{0xD0, 0x55}});
+        // LPS22HB and LPS33HW both answer WHO_AM_I = 0xB1 (registry/known_ambiguities.json).
+        d = one(0x5C, {{0x0F, 0xB1}}, true);
+        check_true(d.identified.empty() && d.candidates == Ids({"lps22hb", "lps33hw"}), "lps22hb_lps33hw_ambiguous");
+        d = one(0x77, {{0xD0, 0x55}}, true);
         check_true(d.identified.empty() && d.candidates == Ids({"bmp085", "bmp180"}), "bmp085_bmp180_ambiguous");
     }
 
     // --- no ID match falls back to ID-less candidates ---
     {
         DiscoveredDevice d = one(0x68);
-        check_true(d.identified.empty() && d.candidates == Ids({"drv8830", "ds3231", "pcf8523"}), "ds3231_pcf8523_remain");
-        check_true(one(0x40).candidates == Ids({"ina219"}), "ina219_by_elimination");
+        // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
+        check_true(d.identified.empty() && d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate &&
+                   d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"}),
+                   "0x68_candidates_unprobed");
+        check_true(one(0x40).candidates == Ids({"hdc1008", "htu21df", "ina219"}), "ina219_by_elimination");
         d = one(0x36);
         check_true(d.identified.empty() && d.candidates == Ids({"as5600"}), "as5600_sole_candidate_unconfirmed");
         d = one(0x0B);
-        check_true(d.candidates.empty() && d.identified.empty(), "unknown_device");
+        check_true(d.candidates == Ids({"lc709203f"}) && d.identified.empty(), "unknown_device");
         FakeBus bus; bus.with(0x38);
         d = only(bus);
-        check_true(d.candidates == Ids({"ade7953", "aht21", "bma150", "pcf8574", "pcf8576", "uc1611s"}), "aht21_cands");
+        check_true(d.candidates == Ids({"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "saa1064", "uc1611s"}), "aht21_cands");
         check_true(d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate && bus.registerReads.empty(), "no_probe_when_write_sensitive_candidate");
     }
 
@@ -196,7 +204,7 @@ int main() {
     // --- failed identity read ---
     {
         FakeBus bus; bus.with(0x76, {{0xD0, 0x60}}); bus.readError = true;
-        DiscoveredDevice d = only(bus);
+        DiscoveredDevice d = only(bus, true);
         // Chips without an identity register stay candidates: nothing can rule them out.
         std::set<std::string> noId;
         for (size_t i = 0; i < kChipCount; i++) if (kChips[i].probe == nullptr) noId.insert(kChips[i].id);
@@ -210,7 +218,7 @@ int main() {
         FakeBus bus;
         for (uint8_t a = 0x50; a <= 0x57; a++) bus.with(a);
         std::vector<DiscoveredDevice> devs = discover(bus);
-        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid", "mb85rc"}) &&
+        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc"}) &&
                    devs[0].aliases == std::vector<uint8_t>({0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}), "alias_block_merged");
         FakeBus partial; partial.with(0x50).with(0x51);
         devs = discover(partial);
