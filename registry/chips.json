@@ -1816,6 +1816,18 @@
       "datasheet": "datasheets/temperature/tmp007.pdf"
     },
     {
+      "id": "tmp102",
+      "name": "TMP102",
+      "category": "temperature",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/temperature/tmp102.pdf"
+    },
+    {
       "id": "tmp117",
       "name": "TMP117",
       "category": "temperature",

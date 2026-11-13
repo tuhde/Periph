@@ -248,6 +248,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | TMC2209 | Stepper motor driver (Step/Dir, UART, StallGuard4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMC5160 | Stepper motor controller/driver (ramp generator, SPI/UART, StallGuard2) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP007 | IR thermopile non-contact temperature sensor with math engine (object + die) |  |  |  |  |  |  |  |  |
+| TMP102 | Digital temperature sensor (12-bit, ±0.5 °C, ALERT, 1.4–3.6 V) |  |  |  |  |  |  |  |  |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TSL2561 | Ambient light sensor (two photodiodes, lux, interrupt) |  |  |  |  |  |  |  |  |

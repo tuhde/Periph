@@ -226,6 +226,7 @@ static constexpr IdProbe kProbe_mcp9808 = {0x07, 1, 2, false, 0xFF00, kExp_mcp98
 static constexpr uint8_t kAddr_tmp007[] = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47};
 static constexpr uint32_t kExp_tmp007[] = {0x0078};
 static constexpr IdProbe kProbe_tmp007 = {0x1F, 1, 2, false, 0xFFFF, kExp_tmp007, 1};
+static constexpr uint8_t kAddr_tmp102[] = {0x48, 0x49, 0x4A, 0x4B};
 static constexpr uint8_t kAddr_tmp117[] = {0x48, 0x49, 0x4A, 0x4B};
 static constexpr uint32_t kExp_tmp117[] = {0x0117};
 static constexpr IdProbe kProbe_tmp117 = {0x0F, 1, 2, false, 0x0FFF, kExp_tmp117, 1};
@@ -389,6 +390,7 @@ static constexpr ChipEntry kChips[] = {
     {"lm75b", nullptr, false, false, kAddr_lm75b, 8, nullptr},
     {"mcp9808", "mcp9808", false, false, kAddr_mcp9808, 8, &kProbe_mcp9808},
     {"tmp007", nullptr, false, false, kAddr_tmp007, 8, &kProbe_tmp007},
+    {"tmp102", nullptr, false, false, kAddr_tmp102, 4, nullptr},
     {"tmp117", "tmp117", false, false, kAddr_tmp117, 4, &kProbe_tmp117},
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
@@ -410,7 +412,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 141;
+static constexpr size_t kChipCount = 142;
 
 }  // namespace discovery
 }  // namespace periph
