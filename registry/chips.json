@@ -1258,6 +1258,27 @@
       "datasheet": "datasheets/power/ina226.pdf"
     },
     {
+      "id": "ina260",
+      "name": "INA260",
+      "category": "power",
+      "addresses": [
+        "0x40..0x4F"
+      ],
+      "id_probe": {
+        "register": "0xFF",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFF0",
+        "expected": [
+          "0x2270"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/power/ina260.pdf"
+    },
+    {
       "id": "ina3221",
       "name": "INA3221",
       "category": "power",
