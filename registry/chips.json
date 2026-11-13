@@ -968,7 +968,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "pca9539",
       "datasheet": "datasheets/io_expander/pca9539.pdf"
     },
     {
