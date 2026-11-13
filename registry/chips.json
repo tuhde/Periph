@@ -1846,6 +1846,18 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/environmental/bme688.pdf"
+    },
+    {
+      "id": "hdc1008",
+      "name": "HDC1008",
+      "category": "humidity",
+      "addresses": [
+        "0x40..0x43"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/humidity/hdc1008.pdf"
     }
   ]
 }

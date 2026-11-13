@@ -363,4 +363,7 @@ CHIPS = (
     {"id": "bme688", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x76, 0x77,),
      "probe": {"register": 0xF0, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x01,)}},
+    {"id": "hdc1008", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x40, 0x41, 0x42, 0x43,),
+     "probe": None},
 )
