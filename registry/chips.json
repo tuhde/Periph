@@ -1891,6 +1891,18 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/led/ht16k33.pdf"
+    },
+    {
+      "id": "hs30xx",
+      "name": "HS30xx",
+      "category": "humidity",
+      "addresses": [
+        "0x44"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/humidity/hs30xx.pdf"
     }
   ]
 }
