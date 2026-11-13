@@ -1,0 +1,101 @@
+[
+    {
+        "id": "tab-pca9541-demo",
+        "type": "tab",
+        "label": "PCA9541 Failover Demo",
+        "disabled": false,
+        "info": "Bus ownership on one of two redundant masters. An inject node sends {command: 'acquire'} to take the downstream bus, a second inject reads the status every 5 s into a debug node, and a third sends {command: 'release'}. With this master's INT line wired, a message with bus_lost = true is emitted when the other master takes the bus."
+    },
+    {
+        "id": "inj-acquire",
+        "type": "inject",
+        "name": "Acquire",
+        "topic": "",
+        "payload": "{\"command\":\"acquire\"}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-pca9541-demo",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "pca9541-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-status",
+        "type": "inject",
+        "name": "Status every 5 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2,
+        "z": "tab-pca9541-demo",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "pca9541-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-release",
+        "type": "inject",
+        "name": "Release",
+        "topic": "",
+        "payload": "{\"command\":\"release\"}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-pca9541-demo",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "pca9541-node"
+            ]
+        ]
+    },
+    {
+        "id": "pca9541-node",
+        "type": "periph-pca9541",
+        "name": "PCA9541",
+        "bus": "1",
+        "address": "0x70",
+        "gpioChip": "0",
+        "intPin": "",
+        "z": "tab-pca9541-demo",
+        "x": 400,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-pca9541"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-pca9541",
+        "type": "debug",
+        "name": "control / connected",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-pca9541-demo",
+        "x": 640,
+        "y": 140,
+        "wires": []
+    }
+]

@@ -18,6 +18,7 @@ npm install node-red-contrib-periph-other
 |------|------|-------------|
 | `mpr121-device` | config | I²C bus and address for a MPR121 |
 | `mpr121` | input | Reads the 12-electrode touch bitmask from an MPR121 capacitive touch sensor over I²C. |
+| `periph-pca9541` | input | Controls the 2-to-1 I²C-bus master selector PCA9541 from one of two redundant masters: take, give up and check ownership of the shared downstream bus. There is no arbitration: whichever master writes last before a STOP wins. |
 
 ## Links
 

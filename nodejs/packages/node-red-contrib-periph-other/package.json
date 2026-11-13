@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "mpr121": "nodes/mpr121/mpr121.js"
+      "mpr121": "nodes/mpr121/mpr121.js",
+      "periph-pca9541": "nodes/pca9541/pca9541.js"
     }
   },
   "dependencies": {
