@@ -203,6 +203,7 @@ static constexpr IdProbe kProbe_mfrc522 = {0x37, 1, 1, false, 0xFF, kExp_mfrc522
 static constexpr uint8_t kAddr_ds3231[] = {0x68};
 static constexpr uint8_t kAddr_pcf8523[] = {0x68};
 static constexpr uint8_t kAddr_pcf85063a[] = {0x51};
+static constexpr uint8_t kAddr_lm75b[] = {0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F};
 static constexpr uint8_t kAddr_mcp9808[] = {0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
 static constexpr uint32_t kExp_mcp9808[] = {0x0400};
 static constexpr IdProbe kProbe_mcp9808 = {0x07, 1, 2, false, 0xFF00, kExp_mcp9808, 1};
@@ -323,12 +324,13 @@ static constexpr ChipEntry kChips[] = {
     {"ds3231", "ds3231", false, false, kAddr_ds3231, 1, nullptr},
     {"pcf8523", "pcf8523", false, false, kAddr_pcf8523, 1, nullptr},
     {"pcf85063a", "pcf85063a", false, false, kAddr_pcf85063a, 1, nullptr},
+    {"lm75b", nullptr, false, false, kAddr_lm75b, 8, nullptr},
     {"mcp9808", "mcp9808", false, false, kAddr_mcp9808, 8, &kProbe_mcp9808},
     {"tmp117", "tmp117", false, false, kAddr_tmp117, 4, &kProbe_tmp117},
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 110;
+static constexpr size_t kChipCount = 111;
 
 }  // namespace discovery
 }  // namespace periph
