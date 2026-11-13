@@ -139,17 +139,19 @@ func TestIdentifiesChips(t *testing.T) {
 	}{
 		{"bme280", 0xD0, 0x60, 0x76}, {"bmp280", 0xD0, 0x58, 0x76}, {"bme680", 0xD0, 0x61, 0x77},
 		{"bmp384", 0x00, 0x50, 0x76}, {"mpu6050", 0x75, 0x68, 0x68}, {"mpu9250", 0x75, 0x71, 0x68},
-		{"mpu9255", 0x75, 0x73, 0x69}, {"l3g4200d", 0x0F, 0xD3, 0x68}, {"lps33hw", 0x0F, 0xB1, 0x5C},
+		{"mpu9255", 0x75, 0x73, 0x69}, {"l3g4200d", 0x0F, 0xD3, 0x68},
 		{"adxl345", 0x00, 0xE5, 0x53}, {"vl53l0x", 0xC0, 0xEE, 0x29}, {"mfrc522", 0x37, 0x92, 0x28},
 	}
 	for _, tc := range table {
-		// 0x28-0x2F also hosts the write-sensitive DS1881, so those need active probing.
-		active := tc.addr == 0x28 || tc.addr == 0x29
+		// Many of these addresses also host write-sensitive chips (DS1881 at 0x28-0x2F,
+		// HT16K33 at 0x70-0x77, MCP3422 at 0x68, AM2315 at 0x5C, ...), which block
+		// passive probing, so identification needs active probing.
+		active := true
 		if d := one(t, single(tc.addr, map[uint32]byte{tc.reg: tc.value}), active); d.Identified != tc.id {
 			t.Errorf("%s: identified %q (candidates %v)", tc.id, d.Identified, d.Candidates)
 		}
 	}
-	if d := one(t, single(0x76, map[uint32]byte{0xD0: 0x60}), false); d.Driver != "bme280" {
+	if d := one(t, single(0x76, map[uint32]byte{0xD0: 0x60}), true); d.Driver != "bme280" {
 		t.Errorf("driver = %q", d.Driver)
 	}
 }
@@ -206,11 +208,16 @@ func TestWriteSensitiveCandidatesBlockProbingUnlessActive(t *testing.T) {
 }
 
 func TestAmbiguityIsAFinalAnswer(t *testing.T) {
-	d := one(t, single(0x5C, map[uint32]byte{0x0F: 0xB4}), false)
+	d := one(t, single(0x5C, map[uint32]byte{0x0F: 0xB4}), true)
 	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"lps22df", "lps28dfw"}) {
 		t.Errorf("lps: %+v", d)
 	}
-	d = one(t, single(0x77, map[uint32]byte{0xD0: 0x55}), false)
+	// LPS22HB and LPS33HW both answer WHO_AM_I = 0xB1 (registry/known_ambiguities.json).
+	d = one(t, single(0x5C, map[uint32]byte{0x0F: 0xB1}), true)
+	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"lps22hb", "lps33hw"}) {
+		t.Errorf("lps22hb/lps33hw: %+v", d)
+	}
+	d = one(t, single(0x77, map[uint32]byte{0xD0: 0x55}), true)
 	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"bmp085", "bmp180"}) {
 		t.Errorf("bmp: %+v", d)
 	}
@@ -223,11 +230,12 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		noProbes bool // nothing at this address has an identity register
 		skip     ProbeSkipReason
 	}{
-		{0x68, []string{"drv8830", "ds3231", "pcf8523"}, false, SkipNone},
-		{0x40, []string{"ina219"}, false, SkipNone},
+		// 0x68 hosts the write-sensitive MCP3422, so passive scans skip probing there.
+		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"}, false, SkipWriteSensitive},
+		{0x40, []string{"hdc1008", "htu21df", "ina219"}, false, SkipNone},
 		{0x36, []string{"as5600"}, true, SkipNone},
-		{0x0B, nil, true, SkipNone},
-		{0x38, []string{"ade7953", "aht21", "bma150", "pcf8574", "pcf8576", "uc1611s"}, true, SkipWriteSensitive},
+		{0x0B, []string{"lc709203f"}, false, SkipNone},
+		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "saa1064", "uc1611s"}, true, SkipWriteSensitive},
 	}
 	for _, tc := range cases {
 		b := newBus(single(tc.addr, map[uint32]byte{}))
@@ -279,7 +287,7 @@ func TestKernelBoundAddressIsReportedNotProbed(t *testing.T) {
 func TestFailedIdentityReadIsNoMatch(t *testing.T) {
 	b := newBus(single(0x76, map[uint32]byte{0xD0: 0x60}))
 	b.readError = true
-	got, _ := DiscoverBus(b, registry, false)
+	got, _ := DiscoverBus(b, registry, true) // HT16K33 at 0x70-0x77 is write-sensitive: probe actively
 	// Chips without an identity register stay candidates: nothing can rule them out.
 	noID := map[string]bool{}
 	for _, c := range registry {
@@ -328,7 +336,7 @@ func TestAliasedBlockMergedOnlyWhenComplete(t *testing.T) {
 		all[a] = map[uint32]byte{}
 	}
 	got, _ := DiscoverBus(newBus(all), registry, false)
-	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "mb85rc"}) ||
+	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc"}) ||
 		!reflect.DeepEqual(got[0].Aliases, []uint8{0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}) {
 		t.Errorf("merged: %+v", got)
 	}
