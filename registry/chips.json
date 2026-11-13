@@ -1309,6 +1309,18 @@
       "datasheet": "datasheets/memory/at24c64.pdf"
     },
     {
+      "id": "cat24c512",
+      "name": "CAT24C512",
+      "category": "memory",
+      "addresses": [
+        "0x50..0x57"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/memory/cat24c512.pdf"
+    },
+    {
       "id": "mb85rc",
       "name": "MB85RC256V",
       "category": "memory",

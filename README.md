@@ -108,6 +108,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | BME688 | Gas, pressure, temperature and humidity sensor (forced + parallel mode) |  |  |  |  |  |  |  |  |
 | BQ32000 | Real-time clock (calendar, backup supply, trickle charger, calibration) |  |  |  |  |  |  |  |  |
 | BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
+| CAT24C512 | I²C EEPROM 512 Kbit (64 KiB, 128-byte page, 1 MHz) |  |  |  |  |  |  |  |  |
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Go | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|----|-----|--------|
 | 23X1024 | Serial SRAM (1 Mbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
