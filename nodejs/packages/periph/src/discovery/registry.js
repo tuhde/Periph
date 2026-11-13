@@ -130,6 +130,7 @@ const CHIPS = [
     {"id":"ht16k33","driver":null,"writeSensitive":true,"aliased":false,"addresses":[112,113,114,115,116,117,118,119],"probe":null},
     {"id":"hs30xx","driver":null,"writeSensitive":true,"aliased":false,"addresses":[68],"probe":null},
     {"id":"hs40xx","driver":null,"writeSensitive":true,"aliased":false,"addresses":[84],"probe":null},
+    {"id":"lps22hb","driver":null,"writeSensitive":false,"aliased":false,"addresses":[92,93],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[177]}},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };

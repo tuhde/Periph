@@ -1915,6 +1915,27 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/humidity/hs40xx.pdf"
+    },
+    {
+      "id": "lps22hb",
+      "name": "LPS22HB",
+      "category": "pressure",
+      "addresses": [
+        "0x5C..0x5D"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xB1"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/pressure/lps22hb.pdf"
     }
   ]
 }

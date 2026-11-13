@@ -378,4 +378,7 @@ CHIPS = (
     {"id": "hs40xx", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x54,),
      "probe": None},
+    {"id": "lps22hb", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x5C, 0x5D,),
+     "probe": {"register": 0x0F, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xB1,)}},
 )
