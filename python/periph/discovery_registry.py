@@ -348,4 +348,7 @@ CHIPS = (
     {"id": "veml7700", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x10,),
      "probe": {"register": 0x07, "reg_bytes": 1, "length": 2, "byte_order": "little", "mask": 0xFFFF, "expected": (0xC481,)}},
+    {"id": "mpl3115a2", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x60,),
+     "probe": {"register": 0x0C, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xC4,)}},
 )
