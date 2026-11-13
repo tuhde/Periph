@@ -123,6 +123,7 @@ const CHIPS = [
     {"id":"mpl3115a2","driver":null,"writeSensitive":false,"aliased":false,"addresses":[96],"probe":{"register":12,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[196]}},
     {"id":"shtc3","driver":null,"writeSensitive":true,"aliased":false,"addresses":[112],"probe":{"register":61384,"regBytes":2,"length":2,"order":"big","mask":2111,"expected":[2055]}},
     {"id":"tsl2561","driver":null,"writeSensitive":false,"aliased":false,"addresses":[41,57,73],"probe":{"register":138,"regBytes":1,"length":1,"order":"big","mask":240,"expected":[16]}},
+    {"id":"bq32000","driver":null,"writeSensitive":false,"aliased":false,"addresses":[104],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };
