@@ -945,6 +945,27 @@
       "datasheet": "datasheets/imu/mpu6050.pdf"
     },
     {
+      "id": "bno055",
+      "name": "BNO055",
+      "category": "imu",
+      "addresses": [
+        "0x28..0x29"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xA0"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/imu/bno055.pdf"
+    },
+    {
       "id": "icm20948",
       "name": "ICM-20948",
       "category": "imu",
