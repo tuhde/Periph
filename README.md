@@ -162,6 +162,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | L3G4200D | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | L3GD20H (L3GD20) | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LC709203F | Battery fuel gauge (1-cell Li-ion, no sense resistor) |  |  |  |  |  |  |  |  |
 | LIS3DH | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LSM303 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS22DF | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

@@ -158,6 +158,7 @@ static constexpr uint8_t kAddr_mpr121[] = {0x5A, 0x5B, 0x5C, 0x5D};
 static constexpr uint8_t kAddr_pca9541[] = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 static constexpr uint8_t kAddr_ade7953[] = {0x38};
 static constexpr uint8_t kAddr_axp2101[] = {0x34};
+static constexpr uint8_t kAddr_lc709203f[] = {0x0B};
 static constexpr uint8_t kAddr_ina219[] = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F};
 static constexpr uint8_t kAddr_ina226[] = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F};
 static constexpr uint32_t kExp_ina226[] = {0x2260};
@@ -299,6 +300,7 @@ static constexpr ChipEntry kChips[] = {
     {"pca9541", nullptr, false, false, kAddr_pca9541, 8, nullptr},
     {"ade7953", "ade7953", true, false, kAddr_ade7953, 1, nullptr},
     {"axp2101", "axp2101", false, false, kAddr_axp2101, 1, nullptr},
+    {"lc709203f", nullptr, false, false, kAddr_lc709203f, 1, nullptr},
     {"ina219", "ina219", false, false, kAddr_ina219, 16, nullptr},
     {"ina226", "ina226", false, false, kAddr_ina226, 16, &kProbe_ina226},
     {"ina260", nullptr, false, false, kAddr_ina260, 16, &kProbe_ina260},
@@ -320,7 +322,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 107;
+static constexpr size_t kChipCount = 108;
 
 }  // namespace discovery
 }  // namespace periph
