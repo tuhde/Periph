@@ -369,4 +369,7 @@ CHIPS = (
     {"id": "hdc1080", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x40,),
      "probe": {"register": 0xFF, "reg_bytes": 1, "length": 2, "byte_order": "big", "mask": 0xFFFF, "expected": (0x1050,)}},
+    {"id": "ht16k33", "driver": None, "write_sensitive": True, "aliased": False,
+     "addresses": (0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,),
+     "probe": None},
 )

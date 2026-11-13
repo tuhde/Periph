@@ -239,6 +239,7 @@ static constexpr uint8_t kAddr_hdc1008[] = {0x40, 0x41, 0x42, 0x43};
 static constexpr uint8_t kAddr_hdc1080[] = {0x40};
 static constexpr uint32_t kExp_hdc1080[] = {0x1050};
 static constexpr IdProbe kProbe_hdc1080 = {0xFF, 1, 2, false, 0xFFFF, kExp_hdc1080, 1};
+static constexpr uint8_t kAddr_ht16k33[] = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -363,8 +364,9 @@ static constexpr ChipEntry kChips[] = {
     {"bme688", nullptr, false, false, kAddr_bme688, 2, &kProbe_bme688},
     {"hdc1008", nullptr, false, false, kAddr_hdc1008, 4, nullptr},
     {"hdc1080", nullptr, false, false, kAddr_hdc1080, 1, &kProbe_hdc1080},
+    {"ht16k33", nullptr, true, false, kAddr_ht16k33, 8, nullptr},
 };
-static constexpr size_t kChipCount = 122;
+static constexpr size_t kChipCount = 123;
 
 }  // namespace discovery
 }  // namespace periph
