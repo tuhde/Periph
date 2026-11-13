@@ -129,6 +129,7 @@ const CHIPS = [
     {"id":"hdc1080","driver":null,"writeSensitive":false,"aliased":false,"addresses":[64],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65535,"expected":[4176]}},
     {"id":"ht16k33","driver":null,"writeSensitive":true,"aliased":false,"addresses":[112,113,114,115,116,117,118,119],"probe":null},
     {"id":"hs30xx","driver":null,"writeSensitive":true,"aliased":false,"addresses":[68],"probe":null},
+    {"id":"hs40xx","driver":null,"writeSensitive":true,"aliased":false,"addresses":[84],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };
