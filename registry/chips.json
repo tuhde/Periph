@@ -1407,7 +1407,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "pca9541",
       "datasheet": "datasheets/other/pca9541.pdf"
     },
     {
