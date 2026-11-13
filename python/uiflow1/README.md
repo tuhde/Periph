@@ -60,6 +60,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [HX711](adc_dac/hx711/) | adc_dac | `hx711_init`, `hx711_tare`, `hx711_set_scale`, `hx711_read_weight`, `hx711_read_raw` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | `mcp4725_init`, `mcp4725_set_voltage`, `mcp4725_set_raw` |
 | [AD5248](adc_dac/ad5248/) | adc_dac | `ad5248_init`, `ad5248_set_wiper`, `ad5248_get_wiper`, `ad5248_set_resistance`, `ad5248_get_resistance`, `ad5248_set_both`, `ad5248_set_ratio`, `ad5248_get_ratio`, `ad5248_increment`, `ad5248_shutdown`, `ad5248_resume`, `ad5248_is_shutdown`, `ad5248_reset` |
+| [MCP3422](adc_dac/mcp3422/) | adc_dac | `mcp3422_init`, `mcp3422_read_raw`, `mcp3422_read_voltage`, `mcp3422_set_resolution`, `mcp3422_set_gain`, `mcp3422_start_continuous`, `mcp3422_read_continuous`, `mcp3422_general_call_reset` |
 | [MCP4728](adc_dac/mcp4728/) | adc_dac | `mcp4728_init`, `mcp4728_set_voltage`, `mcp4728_set_raw`, `mcp4728_set_all` |
 | [PCF8591](adc_dac/pcf8591/) | adc_dac | `pcf8591_init`, `pcf8591_read_channel`, `pcf8591_read_channel_voltage`, `pcf8591_set_dac_voltage` |
 | [RDA5807M](comms/rda5807m/) | comms | `rda5807m_init`, `rda5807m_set_frequency`, `rda5807m_frequency`, `rda5807m_set_volume`, `rda5807m_mute`, `rda5807m_seek` |

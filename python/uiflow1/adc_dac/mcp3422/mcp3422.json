@@ -1,0 +1,216 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mcp3422_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MCP3422",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_read_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 raw code, channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_read_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 voltage (V), channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP3422 resolution (12/14/16/18 bit)",
+          "type": "label"
+        },
+        {
+          "name": "_bits",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_get_resolution",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 resolution (bit)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_set_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP3422 gain (1/2/4/8)",
+          "type": "label"
+        },
+        {
+          "name": "_gain",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_get_gain",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 gain",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_set_channel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP3422 continuous channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP3422 start continuous, channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP3422 stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_is_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 continuous mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_read_continuous_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 continuous raw code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_read_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 continuous voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_is_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 result ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_general_call_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP3422 general call reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_lsb",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 LSB (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp3422_full_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP3422 full scale (V)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

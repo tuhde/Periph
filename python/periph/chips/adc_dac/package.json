@@ -85,6 +85,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/hy3131.py"
     ],
     [
+      "periph/chips/adc_dac/mcp3422.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/mcp3422.py"
+    ],
+    [
       "periph/chips/adc_dac/mcp4725.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/mcp4725.py"
     ],
