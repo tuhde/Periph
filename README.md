@@ -103,6 +103,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 | 47XXX | EERAM 47L04/47C04/47L16/47C16 (4/16 Kbit SRAM with EEPROM backup) |  |  |  |  |  |  |  |  |
 | AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) |  |  |  |  |  |  |  |  |
+| AT24C02N | I²C EEPROM 2 Kbit (256 B, 8-byte page) |  |  |  |  |  |  |  |  |
 | BME688 | Gas, pressure, temperature and humidity sensor (forced + parallel mode) |  |  |  |  |  |  |  |  |
 | BQ32000 | Real-time clock (calendar, backup supply, trickle charger, calibration) |  |  |  |  |  |  |  |  |
 | BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
