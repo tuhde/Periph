@@ -134,4 +134,5 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "tmp117", driver: Some("tmp117"), write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 2, little_endian: false, mask: 0x0FFF, expected: &[0x0117] }) },
     ChipEntry { id: "vl53l0x", driver: Some("vl53l0x"), write_sensitive: false, aliased: false, addresses: &[0x29], probe: Some(IdProbe { register: 0xC0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xEE] }) },
     ChipEntry { id: "vl53l1x", driver: Some("vl53l1x"), write_sensitive: false, aliased: false, addresses: &[0x29], probe: Some(IdProbe { register: 0x10F, reg_bytes: 2, length: 2, little_endian: false, mask: 0xFFFF, expected: &[0xEACC] }) },
+    ChipEntry { id: "veml7700", driver: None, write_sensitive: false, aliased: false, addresses: &[0x10], probe: Some(IdProbe { register: 0x07, reg_bytes: 1, length: 2, little_endian: true, mask: 0xFFFF, expected: &[0xC481] }) },
 ];

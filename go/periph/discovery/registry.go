@@ -134,4 +134,5 @@ var registry = []Chip{
 	{ID: "tmp117", Driver: "tmp117", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 2, LittleEndian: false, Mask: 0x0FFF, Expected: []uint32{0x0117}}},
 	{ID: "vl53l0x", Driver: "vl53l0x", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x29}, Probe: &IdProbe{Register: 0xC0, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xEE}}},
 	{ID: "vl53l1x", Driver: "vl53l1x", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x29}, Probe: &IdProbe{Register: 0x10F, RegBytes: 2, Length: 2, LittleEndian: false, Mask: 0xFFFF, Expected: []uint32{0xEACC}}},
+	{ID: "veml7700", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x10}, Probe: &IdProbe{Register: 0x07, RegBytes: 1, Length: 2, LittleEndian: true, Mask: 0xFFFF, Expected: []uint32{0xC481}}},
 }

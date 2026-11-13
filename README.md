@@ -225,6 +225,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| VEML7700 | Ambient light sensor (16-bit, 0.0042 lx/step, white channel) |  |  |  |  |  |  |  |  |
 | VL53L0X | Time-of-flight distance sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | VL53L1X | Time-of-flight distance sensor (long range) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
