@@ -903,6 +903,27 @@
       "datasheet": "datasheets/gyroscope/l3gd20h.pdf"
     },
     {
+      "id": "fxas21002c",
+      "name": "FXAS21002C",
+      "category": "gyroscope",
+      "addresses": [
+        "0x20..0x21"
+      ],
+      "id_probe": {
+        "register": "0x0C",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xD7"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/gyroscope/fxas21002c.pdf"
+    },
+    {
       "id": "mpu6050",
       "name": "MPU6050",
       "category": "imu",
