@@ -105,6 +105,8 @@ DS1881Full	KEYWORD1
 DS1881Minimal	KEYWORD1
 DS3231Full	KEYWORD1
 DS3231Minimal	KEYWORD1
+DS3502Full	KEYWORD1
+DS3502Minimal	KEYWORD1
 DateTime	KEYWORD1
 Direction	KEYWORD1
 DisplayConnection	KEYWORD1
@@ -693,6 +695,7 @@ getHysteresis	KEYWORD2
 getLowLimit	KEYWORD2
 getLowerLimit	KEYWORD2
 getMagOffset	KEYWORD2
+getMode	KEYWORD2
 getOffset	KEYWORD2
 getPosition	KEYWORD2
 getRail	KEYWORD2
@@ -704,6 +707,7 @@ getResolution	KEYWORD2
 getTemperatureOffset	KEYWORD2
 getThresholdsRaw	KEYWORD2
 getUpperLimit	KEYWORD2
+getVoltage	KEYWORD2
 getVolume	KEYWORD2
 getWiper	KEYWORD2
 get_accel_offset	KEYWORD2
@@ -1173,6 +1177,7 @@ setEmergencyStop	KEYWORD2
 setEncoderConstant	KEYWORD2
 setEncoderDeviation	KEYWORD2
 setEncoderPosition	KEYWORD2
+setEndpoints	KEYWORD2
 setFastStandstill	KEYWORD2
 setFeedback	KEYWORD2
 setFifo	KEYWORD2
@@ -1300,6 +1305,7 @@ setTsHysteresis	KEYWORD2
 setTsLimits	KEYWORD2
 setUpperLimit	KEYWORD2
 setVcselPulsePeriod	KEYWORD2
+setVoltage	KEYWORD2
 setVolume	KEYWORD2
 setVolumeChannels	KEYWORD2
 setVsense	KEYWORD2
@@ -1567,6 +1573,7 @@ stopContinuous	KEYWORD2
 stop_crypto	KEYWORD2
 stop_receive	KEYWORD2
 store	KEYWORD2
+storeWiper	KEYWORD2
 store_wiper	KEYWORD2
 summation_value	KEYWORD2
 sync	KEYWORD2
