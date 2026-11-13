@@ -31,6 +31,7 @@
       "hx710b": "nodes/hx710b/hx710b.js",
       "hx711": "nodes/hx711/hx711.js",
       "hy3131": "nodes/hy3131/hy3131.js",
+      "mcp3422": "nodes/mcp3422/mcp3422.js",
       "mcp4725": "nodes/mcp4725/mcp4725.js",
       "mcp4728": "nodes/mcp4728/mcp4728.js",
       "mcp4xxx": "nodes/mcp4xxx/mcp4xxx.js",

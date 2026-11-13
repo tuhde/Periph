@@ -178,6 +178,8 @@ MCP23x08Full	KEYWORD1
 MCP23x08Minimal	KEYWORD1
 MCP2515Full	KEYWORD1
 MCP2515Minimal	KEYWORD1
+MCP3422Full	KEYWORD1
+MCP3422Minimal	KEYWORD1
 MCP4531Full	KEYWORD1
 MCP4531Minimal	KEYWORD1
 MCP4532Full	KEYWORD1
@@ -682,6 +684,8 @@ fullScale	KEYWORD2
 gainCalibration	KEYWORD2
 gas_resistance	KEYWORD2
 gas_valid	KEYWORD2
+generalCallConvert	KEYWORD2
+generalCallReset	KEYWORD2
 generate_random_id	KEYWORD2
 gesture_available	KEYWORD2
 gesture_fifo_level	KEYWORD2
@@ -781,6 +785,7 @@ isAlertAsserted	KEYWORD2
 isBatteryLow	KEYWORD2
 isBatterySwitchedOver	KEYWORD2
 isConnected	KEYWORD2
+isContinuous	KEYWORD2
 isConverting	KEYWORD2
 isCriticalLimitLocked	KEYWORD2
 isDataReady	KEYWORD2
@@ -819,6 +824,7 @@ is_touched	KEYWORD2
 is_wiper_locked	KEYWORD2
 is_write_protected	KEYWORD2
 jedec_id	KEYWORD2
+lastReadOk	KEYWORD2
 last_packet_rssi	KEYWORD2
 last_packet_snr	KEYWORD2
 latitude	KEYWORD2
@@ -971,6 +977,7 @@ readOffset	KEYWORD2
 readOrientation	KEYWORD2
 readOtp	KEYWORD2
 readOutput	KEYWORD2
+readPendingRaw	KEYWORD2
 readPulseSource	KEYWORD2
 readPwmAuto	KEYWORD2
 readPwmScale	KEYWORD2
@@ -1163,6 +1170,7 @@ setBeep	KEYWORD2
 setBidirectional	KEYWORD2
 setBoth	KEYWORD2
 setCalibration	KEYWORD2
+setChannel	KEYWORD2
 setChargeCurrent	KEYWORD2
 setChargePumpFrequency	KEYWORD2
 setChargeTimers	KEYWORD2

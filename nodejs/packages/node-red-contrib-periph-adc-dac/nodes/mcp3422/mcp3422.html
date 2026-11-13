@@ -1,0 +1,79 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp3422', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '0x68' },
+            resolution: { value: '16' },
+            gain:       { value: '1' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-area-chart',
+        label:   function() { return this.name || 'MCP3422'; },
+        paletteLabel: 'MCP3422'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp3422">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP3422">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x68">0x68 (order code A0)</option><option value="0x69">0x69 (A1)</option>
+            <option value="0x6A">0x6A (A2)</option><option value="0x6B">0x6B (A3)</option>
+            <option value="0x6C">0x6C (A4)</option><option value="0x6D">0x6D (A5)</option>
+            <option value="0x6E">0x6E (A6)</option><option value="0x6F">0x6F (A7)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-resolution"><i class="fa fa-sliders"></i> Resolution</label>
+        <select id="node-input-resolution" style="width:200px">
+            <option value="12">12 bit / 240 SPS</option><option value="14">14 bit / 60 SPS</option>
+            <option value="16">16 bit / 15 SPS</option><option value="18">18 bit / 3.75 SPS</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gain"><i class="fa fa-expand"></i> Gain</label>
+        <select id="node-input-gain" style="width:120px">
+            <option value="1">x1</option><option value="2">x2</option>
+            <option value="4">x4</option><option value="8">x8</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp3422">
+    <p>Reads the two differential inputs of a MCP3422 18-bit delta-sigma ADC (I²C) with a one-shot conversion per channel. Full scale is ±2.048 V / gain; the LSB is 2·2.048 V / 2<sup>bits</sup> / gain.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>channel <span class="property-type">number</span></dt>
+        <dd>Optional: 0 (CH1) or 1 (CH2). With it only that channel is converted.</dd>
+        <dt>gain <span class="property-type">number</span></dt>
+        <dd>Optional: PGA gain 1, 2, 4 or 8; applied before the conversion and kept.</dd>
+        <dt>resolution <span class="property-type">number</span></dt>
+        <dd>Optional: 12, 14, 16 or 18 bit; applied before the conversion and kept (the 18 bit conversion takes about 270 ms).</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any message triggers a conversion.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channels, payload.raw <span class="property-type">array</span></dt>
+        <dd>Without <code>msg.channel</code>: the CH1 and CH2 voltages in volts and the signed codes.</dd>
+        <dt>payload.channel, payload.raw, payload.voltage <span class="property-type">number</span></dt>
+        <dd>With <code>msg.channel</code>: the channel, its signed code and its voltage in volts.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number, the factory-programmed address (0x68–0x6F, fixed by the order code) and the initial resolution and gain. Inputs must stay within VSS − 0.3 V … VDD + 0.3 V.</p>
+</script>

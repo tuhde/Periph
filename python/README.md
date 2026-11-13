@@ -111,6 +111,7 @@ Each chip exposes two classes:
 | MCP23008 | IO expander | 8-bit I/O port expander (I²C) |
 | MCP23017 | IO expander | 16-bit I/O port expander |
 | MCP2515 | Comms | Send/recv with default configuration. |
+| MCP3422 | ADC/DAC | ADC |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC |
 | MCP4XXX | ADC/DAC | Family |
