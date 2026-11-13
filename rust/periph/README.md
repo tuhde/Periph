@@ -105,6 +105,7 @@ Each chip exposes two structs:
 | MCP23008 | IO expander | / MCP23S08 8-bit bidirectional I/O port expander (Microchip). |
 | MCP23017 | IO expander | 16-bit bidirectional I/O port expander (Microchip). |
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
+| MCP3422 | ADC/DAC | 2-channel, 18-bit delta-sigma ADC with PGA and 2.048 V reference (Microchip). |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC (Microchip). |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC (Microchip). |
 | MCP4XXX | ADC/DAC | MCP453X / 454X / 455X / 456X / 463X / 464X / 465X / 466X I²C digital |

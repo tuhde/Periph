@@ -24,6 +24,8 @@ pub use es8311::{
     SerialConfig as Es8311SerialConfig, AdcConfig as Es8311AdcConfig,
     AlcConfig as Es8311AlcConfig, DrcConfig as Es8311DrcConfig, LowPower as Es8311LowPower,
 };
+pub mod mcp3422;
+pub use mcp3422::{MCP3422Minimal, MCP3422Full, Mcp3422Error, MCP3422_I2C_ADDRESS};
 pub mod mcp4725;
 pub use mcp4725::{Mcp4725Minimal, Mcp4725Full};
 pub mod mcp4728;
