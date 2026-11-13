@@ -1960,6 +1960,18 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/led/saa1064.pdf"
+    },
+    {
+      "id": "pcf8563",
+      "name": "PCF8563",
+      "category": "rtc",
+      "addresses": [
+        "0x51"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rtc/pcf8563.pdf"
     }
   ]
 }

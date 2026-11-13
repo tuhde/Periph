@@ -151,4 +151,5 @@ var registry = []Chip{
 	{ID: "hs40xx", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x54}, Probe: nil},
 	{ID: "lps22hb", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5C, 0x5D}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xB1}}},
 	{ID: "saa1064", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39, 0x3A, 0x3B}, Probe: nil},
+	{ID: "pcf8563", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x51}, Probe: nil},
 }

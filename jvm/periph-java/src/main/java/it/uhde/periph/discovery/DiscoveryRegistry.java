@@ -140,5 +140,6 @@ public final class DiscoveryRegistry {
         new Chip("hs40xx", null, true, false, new int[] {0x54}, null),
         new Chip("lps22hb", null, false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB1L})),
         new Chip("saa1064", null, true, false, new int[] {0x38, 0x39, 0x3A, 0x3B}, null),
+        new Chip("pcf8563", null, false, false, new int[] {0x51}, null),
     };
 }
