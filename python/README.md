@@ -85,6 +85,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | Low-voltage motor driver |
 | DS1881 | ADC/DAC | Dual audio potentiometer |
 | DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
+| DS3502 | ADC/DAC | Digital potentiometer |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
 | ES8311 | ADC/DAC | Bring-up for voice playback and recording. |
 | FXOS8700 | Accelerometer | Acceleration and magnetic field. |

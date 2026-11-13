@@ -94,6 +94,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [BMP280](pressure/bmp280/) | pressure | `bmp280_init`, `bmp280_read_temperature`, `bmp280_read_pressure`, `bmp280_read_altitude` |
 | [MFRC522](rfid/mfrc522/) | rfid | `mfrc522_init`, `mfrc522_is_card_present`, `mfrc522_read_uid` |
 | [ADS7828](adc_dac/ads7828/) | adc_dac | `ads7828_init`, `ads7828_read_raw`, `ads7828_read_voltage`, `ads7828_read_differential`, `ads7828_read_signed_differential`, `ads7828_set_reference`, `ads7828_power_down` |
+| [DS3502](adc_dac/ds3502/) | adc_dac | `ds3502_init`, `ds3502_set_wiper`, `ds3502_get_wiper`, `ds3502_set_voltage`, `ds3502_get_voltage`, `ds3502_set_ratio`, `ds3502_get_ratio`, `ds3502_get_resistance_l`, `ds3502_get_resistance_h`, `ds3502_increment`, `ds3502_store_wiper`, `ds3502_set_mode`, `ds3502_get_mode`, `ds3502_wait_ready`, `ds3502_set_endpoints` |
 | [PCA9536](io_expander/pca9536/) | io_expander | `pca9536_init`, `pca9536_set_pin_mode`, `pca9536_write_pin`, `pca9536_read_pin`, `pca9536_read_port`, `pca9536_write_port`, `pca9536_configure_polarity`, `pca9536_set_direction`, `pca9536_get_direction`, `pca9536_poll_changes`, `pca9536_reset` |
 
 ## Using these blocks
