@@ -78,6 +78,7 @@ public final class DiscoveryRegistry {
         new Chip("mcp23008", "mcp23008", false, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, null),
         new Chip("mcp23017", "mcp23017", false, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, null),
         new Chip("pca6408a", "pca6408a", false, false, new int[] {0x20, 0x21}, null),
+        new Chip("tca9554", null, false, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, null),
         new Chip("pca6416a", "pca6416a", false, false, new int[] {0x20, 0x21}, null),
         new Chip("pca9536", "pca9536", false, false, new int[] {0x41}, null),
         new Chip("pca9539", null, false, false, new int[] {0x74, 0x75, 0x76, 0x77}, null),

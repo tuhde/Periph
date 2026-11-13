@@ -211,6 +211,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMC2130 | Stepper motor driver (Step/Dir, SPI, StallGuard2) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TCA9554 | IO expander (8-bit, internal pull-ups) |  |  |  |  |  |  |  |  |
 | TMC2208 | Stepper motor driver (Step/Dir, UART; TMC2202/2208/2224) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMC2209 | Stepper motor driver (Step/Dir, UART, StallGuard4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMC5160 | Stepper motor controller/driver (ramp generator, SPI/UART, StallGuard2) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

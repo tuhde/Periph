@@ -71,6 +71,7 @@ const CHIPS = [
     {"id":"mcp23008","driver":"mcp23008","writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
     {"id":"mcp23017","driver":"mcp23017","writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
     {"id":"pca6408a","driver":"pca6408a","writeSensitive":false,"aliased":false,"addresses":[32,33],"probe":null},
+    {"id":"tca9554","driver":null,"writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
     {"id":"pca6416a","driver":"pca6416a","writeSensitive":false,"aliased":false,"addresses":[32,33],"probe":null},
     {"id":"pca9536","driver":"pca9536","writeSensitive":false,"aliased":false,"addresses":[65],"probe":null},
     {"id":"pca9539","driver":null,"writeSensitive":false,"aliased":false,"addresses":[116,117,118,119],"probe":null},
