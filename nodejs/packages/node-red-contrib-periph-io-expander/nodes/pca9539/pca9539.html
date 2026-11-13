@@ -1,0 +1,78 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pca9539', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1',  required: true, validate: RED.validators.number() },
+            address:   { value: '74' },
+            gpioChip:  { value: '0' },
+            intPin:    { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() {
+            return this.name || ('PCA9539 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        },
+        paletteLabel: 'PCA9539'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pca9539">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCA9539">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(/dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="74" style="width:80px">
+        &nbsp;74–77 (A1, A0)
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;(for the optional INT line)
+    </div>
+    <div class="form-row">
+        <label for="node-input-intPin">INT GPIO line</label>
+        <input type="number" id="node-input-intPin" min="0" style="width:80px" placeholder="none">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pca9539">
+    <p>Controls and reads a 16-bit PCA9539 I/O expander (I²C / SMBus, NXP). The chip has no internal pull-ups: inputs need external pull-up resistors.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (0–15); the pin is switched to output first.<br>
+            <code>{ pin: N }</code> — read pin N; reply sent on output.<br>
+            <code>{ port: N }</code> — read the 8 pins of port N (0 or 1); reply sent on output.<br>
+            <code>{}</code> (no <code>pin</code> / <code>port</code>) — read all 16 pins; reply sent on output.
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pin <span class="property-type">number</span></dt>
+        <dd>Pin index (0–15), present when reading a single pin (0–7 = P00–P07, 8–15 = P10–P17).</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Logic level (0 or 1) when reading a pin; 8-bit bitmask when reading a port; 16-bit value when reading all pins.</dd>
+        <dt>payload.port <span class="property-type">number</span></dt>
+        <dd>Port number (0 or 1), present when reading a port.</dd>
+        <dt>payload.changed <span class="property-type">number</span></dt>
+        <dd>Only when an INT GPIO line is configured: 16-bit mask of the input pins whose level changed since the last INPUT read (sent together with the 16-bit <code>value</code>).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>I²C bus number (Linux <code>/dev/i2c-N</code>) and 7-bit address in hex (<code>74</code>–<code>77</code>).
+    The optional <b>INT GPIO line</b> (with GPIO chip number) emits a message whenever an input changes; the line is sampled every 5 ms.</p>
+
+    <h3>Notes</h3>
+    <p>All sixteen pins (P00–P07, P10–P17) are bidirectional. Pins start as inputs; writing a value switches the pin to output. The chip has no internal pull-ups; use external resistors on inputs.</p>
+</script>
