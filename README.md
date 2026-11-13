@@ -124,6 +124,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | AHT10 | Temperature/humidity |  |  |  |  |  |  |  |  |
 | AHT20 | Temperature/humidity |  |  |  |  |  |  |  |  |
 | AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AM2320 | Temperature/humidity |  |  |  |  |  |  |  |  |
 | APA102 | LED (addressable RGB, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS-9930 | Proximity/ALS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
