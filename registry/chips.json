@@ -1273,6 +1273,29 @@
       "datasheet": "datasheets/power/lc709203f.pdf"
     },
     {
+      "id": "lm25066",
+      "name": "LM25066",
+      "category": "power",
+      "addresses": [
+        "0x10..0x17",
+        "0x40..0x47",
+        "0x50..0x5A"
+      ],
+      "id_probe": {
+        "register": "0x99",
+        "reg_bytes": 1,
+        "length": 4,
+        "byte_order": "big",
+        "mask": "0xFFFFFFFF",
+        "expected": [
+          "0x034E5343"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/power/lm25066.pdf"
+    },
+    {
       "id": "ina219",
       "name": "INA219",
       "category": "power",
