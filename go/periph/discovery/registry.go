@@ -88,6 +88,7 @@ var registry = []Chip{
 	{ID: "neo-6", Driver: "neo-6", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x42}, Probe: nil},
 	{ID: "l3g4200d", Driver: "l3g4200d", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x68, 0x69}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xD3}}},
 	{ID: "l3gd20h", Driver: "l3gd20h", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x6A, 0x6B}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xD4, 0xD7}}},
+	{ID: "fxas21002c", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x20, 0x21}, Probe: &IdProbe{Register: 0x0C, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xD7}}},
 	{ID: "mpu6050", Driver: "mpu6050", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x68, 0x69}, Probe: &IdProbe{Register: 0x75, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0x7E, Expected: []uint32{0x68}}},
 	{ID: "icm20948", Driver: "icm20948", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x68, 0x69}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xEA}}},
 	{ID: "qmi8658a", Driver: "qmi8658a", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x6A, 0x6B}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x05}}},

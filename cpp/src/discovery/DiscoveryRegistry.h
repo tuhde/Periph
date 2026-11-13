@@ -118,6 +118,9 @@ static constexpr IdProbe kProbe_l3g4200d = {0x0F, 1, 1, false, 0xFF, kExp_l3g420
 static constexpr uint8_t kAddr_l3gd20h[] = {0x6A, 0x6B};
 static constexpr uint32_t kExp_l3gd20h[] = {0xD4, 0xD7};
 static constexpr IdProbe kProbe_l3gd20h = {0x0F, 1, 1, false, 0xFF, kExp_l3gd20h, 2};
+static constexpr uint8_t kAddr_fxas21002c[] = {0x20, 0x21};
+static constexpr uint32_t kExp_fxas21002c[] = {0xD7};
+static constexpr IdProbe kProbe_fxas21002c = {0x0C, 1, 1, false, 0xFF, kExp_fxas21002c, 1};
 static constexpr uint8_t kAddr_mpu6050[] = {0x68, 0x69};
 static constexpr uint32_t kExp_mpu6050[] = {0x68};
 static constexpr IdProbe kProbe_mpu6050 = {0x75, 1, 1, false, 0x7E, kExp_mpu6050, 1};
@@ -322,6 +325,7 @@ static constexpr ChipEntry kChips[] = {
     {"neo-6", "neo-6", true, false, kAddr_neo_6, 1, nullptr},
     {"l3g4200d", "l3g4200d", false, false, kAddr_l3g4200d, 2, &kProbe_l3g4200d},
     {"l3gd20h", "l3gd20h", false, false, kAddr_l3gd20h, 2, &kProbe_l3gd20h},
+    {"fxas21002c", nullptr, false, false, kAddr_fxas21002c, 2, &kProbe_fxas21002c},
     {"mpu6050", "mpu6050", false, false, kAddr_mpu6050, 2, &kProbe_mpu6050},
     {"icm20948", "icm20948", false, false, kAddr_icm20948, 2, &kProbe_icm20948},
     {"qmi8658a", "qmi8658a", false, false, kAddr_qmi8658a, 2, &kProbe_qmi8658a},
@@ -392,7 +396,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 134;
+static constexpr size_t kChipCount = 135;
 
 }  // namespace discovery
 }  // namespace periph
