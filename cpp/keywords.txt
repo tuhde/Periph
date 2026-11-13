@@ -164,6 +164,8 @@ LPS33HWFull	KEYWORD1
 LPS33HWMinimal	KEYWORD1
 LSM303Full	KEYWORD1
 LSM303Minimal	KEYWORD1
+MAX44009Full	KEYWORD1
+MAX44009Minimal	KEYWORD1
 MB85RCFull	KEYWORD1
 MB85RCMinimal	KEYWORD1
 MCP23008Full	KEYWORD1
@@ -705,6 +707,8 @@ getResistance	KEYWORD2
 getResistanceWa	KEYWORD2
 getResolution	KEYWORD2
 getTemperatureOffset	KEYWORD2
+getThresholdDelay	KEYWORD2
+getThresholds	KEYWORD2
 getThresholdsRaw	KEYWORD2
 getUpperLimit	KEYWORD2
 getVoltage	KEYWORD2
@@ -774,6 +778,7 @@ isDataReady	KEYWORD2
 isEepromBusy	KEYWORD2
 isEnabled	KEYWORD2
 isHigh	KEYWORD2
+isOverrange	KEYWORD2
 isPlaying	KEYWORD2
 isPositionReached	KEYWORD2
 isReady	KEYWORD2
@@ -1075,6 +1080,7 @@ reset_io	KEYWORD2
 reset_lpf	KEYWORD2
 reset_reference	KEYWORD2
 reset_step_count	KEYWORD2
+resolution	KEYWORD2
 restart	KEYWORD2
 restore_value	KEYWORD2
 resume	KEYWORD2
@@ -1135,6 +1141,7 @@ setAttenuation	KEYWORD2
 setAttenuationBoth	KEYWORD2
 setAudioToVibe	KEYWORD2
 setAutoSleep	KEYWORD2
+setAutomatic	KEYWORD2
 setAxes	KEYWORD2
 setBackupCharging	KEYWORD2
 setBatfetOffEnable	KEYWORD2
@@ -1156,6 +1163,7 @@ setClick	KEYWORD2
 setClockOutput	KEYWORD2
 setClocking	KEYWORD2
 setCoilCurrents	KEYWORD2
+setContinuous	KEYWORD2
 setCoolstepThreshold	KEYWORD2
 setCriticalLimit	KEYWORD2
 setCrosstalkCompensation	KEYWORD2
@@ -1227,6 +1235,7 @@ setMagOversampling	KEYWORD2
 setMagRange	KEYWORD2
 setMagRaw	KEYWORD2
 setMagReset	KEYWORD2
+setManual	KEYWORD2
 setMicrosteps	KEYWORD2
 setMinSystemVoltage	KEYWORD2
 setMinuteInterrupt	KEYWORD2
@@ -1295,6 +1304,7 @@ setTargetRaw	KEYWORD2
 setTemperatureOffset	KEYWORD2
 setTermination	KEYWORD2
 setThermalRegulation	KEYWORD2
+setThresholdDelay	KEYWORD2
 setThresholds	KEYWORD2
 setTimeOffsets	KEYWORD2
 setTimingBudget	KEYWORD2
@@ -2063,6 +2073,7 @@ HPM_REFERENCE	LITERAL1
 HY_HIGH_SHIFT	LITERAL1
 HY_LOW_MASK	LITERAL1
 I2C_ADDRESS	LITERAL1
+I2C_ADDRESS_A0_HIGH	LITERAL1
 I2C_ADDRESS_ACCEL	LITERAL1
 I2C_ADDRESS_AD0_HIGH	LITERAL1
 I2C_ADDRESS_MAG	LITERAL1
@@ -2372,6 +2383,7 @@ SOURCE_SOC_WARN_L1	LITERAL1
 SOURCE_SOC_WARN_L2	LITERAL1
 SOURCE_STEP	LITERAL1
 SOURCE_TAP	LITERAL1
+SOURCE_THRESHOLD	LITERAL1
 SOURCE_TIMER	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
