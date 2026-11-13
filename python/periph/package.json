@@ -381,6 +381,10 @@
       "github:tuhde/Periph/python/periph/chips/other/mpr121.py"
     ],
     [
+      "periph/chips/other/pca9541.py",
+      "github:tuhde/Periph/python/periph/chips/other/pca9541.py"
+    ],
+    [
       "periph/chips/power/ade7953.py",
       "github:tuhde/Periph/python/periph/chips/power/ade7953.py"
     ],

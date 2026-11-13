@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/other/mpr121.py"
     ],
     [
+      "periph/chips/other/pca9541.py",
+      "github:tuhde/Periph/python/periph/chips/other/pca9541.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
