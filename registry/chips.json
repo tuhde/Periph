@@ -1597,6 +1597,18 @@
       "datasheet": "datasheets/rtc/pcf85063a.pdf"
     },
     {
+      "id": "lm75b",
+      "name": "LM75B",
+      "category": "temperature",
+      "addresses": [
+        "0x48..0x4F"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/temperature/lm75b.pdf"
+    },
+    {
       "id": "mcp9808",
       "name": "MCP9808",
       "category": "temperature",
