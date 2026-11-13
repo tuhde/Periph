@@ -1159,6 +1159,27 @@
       "datasheet": "datasheets/magnetometer/as5600.pdf"
     },
     {
+      "id": "mag3110",
+      "name": "MAG3110",
+      "category": "magnetometer",
+      "addresses": [
+        "0x0E"
+      ],
+      "id_probe": {
+        "register": "0x07",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xC4"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/magnetometer/mag3110.pdf"
+    },
+    {
       "id": "hmc5883l",
       "name": "HMC5883L",
       "category": "magnetometer",
