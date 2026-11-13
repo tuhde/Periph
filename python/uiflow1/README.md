@@ -84,6 +84,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [SK6812RGBW](led/sk6812rgbw/) | led | `sk6812rgbw_init`, `sk6812rgbw_fill`, `sk6812rgbw_set_pixel`, `sk6812rgbw_show`, `sk6812rgbw_off` |
 | [WS2812B](led/ws2812b/) | led | `ws2812b_init`, `ws2812b_fill`, `ws2812b_set_pixel`, `ws2812b_show`, `ws2812b_off` |
 | [APDS9960](light/apds9960/) | light | `apds9960_init`, `apds9960_color_clear`, `apds9960_color_red`, `apds9960_color_green`, `apds9960_color_blue`, `apds9960_enable_proximity`, `apds9960_proximity` |
+| [MAX44009](light/max44009/) | light | `max44009_init`, `max44009_lux`, `max44009_is_overrange`, `max44009_resolution`, `max44009_set_continuous`, `max44009_set_automatic`, `max44009_set_manual`, `max44009_set_thresholds`, `max44009_get_low_threshold`, `max44009_get_high_threshold`, `max44009_set_threshold_delay`, `max44009_get_threshold_delay`, `max44009_enable_interrupt`, `max44009_disable_interrupt`, `max44009_poll_interrupt` |
 | [AS5600](magnetometer/as5600/) | magnetometer | `as5600_init`, `as5600_angle`, `as5600_angle_raw`, `as5600_is_magnet_detected`, `as5600_is_magnet_too_strong`, `as5600_is_magnet_too_weak` |
 | [24AA02UID](memory/24aa02uid/) | memory | `24aa02uid_init`, `24aa02uid_read_uid`, `24aa02uid_read_byte`, `24aa02uid_write_byte` |
 | [MB85RC](memory/mb85rc/) | memory | `mb85rc_init`, `mb85rc_read_byte`, `mb85rc_write_byte`, `mb85rc_read`, `mb85rc_write`, `mb85rc_fill`, `mb85rc_size`, `mb85rc_read_device_id` |

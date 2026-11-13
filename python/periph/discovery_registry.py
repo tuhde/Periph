@@ -252,7 +252,7 @@ CHIPS = (
     {"id": "apds9960", "driver": "apds9960", "write_sensitive": False, "aliased": False,
      "addresses": (0x39,),
      "probe": {"register": 0x92, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xAB,)}},
-    {"id": "max44009", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "max44009", "driver": "max44009", "write_sensitive": False, "aliased": False,
      "addresses": (0x4A, 0x4B,),
      "probe": None},
     {"id": "as5600", "driver": "as5600", "write_sensitive": False, "aliased": False,
