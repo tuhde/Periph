@@ -357,4 +357,7 @@ CHIPS = (
     {"id": "tsl2561", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x29, 0x39, 0x49,),
      "probe": {"register": 0x8A, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xF0, "expected": (0x10,)}},
+    {"id": "bq32000", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x68,),
+     "probe": None},
 )

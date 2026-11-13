@@ -1813,6 +1813,18 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/light/tsl2561.pdf"
+    },
+    {
+      "id": "bq32000",
+      "name": "BQ32000",
+      "category": "rtc",
+      "addresses": [
+        "0x68"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rtc/bq32000.pdf"
     }
   ]
 }
