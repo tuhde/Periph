@@ -110,6 +110,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "pca9541", driver: None, write_sensitive: false, aliased: false, addresses: &[0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77], probe: None },
     ChipEntry { id: "ade7953", driver: Some("ade7953"), write_sensitive: true, aliased: false, addresses: &[0x38], probe: None },
     ChipEntry { id: "axp2101", driver: Some("axp2101"), write_sensitive: false, aliased: false, addresses: &[0x34], probe: None },
+    ChipEntry { id: "lc709203f", driver: None, write_sensitive: false, aliased: false, addresses: &[0x0B], probe: None },
     ChipEntry { id: "ina219", driver: Some("ina219"), write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: None },
     ChipEntry { id: "ina226", driver: Some("ina226"), write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: Some(IdProbe { register: 0xFF, reg_bytes: 1, length: 2, little_endian: false, mask: 0xFFFF, expected: &[0x2260] }) },
     ChipEntry { id: "ina260", driver: None, write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: Some(IdProbe { register: 0xFF, reg_bytes: 1, length: 2, little_endian: false, mask: 0xFFF0, expected: &[0x2270] }) },

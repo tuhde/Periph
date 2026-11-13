@@ -1249,6 +1249,18 @@
       "datasheet": "datasheets/power/axp2101.pdf"
     },
     {
+      "id": "lc709203f",
+      "name": "LC709203F",
+      "category": "power",
+      "addresses": [
+        "0x0B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/power/lc709203f.pdf"
+    },
+    {
       "id": "ina219",
       "name": "INA219",
       "category": "power",
