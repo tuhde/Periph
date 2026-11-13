@@ -1903,6 +1903,18 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/humidity/hs30xx.pdf"
+    },
+    {
+      "id": "hs40xx",
+      "name": "HS40xx",
+      "category": "humidity",
+      "addresses": [
+        "0x54"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/humidity/hs40xx.pdf"
     }
   ]
 }

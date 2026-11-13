@@ -375,4 +375,7 @@ CHIPS = (
     {"id": "hs30xx", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x44,),
      "probe": None},
+    {"id": "hs40xx", "driver": None, "write_sensitive": True, "aliased": False,
+     "addresses": (0x54,),
+     "probe": None},
 )
