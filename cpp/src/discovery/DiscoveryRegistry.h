@@ -241,6 +241,7 @@ static constexpr IdProbe kProbe_veml7700 = {0x07, 1, 2, true, 0xFFFF, kExp_veml7
 static constexpr uint8_t kAddr_mpl3115a2[] = {0x60};
 static constexpr uint32_t kExp_mpl3115a2[] = {0xC4};
 static constexpr IdProbe kProbe_mpl3115a2 = {0x0C, 1, 1, false, 0xFF, kExp_mpl3115a2, 1};
+static constexpr uint8_t kAddr_sht31[] = {0x44, 0x45};
 static constexpr uint8_t kAddr_shtc3[] = {0x70};
 static constexpr uint32_t kExp_shtc3[] = {0x0807};
 static constexpr IdProbe kProbe_shtc3 = {0xEFC8, 2, 2, false, 0x083F, kExp_shtc3, 1};
@@ -393,6 +394,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
     {"veml7700", nullptr, false, false, kAddr_veml7700, 1, &kProbe_veml7700},
     {"mpl3115a2", nullptr, false, false, kAddr_mpl3115a2, 1, &kProbe_mpl3115a2},
+    {"sht31", nullptr, true, false, kAddr_sht31, 2, nullptr},
     {"shtc3", nullptr, true, false, kAddr_shtc3, 1, &kProbe_shtc3},
     {"tsl2561", nullptr, false, false, kAddr_tsl2561, 3, &kProbe_tsl2561},
     {"bq32000", nullptr, false, false, kAddr_bq32000, 1, nullptr},
@@ -408,7 +410,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 140;
+static constexpr size_t kChipCount = 141;
 
 }  // namespace discovery
 }  // namespace periph
