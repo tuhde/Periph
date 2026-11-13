@@ -44,7 +44,7 @@ var registry = []Chip{
 	{ID: "ads1114", Driver: "ads1114", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B}, Probe: nil},
 	{ID: "ads1115", Driver: "ads1115", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B}, Probe: nil},
 	{ID: "ads7828", Driver: "ads7828", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B}, Probe: nil},
-	{ID: "mcp3422", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F}, Probe: nil},
+	{ID: "mcp3422", Driver: "mcp3422", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F}, Probe: nil},
 	{ID: "mcp4725", Driver: "mcp4725", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61}, Probe: nil},
 	{ID: "mcp4728", Driver: "mcp4728", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67}, Probe: nil},
 	{ID: "mcp4531", Driver: "mcp4xxx", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2E, 0x2F}, Probe: nil},
