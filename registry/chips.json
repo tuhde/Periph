@@ -1998,6 +1998,18 @@
       "datasheet": "datasheets/environmental/bme688.pdf"
     },
     {
+      "id": "htu21df",
+      "name": "HTU21D-F",
+      "category": "humidity",
+      "addresses": [
+        "0x40"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/humidity/htu21df.pdf"
+    },
+    {
       "id": "hdc1008",
       "name": "HDC1008",
       "category": "humidity",
