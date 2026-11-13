@@ -230,6 +230,8 @@ members = [
     "tests/io_expander/pca6408a_test",
     "tests/io_expander/pca9536_test",
     "tests/io_expander/pca6416a_test",
+    "tests/io_expander/pca9539_test_esp32s3",
+    "tests/io_expander/pca9539_test",
     "tests/io_expander/pcf8575_test",
     "tests/io_expander/tpic6b595_test",
     "tests/connection/hx711_test",
