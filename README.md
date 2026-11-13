@@ -216,6 +216,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8577C | LCD driver (32 segments direct / 64 duplex, write-only) |  |  |  |  |  |  |  |  |
 | PCF8578 | LCD dot-matrix row/column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8579 | LCD dot-matrix column driver |  |  |  |  |  |  |  |  |
 | PCF8578 | LCD dot-matrix row/column driver |  |  |  |  |  |  |  |  |

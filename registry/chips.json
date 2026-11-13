@@ -641,6 +641,18 @@
       "datasheet": "datasheets/display/pcf8576.pdf"
     },
     {
+      "id": "pcf8577c",
+      "name": "PCF8577C",
+      "category": "display",
+      "addresses": [
+        "0x3A"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/display/pcf8577c.pdf"
+    },
+    {
       "id": "pcf8578",
       "name": "PCF8578",
       "category": "display",
