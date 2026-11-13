@@ -321,6 +321,10 @@
       "github:tuhde/Periph/python/periph/chips/light/apds_9930.py"
     ],
     [
+      "periph/chips/light/max44009.py",
+      "github:tuhde/Periph/python/periph/chips/light/max44009.py"
+    ],
+    [
       "periph/chips/magnetometer/as5600.py",
       "github:tuhde/Periph/python/periph/chips/magnetometer/as5600.py"
     ],

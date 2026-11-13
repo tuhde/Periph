@@ -1,0 +1,344 @@
+{
+  "category": "MAX44009",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MAX44009_LANGUAGES = {\n  \"CUSTOM_MAX44009_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MAX44009_LUX\": {\n    \"en\": \"%1 illuminance (lx)\"\n  },\n  \"CUSTOM_MAX44009_IS_OVERRANGE\": {\n    \"en\": \"%1 overrange\"\n  },\n  \"CUSTOM_MAX44009_RESOLUTION\": {\n    \"en\": \"%1 resolution (lx per LSB)\"\n  },\n  \"CUSTOM_MAX44009_SET_CONTINUOUS\": {\n    \"en\": \"%1 continuous mode (1 = yes) %2\"\n  },\n  \"CUSTOM_MAX44009_SET_AUTOMATIC\": {\n    \"en\": \"%1 automatic range\"\n  },\n  \"CUSTOM_MAX44009_SET_MANUAL\": {\n    \"en\": \"%1 manual range integration (ms) %2 divide by 8 (1 = yes) %3\"\n  },\n  \"CUSTOM_MAX44009_SET_THRESHOLDS\": {\n    \"en\": \"%1 interrupt window low (lx) %2 high (lx) %3\"\n  },\n  \"CUSTOM_MAX44009_GET_LOW_THRESHOLD\": {\n    \"en\": \"%1 lower threshold (lx)\"\n  },\n  \"CUSTOM_MAX44009_GET_HIGH_THRESHOLD\": {\n    \"en\": \"%1 upper threshold (lx)\"\n  },\n  \"CUSTOM_MAX44009_SET_THRESHOLD_DELAY\": {\n    \"en\": \"%1 threshold delay (s) %2\"\n  },\n  \"CUSTOM_MAX44009_GET_THRESHOLD_DELAY\": {\n    \"en\": \"%1 threshold delay (s)\"\n  },\n  \"CUSTOM_MAX44009_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt\"\n  },\n  \"CUSTOM_MAX44009_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt\"\n  },\n  \"CUSTOM_MAX44009_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status\"\n  }\n};\n\nconst initType = 'custom_max44009_init';\nBlockly.BlockRegExpList['custom_max44009'] = {\n  regexp: new RegExp(/^custom_max44009_/),\n  code: \"from MAX44009 import MAX44009\",\n  initBlockType: initType,\n  categoryId: 'custom_max44009',\n}\nBlockly.utils.registerLanguages(CUSTOM_MAX44009_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MAX44009_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MAX44009 = 'MAX44009'\n\nBlockly.utils.getcustom_max44009Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['max44009_0', 'max44009_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_max44009_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_max44009Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'max44009_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MAX44009(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_lux\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_LUX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_lux\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lux()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_max44009_is_overrange\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_IS_OVERRANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_is_overrange\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_overrange()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_max44009_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.resolution()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_max44009_set_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_SET_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'continuous'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_set_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var continuous = Blockly.Python.valueToCode(block, 'continuous', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_continuous(${continuous})\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_set_automatic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_SET_AUTOMATIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_set_automatic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.set_automatic()\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_set_manual\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_SET_MANUAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'integration_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'divide_by_8'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_set_manual\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var integration_ms = Blockly.Python.valueToCode(block, 'integration_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var divide_by_8 = Blockly.Python.valueToCode(block, 'divide_by_8', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_manual(${integration_ms}, ${divide_by_8})\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_set_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_SET_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low_lux'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high_lux'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_set_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low_lux = Blockly.Python.valueToCode(block, 'low_lux', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high_lux = Blockly.Python.valueToCode(block, 'high_lux', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_thresholds(${low_lux}, ${high_lux})\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_get_low_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_GET_LOW_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_get_low_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_low_threshold()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_max44009_get_high_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_GET_HIGH_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_get_high_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_high_threshold()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_max44009_set_threshold_delay\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_SET_THRESHOLD_DELAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'seconds'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_set_threshold_delay\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var seconds = Blockly.Python.valueToCode(block, 'seconds', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_threshold_delay(${seconds})\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_get_threshold_delay\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_GET_THRESHOLD_DELAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_get_threshold_delay\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_threshold_delay()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_max44009_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_interrupt()\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_interrupt()\\n`\n}\n\nBlockly.Blocks[\"custom_max44009_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MAX44009_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_max44009Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_max44009_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"MAX44009\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_max44009\">\n<title text=\"MAX44009\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_max44009_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">74</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_max44009_lux\"/><block type=\"custom_max44009_is_overrange\"/><block type=\"custom_max44009_resolution\"/><block type=\"custom_max44009_set_continuous\">\n  <value name=\"continuous\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_max44009_set_automatic\"/><block type=\"custom_max44009_set_manual\">\n  <value name=\"integration_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100.0</field>\n    </shadow>\n  </value>\n  <value name=\"divide_by_8\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_max44009_set_thresholds\">\n  <value name=\"low_lux\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50.0</field>\n    </shadow>\n  </value>\n  <value name=\"high_lux\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">500.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_max44009_get_low_threshold\"/><block type=\"custom_max44009_get_high_threshold\"/><block type=\"custom_max44009_set_threshold_delay\">\n  <value name=\"seconds\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_max44009_get_threshold_delay\"/><block type=\"custom_max44009_enable_interrupt\"/><block type=\"custom_max44009_disable_interrupt\"/><block type=\"custom_max44009_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_max44009",
+    "block_type": [
+      "custom_max44009___init__",
+      "custom_max44009_lux",
+      "custom_max44009_is_overrange",
+      "custom_max44009_resolution",
+      "custom_max44009_set_continuous",
+      "custom_max44009_set_automatic",
+      "custom_max44009_set_manual",
+      "custom_max44009_set_thresholds",
+      "custom_max44009_get_low_threshold",
+      "custom_max44009_get_high_threshold",
+      "custom_max44009_set_threshold_delay",
+      "custom_max44009_get_threshold_delay",
+      "custom_max44009_enable_interrupt",
+      "custom_max44009_disable_interrupt",
+      "custom_max44009_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "MAX44009",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MAX44009",
+      "time": "2026-11-13",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.max44009 import MAX44009Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "74",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MAX44009Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lux",
+        "note": {},
+        "label": {
+          "en": "%1 illuminance (lx)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.lux()",
+        "ast_return": {
+          "code": "self._driver.lux()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_overrange",
+        "note": {},
+        "label": {
+          "en": "%1 overrange"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_overrange()",
+        "ast_return": {
+          "code": "self._driver.is_overrange()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "resolution",
+        "note": {},
+        "label": {
+          "en": "%1 resolution (lx per LSB)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.resolution()",
+        "ast_return": {
+          "code": "self._driver.resolution()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 continuous mode (1 = yes) %2"
+        },
+        "params": [
+          {
+            "name": "continuous",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_continuous(bool(continuous))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_automatic",
+        "note": {},
+        "label": {
+          "en": "%1 automatic range"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.set_automatic()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_manual",
+        "note": {},
+        "label": {
+          "en": "%1 manual range integration (ms) %2 divide by 8 (1 = yes) %3"
+        },
+        "params": [
+          {
+            "name": "integration_ms",
+            "type": "float",
+            "default": "100.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "divide_by_8",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_manual(integration_ms, bool(divide_by_8))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt window low (lx) %2 high (lx) %3"
+        },
+        "params": [
+          {
+            "name": "low_lux",
+            "type": "float",
+            "default": "50.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "high_lux",
+            "type": "float",
+            "default": "500.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_thresholds(low_lux, high_lux)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_low_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 lower threshold (lx)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_thresholds()[0]",
+        "ast_return": {
+          "code": "self._driver.get_thresholds()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_high_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 upper threshold (lx)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_thresholds()[1]",
+        "ast_return": {
+          "code": "self._driver.get_thresholds()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_threshold_delay",
+        "note": {},
+        "label": {
+          "en": "%1 threshold delay (s) %2"
+        },
+        "params": [
+          {
+            "name": "seconds",
+            "type": "float",
+            "default": "2.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_threshold_delay(seconds)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_threshold_delay",
+        "note": {},
+        "label": {
+          "en": "%1 threshold delay (s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_threshold_delay()",
+        "ast_return": {
+          "code": "self._driver.get_threshold_delay()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_interrupt()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_interrupt()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "max44009"
+  },
+  "pyCode": "\"\"\"\nfile     MAX44009\ntime     2026-11-13\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.max44009 import MAX44009Full\n\n\nclass MAX44009:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 74):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '74'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MAX44009Full(connection)\n\n    def lux(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 illuminance (lx)'\n        \"\"\"\n        return self._driver.lux()\n\n    def is_overrange(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 overrange'\n        \"\"\"\n        return self._driver.is_overrange()\n\n    def resolution(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 resolution (lx per LSB)'\n        \"\"\"\n        return self._driver.resolution()\n\n    def set_continuous(self, continuous: int):\n        \"\"\"\n        label:\n            en: '%1 continuous mode (1 = yes) %2'\n        params:\n            continuous:\n                name: continuous\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_continuous(bool(continuous))\n\n    def set_automatic(self):\n        \"\"\"\n        label:\n            en: '%1 automatic range'\n        \"\"\"\n        self._driver.set_automatic()\n\n    def set_manual(self, integration_ms: float, divide_by_8: int):\n        \"\"\"\n        label:\n            en: '%1 manual range integration (ms) %2 divide by 8 (1 = yes) %3'\n        params:\n            integration_ms:\n                name: integration_ms\n                type: float\n                default: '100.0'\n                field: number\n            divide_by_8:\n                name: divide_by_8\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_manual(integration_ms, bool(divide_by_8))\n\n    def set_thresholds(self, low_lux: float, high_lux: float):\n        \"\"\"\n        label:\n            en: '%1 interrupt window low (lx) %2 high (lx) %3'\n        params:\n            low_lux:\n                name: low_lux\n                type: float\n                default: '50.0'\n                field: number\n            high_lux:\n                name: high_lux\n                type: float\n                default: '500.0'\n                field: number\n        \"\"\"\n        self._driver.set_thresholds(low_lux, high_lux)\n\n    def get_low_threshold(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 lower threshold (lx)'\n        \"\"\"\n        return self._driver.get_thresholds()[0]\n\n    def get_high_threshold(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 upper threshold (lx)'\n        \"\"\"\n        return self._driver.get_thresholds()[1]\n\n    def set_threshold_delay(self, seconds: float):\n        \"\"\"\n        label:\n            en: '%1 threshold delay (s) %2'\n        params:\n            seconds:\n                name: seconds\n                type: float\n                default: '2.0'\n                field: number\n        \"\"\"\n        self._driver.set_threshold_delay(seconds)\n\n    def get_threshold_delay(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 threshold delay (s)'\n        \"\"\"\n        return self._driver.get_threshold_delay()\n\n    def enable_interrupt(self):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt'\n        \"\"\"\n        self._driver.enable_interrupt()\n\n    def disable_interrupt(self):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt'\n        \"\"\"\n        self._driver.disable_interrupt()\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}

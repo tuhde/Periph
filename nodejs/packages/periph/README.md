@@ -88,6 +88,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | LSM303 | Accelerometer | `periph/src/chips/accelerometer/lsm303` |
+| MAX44009 | Light sensor | `periph/src/chips/light/max44009` |
 | MB85RC | Memory | `periph/src/chips/memory/mb85rc` |
 | MCP23008 | IO expander | `periph/src/chips/io_expander/mcp23008` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |

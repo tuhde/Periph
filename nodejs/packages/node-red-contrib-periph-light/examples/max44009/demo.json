@@ -1,0 +1,101 @@
+[
+    {
+        "id": "tab-max44009-demo",
+        "type": "tab",
+        "label": "MAX44009 Backlight Demo",
+        "disabled": false,
+        "info": "Adaptive backlight on a MAX44009 ambient light sensor. An inject node fires every 2 s into periph-max44009; a function node maps the lux to a backlight percentage (log scale) and a debug node shows lux and percentage. A second inject sends {low: 50, high: 500, delay: 2} to arm the interrupt window, and with the INT line wired the node emits {lux, interrupt: true} messages when the light leaves the window."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read every 2 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-max44009-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "max44009-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-arm",
+        "type": "inject",
+        "name": "Arm window 50-500 lx",
+        "topic": "",
+        "payload": "{\"low\":50,\"high\":500,\"delay\":2}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-max44009-demo",
+        "x": 170,
+        "y": 180,
+        "wires": [
+            [
+                "max44009-node"
+            ]
+        ]
+    },
+    {
+        "id": "max44009-node",
+        "type": "periph-max44009",
+        "name": "MAX44009",
+        "bus": "1",
+        "address": "0x4A",
+        "mode": "lowpower",
+        "range": "auto",
+        "integration": "100",
+        "divide8": false,
+        "gpioChip": "0",
+        "intPin": "",
+        "z": "tab-max44009-demo",
+        "x": 400,
+        "y": 140,
+        "wires": [
+            [
+                "fn-backlight"
+            ]
+        ]
+    },
+    {
+        "id": "fn-backlight",
+        "type": "function",
+        "name": "lux to backlight %",
+        "func": "// Logarithmic map of 0.1 - 10000 lx to a 10 - 100 % backlight level.\nconst lx = Math.min(10000, Math.max(0.1, msg.payload.lux));\nmsg.payload.backlight = Math.round(10 + 90 * (Math.log10(lx) + 1) / 5);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-max44009-demo",
+        "x": 640,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-max44009"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-max44009",
+        "type": "debug",
+        "name": "lux / backlight",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-max44009-demo",
+        "x": 860,
+        "y": 140,
+        "wires": []
+    }
+]
