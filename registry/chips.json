@@ -1297,6 +1297,18 @@
       "datasheet": "datasheets/memory/at24c02n.pdf"
     },
     {
+      "id": "at24c64",
+      "name": "AT24C64",
+      "category": "memory",
+      "addresses": [
+        "0x50..0x57"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/memory/at24c64.pdf"
+    },
+    {
       "id": "mb85rc",
       "name": "MB85RC256V",
       "category": "memory",
