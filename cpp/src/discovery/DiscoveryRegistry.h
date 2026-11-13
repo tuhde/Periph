@@ -191,6 +191,7 @@ static constexpr IdProbe kProbe_bmp384 = {0x00, 1, 1, false, 0xFF, kExp_bmp384, 
 static constexpr uint8_t kAddr_bmp581[] = {0x46, 0x47};
 static constexpr uint32_t kExp_bmp581[] = {0x50};
 static constexpr IdProbe kProbe_bmp581 = {0x01, 1, 1, false, 0xFF, kExp_bmp581, 1};
+static constexpr uint8_t kAddr_mpl115a2[] = {0x60};
 static constexpr uint8_t kAddr_lps22df[] = {0x5C, 0x5D};
 static constexpr uint32_t kExp_lps22df[] = {0xB4};
 static constexpr IdProbe kProbe_lps22df = {0x0F, 1, 1, false, 0xFF, kExp_lps22df, 1};
@@ -349,6 +350,7 @@ static constexpr ChipEntry kChips[] = {
     {"bmp280", "bmp280", false, false, kAddr_bmp280, 2, &kProbe_bmp280},
     {"bmp384", "bmp384", false, false, kAddr_bmp384, 2, &kProbe_bmp384},
     {"bmp581", "bmp581", false, false, kAddr_bmp581, 2, &kProbe_bmp581},
+    {"mpl115a2", nullptr, false, false, kAddr_mpl115a2, 1, nullptr},
     {"lps22df", "lps22df", false, false, kAddr_lps22df, 2, &kProbe_lps22df},
     {"lps28dfw", "lps28dfw", false, false, kAddr_lps28dfw, 2, &kProbe_lps28dfw},
     {"lps33hw", "lps33hw", false, false, kAddr_lps33hw, 2, &kProbe_lps33hw},
@@ -374,7 +376,7 @@ static constexpr ChipEntry kChips[] = {
     {"hs40xx", nullptr, true, false, kAddr_hs40xx, 1, nullptr},
     {"lps22hb", nullptr, false, false, kAddr_lps22hb, 2, &kProbe_lps22hb},
 };
-static constexpr size_t kChipCount = 126;
+static constexpr size_t kChipCount = 127;
 
 }  // namespace discovery
 }  // namespace periph

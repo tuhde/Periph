@@ -125,6 +125,7 @@ var registry = []Chip{
 	{ID: "bmp280", Driver: "bmp280", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: &IdProbe{Register: 0xD0, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x58}}},
 	{ID: "bmp384", Driver: "bmp384", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x50}}},
 	{ID: "bmp581", Driver: "bmp581", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x46, 0x47}, Probe: &IdProbe{Register: 0x01, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x50}}},
+	{ID: "mpl115a2", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x60}, Probe: nil},
 	{ID: "lps22df", Driver: "lps22df", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5C, 0x5D}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xB4}}},
 	{ID: "lps28dfw", Driver: "lps28dfw", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5C, 0x5D}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xB4}}},
 	{ID: "lps33hw", Driver: "lps33hw", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5C, 0x5D}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xB1}}},
