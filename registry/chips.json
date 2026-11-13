@@ -1769,6 +1769,27 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/pressure/mpl3115a2.pdf"
+    },
+    {
+      "id": "shtc3",
+      "name": "SHTC3",
+      "category": "humidity",
+      "addresses": [
+        "0x70"
+      ],
+      "id_probe": {
+        "register": "0xEFC8",
+        "reg_bytes": 2,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0x083F",
+        "expected": [
+          "0x0807"
+        ]
+      },
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/humidity/shtc3.pdf"
     }
   ]
 }
