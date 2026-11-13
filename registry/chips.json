@@ -689,6 +689,18 @@
       "datasheet": "datasheets/environmental/aht10.pdf"
     },
     {
+      "id": "aht20",
+      "name": "AHT20",
+      "category": "environmental",
+      "addresses": [
+        "0x38"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/environmental/aht20.pdf"
+    },
+    {
       "id": "aht21",
       "name": "AHT21",
       "category": "environmental",
