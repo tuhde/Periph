@@ -38,7 +38,7 @@ The SRAM is addressed with **two address bytes** (MSB, LSB), the control registe
 |-----|--------|-------|
 | A1, A2 | — | device address bits; must match the control byte |
 | HS | high | Hardware Store: ≥ 150 ns high pulse starts a Store (ignored while VCAP < VTRIP and during Store/Recall); sets the EVENT bit; tie to VSS if unused |
-| VCAP | — | Auto-Store capacitor: 4.7 µF typ. (3.5 µF min., 47C04 and 47L04 alike — see datasheet table D18) to VSS when ASE = 1; if no capacitor is fitted, tie VCAP to VCC and set ASE = 0 |
+| VCAP | — | Auto-Store capacitor: required to VSS when ASE = 1: 47C04 ≥ 3.5 µF (4.7 µF typ.), 47C16 and 47L04 ≥ 5 µF (6.8 µF typ.), 47L16 ≥ 8 µF (10 µF typ.); if no capacitor is fitted, tie VCAP to VCC and set ASE = 0 |
 | SDA | — | open drain; external pull-up required |
 | SCL | — | clock |
 | VCC | — | 2.7–3.6 V (47L) or 4.5–5.5 V (47C) |
