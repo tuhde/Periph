@@ -360,4 +360,7 @@ CHIPS = (
     {"id": "bq32000", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x68,),
      "probe": None},
+    {"id": "bme688", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x76, 0x77,),
+     "probe": {"register": 0xF0, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x01,)}},
 )

@@ -1825,6 +1825,27 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/rtc/bq32000.pdf"
+    },
+    {
+      "id": "bme688",
+      "name": "BME688",
+      "category": "environmental",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": {
+        "register": "0xF0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x01"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/environmental/bme688.pdf"
     }
   ]
 }
