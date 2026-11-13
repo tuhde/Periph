@@ -387,4 +387,7 @@ CHIPS = (
     {"id": "saa1064", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x38, 0x39, 0x3A, 0x3B,),
      "probe": None},
+    {"id": "pcf8563", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x51,),
+     "probe": None},
 )

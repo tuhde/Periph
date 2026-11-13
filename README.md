@@ -208,6 +208,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF2116 | LCD controller/driver (character, 24x2 / 12x4, PCF2116/PCF2114 family) |  |  |  |  |  |  |  |  |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF85063A | Real-time clock (alarm, timer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8563 | Real-time clock/calendar (alarm, timer, CLKOUT, voltage-low flag) |  |  |  |  |  |  |  |  |
 | PCF8566 | LCD segment driver (24 segments, static to 1:4 mux, write-only) |  |  |  |  |  |  |  |  |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
