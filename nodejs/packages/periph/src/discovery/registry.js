@@ -134,6 +134,7 @@ const CHIPS = [
     {"id":"lps22hb","driver":null,"writeSensitive":false,"aliased":false,"addresses":[92,93],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[177]}},
     {"id":"saa1064","driver":null,"writeSensitive":true,"aliased":false,"addresses":[56,57,58,59],"probe":null},
     {"id":"pcf8563","driver":null,"writeSensitive":false,"aliased":false,"addresses":[81],"probe":null},
+    {"id":"mcp7940n","driver":null,"writeSensitive":false,"aliased":false,"addresses":[111],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };

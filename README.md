@@ -187,6 +187,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MCP3422 | 18-bit ΔΣ ADC (2-ch, PGA, internal reference) |  |  |  |  |  |  |  |  |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP7940N | Battery-backed RTC (2 alarms, SRAM, trim, power-fail time-stamp) |  |  |  |  |  |  |  |  |
 | MCP9808 | Temperature sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
