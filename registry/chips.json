@@ -593,6 +593,18 @@
       "datasheet": "datasheets/comms/rda5807m.pdf"
     },
     {
+      "id": "bu9796",
+      "name": "BU9796",
+      "category": "display",
+      "addresses": [
+        "0x3E"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/display/bu9796.pdf"
+    },
+    {
       "id": "pcf2116",
       "name": "PCF2116",
       "category": "display",

@@ -66,6 +66,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "pcf8591", driver: Some("pcf8591"), write_sensitive: true, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: None },
     ChipEntry { id: "es8311", driver: Some("es8311"), write_sensitive: false, aliased: false, addresses: &[0x18, 0x19], probe: None },
     ChipEntry { id: "rda5807m", driver: Some("rda5807m"), write_sensitive: true, aliased: false, addresses: &[0x10], probe: None },
+    ChipEntry { id: "bu9796", driver: None, write_sensitive: true, aliased: false, addresses: &[0x3E], probe: None },
     ChipEntry { id: "pcf2116", driver: None, write_sensitive: true, aliased: false, addresses: &[0x3A, 0x3B], probe: None },
     ChipEntry { id: "pcf8566", driver: None, write_sensitive: true, aliased: false, addresses: &[0x3E, 0x3F], probe: None },
     ChipEntry { id: "pcf8576", driver: Some("pcf8576"), write_sensitive: true, aliased: false, addresses: &[0x38, 0x39], probe: None },

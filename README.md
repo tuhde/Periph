@@ -101,6 +101,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 ## Supported chips
 
+| BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Go | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|----|-----|--------|
 | 23X1024 | Serial SRAM (1 Mbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
