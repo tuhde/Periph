@@ -228,6 +228,9 @@ static constexpr IdProbe kProbe_mpl3115a2 = {0x0C, 1, 1, false, 0xFF, kExp_mpl31
 static constexpr uint8_t kAddr_shtc3[] = {0x70};
 static constexpr uint32_t kExp_shtc3[] = {0x0807};
 static constexpr IdProbe kProbe_shtc3 = {0xEFC8, 2, 2, false, 0x083F, kExp_shtc3, 1};
+static constexpr uint8_t kAddr_tsl2561[] = {0x29, 0x39, 0x49};
+static constexpr uint32_t kExp_tsl2561[] = {0x10};
+static constexpr IdProbe kProbe_tsl2561 = {0x8A, 1, 1, false, 0xF0, kExp_tsl2561, 1};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -347,8 +350,9 @@ static constexpr ChipEntry kChips[] = {
     {"veml7700", nullptr, false, false, kAddr_veml7700, 1, &kProbe_veml7700},
     {"mpl3115a2", nullptr, false, false, kAddr_mpl3115a2, 1, &kProbe_mpl3115a2},
     {"shtc3", nullptr, true, false, kAddr_shtc3, 1, &kProbe_shtc3},
+    {"tsl2561", nullptr, false, false, kAddr_tsl2561, 3, &kProbe_tsl2561},
 };
-static constexpr size_t kChipCount = 117;
+static constexpr size_t kChipCount = 118;
 
 }  // namespace discovery
 }  // namespace periph
