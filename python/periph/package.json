@@ -93,6 +93,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/ds1881.py"
     ],
     [
+      "periph/chips/adc_dac/ds3502.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ds3502.py"
+    ],
+    [
       "periph/chips/adc_dac/es8311.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/es8311.py"
     ],

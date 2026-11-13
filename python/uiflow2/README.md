@@ -78,6 +78,7 @@ uiflow2/
 | [BMP280](pressure/bmp280/) | pressure | init, `read_temperature`, `read_pressure`, `read_altitude` |
 | [MFRC522](rfid/mfrc522/) | rfid | init, `is_card_present`, `read_uid` |
 | [ADS7828](adc_dac/ads7828/) | adc_dac | init, `read_raw`, `read_voltage`, `read_differential`, `read_signed_differential`, `set_reference`, `power_down` |
+| [DS3502](adc_dac/ds3502/) | adc_dac | init, `set_wiper`, `get_wiper`, `set_voltage`, `get_voltage`, `set_ratio`, `get_ratio`, `get_resistance_low`, `get_resistance_high`, `increment`, `store_wiper`, `set_mode`, `get_mode`, `wait_ready`, `set_endpoints` |
 | [PCA9536](io_expander/pca9536/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `configure_polarity`, `set_direction`, `get_direction`, `poll_changes`, `reset` |
 
 ## Using these blocks

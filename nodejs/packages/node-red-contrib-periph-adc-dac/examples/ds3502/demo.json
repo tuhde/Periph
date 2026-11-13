@@ -1,0 +1,137 @@
+[
+    {
+        "id": "tab-ds3502-demo",
+        "type": "tab",
+        "label": "DS3502 Voltage Setter Demo",
+        "disabled": false,
+        "info": "VCOM-style voltage setter on one DS3502 high-voltage digital potentiometer with RH = 15 V and RL = 0 V. An inject node sends {voltage: 5} on deploy; a second inject ticks every 500 ms into a function node that sweeps {code: n} through 16 steps (0, 8, ... 120); a debug node shows code, ratio and voltage; a button inject sends {store: true} to persist the last setting in the EEPROM (power-up value)."
+    },
+    {
+        "id": "inj-sweep",
+        "type": "inject",
+        "name": "Sweep tick (500 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-ds3502-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "fn-sweep"
+            ]
+        ]
+    },
+    {
+        "id": "fn-sweep",
+        "type": "function",
+        "name": "sweep wiper",
+        "func": "// 16 steps of 8 codes: 0, 8, ... 120, then wrap.\nlet i = context.get('step') || 0;\ncontext.set('step', (i + 1) % 16);\nmsg.payload = { code: i * 8 };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-ds3502-demo",
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "ds3502-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-rheo",
+        "type": "inject",
+        "name": "Set 5 V",
+        "topic": "",
+        "payload": "{\"voltage\":5}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "z": "tab-ds3502-demo",
+        "x": 160,
+        "y": 180,
+        "wires": [
+            [
+                "ds3502-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-sd-on",
+        "type": "inject",
+        "name": "Store wiper in EEPROM",
+        "topic": "",
+        "payload": "{\"store\":true}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ds3502-demo",
+        "x": 160,
+        "y": 300,
+        "wires": [
+            [
+                "ds3502-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read wiper",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ds3502-demo",
+        "x": 160,
+        "y": 240,
+        "wires": [
+            [
+                "ds3502-node"
+            ]
+        ]
+    },
+    {
+        "id": "ds3502-node",
+        "type": "periph-ds3502",
+        "name": "DS3502",
+        "bus": "1",
+        "z": "tab-ds3502-demo",
+        "x": 560,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-ds3502"
+            ]
+        ],
+        "address": "0x28",
+        "vhigh": "15",
+        "vlow": "0"
+    },
+    {
+        "id": "dbg-ds3502",
+        "type": "debug",
+        "name": "code / ratio / voltage",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ds3502-demo",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    }
+]

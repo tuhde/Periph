@@ -196,7 +196,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ds3502",
       "datasheet": "datasheets/adc_dac/ds3502.pdf"
     },
     {

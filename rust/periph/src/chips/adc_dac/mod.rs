@@ -7,6 +7,8 @@ pub mod cat5171;
 pub mod cs43l22;
 pub use cs43l22::{CS43L22Minimal, CS43L22Full, Cs43l22Error, CS43L22_I2C_ADDRESS};
 pub mod ds1881;
+pub mod ds3502;
+pub use ds3502::{DS3502Minimal, DS3502Full, Ds3502Error, Ds3502Terminal, DS3502_I2C_ADDRESS};
 pub use ds1881::{DS1881Minimal, DS1881Full, Ds1881Config, Ds1881Error, DS1881_I2C_ADDRESS};
 pub use cat5171::{CAT5171Minimal, CAT5171Full, CAT5171_I2C_ADDRESS, CAT5171_I2C_ADDRESS_AD0_HIGH};
 pub mod hx710a;

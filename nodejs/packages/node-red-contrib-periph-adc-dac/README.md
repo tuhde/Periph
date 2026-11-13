@@ -32,6 +32,7 @@ npm install node-red-contrib-periph-adc-dac
 | `periph-cat5171` | input | Sets and reads the 256-position wiper of a CAT5171 I²C digital potentiometer. The wiper is volatile: it powers up at midscale (128). |
 | `periph-cs43l22` | input | Controls a CS43L22 stereo DAC with headphone and speaker amplifiers over its I²C control port. The audio stream (I²S: MCLK, SCLK, LRCK, SDIN) comes from the board and is not handled by this node. Send { start: true } only after MCLK is running. |
 | `periph-ds1881` | input | Controls the two audio log-taper channels of a DS1881 dual digital potentiometer. Attenuation is in dB (0 dB = wiper at H); position 63 (Option 1) or 33 (Option 2) is mute. By default the wipers are volatile and power up at mute. |
+| `periph-ds3502` | input | Sets and reads the 128-position wiper of a DS3502 high-voltage I²C digital potentiometer. Wiper writes go to SRAM only (MODE = 1) and never wear the EEPROM; the wiper powers up at the stored Initial Value Register position (factory default 64, midscale). |
 | `es8311-device` | config | I²C bus and address for an ES8311 |
 | `periph-es8311` | input | Controls an ES8311 low-power mono audio codec over its I²C control port. The audio stream itself (I²S) is not handled by this node. |
 | `periph-hx710a` | input | Reads weight from an HX710A 24-bit ADC connected to a load cell via two GPIO pins. Also exposes the chip's on-chip temperature sensor as a raw ADC code. |

@@ -22,7 +22,7 @@ public final class DiscoveryRegistry {
         new Chip("mma8451q", "mma8451q", false, false, new int[] {0x1C, 0x1D}, new IdProbe(0x0D, 1, 1, false, 0xFFL, new long[] {0x1AL})),
         new Chip("ad5243", "ad5243", true, false, new int[] {0x2F}, null),
         new Chip("ad5248", "ad5248", true, false, new int[] {0x2C, 0x2D, 0x2E, 0x2F}, null),
-        new Chip("ds3502", null, false, false, new int[] {0x28, 0x29, 0x2A, 0x2B}, null),
+        new Chip("ds3502", "ds3502", false, false, new int[] {0x28, 0x29, 0x2A, 0x2B}, null),
         new Chip("cat5171", "cat5171", true, false, new int[] {0x2C, 0x2D}, null),
         new Chip("ds1881", "ds1881", true, false, new int[] {0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F}, null),
         new Chip("cs43l22", "cs43l22", false, false, new int[] {0x4A, 0x4B}, new IdProbe(0x01, 1, 1, false, 0xF8L, new long[] {0xE0L})),

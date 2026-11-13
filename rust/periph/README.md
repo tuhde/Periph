@@ -79,6 +79,7 @@ Each chip exposes two structs:
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |
 | DS1881 | ADC/DAC | Dual nonvolatile audio log-taper digital potentiometer (Maxim). |
 | DS3231 | RTC | Extremely accurate I²C-integrated RTC/TCXO/crystal (Analog |
+| DS3502 | ADC/DAC | 7-bit nonvolatile high-voltage I²C digital potentiometer (Maxim). |
 | ENS160 | Gas sensor | Digital multi-gas sensor driver. |
 | ES8311 | ADC/DAC | Low-power mono audio codec, I²C control port (Everest Semiconductor). |
 | FXOS8700 | Accelerometer | 6-axis e-compass: 14-bit accelerometer + 16-bit magnetometer (NXP). |
