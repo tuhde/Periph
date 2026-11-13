@@ -100,6 +100,7 @@ Each chip exposes two structs:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
 | LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |
+| MAX44009 | Light sensor | Ultra-low-power ambient light sensor with ADC (Maxim / Analog Devices). |
 | MB85RC | Memory | 256 Kbit (32 KiB) I²C FRAM (ferroelectric RAM). |
 | MCP23008 | IO expander | / MCP23S08 8-bit bidirectional I/O port expander (Microchip). |
 | MCP23017 | IO expander | 16-bit bidirectional I/O port expander (Microchip). |
