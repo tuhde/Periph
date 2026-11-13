@@ -189,7 +189,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | LPS28DFW | Pressure sensor (water-resistant, dual FS) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS33HW | Pressure sensor (water-resistant) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MAG3110 | 3-axis digital magnetometer (±1000 µT, 80 Hz, INT1) |  |  |  |  |  |  |  |  |
-| MAX44009 | Ambient light sensor (ultra-low power, lux output) |  |  |  |  |  |  |  |  |
+| MAX44009 | Ambient light sensor (ultra-low power, lux output) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP2515 | CAN controller (SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4XXX (MCP453X/454X/455X/456X/463X/464X/465X/466X) | Digital potentiometer / rheostat (7/8-bit, 1/2-ch, volatile and EEPROM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

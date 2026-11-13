@@ -1209,7 +1209,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "max44009",
       "datasheet": "datasheets/light/max44009.pdf"
     },
     {
