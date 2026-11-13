@@ -1879,6 +1879,18 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/humidity/hdc1080.pdf"
+    },
+    {
+      "id": "ht16k33",
+      "name": "HT16K33",
+      "category": "led",
+      "addresses": [
+        "0x70..0x77"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/led/ht16k33.pdf"
     }
   ]
 }

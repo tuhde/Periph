@@ -156,6 +156,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HDC1008 | Humidity and temperature sensor (14-bit, heater, DRDYn) |  |  |  |  |  |  |  |  |
 | HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) |  |  |  |  |  |  |  |  |
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) |  |  |  |  |  |  |  |  |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
