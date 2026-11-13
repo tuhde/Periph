@@ -144,4 +144,5 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "bq32000", driver: None, write_sensitive: false, aliased: false, addresses: &[0x68], probe: None },
     ChipEntry { id: "bme688", driver: None, write_sensitive: false, aliased: false, addresses: &[0x76, 0x77], probe: Some(IdProbe { register: 0xF0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x01] }) },
     ChipEntry { id: "hdc1008", driver: None, write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43], probe: None },
+    ChipEntry { id: "hdc1080", driver: None, write_sensitive: false, aliased: false, addresses: &[0x40], probe: Some(IdProbe { register: 0xFF, reg_bytes: 1, length: 2, little_endian: false, mask: 0xFFFF, expected: &[0x1050] }) },
 ];

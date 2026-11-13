@@ -154,6 +154,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ES8311 | Audio codec (mono ADC + DAC, I²C control) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | FXOS8700 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HDC1008 | Humidity and temperature sensor (14-bit, heater, DRDYn) |  |  |  |  |  |  |  |  |
+| HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) |  |  |  |  |  |  |  |  |
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
