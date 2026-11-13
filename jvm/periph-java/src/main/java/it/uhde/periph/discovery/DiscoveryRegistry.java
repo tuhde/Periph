@@ -114,6 +114,7 @@ public final class DiscoveryRegistry {
         new Chip("bmp280", "bmp280", false, false, new int[] {0x76, 0x77}, new IdProbe(0xD0, 1, 1, false, 0xFFL, new long[] {0x58L})),
         new Chip("bmp384", "bmp384", false, false, new int[] {0x76, 0x77}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0x50L})),
         new Chip("bmp581", "bmp581", false, false, new int[] {0x46, 0x47}, new IdProbe(0x01, 1, 1, false, 0xFFL, new long[] {0x50L})),
+        new Chip("mpl115a2", null, false, false, new int[] {0x60}, null),
         new Chip("lps22df", "lps22df", false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB4L})),
         new Chip("lps28dfw", "lps28dfw", false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB4L})),
         new Chip("lps33hw", "lps33hw", false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB1L})),

@@ -1512,6 +1512,18 @@
       "datasheet": "datasheets/pressure/bmp581.pdf"
     },
     {
+      "id": "mpl115a2",
+      "name": "MPL115A2",
+      "category": "pressure",
+      "addresses": [
+        "0x60"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/pressure/mpl115a2.pdf"
+    },
+    {
       "id": "lps22df",
       "name": "LPS22DF",
       "category": "pressure",

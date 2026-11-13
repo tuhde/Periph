@@ -192,6 +192,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MPL115A2 | Barometer (50–115 kPa, 10-bit, calibration coefficients) |  |  |  |  |  |  |  |  |
 | MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) |  |  |  |  |  |  |  |  |
 | MPR121 | Capacitive touch sensor (12-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
