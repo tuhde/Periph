@@ -25,6 +25,7 @@
       "cat5171": "nodes/cat5171/cat5171.js",
       "cs43l22": "nodes/cs43l22/cs43l22.js",
       "ds1881": "nodes/ds1881/ds1881.js",
+      "ds3502": "nodes/ds3502/ds3502.js",
       "es8311": "nodes/es8311/es8311.js",
       "hx710a": "nodes/hx710a/hx710a.js",
       "hx710b": "nodes/hx710b/hx710b.js",

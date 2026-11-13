@@ -67,6 +67,7 @@ Each chip exposes two classes:
 | DRV8830 | Motor driver | `periph/src/chips/motor/drv8830` |
 | DS1881 | ADC/DAC | `periph/src/chips/adc_dac/ds1881` |
 | DS3231 | RTC | `periph/src/chips/rtc/ds3231` |
+| DS3502 | ADC/DAC | `periph/src/chips/adc_dac/ds3502` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
 | ES8311 | ADC/DAC | `periph/src/chips/adc_dac/es8311` |
 | FXOS8700 | Accelerometer | `periph/src/chips/accelerometer/fxos8700` |

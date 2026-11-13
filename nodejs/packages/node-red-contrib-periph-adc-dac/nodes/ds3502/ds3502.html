@@ -1,0 +1,73 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ds3502', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x28' },
+            vhigh:   { value: '15', required: true, validate: RED.validators.number() },
+            vlow:    { value: '0', required: true, validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sliders',
+        label:   function() { return this.name || 'DS3502'; },
+        paletteLabel: 'DS3502'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ds3502">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DS3502">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x28">0x28 (A1 = A0 = GND)</option>
+            <option value="0x29">0x29 (A1 = GND, A0 = VCC)</option>
+            <option value="0x2A">0x2A (A1 = VCC, A0 = GND)</option>
+            <option value="0x2B">0x2B (A1 = A0 = VCC)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-vhigh"><i class="fa fa-bolt"></i> RH voltage</label>
+        <input type="number" id="node-input-vhigh" step="any" style="width:80px"> &nbsp;V
+    </div>
+    <div class="form-row">
+        <label for="node-input-vlow"><i class="fa fa-bolt"></i> RL voltage</label>
+        <input type="number" id="node-input-vlow" step="any" style="width:80px"> &nbsp;V
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ds3502">
+    <p>Sets and reads the 128-position wiper of a DS3502 high-voltage I²C digital potentiometer. Wiper writes go to SRAM only (MODE = 1) and never wear the EEPROM; the wiper powers up at the stored Initial Value Register position (factory default 64, midscale).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.code <span class="property-type">number</span></dt>
+        <dd>Wiper position 0–127 (clamped).</dd>
+        <dt>payload.ratio <span class="property-type">number</span></dt>
+        <dd>Without <code>code</code>: divider ratio 0.0–1.0, set to the nearest code.</dd>
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Without <code>code</code> / <code>ratio</code>: unloaded RW voltage in volts, set to the nearest code between the configured RL and RH voltages.</dd>
+        <dt>payload.store <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> writes the current wiper position into the Initial Value Register (EEPROM, power-up value). This consumes one of the limited EEPROM write cycles (50 000 at 70 °C).</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads back the wiper.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.code, payload.ratio, payload.voltage <span class="property-type">number</span></dt>
+        <dd>The wiper code read back, the divider ratio (code / 127) and the unloaded RW voltage in volts. After a store, <code>payload.stored</code> is <code>true</code>.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number, the address (0x28–0x2B via A1, A0) and the voltages applied to RH and RL (up to 15.5 V; V+ must exceed VCC and the RH voltage). The wiper carries at most 1 mA, so buffer the output for heavier loads. Absolute resistance is only accurate to ±20 %; ratios are exact.</p>
+</script>
