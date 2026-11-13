@@ -168,6 +168,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP2515 | CAN controller (SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4XXX (MCP453X/454X/455X/456X/463X/464X/465X/466X) | Digital potentiometer / rheostat (7/8-bit, 1/2-ch, volatile and EEPROM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP3422 | 18-bit ΔΣ ADC (2-ch, PGA, internal reference) |  |  |  |  |  |  |  |  |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP9808 | Temperature sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
