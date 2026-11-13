@@ -54,6 +54,7 @@
 #include "chips/adc_dac/HX710B.h"
 #include "chips/adc_dac/HX711.h"
 #include "chips/adc_dac/HY3131.h"
+#include "chips/adc_dac/MCP3422.h"
 #include "chips/adc_dac/MCP4725.h"
 #include "chips/adc_dac/MCP4728.h"
 #include "chips/adc_dac/MCP4XXX.h"
