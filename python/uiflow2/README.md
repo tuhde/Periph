@@ -61,6 +61,7 @@ uiflow2/
 | [MCP23008](io_expander/mcp23008/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `configure_pullup`, `configure_polarity`, `set_default_value`, `enable_pin_interrupt`, `poll_interrupt`, `read_capture`, `reset` |
 | [PCA6408A](io_expander/pca6408a/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `configure_polarity`, `set_direction`, `get_direction`, `poll_interrupt`, `reset` |
 | [PCA6416A](io_expander/pca6416a/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `read_all`, `write_all`, `configure_polarity`, `set_direction`, `get_direction`, `poll_interrupt`, `reset` |
+| [PCA9539](io_expander/pca9539/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `read_all`, `write_all`, `configure_polarity`, `set_direction`, `get_direction`, `poll_interrupt`, `reset` |
 | [MCP23017](io_expander/mcp23017/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8574](io_expander/pcf8574/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
