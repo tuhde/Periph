@@ -1,0 +1,99 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-max44009', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            bus:         { value: '1', required: true, validate: RED.validators.number() },
+            address:     { value: '0x4A' },
+            mode:        { value: 'lowpower' },
+            range:       { value: 'auto' },
+            integration: { value: '100' },
+            divide8:     { value: false },
+            gpioChip:    { value: '0' },
+            intPin:      { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sun-o',
+        label:   function() { return this.name || 'MAX44009'; },
+        paletteLabel: 'MAX44009'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-max44009">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MAX44009">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x4A">0x4A (A0 = GND)</option>
+            <option value="0x4B">0x4B (A0 = VCC)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-clock-o"></i> Mode</label>
+        <select id="node-input-mode" style="width:200px">
+            <option value="lowpower">Low power (800 ms)</option>
+            <option value="continuous">Continuous</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-range"><i class="fa fa-sliders"></i> Range</label>
+        <select id="node-input-range" style="width:200px">
+            <option value="auto">Automatic</option>
+            <option value="manual">Manual</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-integration">Integration</label>
+        <select id="node-input-integration" style="width:120px">
+            <option value="800">800 ms</option><option value="400">400 ms</option>
+            <option value="200">200 ms</option><option value="100">100 ms</option>
+            <option value="50">50 ms</option><option value="25">25 ms</option>
+            <option value="12.5">12.5 ms</option><option value="6.25">6.25 ms</option>
+        </select>
+        &nbsp;<input type="checkbox" id="node-input-divide8" style="width:auto; vertical-align:top"> divide by 8
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;(for the optional INT line)
+    </div>
+    <div class="form-row">
+        <label for="node-input-intPin">INT GPIO line</label>
+        <input type="number" id="node-input-intPin" min="0" style="width:80px" placeholder="none">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-max44009">
+    <p>Reads the ambient illuminance of a MAX44009 ultra-low-power light sensor (I²C, 0.045 lx to 188 006.4 lx) and arms its threshold interrupt.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.low, payload.high <span class="property-type">number</span></dt>
+        <dd>Interrupt window in lux. Programs the lower and upper thresholds and enables the interrupt; no output message.</dd>
+        <dt>payload.delay <span class="property-type">number</span></dt>
+        <dd>Optional with <code>low</code> / <code>high</code>: seconds (0–25.5) the light must stay outside the window before the interrupt.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads the illuminance.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.lux <span class="property-type">number</span></dt>
+        <dd>Illuminance in lux (the maximum 188006.4 on overrange).</dd>
+        <dt>payload.overrange <span class="property-type">boolean</span></dt>
+        <dd>True if the last reading was overrange (exponent field 15).</dd>
+        <dt>payload.interrupt <span class="property-type">boolean</span></dt>
+        <dd>Only when an INT GPIO line is configured: <code>{ lux, interrupt: true }</code> is emitted when the light leaves the window for longer than the delay.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number and the address (0x4A with A0 at GND, 0x4B with A0 at VCC). <b>Mode</b> selects low power (one measurement per 800 ms) or continuous; <b>Range</b> selects automatic or manual ranging with an integration time of 6.25–800 ms and an optional current divider of 8. The optional <b>INT GPIO line</b> (with GPIO chip number) is sampled every 20 ms. The chip is not 5 V tolerant (VCC 1.7–3.6 V).</p>
+</script>
