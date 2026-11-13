@@ -1,0 +1,109 @@
+[
+    {
+        "id": "tab-mcp3422-demo",
+        "type": "tab",
+        "label": "MCP3422 Two-Channel Demo",
+        "disabled": false,
+        "info": "Inject node (every 2 s) into periph-mcp3422 (16 bit, x1); a function node splits payload.channels into two messages with topics ch1 and ch2 for the chart / debug nodes. A second inject sends gain = 8 and resolution = 18 for a bridge-sensor measurement."
+    },
+    {
+        "id": "inj-scan",
+        "type": "inject",
+        "name": "Scan every 2 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-mcp3422-demo",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "mcp3422-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-bridge",
+        "type": "inject",
+        "name": "Bridge: x8, 18 bit",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-mcp3422-demo",
+        "x": 150,
+        "y": 180,
+        "props": [
+            {
+                "p": "gain",
+                "v": "8",
+                "vt": "num"
+            },
+            {
+                "p": "resolution",
+                "v": "18",
+                "vt": "num"
+            }
+        ],
+        "wires": [
+            [
+                "mcp3422-node"
+            ]
+        ]
+    },
+    {
+        "id": "mcp3422-node",
+        "type": "periph-mcp3422",
+        "name": "MCP3422",
+        "bus": "1",
+        "address": "0x68",
+        "resolution": "16",
+        "gain": "1",
+        "z": "tab-mcp3422-demo",
+        "x": 380,
+        "y": 140,
+        "wires": [
+            [
+                "fn-split"
+            ]
+        ]
+    },
+    {
+        "id": "fn-split",
+        "type": "function",
+        "name": "split channels",
+        "func": "// One message per channel with a chart topic.\nconst v = msg.payload.channels;\nreturn [[{ topic: 'ch1', payload: v[0] }, { topic: 'ch2', payload: v[1] }]];",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-mcp3422-demo",
+        "x": 590,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-mcp3422"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-mcp3422",
+        "type": "debug",
+        "name": "ch1 / ch2 (V)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-mcp3422-demo",
+        "x": 800,
+        "y": 140,
+        "wires": []
+    }
+]

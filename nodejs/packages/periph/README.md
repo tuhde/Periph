@@ -93,6 +93,7 @@ Each chip exposes two classes:
 | MCP23008 | IO expander | `periph/src/chips/io_expander/mcp23008` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
+| MCP3422 | ADC/DAC | `periph/src/chips/adc_dac/mcp3422` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
 | MCP4XXX | ADC/DAC | `periph/src/chips/adc_dac/mcp4xxx` |
