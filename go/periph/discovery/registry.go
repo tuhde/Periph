@@ -104,6 +104,7 @@ var registry = []Chip{
 	{ID: "apds9960", Driver: "apds9960", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x39}, Probe: &IdProbe{Register: 0x92, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xAB}}},
 	{ID: "max44009", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x4A, 0x4B}, Probe: nil},
 	{ID: "as5600", Driver: "as5600", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x36}, Probe: nil},
+	{ID: "mag3110", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x0E}, Probe: &IdProbe{Register: 0x07, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xC4}}},
 	{ID: "hmc5883l", Driver: "hmc5883l", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1E}, Probe: &IdProbe{Register: 0x0A, RegBytes: 1, Length: 3, LittleEndian: false, Mask: 0xFFFFFF, Expected: []uint32{0x483433}}},
 	{ID: "24aa02uid", Driver: "24aa02uid", WriteSensitive: false, Aliased: true, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
 	{ID: "24aa025uid", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
