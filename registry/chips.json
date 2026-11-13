@@ -1858,6 +1858,27 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/humidity/hdc1008.pdf"
+    },
+    {
+      "id": "hdc1080",
+      "name": "HDC1080",
+      "category": "humidity",
+      "addresses": [
+        "0x40"
+      ],
+      "id_probe": {
+        "register": "0xFF",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFFF",
+        "expected": [
+          "0x1050"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/humidity/hdc1080.pdf"
     }
   ]
 }
