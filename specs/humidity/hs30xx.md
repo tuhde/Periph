@@ -140,7 +140,7 @@ Inject node (every 5 s) → `periph-hs30xx` → function node formatting `"23.4 
 
 ## Timing Constraints
 
-- **Measurement time (typical, per channel):** humidity or temperature alone: 0.60 ms (8 bit), 1.40 ms (10 bit), 4.60 ms (12 bit), 17.00 ms (14 bit); wake-up 0.1 ms. RH + T at equal resolution including wake-up: 1.4 ms (8 bit), 2.9 ms (10 bit), 10 ms (12 bit), 35 ms (14 bit). For different resolutions: total = 0.1 ms + RH_time/2... per the datasheet example `0.1 ms + 1.4 ms/2 + 10 ms/2 = 5.8 ms` (8-bit RH + 12-bit T), i.e. half of the equal-resolution total for each channel plus the wake-up.
+- **Measurement time (typical, per channel):** humidity or temperature alone: 0.60 ms (8 bit), 1.40 ms (10 bit), 4.60 ms (12 bit), 17.00 ms (14 bit); wake-up 0.1 ms. RH + T at equal resolution including wake-up: 1.4 ms (8 bit), 2.9 ms (10 bit), 10 ms (12 bit), 35 ms (14 bit). For different resolutions the datasheet adds the 0.1 ms wake-up to the per-channel times of the equal-resolution table: e.g. an 8-bit RH and a 12-bit T measurement take `0.1 ms + 1.4 ms/2 + 10 ms/2 = 5.8 ms`.
 - **Stale-data guard:** a fetch before the measurement completes returns the previous (stale, status `01`) data; the status bits are the completion indicator.
 - **Programming mode:** the enter command must be sent within **10 ms** after applying power; entering takes 120 µs; loading an NVM register 120 µs; writing 14 ms; failing to wait may corrupt the NVM.
 - **I²C:** ≤ 400 kHz — clock-rate property, not an event-to-event delay.
