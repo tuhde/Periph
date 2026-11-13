@@ -127,6 +127,7 @@ Each chip exposes two classes:
 | PCA6416A | IO expander | 16-bit I/O expander (I²C / SMBus) |
 | PCA9536 | IO expander | 4-bit I/O expander (I²C / SMBus) |
 | PCA9539 | IO expander | 16-bit I/O expander (I²C / SMBus) |
+| PCA9541 | Other | Bus selector |
 | PCF85063A | RTC | Low-power I2C real-time clock |
 | PCF8523 | RTC | Low-power I2C real-time clock |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |

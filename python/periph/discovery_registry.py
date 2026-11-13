@@ -294,7 +294,7 @@ CHIPS = (
     {"id": "mpr121", "driver": "mpr121", "write_sensitive": False, "aliased": False,
      "addresses": (0x5A, 0x5B, 0x5C, 0x5D,),
      "probe": None},
-    {"id": "pca9541", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "pca9541", "driver": "pca9541", "write_sensitive": False, "aliased": False,
      "addresses": (0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,),
      "probe": None},
     {"id": "ade7953", "driver": "ade7953", "write_sensitive": True, "aliased": False,

@@ -121,6 +121,7 @@
 #include "chips/motor/TMC2209.h"
 #include "chips/motor/TMC5160.h"
 #include "chips/other/Mpr121.h"
+#include "chips/other/PCA9541.h"
 #include "chips/power/ADE7953.h"
 #include "chips/power/AXP2101.h"
 #include "chips/power/INA219.h"

@@ -1,0 +1,72 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pca9541', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '0x70' },
+            gpioChip: { value: '0' },
+            intPin:   { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-exchange',
+        label:   function() { return this.name || 'PCA9541'; },
+        paletteLabel: 'PCA9541'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pca9541">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCA9541">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x70">0x70 (A3..A0 = 0000)</option><option value="0x71">0x71</option>
+            <option value="0x72">0x72</option><option value="0x73">0x73</option>
+            <option value="0x74">0x74</option><option value="0x75">0x75</option>
+            <option value="0x76">0x76</option><option value="0x77">0x77</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;(for the optional INT line)
+    </div>
+    <div class="form-row">
+        <label for="node-input-intPin">INT GPIO line</label>
+        <input type="number" id="node-input-intPin" min="0" style="width:80px" placeholder="none">
+        &nbsp;this master's INT0 / INT1
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pca9541">
+    <p>Controls the 2-to-1 I²C-bus master selector PCA9541 from one of two redundant masters: take, give up and check ownership of the shared downstream bus. There is no arbitration: whichever master writes last before a STOP wins.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.command <span class="property-type">string</span></dt>
+        <dd><code>"acquire"</code> takes the downstream bus (<code>payload.busInit</code> = true also requests bus initialization), <code>"release"</code> gives it to the other master, <code>"recover"</code> acquires with bus initialization (nine clocks, NACK, STOP on the downstream bus), <code>"disconnect"</code> isolates the downstream bus.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads the status.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.control <span class="property-type">boolean</span></dt>
+        <dd>True if this master's channel is connected to the downstream bus.</dd>
+        <dt>payload.connected <span class="property-type">boolean</span></dt>
+        <dd>True if the downstream bus is connected to some master.</dd>
+        <dt>payload.interrupt <span class="property-type">number</span></dt>
+        <dd>Only when an INT GPIO line is configured: the ISTAT byte, with <code>int_in</code>, <code>bus_init</code>, <code>bus_not_idle</code>, <code>bus_lost</code>, <code>test</code> and <code>other_test</code> flags.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number and the address (0x70–0x77; 0x78–0x7F fall into reserved I²C ranges). The optional <b>INT GPIO line</b> is this master's own INT pin (INT0 or INT1; sampled every 20 ms). The chip powers up with master 0 connected (/01) or with no channel connected (/03).</p>
+</script>
