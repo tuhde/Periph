@@ -1691,6 +1691,27 @@
       "probe_safety": "register_pointer",
       "driver": "vl53l1x",
       "datasheet": "datasheets/tof/vl53l1x.pdf"
+    },
+    {
+      "id": "veml7700",
+      "name": "VEML7700",
+      "category": "light",
+      "addresses": [
+        "0x10"
+      ],
+      "id_probe": {
+        "register": "0x07",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "little",
+        "mask": "0xFFFF",
+        "expected": [
+          "0xC481"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/veml7700.pdf"
     }
   ]
 }

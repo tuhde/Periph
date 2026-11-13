@@ -336,4 +336,7 @@ CHIPS = (
     {"id": "vl53l1x", "driver": "vl53l1x", "write_sensitive": False, "aliased": False,
      "addresses": (0x29,),
      "probe": {"register": 0x10F, "reg_bytes": 2, "length": 2, "byte_order": "big", "mask": 0xFFFF, "expected": (0xEACC,)}},
+    {"id": "veml7700", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x10,),
+     "probe": {"register": 0x07, "reg_bytes": 1, "length": 2, "byte_order": "little", "mask": 0xFFFF, "expected": (0xC481,)}},
 )
