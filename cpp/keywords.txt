@@ -133,6 +133,8 @@ Fault	KEYWORD1
 GlobalStatus	KEYWORD1
 HMC5883LFull	KEYWORD1
 HMC5883LMinimal	KEYWORD1
+HTU21DFFull	KEYWORD1
+HTU21DFMinimal	KEYWORD1
 HX710AFull	KEYWORD1
 HX710AMinimal	KEYWORD1
 HX710BFull	KEYWORD1
@@ -431,6 +433,7 @@ awake	KEYWORD2
 baseline	KEYWORD2
 batteryPercent	KEYWORD2
 batteryVoltage	KEYWORD2
+battery_low	KEYWORD2
 begin	KEYWORD2
 blit	KEYWORD2
 block_count	KEYWORD2
@@ -784,6 +787,7 @@ has_red	KEYWORD2
 hdop	KEYWORD2
 heading	KEYWORD2
 headphoneGain	KEYWORD2
+heater	KEYWORD2
 heater_stable	KEYWORD2
 height	KEYWORD2
 high	KEYWORD2
@@ -1069,6 +1073,7 @@ read_flags	KEYWORD2
 read_forced	KEYWORD2
 read_gesture_fifo	KEYWORD2
 read_humidity	KEYWORD2
+read_humidity_compensated	KEYWORD2
 read_int_source	KEYWORD2
 read_interrupt_source	KEYWORD2
 read_low_power	KEYWORD2
@@ -1490,6 +1495,7 @@ set_heater_profile	KEYWORD2
 set_high_g	KEYWORD2
 set_high_pass	KEYWORD2
 set_high_pass_output	KEYWORD2
+set_hold_master	KEYWORD2
 set_iir_filter	KEYWORD2
 set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2

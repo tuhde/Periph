@@ -1,0 +1,1 @@
+_periph_htu21df.soft_reset()

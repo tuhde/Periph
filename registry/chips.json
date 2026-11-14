@@ -2183,7 +2183,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "htu21df",
       "datasheet": "datasheets/humidity/htu21df.pdf"
     },
     {
