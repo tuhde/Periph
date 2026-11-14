@@ -1,0 +1,117 @@
+[
+    {
+        "id": "tab-ad5251-demo",
+        "type": "tab",
+        "label": "AD5251 Wiper Sweep Demo",
+        "disabled": false,
+        "info": "Two scenarios on one AD5251 dual digital potentiometer with nonvolatile memory. An Inject node ticks every 500 ms into a Function node that sweeps channel 0 through 16 evenly spaced wiper codes (0, 4, ... 60), producing the staircase; the periph-ad5251 node returns {channel, code, resistance} which a Debug node shows. A second Inject node sets channel 1 to a 20 kOhm W-B resistance once and a third reads back both channels."
+    },
+    {
+        "id": "inj-sweep",
+        "type": "inject",
+        "name": "Sweep tick (500 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-ad5251-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "fn-sweep"
+            ]
+        ]
+    },
+    {
+        "id": "fn-sweep",
+        "type": "function",
+        "name": "sweep channel 0",
+        "func": "// 16 steps of 4 codes: 0, 4, ... 60, then wrap.\nlet i = context.get('step') || 0;\ncontext.set('step', (i + 1) % 16);\nmsg.payload = { channel: 0, code: i * 4 };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-ad5251-demo",
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "ad5251-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-rheo",
+        "type": "inject",
+        "name": "Channel 1 = 20 kOhm",
+        "topic": "",
+        "payload": "{\"channel\":1,\"ohms\":20000}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ad5251-demo",
+        "x": 160,
+        "y": 180,
+        "wires": [
+            [
+                "ad5251-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read both channels",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ad5251-demo",
+        "x": 160,
+        "y": 240,
+        "wires": [
+            [
+                "ad5251-node"
+            ]
+        ]
+    },
+    {
+        "id": "ad5251-node",
+        "type": "periph-ad5251",
+        "name": "AD5251",
+        "bus": "1",
+        "rab": "50000",
+        "address": "0x2C",
+        "rwiper": "75",
+        "z": "tab-ad5251-demo",
+        "x": 560,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-ad5251"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-ad5251",
+        "type": "debug",
+        "name": "wiper / resistance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ad5251-demo",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    }
+]

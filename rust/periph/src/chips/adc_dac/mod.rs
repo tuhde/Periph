@@ -74,6 +74,8 @@ pub mod ad5248;
 pub use ad5248::{Ad5248Minimal, Ad5248Full};
 pub mod ad5252;
 pub use ad5252::{AD5252Minimal, AD5252Full, AD5252Error, AD5252_I2C_ADDRESS};
+pub mod ad5251;
+pub use ad5251::{AD5251Minimal, AD5251Full, AD5251Error, AD5251_I2C_ADDRESS};
 mod ads111x;
 pub use ads111x::Ads111xError;
 pub mod ads1113;

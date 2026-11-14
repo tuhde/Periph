@@ -196,7 +196,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ad5251",
       "datasheet": "datasheets/adc_dac/ad5251.pdf"
     },
     {
