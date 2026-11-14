@@ -34,6 +34,7 @@ Each chip exposes two classes:
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
 | AD5243 | ADC/DAC | `periph/src/chips/adc_dac/ad5243` |
 | AD5248 | ADC/DAC | `periph/src/chips/adc_dac/ad5248` |
+| AD5251 | ADC/DAC | `periph/src/chips/adc_dac/ad5251` |
 | AD5252 | ADC/DAC | `periph/src/chips/adc_dac/ad5252` |
 | AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
 | AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
