@@ -359,6 +359,8 @@ TMC2209Full	KEYWORD1
 TMC2209Minimal	KEYWORD1
 TMC5160Full	KEYWORD1
 TMC5160Minimal	KEYWORD1
+TMP102Full	KEYWORD1
+TMP102Minimal	KEYWORD1
 TMP117Full	KEYWORD1
 TMP117Minimal	KEYWORD1
 TPIC6B595Full	KEYWORD1
@@ -403,6 +405,7 @@ activeEnergyB	KEYWORD2
 activePower	KEYWORD2
 activePowerB	KEYWORD2
 agc	KEYWORD2
+alertState	KEYWORD2
 alert_flags	KEYWORD2
 als_threshold	KEYWORD2
 altitude	KEYWORD2
@@ -732,6 +735,8 @@ getReference	KEYWORD2
 getResistance	KEYWORD2
 getResistanceWa	KEYWORD2
 getResolution	KEYWORD2
+getTHigh	KEYWORD2
+getTLow	KEYWORD2
 getTemperatureOffset	KEYWORD2
 getThresholdDelay	KEYWORD2
 getThresholds	KEYWORD2
@@ -903,6 +908,7 @@ ok	KEYWORD2
 onEdge	KEYWORD2
 onInterrupt	KEYWORD2
 on_interrupt	KEYWORD2
+oneShot	KEYWORD2
 one_shot	KEYWORD2
 oneshot	KEYWORD2
 oor_status	KEYWORD2
@@ -1205,6 +1211,7 @@ setClockOutput	KEYWORD2
 setClocking	KEYWORD2
 setCoilCurrents	KEYWORD2
 setContinuous	KEYWORD2
+setConversionRate	KEYWORD2
 setCoolstepThreshold	KEYWORD2
 setCriticalLimit	KEYWORD2
 setCrosstalkCompensation	KEYWORD2
@@ -1227,7 +1234,9 @@ setEncoderConstant	KEYWORD2
 setEncoderDeviation	KEYWORD2
 setEncoderPosition	KEYWORD2
 setEndpoints	KEYWORD2
+setExtendedMode	KEYWORD2
 setFastStandstill	KEYWORD2
+setFaultQueue	KEYWORD2
 setFeedback	KEYWORD2
 setFifo	KEYWORD2
 setFifoGate	KEYWORD2
@@ -1303,6 +1312,7 @@ setPcmVolume	KEYWORD2
 setPga	KEYWORD2
 setPhaseCalibration	KEYWORD2
 setPlatform	KEYWORD2
+setPolarity	KEYWORD2
 setPosition	KEYWORD2
 setPositionCompare	KEYWORD2
 setPowerDownDelay	KEYWORD2
@@ -1342,10 +1352,13 @@ setSpeed	KEYWORD2
 setStallThreshold	KEYWORD2
 setStallguardFilter	KEYWORD2
 setStealthchopThreshold	KEYWORD2
+setTHigh	KEYWORD2
+setTLow	KEYWORD2
 setTargetRaw	KEYWORD2
 setTemperatureOffset	KEYWORD2
 setTermination	KEYWORD2
 setThermalRegulation	KEYWORD2
+setThermostatMode	KEYWORD2
 setThresholdDelay	KEYWORD2
 setThresholds	KEYWORD2
 setTimeOffsets	KEYWORD2
@@ -1689,6 +1702,7 @@ who_am_i	KEYWORD2
 width	KEYWORD2
 wireMode	KEYWORD2
 write	KEYWORD2
+writeConfig	KEYWORD2
 writeDataBuffer	KEYWORD2
 writeEepromScratch	KEYWORD2
 writeMicrostepTable	KEYWORD2

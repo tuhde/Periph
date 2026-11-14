@@ -146,6 +146,7 @@
 #include "chips/rtc/PCF85063A.h"
 #include "chips/rtc/PCF8523.h"
 #include "chips/temperature/MCP9808.h"
+#include "chips/temperature/TMP102.h"
 #include "chips/temperature/TMP117.h"
 #include "chips/tof/VL53Base.h"
 #include "chips/tof/VL53L0X.h"
