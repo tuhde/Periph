@@ -51,6 +51,7 @@ static constexpr uint32_t kExp_mma8451q[] = {0x1A};
 static constexpr IdProbe kProbe_mma8451q = {0x0D, 1, 1, false, 0xFF, kExp_mma8451q, 1};
 static constexpr uint8_t kAddr_ad5243[] = {0x2F};
 static constexpr uint8_t kAddr_ad5248[] = {0x2C, 0x2D, 0x2E, 0x2F};
+static constexpr uint8_t kAddr_ad5251[] = {0x2C, 0x2D, 0x2E, 0x2F};
 static constexpr uint8_t kAddr_ds3502[] = {0x28, 0x29, 0x2A, 0x2B};
 static constexpr uint8_t kAddr_cat5171[] = {0x2C, 0x2D};
 static constexpr uint8_t kAddr_ds1881[] = {0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F};
@@ -288,6 +289,7 @@ static constexpr ChipEntry kChips[] = {
     {"mma8451q", "mma8451q", false, false, kAddr_mma8451q, 2, &kProbe_mma8451q},
     {"ad5243", "ad5243", true, false, kAddr_ad5243, 1, nullptr},
     {"ad5248", "ad5248", true, false, kAddr_ad5248, 4, nullptr},
+    {"ad5251", nullptr, true, false, kAddr_ad5251, 4, nullptr},
     {"ds3502", "ds3502", false, false, kAddr_ds3502, 4, nullptr},
     {"cat5171", "cat5171", true, false, kAddr_cat5171, 2, nullptr},
     {"ds1881", "ds1881", true, false, kAddr_ds1881, 8, nullptr},
@@ -424,7 +426,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 145;
+static constexpr size_t kChipCount = 146;
 
 }  // namespace discovery
 }  // namespace periph

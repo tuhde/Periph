@@ -188,6 +188,18 @@
       "datasheet": "datasheets/adc_dac/ad5243.pdf"
     },
     {
+      "id": "ad5251",
+      "name": "AD5251",
+      "category": "adc_dac",
+      "addresses": [
+        "0x2C..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ad5251.pdf"
+    },
+    {
       "id": "ds3502",
       "name": "DS3502",
       "category": "adc_dac",
