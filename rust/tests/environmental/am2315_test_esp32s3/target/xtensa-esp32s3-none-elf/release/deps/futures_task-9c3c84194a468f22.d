@@ -1,0 +1,10 @@
+/var/projects/Periph/worktrees/am2315/rust/tests/environmental/am2315_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/futures_task-9c3c84194a468f22.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/spawn.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/future_obj.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/noop_waker.rs
+
+/var/projects/Periph/worktrees/am2315/rust/tests/environmental/am2315_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/libfutures_task-9c3c84194a468f22.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/spawn.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/future_obj.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/noop_waker.rs
+
+/var/projects/Periph/worktrees/am2315/rust/tests/environmental/am2315_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/libfutures_task-9c3c84194a468f22.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/spawn.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/future_obj.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/noop_waker.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/spawn.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/future_obj.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-task-0.3.34/src/noop_waker.rs:

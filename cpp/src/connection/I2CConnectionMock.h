@@ -47,6 +47,9 @@ public:
         _readQueue.emplace_back(data.begin(), data.end());
     }
 
+    /** @brief Queue a byte vector to be returned by the next plain read() call. */
+    void queueRead(const std::vector<uint8_t>& data) { _readQueue.push_back(data); }
+
     /** @brief Make @p n write() / write_read() calls fail (NACK) after letting the next @p after succeed:
      *  the failing calls are logged, then ok() is false. */
     void failNextWrites(size_t n, size_t after = 0) { _failWrites = n; _failSkip = after; }

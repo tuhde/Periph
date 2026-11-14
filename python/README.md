@@ -64,6 +64,7 @@ Each chip exposes two classes:
 | ADXL345 | Accelerometer | 3-axis accelerometer |
 | ADXL362 | Accelerometer | Read X, Y, Z acceleration in *g*. |
 | AHT21 | Environmental sensor | Temperature and humidity sensor |
+| AM2315 | Environmental sensor | Humidity and temperature sensor |
 | APA102 | LED driver | Addressable RGB LED strip |
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
