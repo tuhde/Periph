@@ -106,7 +106,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | AT24C02N | I²C EEPROM 2 Kbit (256 B, 8-byte page) |  |  |  |  |  |  |  |  |
 | AT24C64 | I²C EEPROM 64 Kbit (8 KiB, 32-byte page) |  |  |  |  |  |  |  |  |
 | BME688 | Gas, pressure, temperature and humidity sensor (forced + parallel mode) |  |  |  |  |  |  |  |  |
-| BNO055 | 9-axis absolute-orientation sensor (fusion: Euler, quaternion, linear accel., gravity) |  |  |  |  |  |  |  |  |
+| BNO055 | 9-axis absolute-orientation sensor (fusion: Euler, quaternion, linear accel., gravity) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BQ32000 | Real-time clock (calendar, backup supply, trickle charger, calibration) |  |  |  |  |  |  |  |  |
 | BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
 | CAT24C512 | I²C EEPROM 512 Kbit (64 KiB, 128-byte page, 1 MHz) |  |  |  |  |  |  |  |  |

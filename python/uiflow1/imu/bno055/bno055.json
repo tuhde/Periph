@@ -1,0 +1,344 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "bno055_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init BNO055",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bno055_heading",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 heading (rad)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_roll",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 roll (rad)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_pitch",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 pitch (rad)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_quaternion_w",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 quaternion W",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_quaternion_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 quaternion X",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_quaternion_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 quaternion Y",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_quaternion_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 quaternion Z",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_linear_accel_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 linear acceleration X (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_linear_accel_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 linear acceleration Y (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_linear_accel_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 linear acceleration Z (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_gravity_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 gravity X (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_gravity_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 gravity Y (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_gravity_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 gravity Z (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_calib_system",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 system calibration (0-3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_calib_gyroscope",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 gyroscope calibration (0-3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_calib_accelerometer",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 accelerometer calibration (0-3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_calib_magnetometer",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 magnetometer calibration (0-3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_is_calibrated",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 fully calibrated?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_get_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 operation mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BNO055 set operation mode (0=config 8=IMU 12=NDOF)",
+          "type": "label"
+        },
+        {
+          "name": "mode",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bno055_set_axis_remap",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BNO055 axis remap config",
+          "type": "label"
+        },
+        {
+          "name": "config",
+          "type": "label"
+        },
+        {
+          "name": "_config",
+          "type": "number"
+        },
+        {
+          "name": "sign",
+          "type": "label"
+        },
+        {
+          "name": "_sign",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bno055_set_power_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BNO055 power mode (0=normal 1=low power 2=suspend)",
+          "type": "label"
+        },
+        {
+          "name": "mode",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bno055_system_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 system status",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_system_error",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 system error",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_self_test_passed",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 self-test passed?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "BNO055 interrupt status flags",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bno055_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BNO055 reset chip",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

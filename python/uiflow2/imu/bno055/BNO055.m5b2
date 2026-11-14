@@ -1,0 +1,557 @@
+{
+  "category": "BNO055",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_BNO055_LANGUAGES = {\n  \"CUSTOM_BNO055_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_BNO055_HEADING\": {\n    \"en\": \"%1 heading (rad)\"\n  },\n  \"CUSTOM_BNO055_ROLL\": {\n    \"en\": \"%1 roll (rad)\"\n  },\n  \"CUSTOM_BNO055_PITCH\": {\n    \"en\": \"%1 pitch (rad)\"\n  },\n  \"CUSTOM_BNO055_QUATERNION_W\": {\n    \"en\": \"%1 quaternion W\"\n  },\n  \"CUSTOM_BNO055_QUATERNION_X\": {\n    \"en\": \"%1 quaternion X\"\n  },\n  \"CUSTOM_BNO055_QUATERNION_Y\": {\n    \"en\": \"%1 quaternion Y\"\n  },\n  \"CUSTOM_BNO055_QUATERNION_Z\": {\n    \"en\": \"%1 quaternion Z\"\n  },\n  \"CUSTOM_BNO055_LINEAR_ACCEL_X\": {\n    \"en\": \"%1 linear acceleration X (m/s²)\"\n  },\n  \"CUSTOM_BNO055_LINEAR_ACCEL_Y\": {\n    \"en\": \"%1 linear acceleration Y (m/s²)\"\n  },\n  \"CUSTOM_BNO055_LINEAR_ACCEL_Z\": {\n    \"en\": \"%1 linear acceleration Z (m/s²)\"\n  },\n  \"CUSTOM_BNO055_GRAVITY_X\": {\n    \"en\": \"%1 gravity X (m/s²)\"\n  },\n  \"CUSTOM_BNO055_GRAVITY_Y\": {\n    \"en\": \"%1 gravity Y (m/s²)\"\n  },\n  \"CUSTOM_BNO055_GRAVITY_Z\": {\n    \"en\": \"%1 gravity Z (m/s²)\"\n  },\n  \"CUSTOM_BNO055_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_BNO055_CALIB_SYSTEM\": {\n    \"en\": \"%1 system calibration (0-3)\"\n  },\n  \"CUSTOM_BNO055_CALIB_GYROSCOPE\": {\n    \"en\": \"%1 gyroscope calibration (0-3)\"\n  },\n  \"CUSTOM_BNO055_CALIB_ACCELEROMETER\": {\n    \"en\": \"%1 accelerometer calibration (0-3)\"\n  },\n  \"CUSTOM_BNO055_CALIB_MAGNETOMETER\": {\n    \"en\": \"%1 magnetometer calibration (0-3)\"\n  },\n  \"CUSTOM_BNO055_IS_CALIBRATED\": {\n    \"en\": \"%1 fully calibrated?\"\n  },\n  \"CUSTOM_BNO055_GET_MODE\": {\n    \"en\": \"%1 operation mode\"\n  },\n  \"CUSTOM_BNO055_SET_MODE\": {\n    \"en\": \"%1 set operation mode (0=config 8=IMU 12=NDOF) %2\"\n  },\n  \"CUSTOM_BNO055_SET_AXIS_REMAP\": {\n    \"en\": \"%1 axis remap config %2 sign %3\"\n  },\n  \"CUSTOM_BNO055_SET_POWER_MODE\": {\n    \"en\": \"%1 power mode (0=normal 1=low power 2=suspend) %2\"\n  },\n  \"CUSTOM_BNO055_SYSTEM_STATUS\": {\n    \"en\": \"%1 system status\"\n  },\n  \"CUSTOM_BNO055_SYSTEM_ERROR\": {\n    \"en\": \"%1 system error\"\n  },\n  \"CUSTOM_BNO055_SELF_TEST_PASSED\": {\n    \"en\": \"%1 self-test passed?\"\n  },\n  \"CUSTOM_BNO055_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status flags\"\n  },\n  \"CUSTOM_BNO055_RESET\": {\n    \"en\": \"%1 reset chip\"\n  }\n};\n\nconst initType = 'custom_bno055_init';\nBlockly.BlockRegExpList['custom_bno055'] = {\n  regexp: new RegExp(/^custom_bno055_/),\n  code: \"from BNO055 import BNO055\",\n  initBlockType: initType,\n  categoryId: 'custom_bno055',\n}\nBlockly.utils.registerLanguages(CUSTOM_BNO055_LANGUAGES)\n\nBlockly.Msg.CUSTOM_BNO055_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_BNO055 = 'BNO055'\n\nBlockly.utils.getcustom_bno055Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['bno055_0', 'bno055_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_bno055_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_bno055Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'bno055_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = BNO055(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_bno055_heading\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_HEADING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_heading\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.heading()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_roll\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_ROLL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_roll\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.roll()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_pitch\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_PITCH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_pitch\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pitch()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_quaternion_w\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_QUATERNION_W,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_quaternion_w\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.quaternion_w()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_quaternion_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_QUATERNION_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_quaternion_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.quaternion_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_quaternion_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_QUATERNION_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_quaternion_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.quaternion_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_quaternion_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_QUATERNION_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_quaternion_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.quaternion_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_linear_accel_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_LINEAR_ACCEL_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_linear_accel_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.linear_accel_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_linear_accel_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_LINEAR_ACCEL_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_linear_accel_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.linear_accel_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_linear_accel_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_LINEAR_ACCEL_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_linear_accel_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.linear_accel_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_gravity_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_GRAVITY_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_gravity_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gravity_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_gravity_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_GRAVITY_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_gravity_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gravity_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_gravity_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_GRAVITY_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_gravity_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gravity_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_calib_system\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_CALIB_SYSTEM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_calib_system\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calib_system()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_calib_gyroscope\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_CALIB_GYROSCOPE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_calib_gyroscope\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calib_gyroscope()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_calib_accelerometer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_CALIB_ACCELEROMETER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_calib_accelerometer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calib_accelerometer()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_calib_magnetometer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_CALIB_MAGNETOMETER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_calib_magnetometer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calib_magnetometer()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_is_calibrated\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_IS_CALIBRATED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_is_calibrated\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_calibrated()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_get_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_GET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_get_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_bno055_set_axis_remap\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_SET_AXIS_REMAP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'config'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sign'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_set_axis_remap\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var config = Blockly.Python.valueToCode(block, 'config', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sign = Blockly.Python.valueToCode(block, 'sign', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_axis_remap(${config}, ${sign})\\n`\n}\n\nBlockly.Blocks[\"custom_bno055_set_power_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_SET_POWER_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_set_power_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_power_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_bno055_system_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_SYSTEM_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_system_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.system_status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_system_error\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_SYSTEM_ERROR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_system_error\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.system_error()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_self_test_passed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_SELF_TEST_PASSED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_self_test_passed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.self_test_passed()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bno055_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BNO055_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bno055Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bno055_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"BNO055\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_bno055\">\n<title text=\"BNO055\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_bno055_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">41</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bno055_heading\"/><block type=\"custom_bno055_roll\"/><block type=\"custom_bno055_pitch\"/><block type=\"custom_bno055_quaternion_w\"/><block type=\"custom_bno055_quaternion_x\"/><block type=\"custom_bno055_quaternion_y\"/><block type=\"custom_bno055_quaternion_z\"/><block type=\"custom_bno055_linear_accel_x\"/><block type=\"custom_bno055_linear_accel_y\"/><block type=\"custom_bno055_linear_accel_z\"/><block type=\"custom_bno055_gravity_x\"/><block type=\"custom_bno055_gravity_y\"/><block type=\"custom_bno055_gravity_z\"/><block type=\"custom_bno055_temperature\"/><block type=\"custom_bno055_calib_system\"/><block type=\"custom_bno055_calib_gyroscope\"/><block type=\"custom_bno055_calib_accelerometer\"/><block type=\"custom_bno055_calib_magnetometer\"/><block type=\"custom_bno055_is_calibrated\"/><block type=\"custom_bno055_get_mode\"/><block type=\"custom_bno055_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">12</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bno055_set_axis_remap\">\n  <value name=\"config\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">36</field>\n    </shadow>\n  </value>\n  <value name=\"sign\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bno055_set_power_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bno055_system_status\"/><block type=\"custom_bno055_system_error\"/><block type=\"custom_bno055_self_test_passed\"/><block type=\"custom_bno055_poll_interrupt\"/><block type=\"custom_bno055_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_bno055",
+    "block_type": [
+      "custom_bno055___init__",
+      "custom_bno055_heading",
+      "custom_bno055_roll",
+      "custom_bno055_pitch",
+      "custom_bno055_quaternion_w",
+      "custom_bno055_quaternion_x",
+      "custom_bno055_quaternion_y",
+      "custom_bno055_quaternion_z",
+      "custom_bno055_linear_accel_x",
+      "custom_bno055_linear_accel_y",
+      "custom_bno055_linear_accel_z",
+      "custom_bno055_gravity_x",
+      "custom_bno055_gravity_y",
+      "custom_bno055_gravity_z",
+      "custom_bno055_temperature",
+      "custom_bno055_calib_system",
+      "custom_bno055_calib_gyroscope",
+      "custom_bno055_calib_accelerometer",
+      "custom_bno055_calib_magnetometer",
+      "custom_bno055_is_calibrated",
+      "custom_bno055_get_mode",
+      "custom_bno055_set_mode",
+      "custom_bno055_set_axis_remap",
+      "custom_bno055_set_power_mode",
+      "custom_bno055_system_status",
+      "custom_bno055_system_error",
+      "custom_bno055_self_test_passed",
+      "custom_bno055_poll_interrupt",
+      "custom_bno055_reset"
+    ]
+  },
+  "data": {
+    "name": "BNO055",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "BNO055",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.bno055 import BNO055Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "41",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = BNO055Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "heading",
+        "note": {},
+        "label": {
+          "en": "%1 heading (rad)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.euler()[0]",
+        "ast_return": {
+          "code": "self._driver.euler()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "roll",
+        "note": {},
+        "label": {
+          "en": "%1 roll (rad)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.euler()[1]",
+        "ast_return": {
+          "code": "self._driver.euler()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pitch",
+        "note": {},
+        "label": {
+          "en": "%1 pitch (rad)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.euler()[2]",
+        "ast_return": {
+          "code": "self._driver.euler()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "quaternion_w",
+        "note": {},
+        "label": {
+          "en": "%1 quaternion W"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.quaternion()[0]",
+        "ast_return": {
+          "code": "self._driver.quaternion()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "quaternion_x",
+        "note": {},
+        "label": {
+          "en": "%1 quaternion X"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.quaternion()[1]",
+        "ast_return": {
+          "code": "self._driver.quaternion()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "quaternion_y",
+        "note": {},
+        "label": {
+          "en": "%1 quaternion Y"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.quaternion()[2]",
+        "ast_return": {
+          "code": "self._driver.quaternion()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "quaternion_z",
+        "note": {},
+        "label": {
+          "en": "%1 quaternion Z"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.quaternion()[3]",
+        "ast_return": {
+          "code": "self._driver.quaternion()[3]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "linear_accel_x",
+        "note": {},
+        "label": {
+          "en": "%1 linear acceleration X (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.linear_acceleration()[0]",
+        "ast_return": {
+          "code": "self._driver.linear_acceleration()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "linear_accel_y",
+        "note": {},
+        "label": {
+          "en": "%1 linear acceleration Y (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.linear_acceleration()[1]",
+        "ast_return": {
+          "code": "self._driver.linear_acceleration()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "linear_accel_z",
+        "note": {},
+        "label": {
+          "en": "%1 linear acceleration Z (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.linear_acceleration()[2]",
+        "ast_return": {
+          "code": "self._driver.linear_acceleration()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gravity_x",
+        "note": {},
+        "label": {
+          "en": "%1 gravity X (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gravity()[0]",
+        "ast_return": {
+          "code": "self._driver.gravity()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gravity_y",
+        "note": {},
+        "label": {
+          "en": "%1 gravity Y (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gravity()[1]",
+        "ast_return": {
+          "code": "self._driver.gravity()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gravity_z",
+        "note": {},
+        "label": {
+          "en": "%1 gravity Z (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gravity()[2]",
+        "ast_return": {
+          "code": "self._driver.gravity()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calib_system",
+        "note": {},
+        "label": {
+          "en": "%1 system calibration (0-3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.calibration_status()[0]",
+        "ast_return": {
+          "code": "self._driver.calibration_status()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calib_gyroscope",
+        "note": {},
+        "label": {
+          "en": "%1 gyroscope calibration (0-3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.calibration_status()[1]",
+        "ast_return": {
+          "code": "self._driver.calibration_status()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calib_accelerometer",
+        "note": {},
+        "label": {
+          "en": "%1 accelerometer calibration (0-3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.calibration_status()[2]",
+        "ast_return": {
+          "code": "self._driver.calibration_status()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calib_magnetometer",
+        "note": {},
+        "label": {
+          "en": "%1 magnetometer calibration (0-3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.calibration_status()[3]",
+        "ast_return": {
+          "code": "self._driver.calibration_status()[3]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_calibrated",
+        "note": {},
+        "label": {
+          "en": "%1 fully calibrated?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_calibrated()",
+        "ast_return": {
+          "code": "self._driver.is_calibrated()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_mode",
+        "note": {},
+        "label": {
+          "en": "%1 operation mode"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_mode()",
+        "ast_return": {
+          "code": "self._driver.get_mode()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set operation mode (0=config 8=IMU 12=NDOF) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "12",
+            "note": {},
+            "field": "number",
+            "max": "12",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_axis_remap",
+        "note": {},
+        "label": {
+          "en": "%1 axis remap config %2 sign %3"
+        },
+        "params": [
+          {
+            "name": "config",
+            "type": "int",
+            "default": "36",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          },
+          {
+            "name": "sign",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_axis_remap(config, sign)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_power_mode",
+        "note": {},
+        "label": {
+          "en": "%1 power mode (0=normal 1=low power 2=suspend) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_power_mode(['normal', 'low_power', 'suspend'][mode])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "system_status",
+        "note": {},
+        "label": {
+          "en": "%1 system status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.system_status()[0]",
+        "ast_return": {
+          "code": "self._driver.system_status()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "system_error",
+        "note": {},
+        "label": {
+          "en": "%1 system error"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.system_status()[1]",
+        "ast_return": {
+          "code": "self._driver.system_status()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_passed",
+        "note": {},
+        "label": {
+          "en": "%1 self-test passed?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return all(self._driver.self_test().values())",
+        "ast_return": {
+          "code": "all(self._driver.self_test().values())",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status flags"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset chip"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "bno055"
+  },
+  "pyCode": "\"\"\"\nfile     BNO055\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.bno055 import BNO055Full\n\n\nclass BNO055:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 41):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '41'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = BNO055Full(connection)\n\n    def heading(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 heading (rad)'\n        \"\"\"\n        return self._driver.euler()[0]\n\n    def roll(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 roll (rad)'\n        \"\"\"\n        return self._driver.euler()[1]\n\n    def pitch(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 pitch (rad)'\n        \"\"\"\n        return self._driver.euler()[2]\n\n    def quaternion_w(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 quaternion W'\n        \"\"\"\n        return self._driver.quaternion()[0]\n\n    def quaternion_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 quaternion X'\n        \"\"\"\n        return self._driver.quaternion()[1]\n\n    def quaternion_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 quaternion Y'\n        \"\"\"\n        return self._driver.quaternion()[2]\n\n    def quaternion_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 quaternion Z'\n        \"\"\"\n        return self._driver.quaternion()[3]\n\n    def linear_accel_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 linear acceleration X (m/s²)'\n        \"\"\"\n        return self._driver.linear_acceleration()[0]\n\n    def linear_accel_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 linear acceleration Y (m/s²)'\n        \"\"\"\n        return self._driver.linear_acceleration()[1]\n\n    def linear_accel_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 linear acceleration Z (m/s²)'\n        \"\"\"\n        return self._driver.linear_acceleration()[2]\n\n    def gravity_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 gravity X (m/s²)'\n        \"\"\"\n        return self._driver.gravity()[0]\n\n    def gravity_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 gravity Y (m/s²)'\n        \"\"\"\n        return self._driver.gravity()[1]\n\n    def gravity_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 gravity Z (m/s²)'\n        \"\"\"\n        return self._driver.gravity()[2]\n\n    def temperature(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def calib_system(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 system calibration (0-3)'\n        \"\"\"\n        return self._driver.calibration_status()[0]\n\n    def calib_gyroscope(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 gyroscope calibration (0-3)'\n        \"\"\"\n        return self._driver.calibration_status()[1]\n\n    def calib_accelerometer(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 accelerometer calibration (0-3)'\n        \"\"\"\n        return self._driver.calibration_status()[2]\n\n    def calib_magnetometer(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 magnetometer calibration (0-3)'\n        \"\"\"\n        return self._driver.calibration_status()[3]\n\n    def is_calibrated(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 fully calibrated?'\n        \"\"\"\n        return self._driver.is_calibrated()\n\n    def get_mode(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 operation mode'\n        \"\"\"\n        return self._driver.get_mode()\n\n    def set_mode(self, mode: int = 12):\n        \"\"\"\n        label:\n            en: '%1 set operation mode (0=config 8=IMU 12=NDOF) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '12'\n                field: number\n                max: '12'\n                min: '0'\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def set_axis_remap(self, config: int = 36, sign: int = 0):\n        \"\"\"\n        label:\n            en: '%1 axis remap config %2 sign %3'\n        params:\n            config:\n                name: config\n                type: int\n                default: '36'\n                field: number\n                max: '63'\n                min: '0'\n            sign:\n                name: sign\n                type: int\n                default: '0'\n                field: number\n                max: '7'\n                min: '0'\n        \"\"\"\n        self._driver.set_axis_remap(config, sign)\n\n    def set_power_mode(self, mode: int = 0):\n        \"\"\"\n        label:\n            en: '%1 power mode (0=normal 1=low power 2=suspend) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        self._driver.set_power_mode(['normal', 'low_power', 'suspend'][mode])\n\n    def system_status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 system status'\n        \"\"\"\n        return self._driver.system_status()[0]\n\n    def system_error(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 system error'\n        \"\"\"\n        return self._driver.system_status()[1]\n\n    def self_test_passed(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 self-test passed?'\n        \"\"\"\n        return all(self._driver.self_test().values())\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status flags'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset chip'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

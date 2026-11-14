@@ -1,0 +1,1 @@
+_periph_bno055.calibration_status()[0]
