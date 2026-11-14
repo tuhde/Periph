@@ -231,7 +231,7 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		skip     ProbeSkipReason
 	}{
 		// 0x68 hosts the write-sensitive MCP3422, so passive scans skip probing there.
-		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"}, false, SkipWriteSensitive},
+		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"}, false, SkipWriteSensitive},
 		{0x40, []string{"bma180", "hdc1008", "hdc1080", "htu21df", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"}, false, SkipWriteSensitive},
 		{0x36, []string{"as5600"}, true, SkipNone},
 		{0x0B, []string{"lc709203f"}, false, SkipNone},

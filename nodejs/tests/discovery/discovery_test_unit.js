@@ -146,7 +146,7 @@ async function main() {
     d = await only(new FakeBus({ 0x68: {} }));
     // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
     checkTrue('0x68_candidates_unprobed', d.identified === null && d.probeSkippedReason === 'write_sensitive_candidate'
-        && same(d.candidates, ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'l3g4200d', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523']));
+        && same(d.candidates, ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'itg3200', 'l3g4200d', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523', 'pcf8573']));
     d = await only(new FakeBus({ 0x40: {} }));
     checkTrue('x40_candidates_include_write_sensitive_si7021', d.identified === null && same(d.candidates, ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'si7021', 'tmp007']));
     d = await only(new FakeBus({ 0x36: {} }));

@@ -159,7 +159,7 @@ int main() {
         DiscoveredDevice d = one(0x68);
         // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
         check_true(d.identified.empty() && d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate &&
-                   d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"}),
+                   d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"}),
                    "0x68_candidates_unprobed");
         check_true(one(0x40).candidates == Ids({"bma180", "hdc1008", "hdc1080", "htu21df", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"}), "x40_candidates_include_write_sensitive_si7021");
         d = one(0x36);
