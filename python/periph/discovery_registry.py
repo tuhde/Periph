@@ -279,7 +279,7 @@ CHIPS = (
     {"id": "at24c64", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,),
      "probe": None},
-    {"id": "cat24c512", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "cat24c512", "driver": "cat24c512", "write_sensitive": False, "aliased": False,
      "addresses": (0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,),
      "probe": None},
     {"id": "mb85rc", "driver": "mb85rc", "write_sensitive": False, "aliased": False,

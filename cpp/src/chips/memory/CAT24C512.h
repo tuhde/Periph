@@ -1,0 +1,146 @@
+#pragma once
+#include <stdint.h>
+#include <stddef.h>
+#include "../../connection/RegisterConnection.h"
+
+/** @brief CAT24C512 512 Kbit (64 KiB) I2C EEPROM — minimal interface.
+ *
+ * Self-timed writes (5 ms max) are completed by ACK polling: after every
+ * write the driver polls the device address until the chip answers again, so
+ * a returned write is always committed. The chip has no configuration
+ * registers; it is ready within 1 ms of power-up.
+ *
+ * Memory layout:
+ * - 0x0000-0xFFFF — 65,536 bytes, 16-bit address, big-endian on the wire,
+ *   512 pages of 128 bytes
+ *
+ * Default configuration (nothing to configure):
+ * - The full 64 KiB is addressable as raw bytes
+ * - write_byte() returns after the write cycle has finished
+ * - Writes are ignored while the WP pin is high (hardware only; the driver
+ *   cannot detect it — verify with a read-back if WP is wired)
+ *
+ * C++ builds without exceptions: read_byte() returns 0 and write_byte()
+ * returns false if the write cycle does not complete within the timeout.
+ *
+ * @param connection RegisterConnection (I²C or SMBus) constructed with
+ *        regBytes = 2, pointing at the device (address 0x50-0x57, set by A2:A0).
+ */
+class CAT24C512Minimal {
+public:
+    CAT24C512Minimal(RegisterConnection& connection);
+
+    /** @brief Read a single byte (random read).
+     *  @param address Memory address 0-65535.
+     *  @return Byte value 0-255.
+     */
+    uint8_t read_byte(uint16_t address);
+
+    /** @brief Write a single byte, then ACK-poll until the write cycle completes.
+     *  @param address Memory address 0-65535.
+     *  @param value   Byte value 0-255.
+     *  @return true if the write cycle completed within the timeout.
+     */
+    bool write_byte(uint16_t address, uint8_t value);
+
+protected:
+    static constexpr uint32_t SIZE = 0x10000;
+    static constexpr uint16_t PAGE = 128;
+    static constexpr uint16_t WRITE_TIMEOUT_MS = 10;  // tWR = 5 ms max, plus margin
+
+    RegisterConnection& _connection;
+
+    /** @brief ACK-poll: an address-only write is acknowledged once the write cycle has ended. */
+    bool _wait_ready(uint16_t timeout_ms);
+};
+
+/** @brief CAT24C512 full interface — extends minimal with block access and page writes.
+ *
+ *  Adds sequential read, page-boundary-aware write, page write, range fill,
+ *  array and page size and explicit ACK polling. Writes never cross a
+ *  128-byte page boundary (that would wrap inside the page and corrupt data)
+ *  and each chunk is ACK-polled. Ranges that would run past 0xFFFF are
+ *  rejected (return false) instead of wrapping to 0x0000 as the hardware
+ *  would. For maximum endurance (on-chip ECC re-programs 4-byte groups)
+ *  write 4-byte-aligned multiples of 4 bytes.
+ *
+ *  @param connection RegisterConnection (I²C or SMBus) constructed with
+ *         regBytes = 2, pointing at the device (address 0x50-0x57).
+ */
+class CAT24C512Full : public CAT24C512Minimal {
+public:
+    CAT24C512Full(RegisterConnection& connection);
+
+    /** @brief Array size in bytes.
+     *  @return 65536.
+     */
+    uint32_t size() const { return SIZE; }
+
+    /** @brief Write page size in bytes.
+     *  @return 128.
+     */
+    uint16_t page_size() const { return PAGE; }
+
+    /** @brief Maximum data bytes per bus transaction (default 30).
+     *
+     *  Arduino Wire limits a transfer to 32 bytes including the 2 address bytes.
+     */
+    uint8_t max_chunk() const { return _max_chunk; }
+
+    /** @brief Set the maximum data bytes per bus transaction.
+     *  @param value 1-32; values outside the range are clamped.
+     */
+    void set_max_chunk(uint8_t value);
+
+    /** @brief ACK-poll until the chip answers its device address again.
+     *  @param timeout_ms Maximum time to poll in milliseconds.
+     *  @return true if the chip responded within the timeout.
+     */
+    bool wait_ready(uint16_t timeout_ms);
+
+    /** @brief Sequential read of @p length bytes starting at @p address.
+     *
+     *  Split into transactions of at most max_chunk() bytes.
+     *
+     *  @param address Starting address 0-65535.
+     *  @param buf     Destination buffer (at least @p length bytes).
+     *  @param length  Number of bytes to read.
+     *  @return true on success, false if address…address+length is not inside 0x0000-0xFFFF.
+     */
+    bool read(uint16_t address, uint8_t* buf, uint32_t length);
+
+    /** @brief Write @p data starting at @p address, split at page boundaries.
+     *
+     *  Each chunk is at most max_chunk() bytes and never crosses a 128-byte
+     *  page boundary; the write cycle is ACK-polled after every chunk.
+     *
+     *  @param address Starting address 0-65535.
+     *  @param data    Bytes to write.
+     *  @param length  Number of bytes from @p data to write.
+     *  @return true on success, false on a range error or if a write cycle does not complete.
+     */
+    bool write(uint16_t address, const uint8_t* data, uint32_t length);
+
+    /** @brief Write within a single page (sent as one or more max_chunk()-sized transactions), ACK-polled.
+     *  @param address Starting address 0-65535.
+     *  @param data    1-128 bytes, all inside the same 128-byte page.
+     *  @param length  Number of bytes.
+     *  @return true on success, false if the data crosses a page boundary, runs outside the array,
+     *          or a write cycle does not complete.
+     */
+    bool write_page(uint16_t address, const uint8_t* data, uint16_t length);
+
+    /** @brief Write @p value over a range, page by page.
+     *  @param address Starting address 0-65535.
+     *  @param length  Number of bytes to fill.
+     *  @param value   Byte value 0-255 (default 0).
+     *  @return true on success, false on a range error or if a write cycle does not complete.
+     */
+    bool fill(uint16_t address, uint32_t length, uint8_t value = 0);
+
+private:
+    uint8_t _max_chunk = 30;
+
+    static bool _in_range(uint32_t address, uint32_t length);
+    uint8_t _chunk_len(uint32_t address, uint32_t remaining) const;
+};

@@ -79,6 +79,7 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor |
 | BNO055 | IMU | Fused Euler angles. |
+| CAT24C512 | Memory | 512 Kbit (64 KiB) I2C EEPROM |
 | CAT5171 | ADC/DAC | Digital potentiometer |
 | CS43L22 | ADC/DAC | Stereo DAC |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |

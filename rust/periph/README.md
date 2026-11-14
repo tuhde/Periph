@@ -73,6 +73,7 @@ Each chip exposes two structs:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor (Bosch Sensortec). |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor (Bosch Sensortec). |
 | BNO055 | IMU | 9-axis absolute-orientation sensor (Bosch Sensortec): 14-bit accelerometer, 16-bit |
+| CAT24C512 | Memory | 512 Kbit (64 KiB) I²C EEPROM (onsemi). |
 | CAT5171 | ADC/DAC | 256-position I²C digital potentiometer (ON Semiconductor). |
 | CS43L22 | ADC/DAC | Low-power stereo DAC with headphone and Class-D speaker amplifiers (Cirrus Logic). |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor (ASAIR / Aosong). |
