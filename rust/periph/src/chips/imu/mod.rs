@@ -12,3 +12,6 @@ pub use icm20948::{Icm20948Minimal, Icm20948Full, Icm20948Error};
 
 pub mod qmi8658a;
 pub use qmi8658a::{Qmi8658aMinimal, Qmi8658aFull, Qmi8658aError};
+
+pub mod bno055;
+pub use bno055::{Bno055Minimal, Bno055Full, Bno055Error};
