@@ -102,7 +102,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 ## Supported chips
 
 | 47XXX | EERAM 47L04/47C04/47L16/47C16 (4/16 Kbit SRAM with EEPROM backup) |  |  |  |  |  |  |  |  |
-| AD5251 | Dual 64-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) |  |  |  |  |  |  |  |  |
+| AD5251 | Dual 64-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD5252 | Dual 256-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AK8975 | 3-axis electronic compass (Hall, 13-bit, ±1229 µT, self-test, DRDY) |  |  |  |  |  |  |  |  |
 | AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
