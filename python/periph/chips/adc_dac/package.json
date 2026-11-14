@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad5248.py"
     ],
     [
+      "periph/chips/adc_dac/ad5251.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ad5251.py"
+    ],
+    [
       "periph/chips/adc_dac/ad5252.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad5252.py"
     ],
