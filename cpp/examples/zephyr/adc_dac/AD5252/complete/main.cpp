@@ -16,9 +16,9 @@ int main(void) {
     // sends the instruction alone, then reads one byte
     printk("wiper %d\n", (int)w);
     pot.setResistance(0, 5000.0f);                      // Set W–B resistance, (channel 0–1, ohms Ω) → bool
-    // inverts R = D/256·RAB + 2·RW to the nearest code
+    // inverts R = D/256·RAB + RW to the nearest code
     float r = pot.getResistance(0);                     // Read W–B resistance, (channel 0–1) → float Ω
-    // evaluates D/256·RAB + 2·RW for the current code
+    // evaluates D/256·RAB + RW for the current code
     printk("R_WB %.1f ohm\n", (double)r);
     pot.setBoth(32, 224);                               // Write both wipers, (code0 0–255, code1 0–255) → void
     // two transactions, channel 0 then channel 1
@@ -30,7 +30,7 @@ int main(void) {
     pot.setResistanceWa(1, 3000.0f);                    // Set W–A resistance, (channel 0–1, ohms Ω) → bool
     // rheostat between W and A with B open
     float rwa = pot.getResistanceWa(1);                 // Read W–A resistance, (channel 0–1) → float Ω
-    // (256 − D)/256·RAB + 2·RW
+    // (256 − D)/256·RAB + RW
     printk("R_WA %.1f ohm\n", (double)rwa);
     pot.increment(0);                                   // Step up one code, (channel=BOTH 0–1) → bool
     // quick command; BOTH addresses both channels
