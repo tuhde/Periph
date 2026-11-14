@@ -344,6 +344,8 @@ SSD1331Minimal	KEYWORD1
 ST7036Full	KEYWORD1
 ST7036Minimal	KEYWORD1
 SequenceStep	KEYWORD1
+Si7021Full	KEYWORD1
+Si7021Minimal	KEYWORD1
 SiPoConnection	KEYWORD1
 SoftSPI	KEYWORD1
 SourceClock	KEYWORD1
@@ -565,6 +567,7 @@ configure_wake_on_motion	KEYWORD2
 connect	KEYWORD2
 connection	KEYWORD2
 conversion_ready	KEYWORD2
+conversion_time	KEYWORD2
 course	KEYWORD2
 crc8	KEYWORD2
 create_char	KEYWORD2
@@ -590,6 +593,7 @@ device_id	KEYWORD2
 device_ids	KEYWORD2
 device_info	KEYWORD2
 device_select	KEYWORD2
+device_type	KEYWORD2
 dew_point	KEYWORD2
 diagnose	KEYWORD2
 dieTemperature	KEYWORD2
@@ -692,6 +696,7 @@ fifo_status	KEYWORD2
 fill	KEYWORD2
 fill_hsv	KEYWORD2
 filtered	KEYWORD2
+firmware_revision	KEYWORD2
 fix	KEYWORD2
 forceTemperatureConversion	KEYWORD2
 forced	KEYWORD2
@@ -762,6 +767,7 @@ get_ratio	KEYWORD2
 get_resistance	KEYWORD2
 get_resistance_step	KEYWORD2
 get_resistance_wa	KEYWORD2
+get_resolution	KEYWORD2
 get_scale	KEYWORD2
 get_tcon	KEYWORD2
 get_terminals	KEYWORD2
@@ -830,6 +836,7 @@ is_calibrated	KEYWORD2
 is_card_present	KEYWORD2
 is_data_ready	KEYWORD2
 is_eeprom_ready	KEYWORD2
+is_heater_on	KEYWORD2
 is_magnet_detected	KEYWORD2
 is_magnet_too_strong	KEYWORD2
 is_magnet_too_weak	KEYWORD2
@@ -1079,7 +1086,9 @@ read_pressure	KEYWORD2
 read_pulse_source	KEYWORD2
 read_ram	KEYWORD2
 read_raw	KEYWORD2
+read_raw_humidity	KEYWORD2
 read_raw_resistance	KEYWORD2
+read_raw_temperature	KEYWORD2
 read_raw_with_retry	KEYWORD2
 read_rds_group	KEYWORD2
 read_register	KEYWORD2
@@ -1094,12 +1103,14 @@ read_system_mode	KEYWORD2
 read_temperature	KEYWORD2
 read_temperature_code	KEYWORD2
 read_temperature_delta	KEYWORD2
+read_temperature_previous	KEYWORD2
 read_temperature_raw	KEYWORD2
 read_timebase_correction	KEYWORD2
 read_transient_source	KEYWORD2
 read_tvoc	KEYWORD2
 read_uid	KEYWORD2
 read_ultralight_page	KEYWORD2
+read_user_register	KEYWORD2
 read_vcom	KEYWORD2
 read_version	KEYWORD2
 read_voltage	KEYWORD2
@@ -1681,6 +1692,7 @@ valid	KEYWORD2
 vbusPresent	KEYWORD2
 vbusVoltage	KEYWORD2
 vcselPulsePeriod	KEYWORD2
+vdd_low	KEYWORD2
 velocity	KEYWORD2
 version	KEYWORD2
 void	KEYWORD2
@@ -1729,6 +1741,7 @@ write_read	KEYWORD2
 write_register	KEYWORD2
 write_status	KEYWORD2
 write_ultralight_page	KEYWORD2
+write_user_register	KEYWORD2
 zero_position	KEYWORD2
 
 #######################################

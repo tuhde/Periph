@@ -85,6 +85,7 @@
 #include "chips/gyroscope/L3gd20h.h"
 #include "chips/humidity/DHT11.h"
 #include "chips/humidity/SHT31.h"
+#include "chips/humidity/Si7021.h"
 #include "chips/imu/BNO055.h"
 #include "chips/imu/ICM20948.h"
 #include "chips/imu/MPU6050.h"
