@@ -104,9 +104,9 @@ async function main() {
     }
     d = await only(new FakeBus({ 0x52: { 0x00: 0x60, 0x01: 0x01 } }));
     checkTrue('identify_ens160_little_endian', d.identified === 'ens160');
-    d = await only(new FakeBus({ 0x40: { 0xff: 0x22, 0x100: 0x60 } }));
+    d = await only(new FakeBus({ 0x41: { 0xff: 0x22, 0x100: 0x60 } }));
     checkTrue('identify_ina226_die_id', d.identified === 'ina226');
-    d = await only(new FakeBus({ 0x40: { 0xff: 0x32, 0x100: 0x20 } }));
+    d = await only(new FakeBus({ 0x41: { 0xff: 0x32, 0x100: 0x20 } }));
     checkTrue('identify_ina3221_die_id', d.identified === 'ina3221');
     bus = new FakeBus({ 0x48: { 0x0f: 0x01, 0x10: 0x17 } });
     d = await only(bus);
@@ -148,7 +148,7 @@ async function main() {
     checkTrue('0x68_candidates_unprobed', d.identified === null && d.probeSkippedReason === 'write_sensitive_candidate'
         && same(d.candidates, ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'l3g4200d', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523']));
     d = await only(new FakeBus({ 0x40: {} }));
-    checkTrue('ina219_by_elimination', d.identified === null && same(d.candidates, ['hdc1008', 'htu21df', 'ina219']));
+    checkTrue('x40_candidates_include_write_sensitive_si7021', d.identified === null && same(d.candidates, ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'si7021', 'tmp007']));
     d = await only(new FakeBus({ 0x36: {} }));
     checkTrue('as5600_sole_candidate_unconfirmed', d.identified === null && same(d.candidates, ['as5600']));
     d = await only(new FakeBus({ 0x0b: {} }));

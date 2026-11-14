@@ -104,8 +104,8 @@ int main() {
         check_true(d.identified == r.id, (std::string("identify_") + r.id).c_str());
     }
     check_true(one(0x52, {{0x00, 0x60}, {0x01, 0x01}}).identified == "ens160", "identify_ens160_little_endian");
-    check_true(one(0x40, {{0xFF, 0x22}, {0x100, 0x60}}).identified == "ina226", "identify_ina226_die_id");
-    check_true(one(0x40, {{0xFF, 0x32}, {0x100, 0x20}}).identified == "ina3221", "identify_ina3221_die_id");
+    check_true(one(0x41, {{0xFF, 0x22}, {0x100, 0x60}}).identified == "ina226", "identify_ina226_die_id");
+    check_true(one(0x41, {{0xFF, 0x32}, {0x100, 0x20}}).identified == "ina3221", "identify_ina3221_die_id");
     check_true(one(0x18, {{0x07, 0x04}, {0x08, 0x01}}).identified == "mcp9808", "identify_mcp9808_masked");
     {
         // HMC5883L and the LSM303 magnetometer share the identity 0x483433 (known ambiguity).
@@ -161,7 +161,7 @@ int main() {
         check_true(d.identified.empty() && d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate &&
                    d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"}),
                    "0x68_candidates_unprobed");
-        check_true(one(0x40).candidates == Ids({"hdc1008", "htu21df", "ina219"}), "ina219_by_elimination");
+        check_true(one(0x40).candidates == Ids({"bma180", "hdc1008", "hdc1080", "htu21df", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"}), "x40_candidates_include_write_sensitive_si7021");
         d = one(0x36);
         check_true(d.identified.empty() && d.candidates == Ids({"as5600"}), "as5600_sole_candidate_unconfirmed");
         d = one(0x0B);

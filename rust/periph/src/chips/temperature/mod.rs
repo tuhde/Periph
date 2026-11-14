@@ -10,3 +10,5 @@ pub use tmp117::{
     Tmp117AlertPinFunction, Tmp117Config, TMP117_I2C_ADDRESS, TMP117_DEVICE_ID,
     TMP117_SOURCE_HIGH, TMP117_SOURCE_LOW,
 };
+pub mod tmp102;
+pub use tmp102::{Tmp102Minimal, Tmp102Full, Tmp102Error, TMP102_I2C_ADDRESS};

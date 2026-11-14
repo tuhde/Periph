@@ -13,6 +13,7 @@
   "node-red": {
     "nodes": {
       "mcp9808": "nodes/mcp9808/mcp9808.js",
+      "tmp102": "nodes/tmp102/tmp102.js",
       "tmp117": "nodes/tmp117/tmp117.js"
     }
   },

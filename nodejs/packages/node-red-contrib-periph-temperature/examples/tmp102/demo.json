@@ -1,0 +1,64 @@
+[
+  {
+    "id": "tab-tmp102-demo",
+    "type": "tab",
+    "label": "TMP102 Temperature Demo",
+    "disabled": false,
+    "info": "An Inject node fires every second, triggering the periph-tmp102 node to read the temperature (12-bit, 0.0625 °C resolution, 4 Hz conversion rate). A Function node formats the reading as \"%.2f °C\" and a Debug node shows it in the sidebar. Change the conversion rate or the I²C address in the node's configuration panel (0x48-0x4B depending on the ADD0 strap)."
+  },
+  {
+    "id": "inj-read",
+    "type": "inject",
+    "name": "Read temperature (1s)",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1,
+    "z": "tab-tmp102-demo",
+    "x": 160,
+    "y": 100,
+    "wires": [["tmp102-node"]]
+  },
+  {
+    "id": "tmp102-node",
+    "type": "periph-tmp102",
+    "name": "TMP102",
+    "bus": "1",
+    "address": "0x48",
+    "conversionRate": "4",
+    "z": "tab-tmp102-demo",
+    "x": 380,
+    "y": 100,
+    "wires": [["fn-format"]]
+  },
+  {
+    "id": "fn-format",
+    "type": "function",
+    "name": "format %.2f °C",
+    "func": "msg.payload = msg.payload.temperature.toFixed(2) + ' °C';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "z": "tab-tmp102-demo",
+    "x": 600,
+    "y": 100,
+    "wires": [["dbg-temp"]]
+  },
+  {
+    "id": "dbg-temp",
+    "type": "debug",
+    "name": "Temperature",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "z": "tab-tmp102-demo",
+    "x": 820,
+    "y": 100,
+    "wires": []
+  }
+]

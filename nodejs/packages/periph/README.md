@@ -140,6 +140,7 @@ Each chip exposes two classes:
 | TMC2208 | Motor driver | `periph/src/chips/motor/tmc2208` |
 | TMC2209 | Motor driver | `periph/src/chips/motor/tmc2209` |
 | TMC5160 | Motor driver | `periph/src/chips/motor/tmc5160` |
+| TMP102 | Temperature sensor | `periph/src/chips/temperature/tmp102` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
 | UC1611S | Display driver | `periph/src/chips/display/uc1611s` |
