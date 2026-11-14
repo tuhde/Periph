@@ -757,7 +757,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "am2315",
       "datasheet": "datasheets/environmental/am2315.pdf"
     },
     {
