@@ -174,4 +174,5 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "saa1064", driver: None, write_sensitive: true, aliased: false, addresses: &[0x38, 0x39, 0x3A, 0x3B], probe: None },
     ChipEntry { id: "pcf8563", driver: None, write_sensitive: false, aliased: false, addresses: &[0x51], probe: None },
     ChipEntry { id: "mcp7940n", driver: None, write_sensitive: false, aliased: false, addresses: &[0x6F], probe: None },
+    ChipEntry { id: "pcf8573", driver: None, write_sensitive: true, aliased: false, addresses: &[0x68, 0x69, 0x6A, 0x6B], probe: None },
 ];
