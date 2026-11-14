@@ -129,6 +129,7 @@ exclude = [
     "tests/adc_dac/ads1113_test_esp32s3",
     "tests/tof/vl53l0x_test_esp32s3",
     "tests/tof/vl53l1x_test_esp32s3",
+    "tests/tof/vl6180x_test_esp32s3",
 ]
 members = [
     "periph",
@@ -149,6 +150,7 @@ members = [
     "tests/adc_dac/ads1113_test",
     "tests/tof/vl53l0x_test",
     "tests/tof/vl53l1x_test",
+    "tests/tof/vl6180x_test",
     "tests/accelerometer/adxl345_test",
     "tests/accelerometer/adxl362_test",
     "tests/memory/23x1024_test",

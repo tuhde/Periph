@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/tof/vl53l1x.py"
     ],
     [
+      "periph/chips/tof/vl6180x.py",
+      "github:tuhde/Periph/python/periph/chips/tof/vl6180x.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

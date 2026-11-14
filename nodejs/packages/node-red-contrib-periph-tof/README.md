@@ -18,6 +18,7 @@ npm install node-red-contrib-periph-tof
 |------|------|-------------|
 | `periph-vl53l0x` | input | Measures distance with a VL53L0X time-of-flight laser-ranging sensor over I²C (up to ~2 m), and optionally reports distance-threshold events. |
 | `periph-vl53l1x` | input | Measures distance with a VL53L1X long-distance time-of-flight laser-ranging sensor over I²C (up to 4 m), and optionally reports distance-threshold events. |
+| `periph-vl6180x` | input | Measures distance (0–100 mm) and ambient light with a VL6180X proximity and ambient-light sensor over I²C. |
 
 ## Links
 

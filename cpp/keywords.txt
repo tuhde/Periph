@@ -388,6 +388,8 @@ VL53L0XFull	KEYWORD1
 VL53L0XMinimal	KEYWORD1
 VL53L1XFull	KEYWORD1
 VL53L1XMinimal	KEYWORD1
+VL6180XFull	KEYWORD1
+VL6180XMinimal	KEYWORD1
 VcselPeriodType	KEYWORD1
 WS2812BFull	KEYWORD1
 WS2812BMinimal	KEYWORD1
@@ -766,6 +768,7 @@ get_nv_wiper	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
 get_pixel	KEYWORD2
+get_range_offset	KEYWORD2
 get_ratio	KEYWORD2
 get_resistance	KEYWORD2
 get_resistance_step	KEYWORD2
@@ -858,6 +861,7 @@ is_wiper_locked	KEYWORD2
 is_write_protected	KEYWORD2
 jedec_id	KEYWORD2
 lastReadOk	KEYWORD2
+last_error	KEYWORD2
 last_packet_rssi	KEYWORD2
 last_packet_snr	KEYWORD2
 latitude	KEYWORD2
@@ -890,6 +894,7 @@ microstepPosition	KEYWORD2
 midscale	KEYWORD2
 mode	KEYWORD2
 modelId	KEYWORD2
+model_id	KEYWORD2
 moduleType	KEYWORD2
 motion_detected	KEYWORD2
 move	KEYWORD2
@@ -1048,6 +1053,7 @@ read_adc	KEYWORD2
 read_air_quality	KEYWORD2
 read_all	KEYWORD2
 read_all_voltage	KEYWORD2
+read_als_raw	KEYWORD2
 read_aqi	KEYWORD2
 read_average	KEYWORD2
 read_block	KEYWORD2
@@ -1072,12 +1078,14 @@ read_fifo_status	KEYWORD2
 read_flags	KEYWORD2
 read_forced	KEYWORD2
 read_gesture_fifo	KEYWORD2
+read_history	KEYWORD2
 read_humidity	KEYWORD2
 read_humidity_compensated	KEYWORD2
 read_int_source	KEYWORD2
 read_interrupt_source	KEYWORD2
 read_low_power	KEYWORD2
 read_lpf_raw	KEYWORD2
+read_lux	KEYWORD2
 read_manufacturer_code	KEYWORD2
 read_motion_source	KEYWORD2
 read_oneshot	KEYWORD2
@@ -1090,6 +1098,9 @@ read_port	KEYWORD2
 read_pressure	KEYWORD2
 read_pulse_source	KEYWORD2
 read_ram	KEYWORD2
+read_range	KEYWORD2
+read_range_continuous	KEYWORD2
+read_range_status	KEYWORD2
 read_raw	KEYWORD2
 read_raw_humidity	KEYWORD2
 read_raw_resistance	KEYWORD2
@@ -1123,6 +1134,7 @@ read_weight	KEYWORD2
 read_with_crc	KEYWORD2
 reboot	KEYWORD2
 recalibrate	KEYWORD2
+recalibrate_vhv	KEYWORD2
 receive	KEYWORD2
 receive_continuous	KEYWORD2
 recoverBus	KEYWORD2
@@ -1148,6 +1160,7 @@ resume	KEYWORD2
 retry_count	KEYWORD2
 return_home	KEYWORD2
 rev_id	KEYWORD2
+revision	KEYWORD2
 revisionId	KEYWORD2
 revisions	KEYWORD2
 rgb	KEYWORD2
@@ -1404,11 +1417,15 @@ set_adc_eq	KEYWORD2
 set_adc_ramp	KEYWORD2
 set_adc_volume	KEYWORD2
 set_adcdat_mode	KEYWORD2
+set_address	KEYWORD2
 set_addressing_mode	KEYWORD2
 set_alert	KEYWORD2
 set_all	KEYWORD2
 set_all_eeprom	KEYWORD2
 set_all_on	KEYWORD2
+set_als_gain	KEYWORD2
+set_als_integration_time	KEYWORD2
+set_als_scaler	KEYWORD2
 set_als_thresholds	KEYWORD2
 set_ambient_temperature	KEYWORD2
 set_antenna_gain	KEYWORD2
@@ -1418,6 +1435,7 @@ set_auto_sleep	KEYWORD2
 set_autorifp	KEYWORD2
 set_autosleep	KEYWORD2
 set_autozero	KEYWORD2
+set_averaging_period	KEYWORD2
 set_axes	KEYWORD2
 set_axis_remap	KEYWORD2
 set_bandwidth	KEYWORD2
@@ -1441,6 +1459,7 @@ set_compensation	KEYWORD2
 set_contrast	KEYWORD2
 set_crc	KEYWORD2
 set_critical_alert	KEYWORD2
+set_crosstalk_rate	KEYWORD2
 set_cursor	KEYWORD2
 set_dac	KEYWORD2
 set_dac_eq	KEYWORD2
@@ -1501,6 +1520,7 @@ set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2
 set_inactivity_time	KEYWORD2
 set_input	KEYWORD2
+set_interleaved	KEYWORD2
 set_interrupt	KEYWORD2
 set_interrupt_pin	KEYWORD2
 set_interrupt_pins	KEYWORD2
@@ -1522,6 +1542,7 @@ set_mask	KEYWORD2
 set_master_current	KEYWORD2
 set_max_angle	KEYWORD2
 set_max_chunk	KEYWORD2
+set_max_convergence_time	KEYWORD2
 set_max_position	KEYWORD2
 set_mic_gain	KEYWORD2
 set_mode	KEYWORD2
@@ -1563,6 +1584,8 @@ set_pump	KEYWORD2
 set_pump_voltage	KEYWORD2
 set_rab	KEYWORD2
 set_range	KEYWORD2
+set_range_offset	KEYWORD2
+set_range_thresholds	KEYWORD2
 set_rate	KEYWORD2
 set_ratio	KEYWORD2
 set_raw	KEYWORD2
@@ -1646,6 +1669,8 @@ standby	KEYWORD2
 start	KEYWORD2
 startClock	KEYWORD2
 startContinuous	KEYWORD2
+start_continuous_als	KEYWORD2
+start_continuous_range	KEYWORD2
 start_counter	KEYWORD2
 start_periodic	KEYWORD2
 stats	KEYWORD2
@@ -1658,6 +1683,8 @@ stop	KEYWORD2
 stopBeep	KEYWORD2
 stopClock	KEYWORD2
 stopContinuous	KEYWORD2
+stop_continuous_als	KEYWORD2
+stop_continuous_range	KEYWORD2
 stop_crypto	KEYWORD2
 stop_periodic	KEYWORD2
 stop_receive	KEYWORD2
@@ -2051,6 +2078,7 @@ EFFECT_SOFT_BUMP	LITERAL1
 EFFECT_STRONG_BUZZ	LITERAL1
 EFFECT_STRONG_CLICK	LITERAL1
 EFFECT_TRIPLE_CLICK	LITERAL1
+ERROR_TIMEOUT	LITERAL1
 FAULT_OPEN_LOAD	LITERAL1
 FAULT_OVERTEMP	LITERAL1
 FAULT_OVERTEMP_WARNING	LITERAL1
@@ -2261,6 +2289,8 @@ MODE_INTERNAL_TRIGGER	LITERAL1
 MODE_INVERSE	LITERAL1
 MODE_KW	LITERAL1
 MODE_KWR	LITERAL1
+MODE_LEVEL_HIGH	LITERAL1
+MODE_LEVEL_LOW	LITERAL1
 MODE_LOW_POWER	LITERAL1
 MODE_M4G	LITERAL1
 MODE_MAGGYRO	LITERAL1
@@ -2269,7 +2299,9 @@ MODE_MAG_ONLY	LITERAL1
 MODE_MIXED	LITERAL1
 MODE_NDOF	LITERAL1
 MODE_NDOF_FMC_OFF	LITERAL1
+MODE_NEW_SAMPLE_READY	LITERAL1
 MODE_NORMAL	LITERAL1
+MODE_OUT_OF_WINDOW	LITERAL1
 MODE_PAGE	LITERAL1
 MODE_POWERDOWN	LITERAL1
 MODE_PWM_ANALOG	LITERAL1
@@ -2421,6 +2453,7 @@ SOURCE_ALARM	LITERAL1
 SOURCE_ALARM1	LITERAL1
 SOURCE_ALARM2	LITERAL1
 SOURCE_ALERT	LITERAL1
+SOURCE_ALS	LITERAL1
 SOURCE_ANY_MOTION	LITERAL1
 SOURCE_ARF	LITERAL1
 SOURCE_AUTO_SLEEP	LITERAL1
@@ -2449,6 +2482,7 @@ SOURCE_CORRECTION	LITERAL1
 SOURCE_CRITICAL	LITERAL1
 SOURCE_DATA_READY	LITERAL1
 SOURCE_DIE_OVER_TEMP_L1	LITERAL1
+SOURCE_ERROR	LITERAL1
 SOURCE_FF_MT	LITERAL1
 SOURCE_FIFO	LITERAL1
 SOURCE_FIFO_FULL	LITERAL1
@@ -2493,6 +2527,7 @@ SOURCE_PWRON_LONG	LITERAL1
 SOURCE_PWRON_NEG_EDGE	LITERAL1
 SOURCE_PWRON_POS_EDGE	LITERAL1
 SOURCE_PWRON_SHORT	LITERAL1
+SOURCE_RANGE	LITERAL1
 SOURCE_SECOND	LITERAL1
 SOURCE_SIGNIFICANT_MOTION	LITERAL1
 SOURCE_SLOPE	LITERAL1

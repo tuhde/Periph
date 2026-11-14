@@ -1,0 +1,456 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "vl6180x_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init VL6180X",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x29)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_range",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X range (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_range_error",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X range error code (single shot)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_lux",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X ambient light (lux)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_als_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X ALS raw count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_start_continuous_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X start continuous range",
+          "type": "label"
+        },
+        {
+          "name": "period (ms, 10-2550)",
+          "type": "label"
+        },
+        {
+          "name": "_period_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_stop_continuous_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X stop continuous range",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_read_range_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X next continuous range (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_start_continuous_als",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X start continuous ALS",
+          "type": "label"
+        },
+        {
+          "name": "period (ms, 10-2550)",
+          "type": "label"
+        },
+        {
+          "name": "_period_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_stop_continuous_als",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X stop continuous ALS",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_interleaved",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set interleaved mode",
+          "type": "label"
+        },
+        {
+          "name": "on (1 = on, 0 = off)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_als_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set ALS gain",
+          "type": "label"
+        },
+        {
+          "name": "gain code (0 = 20, 6 = 1, 7 = 40)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_als_integration_time",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set ALS integration time",
+          "type": "label"
+        },
+        {
+          "name": "time (ms, 1-512)",
+          "type": "label"
+        },
+        {
+          "name": "_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_als_scaler",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set ALS scaler",
+          "type": "label"
+        },
+        {
+          "name": "scaler (1-16)",
+          "type": "label"
+        },
+        {
+          "name": "_scaler",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_range_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set range thresholds",
+          "type": "label"
+        },
+        {
+          "name": "low (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        },
+        {
+          "name": "high (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_als_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set ALS thresholds",
+          "type": "label"
+        },
+        {
+          "name": "low (counts)",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        },
+        {
+          "name": "high (counts)",
+          "type": "label"
+        },
+        {
+          "name": "_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_max_convergence_time",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set max convergence time",
+          "type": "label"
+        },
+        {
+          "name": "time (ms, 1-63)",
+          "type": "label"
+        },
+        {
+          "name": "_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_averaging_period",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set averaging period",
+          "type": "label"
+        },
+        {
+          "name": "units (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_units",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_range_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set range offset",
+          "type": "label"
+        },
+        {
+          "name": "offset (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_range_offset",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X range offset (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_crosstalk_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set crosstalk rate",
+          "type": "label"
+        },
+        {
+          "name": "rate (Mcps)",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_recalibrate_vhv",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X recalibrate VHV",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_set_address",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X set device address",
+          "type": "label"
+        },
+        {
+          "name": "address (0x08-0x77, volatile)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_model_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X model ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_revision",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X revision (major * 10 + minor)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_history",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X history buffer",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL6180X poll interrupt (1 range, 2 ALS, 4 error)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X enable interrupt",
+          "type": "label"
+        },
+        {
+          "name": "source (1 range, 2 ALS)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        },
+        {
+          "name": "mode (1 low, 2 high, 3 window, 4 new sample)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl6180x_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL6180X disable interrupt",
+          "type": "label"
+        },
+        {
+          "name": "source (1 range, 2 ALS)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

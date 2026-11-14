@@ -160,6 +160,7 @@ Each chip exposes two structs:
 | UC8276C | Display driver | Black/white/red e-paper controller (400 x 300 panels such as the |
 | VL53L0X | Time-of-flight | Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | VL53L1X | Time-of-flight | Long-distance Time-of-Flight laser-ranging sensor (STMicroelectronics). |
+| VL6180X | Time-of-flight | Proximity and ambient-light sensor (STMicroelectronics). |
 | WS2812B | LED driver | Addressable RGB LED strip driver (Worldsemi). |
 | WS2814 | LED driver | Addressable RGBW LED strip driver (Super Lighting LED). |
 

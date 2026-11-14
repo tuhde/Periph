@@ -155,6 +155,7 @@ Each chip exposes two classes:
 | UC1611s | Display driver | `chips/display/UC1611s.h` |
 | VL53L0X | Time-of-flight | `chips/tof/VL53L0X.h` |
 | VL53L1X | Time-of-flight | `chips/tof/VL53L1X.h` |
+| VL6180X | Time-of-flight | `chips/tof/VL6180X.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |
 | WS2814 | LED driver | `chips/led/WS2814.h` |
 

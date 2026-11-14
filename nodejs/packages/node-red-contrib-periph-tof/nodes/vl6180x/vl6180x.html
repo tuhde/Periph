@@ -1,0 +1,75 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-vl6180x', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:          { value: '' },
+            bus:           { value: '1', required: true, validate: RED.validators.number() },
+            address:       { value: '0x29' },
+            gain:          { value: '6' },
+            integrationMs: { value: '100', validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-h',
+        label:   function() { return this.name || 'VL6180X'; },
+        paletteLabel: 'VL6180X'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-vl6180x">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="VL6180X">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <input type="text" id="node-input-address" style="width:80px"> &nbsp;(default 0x29)
+    </div>
+    <div class="form-row">
+        <label for="node-input-gain"><i class="fa fa-adjust"></i> ALS gain</label>
+        <select id="node-input-gain" style="width:240px">
+            <option value="6">1 (code 6, up to about 20 klux)</option>
+            <option value="5">1.25 (code 5)</option>
+            <option value="4">1.67 (code 4)</option>
+            <option value="3">2.5 (code 3)</option>
+            <option value="2">5 (code 2)</option>
+            <option value="1">10 (code 1)</option>
+            <option value="0">20 (code 0)</option>
+            <option value="7">40 (code 7, dim light)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-integrationMs"><i class="fa fa-clock-o"></i> Integration ms</label>
+        <input type="text" id="node-input-integrationMs" style="width:80px"> &nbsp;(1–512 ms; 50–100 ms reduces flicker error)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-vl6180x">
+    <p>Measures distance (0–100 mm) and ambient light with a VL6180X proximity and ambient-light sensor over I²C.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one single-shot range measurement followed by one single-shot ambient-light measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.range_mm <span class="property-type">number</span></dt>
+        <dd>Distance in mm (0–255; reliable up to about 100 mm). Only meaningful when <code>valid</code> is true.</dd>
+        <dt>payload.range_error <span class="property-type">number</span></dt>
+        <dd>Range error code, 0 = no error (1–15 are the datasheet error codes).</dd>
+        <dt>payload.valid <span class="property-type">boolean</span></dt>
+        <dd>True when the range error code is 0.</dd>
+        <dt>payload.lux <span class="property-type">number</span></dt>
+        <dd>Ambient light in lux (0.32 lux/count at gain 1 and 100 ms, without cover glass).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the address (0x29 by default; the address can only be changed from code and reverts at power-up). The ALS gain and integration time apply to the lux value: pick a low gain in bright light and a high gain in dim light; a longer integration time improves resolution but slows each message by that time. Cover glass in front of the sensor reduces both range and light signals; calibrate offset, crosstalk and lux resolution in the final assembly.</p>
+</script>
