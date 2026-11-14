@@ -113,6 +113,7 @@
 #include "chips/magnetometer/HMC5883L.h"
 #include "chips/memory/23X1024.h"
 #include "chips/memory/24AA02UID.h"
+#include "chips/memory/CAT24C512.h"
 #include "chips/memory/MB85RC.h"
 #include "chips/memory/MX25L12845E.h"
 #include "chips/memory/SD_SPI.h"
