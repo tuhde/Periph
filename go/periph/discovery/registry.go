@@ -88,6 +88,7 @@ var registry = []Chip{
 	{ID: "bme680", Driver: "bme680", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: &IdProbe{Register: 0xD0, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x61}}},
 	{ID: "ens160", Driver: "ens160", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x52, 0x53}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 2, LittleEndian: true, Mask: 0xFFFF, Expected: []uint32{0x0160}}},
 	{ID: "neo-6", Driver: "neo-6", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x42}, Probe: nil},
+	{ID: "itg3200", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x68, 0x69}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0x7E, Expected: []uint32{0x68}}},
 	{ID: "l3g4200d", Driver: "l3g4200d", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x68, 0x69}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xD3}}},
 	{ID: "l3gd20h", Driver: "l3gd20h", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x6A, 0x6B}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xD4, 0xD7}}},
 	{ID: "fxas21002c", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x20, 0x21}, Probe: &IdProbe{Register: 0x0C, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xD7}}},

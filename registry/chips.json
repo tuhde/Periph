@@ -884,6 +884,27 @@
       "datasheet": "datasheets/gnss/neo-6.pdf"
     },
     {
+      "id": "itg3200",
+      "name": "ITG3200",
+      "category": "gyroscope",
+      "addresses": [
+        "0x68..0x69"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0x7E",
+        "expected": [
+          "0x68"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/gyroscope/itg3200.pdf"
+    },
+    {
       "id": "l3g4200d",
       "name": "L3G4200D",
       "category": "gyroscope",
