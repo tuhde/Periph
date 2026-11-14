@@ -1861,6 +1861,18 @@
       "datasheet": "datasheets/temperature/mcp9808.pdf"
     },
     {
+      "id": "stds75",
+      "name": "STDS75",
+      "category": "temperature",
+      "addresses": [
+        "0x48..0x4F"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/temperature/stds75.pdf"
+    },
+    {
       "id": "tmp007",
       "name": "TMP007",
       "category": "temperature",
