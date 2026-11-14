@@ -29,6 +29,7 @@ exclude = [
     "tests/adc_dac/ads7828_test_esp32s3",
     "tests/adc_dac/ad5248_test_esp32s3",
     "tests/adc_dac/ad5252_test_esp32s3",
+    "tests/adc_dac/ad5251_test_esp32s3",
     "tests/adc_dac/mcp4xxx_test_esp32s3",
     "tests/adc_dac/mcp4728_test_esp32s3",
     "tests/adc_dac/es8311_test_esp32s3",
@@ -302,6 +303,7 @@ members = [
     "tests/adc_dac/ads7828_test",
     "tests/adc_dac/ad5248_test",
     "tests/adc_dac/ad5252_test",
+    "tests/adc_dac/ad5251_test",
     "tests/adc_dac/mcp4xxx_test",
 ]
 
