@@ -1,0 +1,75 @@
+//go:build linux && !tinygo
+
+// AT24C02N complete example — Linux host.
+//
+// Constructs the Full driver and calls every public method once.
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/tuhde/Periph/go/periph/chips/memory"
+	"github.com/tuhde/Periph/go/periph/connection"
+)
+
+func chk(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	bus, err := strconv.Atoi(envOr("I2C_BUS", "1"))
+	chk(err)
+	addr, err := strconv.ParseUint(envOr("I2C_ADDR", "0x50"), 0, 8)
+	chk(err)
+
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x50) → (*I2CConnection, error)
+	chk(err)
+	defer conn.Close()
+
+	chip, err := memory.NewAT24C02NFull(conn) // Create AT24C02N driver, (connection) → (*AT24C02NFull, error)
+	chk(err)
+
+	fmt.Println("Size:", chip.Size(), "bytes") // Get array size, () → int
+	// always 256
+	fmt.Println("Page:", chip.PageSize(), "bytes") // Get write page size, () → int
+	// always 8
+	chk(chip.SetMaxChunk(16))                 // Set max bytes per bus transaction, (n=30) → error
+	fmt.Println("MaxChunk:", chip.MaxChunk()) // Get max bytes per bus transaction, () → int
+
+	chk(chip.WriteByteAt(0x0010, 0xA5)) // Write a single byte, (address 0–255, value 0–255) → error
+	// ACK-polled until the write cycle ends
+	b, err := chip.ReadByteAt(0x0010) // Read a single byte, (address 0–255) → (byte, error)
+	// random read
+	chk(err)
+	fmt.Printf("Byte: 0x%02X\n", b)
+
+	block := make([]byte, 40)
+	for i := range block {
+		block[i] = byte(i)
+	}
+	chk(chip.Write(0x0040, block)) // Write data, (address, data) → error
+	// split at 8-byte page boundaries and MaxChunk, ACK-polled per chunk
+	data, err := chip.Read(0x0040, 40) // Sequential read, (address, length) → ([]byte, error)
+	// split into MaxChunk-byte transactions
+	chk(err)
+	fmt.Printf("Block: %x\n", data)
+
+	chk(chip.WritePage(0x00B8, block[:8])) // Write within one page, (address, data) → error
+	// ErrAT24C02NPageBoundary if the data crosses a page boundary
+	chk(chip.Fill(0x0040, 40, 0xFF)) // Fill a range, (address, length, value) → error
+	// page-wise writes of value
+	fmt.Println("Ready:", chip.WaitReady(10*time.Millisecond)) // ACK-poll the chip, (timeout) → bool
+	// true once the chip answers its address
+}
+
+func envOr(k, def string) string {
+	if v, ok := os.LookupEnv(k); ok {
+		return v
+	}
+	return def
+}

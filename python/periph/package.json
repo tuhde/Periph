@@ -353,6 +353,10 @@
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
     [
+      "periph/chips/memory/at24c02n.py",
+      "github:tuhde/Periph/python/periph/chips/memory/at24c02n.py"
+    ],
+    [
       "periph/chips/memory/at24c64.py",
       "github:tuhde/Periph/python/periph/chips/memory/at24c64.py"
     ],
