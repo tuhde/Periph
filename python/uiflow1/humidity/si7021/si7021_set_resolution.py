@@ -1,0 +1,1 @@
+_periph_si7021.set_resolution(*[(12, 14), (8, 12), (10, 13), (11, 11)][int(${_level})])

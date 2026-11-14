@@ -444,7 +444,7 @@ CHIPS = (
     {"id": "hs40xx", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x54,),
      "probe": None},
-    {"id": "si7021", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "si7021", "driver": "si7021", "write_sensitive": True, "aliased": False,
      "addresses": (0x40,),
      "probe": {"register": 0xFCC9, "reg_bytes": 2, "length": 4, "byte_order": "big", "mask": 0xFF000000, "expected": (0x15000000,)}},
     {"id": "lps22hb", "driver": None, "write_sensitive": False, "aliased": False,

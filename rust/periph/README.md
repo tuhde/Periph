@@ -141,6 +141,7 @@ Each chip exposes two structs:
 | SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SH1106 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Sino Wealth), the chip behind the common |
 | SHT31 | Humidity sensor | Digital temperature and humidity sensor (Sensirion SHT3x-DIS family). |
+| SI7021 | Humidity sensor | Relative humidity and temperature sensor (Silicon Labs). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1305 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
 | SSD1306 | Display driver | 128 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
