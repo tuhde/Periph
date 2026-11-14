@@ -1845,7 +1845,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "tmp102",
       "datasheet": "datasheets/temperature/tmp102.pdf"
     },
     {

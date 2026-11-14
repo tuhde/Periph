@@ -1,0 +1,448 @@
+{
+  "category": "TMP102",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_TMP102_LANGUAGES = {\n  \"CUSTOM_TMP102_INIT\": {\n    \"en\": \"%1 init bus %2 address (72-75) %3\"\n  },\n  \"CUSTOM_TMP102_READ_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_TMP102_READ_RAW\": {\n    \"en\": \"%1 raw count\"\n  },\n  \"CUSTOM_TMP102_READ_CONFIG\": {\n    \"en\": \"%1 CONFIGURATION register\"\n  },\n  \"CUSTOM_TMP102_WRITE_CONFIG\": {\n    \"en\": \"%1 write CONFIGURATION %2\"\n  },\n  \"CUSTOM_TMP102_SET_CONVERSION_RATE\": {\n    \"en\": \"%1 set conversion rate (0.25/1/4/8 Hz) %2\"\n  },\n  \"CUSTOM_TMP102_SET_EXTENDED_MODE\": {\n    \"en\": \"%1 extended 13-bit mode (0=off 1=on) %2\"\n  },\n  \"CUSTOM_TMP102_SET_T_HIGH\": {\n    \"en\": \"%1 set T_HIGH (°C) %2\"\n  },\n  \"CUSTOM_TMP102_GET_T_HIGH\": {\n    \"en\": \"%1 T_HIGH (°C)\"\n  },\n  \"CUSTOM_TMP102_SET_T_LOW\": {\n    \"en\": \"%1 set T_LOW (°C) %2\"\n  },\n  \"CUSTOM_TMP102_GET_T_LOW\": {\n    \"en\": \"%1 T_LOW (°C)\"\n  },\n  \"CUSTOM_TMP102_SET_FAULT_QUEUE\": {\n    \"en\": \"%1 set fault queue (1/2/4/6) %2\"\n  },\n  \"CUSTOM_TMP102_SET_POLARITY\": {\n    \"en\": \"%1 ALERT polarity (0=active low 1=active high) %2\"\n  },\n  \"CUSTOM_TMP102_SET_THERMOSTAT_MODE\": {\n    \"en\": \"%1 thermostat mode (0=comparator 1=interrupt) %2\"\n  },\n  \"CUSTOM_TMP102_SHUTDOWN\": {\n    \"en\": \"%1 shut down\"\n  },\n  \"CUSTOM_TMP102_WAKE\": {\n    \"en\": \"%1 wake\"\n  },\n  \"CUSTOM_TMP102_ONE_SHOT\": {\n    \"en\": \"%1 one-shot temperature (°C)\"\n  },\n  \"CUSTOM_TMP102_ALERT_STATE\": {\n    \"en\": \"%1 alert active?\"\n  },\n  \"CUSTOM_TMP102_RESET\": {\n    \"en\": \"%1 general-call reset\"\n  },\n  \"CUSTOM_TMP102_POLL_INTERRUPT\": {\n    \"en\": \"%1 poll interrupt (alert active?)\"\n  }\n};\n\nconst initType = 'custom_tmp102_init';\nBlockly.BlockRegExpList['custom_tmp102'] = {\n  regexp: new RegExp(/^custom_tmp102_/),\n  code: \"from TMP102 import TMP102\",\n  initBlockType: initType,\n  categoryId: 'custom_tmp102',\n}\nBlockly.utils.registerLanguages(CUSTOM_TMP102_LANGUAGES)\n\nBlockly.Msg.CUSTOM_TMP102_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_TMP102 = 'TMP102'\n\nBlockly.utils.getcustom_tmp102Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['tmp102_0', 'tmp102_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_tmp102_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_tmp102Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'tmp102_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = TMP102(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_read_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_READ_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_read_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_read_config\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_READ_CONFIG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_read_config\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_config()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_write_config\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_WRITE_CONFIG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_write_config\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_config(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_set_conversion_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_CONVERSION_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_conversion_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var hz = Blockly.Python.valueToCode(block, 'hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_conversion_rate(${hz})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_set_extended_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_EXTENDED_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'True'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_extended_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var True = Blockly.Python.valueToCode(block, 'True', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_extended_mode(${True})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_set_t_high\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_T_HIGH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_t_high\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_t_high(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_get_t_high\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_GET_T_HIGH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_get_t_high\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_t_high()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_set_t_low\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_T_LOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_t_low\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_t_low(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_get_t_low\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_GET_T_LOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_get_t_low\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_t_low()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_set_fault_queue\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_FAULT_QUEUE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'count'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_fault_queue\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var count = Blockly.Python.valueToCode(block, 'count', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_fault_queue(${count})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_set_polarity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_POLARITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'active_high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_polarity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var active_high = Blockly.Python.valueToCode(block, 'active_high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_polarity(${active_high})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_set_thermostat_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SET_THERMOSTAT_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'interrupt'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_set_thermostat_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var interrupt = Blockly.Python.valueToCode(block, 'interrupt', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_thermostat_mode(${interrupt})\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.shutdown()\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_one_shot\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_ONE_SHOT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_one_shot\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.one_shot()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_alert_state\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_ALERT_STATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_alert_state\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.alert_state()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tmp102_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_tmp102_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TMP102_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tmp102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tmp102_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"TMP102\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tmp102\">\n<title text=\"TMP102\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_tmp102_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">72</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_read_temperature\"/><block type=\"custom_tmp102_read_raw\"/><block type=\"custom_tmp102_read_config\"/><block type=\"custom_tmp102_write_config\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">24736</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_set_conversion_rate\">\n  <value name=\"hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_set_extended_mode\">\n  <value name=\"True\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_set_t_high\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">80.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_get_t_high\"/><block type=\"custom_tmp102_set_t_low\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">75.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_get_t_low\"/><block type=\"custom_tmp102_set_fault_queue\">\n  <value name=\"count\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_set_polarity\">\n  <value name=\"active_high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_set_thermostat_mode\">\n  <value name=\"interrupt\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tmp102_shutdown\"/><block type=\"custom_tmp102_wake\"/><block type=\"custom_tmp102_one_shot\"/><block type=\"custom_tmp102_alert_state\"/><block type=\"custom_tmp102_reset\"/><block type=\"custom_tmp102_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_tmp102",
+    "block_type": [
+      "custom_tmp102___init__",
+      "custom_tmp102_read_temperature",
+      "custom_tmp102_read_raw",
+      "custom_tmp102_read_config",
+      "custom_tmp102_write_config",
+      "custom_tmp102_set_conversion_rate",
+      "custom_tmp102_set_extended_mode",
+      "custom_tmp102_set_t_high",
+      "custom_tmp102_get_t_high",
+      "custom_tmp102_set_t_low",
+      "custom_tmp102_get_t_low",
+      "custom_tmp102_set_fault_queue",
+      "custom_tmp102_set_polarity",
+      "custom_tmp102_set_thermostat_mode",
+      "custom_tmp102_shutdown",
+      "custom_tmp102_wake",
+      "custom_tmp102_one_shot",
+      "custom_tmp102_alert_state",
+      "custom_tmp102_reset",
+      "custom_tmp102_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "TMP102",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "TMP102",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.temperature.tmp102 import TMP102Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address (72-75) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "72",
+            "note": {},
+            "field": "number",
+            "max": "75",
+            "min": "72"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = TMP102Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()",
+        "ast_return": {
+          "code": "self._driver.read_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_config",
+        "note": {},
+        "label": {
+          "en": "%1 CONFIGURATION register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_config()",
+        "ast_return": {
+          "code": "self._driver.read_config()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_config",
+        "note": {},
+        "label": {
+          "en": "%1 write CONFIGURATION %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "24736",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_config(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_conversion_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set conversion rate (0.25/1/4/8 Hz) %2"
+        },
+        "params": [
+          {
+            "name": "hz",
+            "type": "float",
+            "default": "4.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_conversion_rate(hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_extended_mode",
+        "note": {},
+        "label": {
+          "en": "%1 extended 13-bit mode (0=off 1=on) %2"
+        },
+        "params": [
+          {
+            "name": true,
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_extended_mode(bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_t_high",
+        "note": {},
+        "label": {
+          "en": "%1 set T_HIGH (°C) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "80.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_t_high(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_t_high",
+        "note": {},
+        "label": {
+          "en": "%1 T_HIGH (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_t_high()",
+        "ast_return": {
+          "code": "self._driver.get_t_high()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_t_low",
+        "note": {},
+        "label": {
+          "en": "%1 set T_LOW (°C) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "75.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_t_low(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_t_low",
+        "note": {},
+        "label": {
+          "en": "%1 T_LOW (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_t_low()",
+        "ast_return": {
+          "code": "self._driver.get_t_low()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_fault_queue",
+        "note": {},
+        "label": {
+          "en": "%1 set fault queue (1/2/4/6) %2"
+        },
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "6",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_fault_queue(count)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_polarity",
+        "note": {},
+        "label": {
+          "en": "%1 ALERT polarity (0=active low 1=active high) %2"
+        },
+        "params": [
+          {
+            "name": "active_high",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_polarity(bool(active_high))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_thermostat_mode",
+        "note": {},
+        "label": {
+          "en": "%1 thermostat mode (0=comparator 1=interrupt) %2"
+        },
+        "params": [
+          {
+            "name": "interrupt",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_thermostat_mode(bool(interrupt))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 shut down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.shutdown()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "one_shot",
+        "note": {},
+        "label": {
+          "en": "%1 one-shot temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.one_shot()",
+        "ast_return": {
+          "code": "self._driver.one_shot()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "alert_state",
+        "note": {},
+        "label": {
+          "en": "%1 alert active?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.alert_state()",
+        "ast_return": {
+          "code": "self._driver.alert_state()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 general-call reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 poll interrupt (alert active?)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "bool"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "tmp102"
+  },
+  "pyCode": "\"\"\"\nfile     TMP102\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.temperature.tmp102 import TMP102Full\n\n\nclass TMP102:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 72):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address (72-75) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '72'\n                field: number\n                min: '72'\n                max: '75'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = TMP102Full(connection)\n\n    def read_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def read_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw count'\n        \"\"\"\n        return self._driver.read_raw()\n\n    def read_config(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 CONFIGURATION register'\n        \"\"\"\n        return self._driver.read_config()\n\n    def write_config(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 write CONFIGURATION %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '24736'\n                field: number\n        \"\"\"\n        self._driver.write_config(value)\n\n    def set_conversion_rate(self, hz: float):\n        \"\"\"\n        label:\n            en: '%1 set conversion rate (0.25/1/4/8 Hz) %2'\n        params:\n            hz:\n                name: hz\n                type: float\n                default: '4.0'\n                field: number\n        \"\"\"\n        self._driver.set_conversion_rate(hz)\n\n    def set_extended_mode(self, on: int):\n        \"\"\"\n        label:\n            en: '%1 extended 13-bit mode (0=off 1=on) %2'\n        params:\n            on:\n                name: on\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_extended_mode(bool(on))\n\n    def set_t_high(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set T_HIGH (°C) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '80.0'\n                field: number\n        \"\"\"\n        self._driver.set_t_high(celsius)\n\n    def get_t_high(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 T_HIGH (°C)'\n        \"\"\"\n        return self._driver.get_t_high()\n\n    def set_t_low(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set T_LOW (°C) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '75.0'\n                field: number\n        \"\"\"\n        self._driver.set_t_low(celsius)\n\n    def get_t_low(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 T_LOW (°C)'\n        \"\"\"\n        return self._driver.get_t_low()\n\n    def set_fault_queue(self, count: int):\n        \"\"\"\n        label:\n            en: '%1 set fault queue (1/2/4/6) %2'\n        params:\n            count:\n                name: count\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '6'\n        \"\"\"\n        self._driver.set_fault_queue(count)\n\n    def set_polarity(self, active_high: int):\n        \"\"\"\n        label:\n            en: '%1 ALERT polarity (0=active low 1=active high) %2'\n        params:\n            active_high:\n                name: active_high\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_polarity(bool(active_high))\n\n    def set_thermostat_mode(self, interrupt: int):\n        \"\"\"\n        label:\n            en: '%1 thermostat mode (0=comparator 1=interrupt) %2'\n        params:\n            interrupt:\n                name: interrupt\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_thermostat_mode(bool(interrupt))\n\n    def shutdown(self):\n        \"\"\"\n        label:\n            en: '%1 shut down'\n        \"\"\"\n        self._driver.shutdown()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n\n    def one_shot(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 one-shot temperature (°C)'\n        \"\"\"\n        return self._driver.one_shot()\n\n    def alert_state(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 alert active?'\n        \"\"\"\n        return self._driver.alert_state()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 general-call reset'\n        \"\"\"\n        self._driver.reset()\n\n    def poll_interrupt(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 poll interrupt (alert active?)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}
