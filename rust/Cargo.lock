@@ -963,38 +963,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bno055_complete"
-version = "0.1.0"
-dependencies = [
- "linux-embedded-hal",
- "periph",
-]
-
-[[package]]
-name = "bno055_demo"
-version = "0.1.0"
-dependencies = [
- "linux-embedded-hal",
- "periph",
-]
-
-[[package]]
-name = "bno055_minimal"
-version = "0.1.0"
-dependencies = [
- "linux-embedded-hal",
- "periph",
-]
-
-[[package]]
-name = "bno055_test"
-version = "0.1.0"
-dependencies = [
- "linux-embedded-hal",
- "periph",
-]
-
-[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
