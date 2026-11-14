@@ -205,6 +205,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MLX90614 | IR thermometer (object −70…380 °C + ambient, 0.02 °C, SMBus + PEC, emissivity) |  |  |  |  |  |  |  |  |
 | MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPL115A2 | Barometer (50–115 kPa, 10-bit, calibration coefficients) |  |  |  |  |  |  |  |  |
 | MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) |  |  |  |  |  |  |  |  |
