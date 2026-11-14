@@ -114,6 +114,7 @@
 #include "chips/magnetometer/HMC5883L.h"
 #include "chips/memory/23X1024.h"
 #include "chips/memory/24AA02UID.h"
+#include "chips/memory/AT24C02N.h"
 #include "chips/memory/AT24C64.h"
 #include "chips/memory/CAT24C512.h"
 #include "chips/memory/MB85RC.h"

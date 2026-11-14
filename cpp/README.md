@@ -60,6 +60,7 @@ Each chip exposes two classes:
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
+| AT24C02N | Memory | `chips/memory/AT24C02N.h` |
 | AT24C64 | Memory | `chips/memory/AT24C64.h` |
 | AXP2101 | Power monitor | `chips/power/AXP2101.h` |
 | BMA150 | Accelerometer | `chips/accelerometer/BMA150.h` |

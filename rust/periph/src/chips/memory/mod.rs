@@ -20,3 +20,6 @@ pub use cat24c512::{Cat24c512Minimal, Cat24c512Full};
 
 pub mod at24c64;
 pub use at24c64::{At24c64Minimal, At24c64Full};
+
+pub mod at24c02n;
+pub use at24c02n::{At24c02nMinimal, At24c02nFull};
