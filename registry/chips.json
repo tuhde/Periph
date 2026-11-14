@@ -1338,7 +1338,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "cat24c512",
       "datasheet": "datasheets/memory/cat24c512.pdf"
     },
     {

@@ -71,6 +71,7 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
 | BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
 | BNO055 | IMU | `chips/imu/BNO055.h` |
+| CAT24C512 | Memory | `chips/memory/CAT24C512.h` |
 | CAT5171 | ADC/DAC | `chips/adc_dac/CAT5171.h` |
 | CS43L22 | ADC/DAC | `chips/adc_dac/CS43L22.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
