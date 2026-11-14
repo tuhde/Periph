@@ -175,117 +175,117 @@ Decoder id `htu21df`, input `['i2c']`. Matches I²C address `0x40`. Annotates th
 
 ## Implementation Checklist
 
-Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+Tick each box as the item is committed. File, directory and class names use `HTU21DF` (no hyphen): a hyphen is not valid in C++/Java/Kotlin/Groovy identifiers or Arduino sketch paths. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/humidity/htu21df.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/humidity/htu21df/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/humidity/htu21df/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/humidity/htu21df/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/humidity/htu21df_test.py` (MicroPython)
-- [ ] Tests `python/tests/humidity/htu21df_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/humidity/htu21df_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/humidity/htu21df_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `python/periph/chips/humidity/htu21df.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/humidity/htu21df/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/humidity/htu21df/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/humidity/htu21df/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/humidity/htu21df_test.py` (MicroPython)
+- [x] Tests `python/tests/humidity/htu21df_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/humidity/htu21df_test_linux.py` (Linux)
+- [x] Unit test `python/tests/humidity/htu21df_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/humidity/htu21df/htu21df.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/humidity/htu21df/htu21df_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/humidity/htu21df/htu21df.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/humidity/htu21df/htu21df.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/humidity/htu21df/htu21df_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [x] Generated `python/uiflow1/humidity/htu21df/htu21df.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/humidity/htu21df/HTU21D-F.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
-- [ ] Exported `python/uiflow2/humidity/htu21df/HTU21D-F.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
+- [x] Wrapper class `python/uiflow2/humidity/htu21df/HTU21DF.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [x] Exported `python/uiflow2/humidity/htu21df/HTU21DF.m5b2` — reproduced from the wrapper class following the verified `.m5b2` structure (not exported from the Block Designer; see `python/uiflow2/UIFLOW2_BLOCKS.md`) (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/humidity/HTU21D-F.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/humidity/HTU21D-F.cpp`
-- [ ] Examples `cpp/examples/arduino/humidity/HTU21D-F/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/humidity/HTU21D-F/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/humidity/HTU21D-F/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/humidity/HTU21D-F/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/humidity/HTU21D-F/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/humidity/HTU21D-F/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/humidity/HTU21D-F/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/humidity/HTU21D-F/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/humidity/HTU21D-F/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/humidity/HTU21D-F/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/humidity/HTU21D-F/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/humidity/HTU21D-F/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/humidity/HTU21D-F/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/stm32cube/humidity/HTU21D-F/minimal/Core/Src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/humidity/HTU21D-F/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/stm32cube/humidity/HTU21D-F/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/humidity/HTU21D-F/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/stm32cube/humidity/HTU21D-F/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/humidity/htu21df_test/htu21df_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/humidity/htu21df_test_linux/htu21df_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/humidity/htu21df_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/humidity/htu21df_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/humidity/htu21df_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Tests `cpp/tests/humidity/htu21df_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
-- [ ] Unit test `cpp/tests/humidity/htu21df_test_unit/htu21df_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/humidity/HTU21DF.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/humidity/HTU21DF.cpp`
+- [x] Examples `cpp/examples/arduino/humidity/HTU21DF/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/humidity/HTU21DF/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/humidity/HTU21DF/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
+- [x] Examples `cpp/examples/linux/humidity/HTU21DF/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/humidity/HTU21DF/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/humidity/HTU21DF/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/humidity/HTU21DF/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/humidity/HTU21DF/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/humidity/HTU21DF/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/humidity/HTU21DF/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/humidity/HTU21DF/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/humidity/HTU21DF/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/humidity/HTU21DF/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/humidity/HTU21DF/minimal/Core/Src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/humidity/HTU21DF/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/humidity/HTU21DF/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/humidity/HTU21DF/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/humidity/HTU21DF/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/humidity/htu21df_test/htu21df_test.ino` (Arduino)
+- [x] Tests `cpp/tests/humidity/htu21df_test_linux/htu21df_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/humidity/htu21df_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/humidity/htu21df_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/humidity/htu21df_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/humidity/htu21df_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
+- [x] Unit test `cpp/tests/humidity/htu21df_test_unit/htu21df_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/humidity/htu21df.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/humidity/htu21df/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/humidity/htu21df/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/humidity/htu21df/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/humidity/htu21df_test.js`
-- [ ] Unit test `nodejs/tests/humidity/htu21df_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/humidity/htu21df.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/humidity/htu21df/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/humidity/htu21df/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/humidity/htu21df/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/humidity/htu21df_test.js`
+- [x] Unit test `nodejs/tests/humidity/htu21df_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-humidity/nodes/htu21df/htu21df.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-humidity/nodes/htu21df/htu21df.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-humidity/examples/htu21df/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-humidity/nodes/htu21df/htu21df.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-humidity/nodes/htu21df/htu21df.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-humidity/examples/htu21df/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/humidity/htu21df.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/humidity/htu21df/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/humidity/htu21df/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/humidity/htu21df/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/humidity/htu21df_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/humidity/htu21df_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/humidity/htu21df.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `rust/periph/src/chips/humidity/htu21df.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/linux/humidity/htu21df/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/humidity/htu21df/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/humidity/htu21df/demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/humidity/htu21df_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/humidity/htu21df_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/humidity/htu21df.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Go
-- [ ] Driver `go/periph/chips/humidity/htu21df.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/humidity/htu21df/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/humidity/htu21df/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/humidity/htu21df/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/humidity/htu21df/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/humidity/htu21df/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/humidity/htu21df/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/humidity/htu21df_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/humidity/htu21df_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/humidity/htu21df_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/humidity/htu21df.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/linux/humidity/htu21df/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/humidity/htu21df/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/humidity/htu21df/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/humidity/htu21df/minimal/minimal.go` — Tier-1 (TinyGo)
+- [x] Examples `go/examples/tinygo/humidity/htu21df/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [x] Examples `go/examples/tinygo/humidity/htu21df/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [x] Tests `go/tests/humidity/htu21df_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [x] Tests `go/tests/humidity/htu21df_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [x] Unit test `go/periph/chips/humidity/htu21df_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HTU21D-FMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HTU21D-FFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HTU21D-FMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HTU21D-FFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HTU21D-FMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HTU21D-FFull.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/humidity/htu21df/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/humidity/htu21df/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/humidity/htu21df/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/humidity/htu21df/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/humidity/htu21df/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/humidity/htu21df/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/humidity/htu21df/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/humidity/htu21df/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/humidity/htu21df/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/humidity/htu21df/HTU21D-FTest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/humidity/HTU21D-FTest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/humidity/HTU21D-FTest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/humidity/HTU21D-FSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HTU21DFMinimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HTU21DFFull.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HTU21DFMinimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HTU21DFFull.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HTU21DFMinimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HTU21DFFull.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/humidity/htu21df/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/humidity/htu21df/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/humidity/htu21df/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/humidity/htu21df/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/humidity/htu21df/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/humidity/htu21df/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/humidity/htu21df/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/humidity/htu21df/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/humidity/htu21df/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/humidity/htu21df/HTU21DFTest.java` (Pi hardware, JBang)
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/humidity/HTU21DFTest.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/humidity/HTU21DFTest.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/humidity/HTU21DFSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
-- [ ] Decoder `sigrok/htu21df/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/htu21df/pd.py` — annotates commands, results with CRC check and the user register per the Sigrok Decoder section — for the conformance-checked Timing Constraints above, emits the named `conversion_start` / `conversion_done` annotation pair
+- [x] Decoder `sigrok/htu21df/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/htu21df/pd.py` — annotates commands, results with CRC check and the user register per the Sigrok Decoder section — for the conformance-checked Timing Constraints above, emits the named `conversion_start` / `conversion_done` annotation pair
 
 ### Conformance
-- [ ] Checker `conformance/humidity/htu21df_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
-- [ ] Timing config `specs/humidity/htu21df_timing.conf`
-- [ ] Decoder `sigrok/htu21df/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
+- [x] Checker `conformance/humidity/htu21df_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [x] Timing config `specs/humidity/htu21df_timing.conf`
+- [x] Decoder `sigrok/htu21df/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

@@ -88,6 +88,7 @@ Each chip exposes two structs:
 | ES8311 | ADC/DAC | Low-power mono audio codec, I²C control port (Everest Semiconductor). |
 | FXOS8700 | Accelerometer | 6-axis e-compass: 14-bit accelerometer + 16-bit magnetometer (NXP). |
 | HMC5883L | Magnetometer | 3-axis anisotropic magnetoresistive magnetometer (Honeywell). |
+| HTU21DF | Humidity sensor | Relative humidity and temperature sensor (Measurement Specialties). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |

@@ -13,6 +13,7 @@
   "node-red": {
     "nodes": {
       "dht11": "nodes/dht11/dht11.js",
+      "htu21df": "nodes/htu21df/htu21df.js",
       "sht31": "nodes/sht31/sht31.js",
       "si7021": "nodes/si7021/si7021.js"
     }

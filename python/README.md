@@ -94,6 +94,7 @@ Each chip exposes two classes:
 | ES8311 | ADC/DAC | Bring-up for voice playback and recording. |
 | FXOS8700 | Accelerometer | Acceleration and magnetic field. |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
+| HTU21DF | Humidity sensor | HTU21D-F humidity and temperature sensor |
 | HX710A | ADC/DAC | 24-bit ADC |
 | HX710B | ADC/DAC | 24-bit ADC |
 | HX711 | ADC/DAC | 24-bit ADC |

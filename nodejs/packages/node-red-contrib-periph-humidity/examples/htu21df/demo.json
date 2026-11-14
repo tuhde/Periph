@@ -1,0 +1,86 @@
+[
+  {
+    "id": "htu21df-tab",
+    "type": "tab",
+    "label": "HTU21D-F humidity logger",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HTU21D-F every 2 s and formats them. Demonstrates the no-hold-master temperature and humidity measurements with CRC checking."
+  },
+  {
+    "id": "htu21df-inject",
+    "type": "inject",
+    "z": "htu21df-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "htu21df-node"
+      ]
+    ]
+  },
+  {
+    "id": "htu21df-node",
+    "type": "periph-htu21df",
+    "z": "htu21df-tab",
+    "name": "HTU21D-F",
+    "bus": "1",
+    "address": "0x40",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "htu21df-format"
+      ]
+    ],
+    "resolution": "12/14",
+    "heater": false
+  },
+  {
+    "id": "htu21df-format",
+    "type": "function",
+    "z": "htu21df-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(2) + ' °C, ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "htu21df-debug"
+      ]
+    ]
+  },
+  {
+    "id": "htu21df-debug",
+    "type": "debug",
+    "z": "htu21df-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

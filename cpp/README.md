@@ -86,6 +86,7 @@ Each chip exposes two classes:
 | ES8311 | ADC/DAC | `chips/adc_dac/ES8311.h` |
 | FXOS8700 | Accelerometer | `chips/accelerometer/FXOS8700.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
+| HTU21DF | Humidity sensor | `chips/humidity/HTU21DF.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
 | HX710B | ADC/DAC | `chips/adc_dac/HX710B.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
