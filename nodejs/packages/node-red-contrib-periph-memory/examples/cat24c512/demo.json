@@ -1,0 +1,78 @@
+[
+    {
+        "id": "tab-cat24c512-demo",
+        "type": "tab",
+        "label": "CAT24C512 Boot Counter",
+        "disabled": false,
+        "info": "Demonstrates non-volatile EEPROM state. Every 5 seconds a function node reads a 4-byte big-endian counter at address 0x0000 through periph-cat24c512, increments it and writes it back (page-split and ACK-polled by the driver). The Debug node shows the counter, which survives a Node-RED restart or power loss."
+    },
+    {
+        "id": "cfg-cat24c512",
+        "type": "cat24c512-device",
+        "name": "CAT24C512",
+        "bus": "1",
+        "address": "50"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-cat24c512-demo",
+        "x": 130,
+        "y": 120,
+        "wires": [["rd"]]
+    },
+    {
+        "id": "rd",
+        "type": "periph-cat24c512",
+        "name": "Read counter",
+        "device": "cfg-cat24c512",
+        "z": "tab-cat24c512-demo",
+        "x": 310,
+        "y": 120,
+        "wires": [["inc"]]
+    },
+    {
+        "id": "inc",
+        "type": "function",
+        "name": "increment",
+        "func": "const d = msg.payload.data || [0, 0, 0, 0];\nconst n = (((d[0] << 24) >>> 0) + (d[1] << 16) + (d[2] << 8) + d[3] + 1) >>> 0;\nmsg.count = n;\nmsg.payload = { op: 'write', address: 0, data: [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255] };\nreturn msg;",
+        "outputs": 1,
+        "z": "tab-cat24c512-demo",
+        "x": 490,
+        "y": 120,
+        "wires": [["wr"]]
+    },
+    {
+        "id": "wr",
+        "type": "periph-cat24c512",
+        "name": "Write counter",
+        "device": "cfg-cat24c512",
+        "z": "tab-cat24c512-demo",
+        "x": 670,
+        "y": 120,
+        "wires": [["dbg"]]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "Counter",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "count",
+        "targetType": "msg",
+        "z": "tab-cat24c512-demo",
+        "x": 850,
+        "y": 120,
+        "wires": []
+    }
+]
