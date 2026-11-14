@@ -2311,6 +2311,18 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/rtc/mcp7940n.pdf"
+    },
+    {
+      "id": "pcf8573",
+      "name": "PCF8573",
+      "category": "rtc",
+      "addresses": [
+        "0x68..0x6B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/rtc/pcf8573.pdf"
     }
   ]
 }

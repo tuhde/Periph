@@ -286,6 +286,7 @@ static constexpr IdProbe kProbe_lps22hb = {0x0F, 1, 1, false, 0xFF, kExp_lps22hb
 static constexpr uint8_t kAddr_saa1064[] = {0x38, 0x39, 0x3A, 0x3B};
 static constexpr uint8_t kAddr_pcf8563[] = {0x51};
 static constexpr uint8_t kAddr_mcp7940n[] = {0x6F};
+static constexpr uint8_t kAddr_pcf8573[] = {0x68, 0x69, 0x6A, 0x6B};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -439,8 +440,9 @@ static constexpr ChipEntry kChips[] = {
     {"saa1064", nullptr, true, false, kAddr_saa1064, 4, nullptr},
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
+    {"pcf8573", nullptr, true, false, kAddr_pcf8573, 4, nullptr},
 };
-static constexpr size_t kChipCount = 151;
+static constexpr size_t kChipCount = 152;
 
 }  // namespace discovery
 }  // namespace periph

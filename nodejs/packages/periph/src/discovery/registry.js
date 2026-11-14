@@ -156,6 +156,7 @@ const CHIPS = [
     {"id":"saa1064","driver":null,"writeSensitive":true,"aliased":false,"addresses":[56,57,58,59],"probe":null},
     {"id":"pcf8563","driver":null,"writeSensitive":false,"aliased":false,"addresses":[81],"probe":null},
     {"id":"mcp7940n","driver":null,"writeSensitive":false,"aliased":false,"addresses":[111],"probe":null},
+    {"id":"pcf8573","driver":null,"writeSensitive":true,"aliased":false,"addresses":[104,105,106,107],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };

@@ -456,4 +456,7 @@ CHIPS = (
     {"id": "mcp7940n", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x6F,),
      "probe": None},
+    {"id": "pcf8573", "driver": None, "write_sensitive": True, "aliased": False,
+     "addresses": (0x68, 0x69, 0x6A, 0x6B,),
+     "probe": None},
 )
