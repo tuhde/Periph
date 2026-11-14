@@ -162,6 +162,7 @@ var registry = []Chip{
 	{ID: "ht16k33", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77}, Probe: nil},
 	{ID: "hs30xx", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x44}, Probe: nil},
 	{ID: "hs40xx", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x54}, Probe: nil},
+	{ID: "si7021", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x40}, Probe: &IdProbe{Register: 0xFCC9, RegBytes: 2, Length: 4, LittleEndian: false, Mask: 0xFF000000, Expected: []uint32{0x15000000}}},
 	{ID: "lps22hb", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5C, 0x5D}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xB1}}},
 	{ID: "saa1064", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39, 0x3A, 0x3B}, Probe: nil},
 	{ID: "pcf8563", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x51}, Probe: nil},
