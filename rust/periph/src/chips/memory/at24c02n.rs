@@ -261,14 +261,14 @@ mod tests {
     const ADDR: u8 = 0x50;
 
     fn poll() -> I2cTransaction {
-        I2cTransaction::write(ADDR, vec![0x00, 0x00])
+        I2cTransaction::write(ADDR, vec![0x00])
     }
 
     #[test]
     fn minimal_byte_access() {
         let t = vec![
-            I2cTransaction::write_read(ADDR, vec![0x12, 0x34], vec![0x42]),
-            I2cTransaction::write(ADDR, vec![0x00, 0x10, 0x99]),
+            I2cTransaction::write_read(ADDR, vec![0x34], vec![0x42]),
+            I2cTransaction::write(ADDR, vec![0x10, 0x99]),
             poll(),
         ];
         let mut chip = At24c02nMinimal::new(I2cMock::new(&t), ADDR);
@@ -280,7 +280,7 @@ mod tests {
     #[test]
     fn ack_polling_retries_then_succeeds() {
         let t = vec![
-            I2cTransaction::write(ADDR, vec![0x00, 0x01, 0x07]),
+            I2cTransaction::write(ADDR, vec![0x01, 0x07]),
             poll().with_error(ErrorKind::Other),
             poll().with_error(ErrorKind::Other),
             poll(),
@@ -292,7 +292,7 @@ mod tests {
 
     #[test]
     fn write_cycle_timeout() {
-        let mut t = vec![I2cTransaction::write(ADDR, vec![0x00, 0x01, 0x07])];
+        let mut t = vec![I2cTransaction::write(ADDR, vec![0x01, 0x07])];
         for _ in 0..=WRITE_TIMEOUT_MS {
             t.push(poll().with_error(ErrorKind::Other));
         }
@@ -303,37 +303,35 @@ mod tests {
 
     #[test]
     fn page_split_write() {
-        // 70 bytes from 0x0070 with 8-byte pages: 16 (to the boundary), 30, 2 (to the next boundary), 22.
-        let data: Vec<u8> = (0..70).collect();
+        // 20 bytes from 0x0074 with 8-byte pages: 4 (to the boundary), 8, 8.
+        let data: Vec<u8> = (0..20).collect();
         let t = vec![
-            I2cTransaction::write(ADDR, [vec![0x00, 0x70], data[..16].to_vec()].concat()),
+            I2cTransaction::write(ADDR, [vec![0x74], data[..4].to_vec()].concat()),
             poll(),
-            I2cTransaction::write(ADDR, [vec![0x00, 0x80], data[16..46].to_vec()].concat()),
+            I2cTransaction::write(ADDR, [vec![0x78], data[4..12].to_vec()].concat()),
             poll(),
-            I2cTransaction::write(ADDR, [vec![0x00, 0x9E], data[46..48].to_vec()].concat()),
-            poll(),
-            I2cTransaction::write(ADDR, [vec![0x00, 0xA0], data[48..].to_vec()].concat()),
+            I2cTransaction::write(ADDR, [vec![0x80], data[12..].to_vec()].concat()),
             poll(),
         ];
         let mut chip = At24c02nFull::new(I2cMock::new(&t), ADDR);
         assert_eq!(chip.size(), 256);
         assert_eq!(chip.page_size(), 8);
         assert_eq!(chip.max_chunk(), 30);
-        chip.write(0x0070, &data, &mut NoopDelay).unwrap();
+        chip.write(0x0074, &data, &mut NoopDelay).unwrap();
         chip.inner.i2c.done();
     }
 
     #[test]
     fn read_and_fill() {
         let t = vec![
-            I2cTransaction::write_read(ADDR, vec![0x01, 0x00], vec![9; 8]),
-            I2cTransaction::write_read(ADDR, vec![0x01, 0x08], vec![9; 2]),
+            I2cTransaction::write_read(ADDR, vec![0x40], vec![9; 8]),
+            I2cTransaction::write_read(ADDR, vec![0x48], vec![9; 2]),
             // max_chunk = 8: fill 20 bytes at 0x00C0 -> 8 + 8 + 4
-            I2cTransaction::write(ADDR, [vec![0x03, 0x00], vec![0xAB; 8]].concat()),
+            I2cTransaction::write(ADDR, [vec![0xC0], vec![0xAB; 8]].concat()),
             poll(),
-            I2cTransaction::write(ADDR, [vec![0x03, 0x08], vec![0xAB; 8]].concat()),
+            I2cTransaction::write(ADDR, [vec![0xC8], vec![0xAB; 8]].concat()),
             poll(),
-            I2cTransaction::write(ADDR, [vec![0x03, 0x10], vec![0xAB; 4]].concat()),
+            I2cTransaction::write(ADDR, [vec![0xD0], vec![0xAB; 4]].concat()),
             poll(),
         ];
         let mut chip = At24c02nFull::new(I2cMock::new(&t), ADDR);
@@ -348,11 +346,8 @@ mod tests {
 
     #[test]
     fn write_page_rules() {
-        let page: Vec<u8> = (0..16).collect();
-        let t = vec![
-            I2cTransaction::write(ADDR, [vec![0x01, 0x80], page.clone()].concat()),
-            poll(),
-        ];
+        let page: Vec<u8> = (0..8).collect();
+        let t = vec![I2cTransaction::write(ADDR, [vec![0xB8], page.clone()].concat()), poll()];
         let mut chip = At24c02nFull::new(I2cMock::new(&t), ADDR);
         chip.write_page(0x00B8, &page, &mut NoopDelay).unwrap();
         assert_eq!(chip.write_page(0x00CC, &[0; 8], &mut NoopDelay), Err(Error::PageBoundary));
@@ -363,7 +358,7 @@ mod tests {
 
     #[test]
     fn range_rules() {
-        let t = vec![I2cTransaction::write(ADDR, vec![0x1F, 0xFE, 1, 2]), poll()];
+        let t = vec![I2cTransaction::write(ADDR, vec![0xFE, 1, 2]), poll()];
         let mut chip = At24c02nFull::new(I2cMock::new(&t), ADDR);
         chip.write(0x00FE, &[1, 2], &mut NoopDelay).unwrap();
         assert_eq!(chip.write(0x00FF, &[1, 2], &mut NoopDelay), Err(Error::OutOfRange));
