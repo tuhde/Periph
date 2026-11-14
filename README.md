@@ -179,6 +179,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA260 | Power monitor (integrated shunt) |  |  |  |  |  |  |  |  |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IST8310 | 3-axis AMR magnetometer (±1600/±2500 µT, 0.3 µT/LSB, DRDY, up to 200 Hz) |  |  |  |  |  |  |  |  |
 | ITG3200 | Gyroscope (3-axis, ±2000 °/s, 16-bit, DLPF, temperature, data-ready interrupt) |  |  |  |  |  |  |  |  |
 | L3G4200D | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | L3GD20H (L3GD20) | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
