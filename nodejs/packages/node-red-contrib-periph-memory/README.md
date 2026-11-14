@@ -20,6 +20,8 @@ npm install node-red-contrib-periph-memory
 | `23x1024` | input | Reads, writes and fills a 23LC1024 / 23A1024 1-Mbit (128 KiB) SPI serial SRAM, and selects its operating mode. |
 | `24aa02uid-device` | config | I²C bus and address for a 24AA02UID |
 | `24aa02uid` | input | Reads the factory-programmed 32-bit unique serial number from a 24AA02UID EEPROM, or reads / writes user EEPROM bytes, over I²C. |
+| `at24c64-device` | config | I²C bus and address for an AT24C64 |
+| `periph-at24c64` | input | Reads, writes and fills the 8 KiB EEPROM of an AT24C64 over I²C. Writes are split at 32-byte page boundaries and ACK-polled until each write cycle (10 ms max (20 ms at 1.8 V)) has finished. |
 | `cat24c512-device` | config | I²C bus and address for a CAT24C512 |
 | `periph-cat24c512` | input | Reads, writes and fills the 64 KiB EEPROM of a CAT24C512 over I²C. Writes are split at 128-byte page boundaries and ACK-polled until each write cycle (5 ms max) has finished. |
 | `mb85rc-device` | config | I²C bus and address for a MB85RC |

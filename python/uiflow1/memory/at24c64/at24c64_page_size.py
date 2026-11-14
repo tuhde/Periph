@@ -1,0 +1,1 @@
+_periph_at24c64.page_size()

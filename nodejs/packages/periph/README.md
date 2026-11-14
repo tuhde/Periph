@@ -50,6 +50,7 @@ Each chip exposes two classes:
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
+| AT24C64 | Memory | `periph/src/chips/memory/at24c64` |
 | AXP2101 | Power monitor | `periph/src/chips/power/axp2101` |
 | BMA150 | Accelerometer | `periph/src/chips/accelerometer/bma150` |
 | BMA180 | Accelerometer | `periph/src/chips/accelerometer/bma180` |
