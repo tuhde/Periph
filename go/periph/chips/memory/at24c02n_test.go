@@ -83,7 +83,7 @@ func (m *at24c02nMock) IsEnabled() bool             { return true }
 func (m *at24c02nMock) IntPin() connection.InputPin { return nil }
 func (m *at24c02nMock) EnPin() connection.OutputPin { return nil }
 
-func newAtEE(t *testing.T) (*at24c02nMock, *AT24C02NFull) {
+func newAt02EE(t *testing.T) (*at24c02nMock, *AT24C02NFull) {
 	t.Helper()
 	conn := newAT24C02NMock(1)
 	ee, err := NewAT24C02NFull(conn)
@@ -94,7 +94,7 @@ func newAtEE(t *testing.T) (*at24c02nMock, *AT24C02NFull) {
 }
 
 func TestAT24C02NByteAccess(t *testing.T) {
-	conn, ee := newAtEE(t)
+	conn, ee := newAt02EE(t)
 	if len(conn.writes) != 0 {
 		t.Errorf("init generated bus traffic")
 	}
@@ -105,14 +105,14 @@ func TestAT24C02NByteAccess(t *testing.T) {
 	if v, err := ee.ReadByteAt(0x0034); err != nil || v != 0x42 {
 		t.Errorf("ReadByteAt = %v, %v", v, err)
 	}
-	if !bytes.Equal(conn.writes[len(conn.writes)-1], []byte{0x12, 0x34}) {
+	if !bytes.Equal(conn.writes[len(conn.writes)-1], []byte{0x34}) {
 		t.Errorf("ReadByteAt frame = %v", conn.writes[len(conn.writes)-1])
 	}
 	conn.writes = nil
 	if err := ee.WriteByteAt(0x0010, 0x99); err != nil || conn.registers[0x10] != 0x99 {
 		t.Errorf("WriteByteAt failed: %v", err)
 	}
-	if !bytes.Equal(conn.writes[0], []byte{0x00, 0x10, 0x99}) || !bytes.Equal(conn.writes[1], []byte{0x00, 0x00}) {
+	if !bytes.Equal(conn.writes[0], []byte{0x10, 0x99}) || !bytes.Equal(conn.writes[1], []byte{0x00}) {
 		t.Errorf("WriteByteAt frames = %v", conn.writes)
 	}
 	if _, err := ee.ReadByteAt(0x0100); err != ErrAT24C02NRange {
@@ -130,7 +130,7 @@ func TestAT24C02NByteAccess(t *testing.T) {
 }
 
 func TestAT24C02NAckPolling(t *testing.T) {
-	conn, ee := newAtEE(t)
+	conn, ee := newAt02EE(t)
 	conn.nack = 2
 	conn.writes = nil
 	if !ee.WaitReady(50 * time.Millisecond) {
@@ -151,34 +151,34 @@ func TestAT24C02NAckPolling(t *testing.T) {
 }
 
 func TestAT24C02NPageSplitWrite(t *testing.T) {
-	conn, ee := newAtEE(t)
+	conn, ee := newAt02EE(t)
 	if ee.MaxChunk() != 30 {
 		t.Errorf("MaxChunk default = %d", ee.MaxChunk())
 	}
-	data := make([]byte, 70)
+	data := make([]byte, 20)
 	for i := range data {
 		data[i] = byte(i)
 	}
-	if err := ee.Write(0x0070, data); err != nil {
+	if err := ee.Write(0x0074, data); err != nil {
 		t.Fatal(err)
 	}
 	var frames [][]byte
 	for _, w := range conn.writes {
-		if len(w) > 2 {
+		if len(w) > 1 {
 			frames = append(frames, w)
 		}
 	}
-	if len(frames) != 4 ||
-		!bytes.Equal(frames[0], append([]byte{0x00, 0x70}, data[:16]...)) ||
-		!bytes.Equal(frames[1], append([]byte{0x00, 0x80}, data[16:46]...)) ||
-		!bytes.Equal(frames[2], append([]byte{0x00, 0x9E}, data[46:48]...)) ||
-		!bytes.Equal(frames[3], append([]byte{0x00, 0xA0}, data[48:]...)) {
+	// 20 bytes from 0x74 with 8-byte pages: 4 (to the boundary), 8, 8.
+	if len(frames) != 3 ||
+		!bytes.Equal(frames[0], append([]byte{0x74}, data[:4]...)) ||
+		!bytes.Equal(frames[1], append([]byte{0x78}, data[4:12]...)) ||
+		!bytes.Equal(frames[2], append([]byte{0x80}, data[12:]...)) {
 		t.Errorf("page-split frames wrong: %v", frames)
 	}
-	if len(conn.writes) != 8 {
-		t.Errorf("writes incl. polls = %d, want 8", len(conn.writes))
+	if len(conn.writes) != 6 {
+		t.Errorf("writes incl. polls = %d, want 6", len(conn.writes))
 	}
-	got, err := ee.Read(0x0070, 70)
+	got, err := ee.Read(0x0074, 20)
 	if err != nil || !bytes.Equal(got, data) {
 		t.Errorf("Read round trip failed: %v", err)
 	}
@@ -189,7 +189,7 @@ func TestAT24C02NPageSplitWrite(t *testing.T) {
 	_ = ee.Write(0x00E0, make([]byte, 20))
 	n := 0
 	for _, w := range conn.writes {
-		if len(w) > 2 {
+		if len(w) > 1 {
 			n++
 		}
 	}
@@ -202,7 +202,7 @@ func TestAT24C02NPageSplitWrite(t *testing.T) {
 }
 
 func TestAT24C02NWritePageAndFill(t *testing.T) {
-	conn, ee := newAtEE(t)
+	conn, ee := newAt02EE(t)
 	page := make([]byte, 8)
 	for i := range page {
 		page[i] = byte(i)
@@ -235,7 +235,7 @@ func TestAT24C02NWritePageAndFill(t *testing.T) {
 }
 
 func TestAT24C02NRangeRules(t *testing.T) {
-	_, ee := newAtEE(t)
+	_, ee := newAt02EE(t)
 	if err := ee.Write(0x00FE, []byte{1, 2}); err != nil {
 		t.Errorf("write to end failed: %v", err)
 	}
