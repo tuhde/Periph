@@ -44,6 +44,7 @@ Each chip exposes two classes:
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
 | AD5243 | ADC/DAC | `chips/adc_dac/AD5243.h` |
 | AD5248 | ADC/DAC | `chips/adc_dac/AD5248.h` |
+| AD5252 | ADC/DAC | `chips/adc_dac/AD5252.h` |
 | AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
 | AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |

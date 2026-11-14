@@ -11,6 +11,8 @@ AD5243Full	KEYWORD1
 AD5243Minimal	KEYWORD1
 AD5248Full	KEYWORD1
 AD5248Minimal	KEYWORD1
+AD5252Full	KEYWORD1
+AD5252Minimal	KEYWORD1
 AD7705Full	KEYWORD1
 AD7705Minimal	KEYWORD1
 AD7706Full	KEYWORD1
@@ -633,6 +635,7 @@ display_off	KEYWORD2
 display_on	KEYWORD2
 distance	KEYWORD2
 distanceMode	KEYWORD2
+doubleCode	KEYWORD2
 draw_line	KEYWORD2
 draw_rect	KEYWORD2
 drive	KEYWORD2
@@ -786,6 +789,7 @@ gray_linear	KEYWORD2
 gyro	KEYWORD2
 gyro_raw	KEYWORD2
 halt_card	KEYWORD2
+halve	KEYWORD2
 hardware_reset	KEYWORD2
 hasControl	KEYWORD2
 has_red	KEYWORD2
@@ -912,6 +916,7 @@ newAccelData	KEYWORD2
 newDataAvailable	KEYWORD2
 newMagData	KEYWORD2
 new_data_available	KEYWORD2
+nop	KEYWORD2
 nvm_read	KEYWORD2
 nvm_write	KEYWORD2
 ocr	KEYWORD2
@@ -967,6 +972,7 @@ proximity	KEYWORD2
 proximity_threshold	KEYWORD2
 proximity_touched	KEYWORD2
 quaternion	KEYWORD2
+rabActual	KEYWORD2
 rangeStatus	KEYWORD2
 rangeValid	KEYWORD2
 raw_angle	KEYWORD2
@@ -993,6 +999,7 @@ readDeviceId	KEYWORD2
 readDiag	KEYWORD2
 readDifferential	KEYWORD2
 readDifferentialRaw	KEYWORD2
+readEemem	KEYWORD2
 readEepromScratch	KEYWORD2
 readEncoderLatch	KEYWORD2
 readEncoderPosition	KEYWORD2
@@ -1045,6 +1052,7 @@ readTemperatureFlags	KEYWORD2
 readTimer	KEYWORD2
 readTimerA	KEYWORD2
 readTimerB	KEYWORD2
+readTolerance	KEYWORD2
 readTransientSource	KEYWORD2
 readTstep	KEYWORD2
 readVoltage	KEYWORD2
@@ -1161,6 +1169,7 @@ reset_reference	KEYWORD2
 reset_step_count	KEYWORD2
 resolution	KEYWORD2
 restart	KEYWORD2
+restore	KEYWORD2
 restore_value	KEYWORD2
 resume	KEYWORD2
 retry_count	KEYWORD2
@@ -1756,6 +1765,7 @@ wireMode	KEYWORD2
 write	KEYWORD2
 writeConfig	KEYWORD2
 writeDataBuffer	KEYWORD2
+writeEemem	KEYWORD2
 writeEepromScratch	KEYWORD2
 writeMicrostepTable	KEYWORD2
 writeRam	KEYWORD2
@@ -1865,6 +1875,7 @@ BLINK_OFF	LITERAL1
 BLOCK_SIZE	LITERAL1
 BLUE	LITERAL1
 BOL	LITERAL1
+BOTH	LITERAL1
 BRNG_16V	LITERAL1
 BRNG_32V	LITERAL1
 BUFFER_SIZE	LITERAL1
