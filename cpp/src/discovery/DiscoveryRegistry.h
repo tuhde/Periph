@@ -264,6 +264,9 @@ static constexpr IdProbe kProbe_hdc1080 = {0xFF, 1, 2, false, 0xFFFF, kExp_hdc10
 static constexpr uint8_t kAddr_ht16k33[] = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 static constexpr uint8_t kAddr_hs30xx[] = {0x44};
 static constexpr uint8_t kAddr_hs40xx[] = {0x54};
+static constexpr uint8_t kAddr_si7021[] = {0x40};
+static constexpr uint32_t kExp_si7021[] = {0x15000000};
+static constexpr IdProbe kProbe_si7021 = {0xFCC9, 2, 4, false, 0xFF000000, kExp_si7021, 1};
 static constexpr uint8_t kAddr_lps22hb[] = {0x5C, 0x5D};
 static constexpr uint32_t kExp_lps22hb[] = {0xB1};
 static constexpr IdProbe kProbe_lps22hb = {0x0F, 1, 1, false, 0xFF, kExp_lps22hb, 1};
@@ -411,12 +414,13 @@ static constexpr ChipEntry kChips[] = {
     {"ht16k33", nullptr, true, false, kAddr_ht16k33, 8, nullptr},
     {"hs30xx", nullptr, true, false, kAddr_hs30xx, 1, nullptr},
     {"hs40xx", nullptr, true, false, kAddr_hs40xx, 1, nullptr},
+    {"si7021", nullptr, true, false, kAddr_si7021, 1, &kProbe_si7021},
     {"lps22hb", nullptr, false, false, kAddr_lps22hb, 2, &kProbe_lps22hb},
     {"saa1064", nullptr, true, false, kAddr_saa1064, 4, nullptr},
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 143;
+static constexpr size_t kChipCount = 144;
 
 }  // namespace discovery
 }  // namespace periph
