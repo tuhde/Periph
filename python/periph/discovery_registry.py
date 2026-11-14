@@ -36,7 +36,7 @@ CHIPS = (
     {"id": "ad5251", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x2C, 0x2D, 0x2E, 0x2F,),
      "probe": None},
-    {"id": "ad5252", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ad5252", "driver": "ad5252", "write_sensitive": True, "aliased": False,
      "addresses": (0x2C, 0x2D, 0x2E, 0x2F,),
      "probe": None},
     {"id": "ds3502", "driver": "ds3502", "write_sensitive": False, "aliased": False,

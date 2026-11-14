@@ -52,6 +52,7 @@ Each chip exposes two classes:
 | 24AA02UID | Memory | 2K I2C EEPROM with 32-bit unique serial number |
 | AD5243 | ADC/DAC | Dual digital potentiometer |
 | AD5248 | ADC/DAC | Dual 256-position I²C digital rheostat |
+| AD5252 | ADC/DAC | Dual digital potentiometer |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC |
 | ADE7953 | Power monitor | Single-phase metering IC |
