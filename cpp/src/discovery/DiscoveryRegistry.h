@@ -302,7 +302,7 @@ static constexpr ChipEntry kChips[] = {
     {"mma8451q", "mma8451q", false, false, kAddr_mma8451q, 2, &kProbe_mma8451q},
     {"ad5243", "ad5243", true, false, kAddr_ad5243, 1, nullptr},
     {"ad5248", "ad5248", true, false, kAddr_ad5248, 4, nullptr},
-    {"ad5251", nullptr, true, false, kAddr_ad5251, 4, nullptr},
+    {"ad5251", "ad5251", true, false, kAddr_ad5251, 4, nullptr},
     {"ad5252", "ad5252", true, false, kAddr_ad5252, 4, nullptr},
     {"ds3502", "ds3502", false, false, kAddr_ds3502, 4, nullptr},
     {"cat5171", "cat5171", true, false, kAddr_cat5171, 2, nullptr},
