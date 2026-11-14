@@ -1314,7 +1314,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "at24c02n",
       "datasheet": "datasheets/memory/at24c02n.pdf"
     },
     {

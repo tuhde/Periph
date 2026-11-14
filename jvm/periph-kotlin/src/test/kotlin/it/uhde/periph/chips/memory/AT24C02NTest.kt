@@ -10,7 +10,7 @@ class AT24C02NTest {
     private fun mock() = MockConnection()
 
     /** Frames carrying data (one address byte plus at least one data byte). */
-    private fun dataFrames(c: MockConnection) = c.writes().filter { it.size > 2 }
+    private fun dataFrames(c: MockConnection) = c.writes().filter { it.size > 1 }
 
     @Test
     fun byteAccess() {
@@ -22,14 +22,14 @@ class AT24C02NTest {
 
         connection.setRegister(0x0034, 0x42)
         assertEquals(0x42, ee.readByte(0x0034))
-        assertArrayEquals(byteArrayOf(0x12, 0x34), connection.writes().last())
+        assertArrayEquals(byteArrayOf(0x34), connection.writes().last())
         assertEquals(0, ee.readByte(0x00FF))
 
         connection.writes().clear()
         ee.writeByte(0x0010, 0x99)
         assertEquals(0x99, connection.registers()[0x0010])
-        assertArrayEquals(byteArrayOf(0x00, 0x10, 0x99.toByte()), connection.writes()[0])
-        assertArrayEquals(byteArrayOf(0x00, 0x00), connection.writes()[1])
+        assertArrayEquals(byteArrayOf(0x10, 0x99.toByte()), connection.writes()[0])
+        assertArrayEquals(byteArrayOf(0x00), connection.writes()[1])
 
         assertThrows(IllegalArgumentException::class.java) { ee.readByte(0x0100) }
         assertThrows(IllegalArgumentException::class.java) { ee.readByte(-1) }
@@ -58,16 +58,15 @@ class AT24C02NTest {
         val connection = mock()
         val ee = AT24C02NFull(connection)
         assertEquals(30, ee.maxChunk)
-        val data = ByteArray(70) { it.toByte() }
-        ee.write(0x0070, data)
+        val data = ByteArray(20) { it.toByte() }
+        ee.write(0x0074, data)
         val frames = dataFrames(connection)
-        assertEquals(4, frames.size)
-        assertArrayEquals(byteArrayOf(0x00, 0x70) + data.copyOfRange(0, 16), frames[0])
-        assertArrayEquals(byteArrayOf(0x00, 0x80.toByte()) + data.copyOfRange(16, 46), frames[1])
-        assertArrayEquals(byteArrayOf(0x00, 0x9E.toByte()) + data.copyOfRange(46, 48), frames[2])
-        assertArrayEquals(byteArrayOf(0x00, 0xA0.toByte()) + data.copyOfRange(48, 70), frames[3])
-        assertEquals(8, connection.writes().size)
-        assertArrayEquals(data, ee.read(0x0070, 70))
+        assertEquals(3, frames.size)
+        assertArrayEquals(byteArrayOf(0x74) + data.copyOfRange(0, 4), frames[0])
+        assertArrayEquals(byteArrayOf(0x78) + data.copyOfRange(4, 12), frames[1])
+        assertArrayEquals(byteArrayOf(0x80.toByte()) + data.copyOfRange(12, 20), frames[2])
+        assertEquals(6, connection.writes().size)
+        assertArrayEquals(data, ee.read(0x0074, 20))
 
         ee.maxChunk = 8
         connection.writes().clear()

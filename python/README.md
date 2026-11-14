@@ -68,6 +68,7 @@ Each chip exposes two classes:
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor |
+| AT24C02N | Memory | 2 Kbit (256 B) I2C EEPROM |
 | AT24C64 | Memory | 64 Kbit (8 KiB) I2C EEPROM |
 | AXP2101 | Power monitor | PMIC |
 | BMA150 | Accelerometer | 3-axis accelerometer |

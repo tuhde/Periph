@@ -113,7 +113,7 @@ var registry = []Chip{
 	{ID: "24aa02uid", Driver: "24aa02uid", WriteSensitive: false, Aliased: true, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
 	{ID: "24aa025uid", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
 	{ID: "47xxx", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x52, 0x54, 0x56}, Probe: nil},
-	{ID: "at24c02n", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
+	{ID: "at24c02n", Driver: "at24c02n", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
 	{ID: "at24c64", Driver: "at24c64", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
 	{ID: "cat24c512", Driver: "cat24c512", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},
 	{ID: "mb85rc", Driver: "mb85rc", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, Probe: nil},

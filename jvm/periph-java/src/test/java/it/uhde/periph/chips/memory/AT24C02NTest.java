@@ -20,7 +20,7 @@ class AT24C02NTest {
     /** Frames carrying data (one address byte plus at least one data byte). */
     private static List<byte[]> dataFrames(MockConnection c) {
         List<byte[]> out = new ArrayList<>();
-        for (byte[] w : c.writes()) if (w.length > 2) out.add(w);
+        for (byte[] w : c.writes()) if (w.length > 1) out.add(w);
         return out;
     }
 
@@ -34,14 +34,14 @@ class AT24C02NTest {
 
         connection.setRegister(0x0034, 0x42);
         assertEquals(0x42, ee.readByte(0x0034));
-        assertArrayEquals(new byte[]{0x12, 0x34}, connection.writes().get(connection.writes().size() - 1));
+        assertArrayEquals(new byte[]{0x34}, connection.writes().get(connection.writes().size() - 1));
         assertEquals(0, ee.readByte(0x00FF));
 
         connection.writes().clear();
         ee.writeByte(0x0010, 0x99);
         assertEquals(0x99, connection.registers().get(0x0010));
-        assertArrayEquals(new byte[]{0x00, 0x10, (byte) 0x99}, connection.writes().get(0));
-        assertArrayEquals(new byte[]{0x00, 0x00}, connection.writes().get(1));
+        assertArrayEquals(new byte[]{0x10, (byte) 0x99}, connection.writes().get(0));
+        assertArrayEquals(new byte[]{0x00}, connection.writes().get(1));
 
         assertThrows(IllegalArgumentException.class, () -> ee.readByte(0x0100));
         assertThrows(IllegalArgumentException.class, () -> ee.readByte(-1));
@@ -70,17 +70,16 @@ class AT24C02NTest {
         MockConnection connection = mock();
         AT24C02NFull ee = new AT24C02NFull(connection);
         assertEquals(30, ee.getMaxChunk());
-        byte[] data = new byte[70];
-        for (int i = 0; i < 70; i++) data[i] = (byte) i;
-        ee.write(0x0070, data);
+        byte[] data = new byte[20];
+        for (int i = 0; i < 20; i++) data[i] = (byte) i;
+        ee.write(0x0074, data);
         List<byte[]> frames = dataFrames(connection);
-        assertEquals(4, frames.size());
-        assertArrayEquals(concat(new byte[]{0x00, 0x70}, Arrays.copyOfRange(data, 0, 16)), frames.get(0));
-        assertArrayEquals(concat(new byte[]{0x00, (byte) 0x80}, Arrays.copyOfRange(data, 16, 46)), frames.get(1));
-        assertArrayEquals(concat(new byte[]{0x00, (byte) 0x9E}, Arrays.copyOfRange(data, 46, 48)), frames.get(2));
-        assertArrayEquals(concat(new byte[]{0x00, (byte) 0xA0}, Arrays.copyOfRange(data, 48, 70)), frames.get(3));
-        assertEquals(8, connection.writes().size());
-        assertArrayEquals(data, ee.read(0x0070, 70));
+        assertEquals(3, frames.size());
+        assertArrayEquals(concat(new byte[]{0x74}, Arrays.copyOfRange(data, 0, 4)), frames.get(0));
+        assertArrayEquals(concat(new byte[]{0x78}, Arrays.copyOfRange(data, 4, 12)), frames.get(1));
+        assertArrayEquals(concat(new byte[]{(byte) 0x80}, Arrays.copyOfRange(data, 12, 20)), frames.get(2));
+        assertEquals(6, connection.writes().size());
+        assertArrayEquals(data, ee.read(0x0074, 20));
 
         ee.setMaxChunk(8);
         connection.writes().clear();

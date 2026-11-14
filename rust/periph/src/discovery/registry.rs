@@ -113,7 +113,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "24aa02uid", driver: Some("24aa02uid"), write_sensitive: false, aliased: true, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
     ChipEntry { id: "24aa025uid", driver: None, write_sensitive: false, aliased: false, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
     ChipEntry { id: "47xxx", driver: None, write_sensitive: false, aliased: false, addresses: &[0x50, 0x52, 0x54, 0x56], probe: None },
-    ChipEntry { id: "at24c02n", driver: None, write_sensitive: false, aliased: false, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
+    ChipEntry { id: "at24c02n", driver: Some("at24c02n"), write_sensitive: false, aliased: false, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
     ChipEntry { id: "at24c64", driver: Some("at24c64"), write_sensitive: false, aliased: false, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
     ChipEntry { id: "cat24c512", driver: Some("cat24c512"), write_sensitive: false, aliased: false, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
     ChipEntry { id: "mb85rc", driver: Some("mb85rc"), write_sensitive: false, aliased: false, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },

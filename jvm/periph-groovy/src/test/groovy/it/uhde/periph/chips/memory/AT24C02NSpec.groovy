@@ -12,7 +12,7 @@ class AT24C02NSpec extends Specification {
 
     /** Frames carrying data (one address byte plus at least one data byte). */
     static List<byte[]> dataFrames(MockConnection c) {
-        return c.writes().findAll { it.length > 2 }
+        return c.writes().findAll { it.length > 1 }
     }
 
     static byte[] concat(byte[] a, byte[] b) {
@@ -36,7 +36,7 @@ class AT24C02NSpec extends Specification {
 
         then:
         ee.readByte(0x0034) == 0x42
-        connection.writes().last() == [0x12, 0x34] as byte[]
+        connection.writes().last() == [0x34] as byte[]
         ee.readByte(0x00FF) == 0
 
         when:
@@ -45,8 +45,8 @@ class AT24C02NSpec extends Specification {
 
         then:
         connection.registers().get(0x0010) == 0x99
-        connection.writes()[0] == [0x00, 0x10, 0x99] as byte[]
-        connection.writes()[1] == [0x00, 0x00] as byte[]
+        connection.writes()[0] == [0x10, 0x99] as byte[]
+        connection.writes()[1] == [0x00] as byte[]
 
         when:
         ee.readByte(0x0100)
@@ -94,22 +94,21 @@ class AT24C02NSpec extends Specification {
         given:
         def connection = mock()
         def ee = new AT24C02NFull(connection)
-        byte[] data = new byte[70]
-        for (int i = 0; i < 70; i++) data[i] = (byte) i
+        byte[] data = new byte[20]
+        for (int i = 0; i < 20; i++) data[i] = (byte) i
 
         when:
-        ee.write(0x0070, data)
+        ee.write(0x0074, data)
         def frames = dataFrames(connection)
 
         then:
         ee.getMaxChunk() == 30
-        frames.size() == 4
-        frames[0] == concat([0x00, 0x70] as byte[], Arrays.copyOfRange(data, 0, 16))
-        frames[1] == concat([0x00, 0x80] as byte[], Arrays.copyOfRange(data, 16, 46))
-        frames[2] == concat([0x00, 0x9E] as byte[], Arrays.copyOfRange(data, 46, 48))
-        frames[3] == concat([0x00, 0xA0] as byte[], Arrays.copyOfRange(data, 48, 70))
-        connection.writes().size() == 8
-        ee.read(0x0070, 70) == data
+        frames.size() == 3
+        frames[0] == concat([0x74] as byte[], Arrays.copyOfRange(data, 0, 4))
+        frames[1] == concat([0x78] as byte[], Arrays.copyOfRange(data, 4, 12))
+        frames[2] == concat([0x80] as byte[], Arrays.copyOfRange(data, 12, 20))
+        connection.writes().size() == 6
+        ee.read(0x0074, 20) == data
 
         when:
         ee.setMaxChunk(8)
@@ -155,7 +154,7 @@ class AT24C02NSpec extends Specification {
         ee.fill(0x0040, 100, 0xAB)
 
         then:
-        (0..199).every { connection.registers().get(0x0040 + it) == 0xAB }
+        (0..99).every { connection.registers().get(0x0040 + it) == 0xAB }
         connection.registers().get(0x0040 + 100) == null
 
         when:

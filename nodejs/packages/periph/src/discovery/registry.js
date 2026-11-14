@@ -95,7 +95,7 @@ const CHIPS = [
     {"id":"24aa02uid","driver":"24aa02uid","writeSensitive":false,"aliased":true,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"24aa025uid","driver":null,"writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"47xxx","driver":null,"writeSensitive":false,"aliased":false,"addresses":[80,82,84,86],"probe":null},
-    {"id":"at24c02n","driver":null,"writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
+    {"id":"at24c02n","driver":"at24c02n","writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"at24c64","driver":"at24c64","writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"cat24c512","driver":"cat24c512","writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"mb85rc","driver":"mb85rc","writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},

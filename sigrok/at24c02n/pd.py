@@ -1,6 +1,6 @@
 import sigrokdecode as srd
 
-# Device-select byte 1010 A2 A1 A0 -> 0x50-0x57; two address bytes (high, low).
+# Device-select byte 1010 A2 A1 A0 -> 0x50-0x57; one address byte.
 ADDRS = set(range(0x50, 0x58))
 SIZE = 0x0100
 PAGE = 8
@@ -133,8 +133,7 @@ class Decoder(srd.Decoder):
         self.state    = 'IDLE'
         self.addr     = None
         self.is_read  = False
-        self.reg_ptr  = None       # 16-bit memory address set by the write phase
-        self.addr_hi  = None
+        self.reg_ptr  = None       # 8-bit memory address set by the write phase
         self.databuf  = []
         self.ss_block = None
         self.ss_addr  = None
@@ -151,7 +150,7 @@ class Decoder(srd.Decoder):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
     def _finish_transaction(self):
-        if self.state not in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_ADDR_LO', 'GET_ADDR_HI'):
+        if self.state not in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_PTR'):
             return
         buf = self.databuf
         if self.is_read:
@@ -162,9 +161,9 @@ class Decoder(srd.Decoder):
                 start = 0
             kind = 'Random read' if self.reg_ptr is not None else 'Current-address read'
             if len(buf) == 1:
-                text = ['%s [0x%04X] = 0x%02X' % (kind, start, buf[0]), 'R 0x%04X 0x%02X' % (start, buf[0])]
+                text = ['%s [0x%02X] = 0x%02X' % (kind, start, buf[0]), 'R 0x%02X 0x%02X' % (start, buf[0])]
             else:
-                text = ['Sequential read [0x%04X] +%d: %s' % (start, len(buf) - 1, _hexs(buf)), 'SeqRead 0x%04X +%d' % (start, len(buf) - 1)]
+                text = ['Sequential read [0x%02X] +%d: %s' % (start, len(buf) - 1, _hexs(buf)), 'SeqRead 0x%02X +%d' % (start, len(buf) - 1)]
             self.put(self.ss_block, self.es, self.out_ann, [ANN_MEM_READ, text])
             if start + len(buf) > SIZE:
                 self._warn(self.ss_block, self.es, 'Read past 0x00FF wraps to 0x0000')
@@ -172,22 +171,20 @@ class Decoder(srd.Decoder):
             return
         # write phase
         if self.reg_ptr is None:
-            if self.addr_hi is not None:
-                self._warn(self.ss_block, self.es, 'Incomplete address (1 byte)')
-            elif self.state in ('GET_ADDR_HI',) and not self.poll_noted:
+            if self.state == 'GET_PTR' and not self.poll_noted:
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_ACK_POLL, ['ACK poll: device select only', 'ACK?']])
             return
         reg = self.reg_ptr
         if not buf:
             self.put(self.ss_block, self.es, self.out_ann,
-                     [ANN_PTR_WRITE, ['Pointer \u2192 0x%04X' % reg, 'PTR 0x%04X' % reg]])
+                     [ANN_PTR_WRITE, ['Pointer \u2192 0x%02X' % reg, 'PTR 0x%02X' % reg]])
             self.cur = reg
             return
         n = len(buf)
         if n == 1:
-            text = ['Byte write [0x%04X] = 0x%02X' % (reg, buf[0]), 'W 0x%04X 0x%02X' % (reg, buf[0])]
+            text = ['Byte write [0x%02X] = 0x%02X' % (reg, buf[0]), 'W 0x%02X 0x%02X' % (reg, buf[0])]
         else:
-            text = ['Page write [0x%04X] +%d: %s' % (reg, n - 1, _hexs(buf)), 'PageW 0x%04X +%d' % (reg, n - 1)]
+            text = ['Page write [0x%02X] +%d: %s' % (reg, n - 1, _hexs(buf)), 'PageW 0x%02X +%d' % (reg, n - 1)]
         self.put(self.ss_block, self.es, self.out_ann, [ANN_MEM_WRITE, text])
         if (reg % PAGE) + n > PAGE:
             self._warn(self.ss_block, self.es,
@@ -220,14 +217,13 @@ class Decoder(srd.Decoder):
             return
 
         if ptype in ('START', 'START REPEAT'):
-            if ptype == 'START REPEAT' and self.state in ('GET_DATA_WRITE', 'GET_ADDR_LO') and self.reg_ptr is not None and not self.databuf:
+            if ptype == 'START REPEAT' and self.state == 'GET_DATA_WRITE' and self.reg_ptr is not None and not self.databuf:
                 pass   # random read: keep the address set by the write phase
             else:
                 self._finish_transaction()
                 self.databuf = []
                 self.is_read = False
                 self.reg_ptr = None
-                self.addr_hi = None
                 self.ss_block = ss
             self.state = 'GET_ADDR'
 
@@ -246,16 +242,12 @@ class Decoder(srd.Decoder):
                 self.databuf = []
                 self.state = 'GET_DATA_READ'
             else:
-                self.state = 'GET_ADDR_HI'
+                self.state = 'GET_PTR'
 
         elif ptype == 'DATA WRITE':
             byte = pdata
-            if self.state == 'GET_ADDR_HI':
-                self.addr_hi = byte
-                self.state = 'GET_ADDR_LO'
-            elif self.state == 'GET_ADDR_LO':
-                self.reg_ptr = (self.addr_hi << 8) | byte
-                self.addr_hi = None
+            if self.state == 'GET_PTR':
+                self.reg_ptr = byte
                 self.databuf = []
                 self.state = 'GET_DATA_WRITE'
             elif self.state == 'GET_DATA_WRITE':
@@ -270,5 +262,4 @@ class Decoder(srd.Decoder):
             self.state = 'IDLE'
             self.databuf = []
             self.reg_ptr = None
-            self.addr_hi = None
             self.poll_noted = False

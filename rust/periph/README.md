@@ -62,6 +62,7 @@ Each chip exposes two structs:
 | APDS-9930 | Light sensor | Digital ambient light and proximity sensor (Broadcom/Avago). |
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor (AMS OSRAM). |
+| AT24C02N | Memory | 2 Kbit (256 B) I²C EEPROM (Atmel / Microchip). |
 | AT24C64 | Memory | 64 Kbit (8 KiB) I²C EEPROM (Atmel / Microchip). |
 | AXP2101 | Power monitor | Single-cell Li-ion NVDC power-management IC (X-Powers). |
 | BMA150 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
