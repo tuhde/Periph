@@ -18,6 +18,7 @@ npm install node-red-contrib-periph-environmental
 |------|------|-------------|
 | `aht21-device` | config | I²C bus and address for an AHT21 |
 | `aht21` | input | Reads temperature and humidity from an AHT21 environmental sensor over I²C. |
+| `periph-am2315` | input | Reads temperature and relative humidity from an Aosong AM2315 over I²C (fixed address 0x5C). The sensor sleeps between transactions and returns the result of the previous measurement; the node keeps transactions at least 2 s apart, so a message arriving earlier is answered after the remaining delay. Every response is CRC-16 checked. |
 | `bme280-device` | config | Bus configuration for a BME280 |
 | `periph-bme280` | input | Reads temperature, pressure, humidity, altitude, and dew point from a BME280 combined humidity + pressure + temperature sensor. |
 | `bme680-device` | config | Bus configuration for a BME680 |

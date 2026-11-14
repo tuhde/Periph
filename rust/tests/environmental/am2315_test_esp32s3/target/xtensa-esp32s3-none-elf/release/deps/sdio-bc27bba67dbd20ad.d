@@ -1,0 +1,12 @@
+/var/projects/Periph/worktrees/am2315/rust/tests/environmental/am2315_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/sdio-bc27bba67dbd20ad.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs
+
+/var/projects/Periph/worktrees/am2315/rust/tests/environmental/am2315_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/libsdio-bc27bba67dbd20ad.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs
+
+/var/projects/Periph/worktrees/am2315/rust/tests/environmental/am2315_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/libsdio-bc27bba67dbd20ad.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs:

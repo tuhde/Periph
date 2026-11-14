@@ -1,0 +1,1 @@
+_periph_am2315.read_device_info()['device_id']
