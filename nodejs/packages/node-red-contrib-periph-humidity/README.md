@@ -18,6 +18,7 @@ npm install node-red-contrib-periph-humidity
 |------|------|-------------|
 | `dht11-device` | config | Bus configuration for a DHT11 |
 | `dht11` | input | Reads temperature and humidity from a DHT11 sensor over a single GPIO data line. |
+| `periph-sht31` | input | Reads temperature and relative humidity from a Sensirion SHT31 over I²C (0x44 with ADDR low, 0x45 with ADDR high) with one single-shot measurement per message. Both CRC bytes are verified. |
 
 ## Links
 

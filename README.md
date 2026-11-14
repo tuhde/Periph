@@ -235,7 +235,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SAA1064 | 4-digit LED driver (7-segment, multiplexed, 21 mA sinks) |  |  |  |  |  |  |  |  |
 | SD card (SPI mode) | SD / SDHC / microSD block storage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) |  |  |  |  |  |  |  |  |
+| SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHTC3 | Humidity and temperature sensor (±2 %RH, ±0.2 °C, sleep mode) |  |  |  |  |  |  |  |  |
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
