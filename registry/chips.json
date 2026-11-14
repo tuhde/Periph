@@ -1912,6 +1912,27 @@
       "datasheet": "datasheets/tof/vl53l1x.pdf"
     },
     {
+      "id": "vl6180x",
+      "name": "VL6180X",
+      "category": "tof",
+      "addresses": [
+        "0x29"
+      ],
+      "id_probe": {
+        "register": "0x0000",
+        "reg_bytes": 2,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xB4"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/tof/vl6180x.pdf"
+    },
+    {
       "id": "veml7700",
       "name": "VEML7700",
       "category": "light",

@@ -239,6 +239,9 @@ static constexpr IdProbe kProbe_vl53l0x = {0xC0, 1, 1, false, 0xFF, kExp_vl53l0x
 static constexpr uint8_t kAddr_vl53l1x[] = {0x29};
 static constexpr uint32_t kExp_vl53l1x[] = {0xEACC};
 static constexpr IdProbe kProbe_vl53l1x = {0x10F, 2, 2, false, 0xFFFF, kExp_vl53l1x, 1};
+static constexpr uint8_t kAddr_vl6180x[] = {0x29};
+static constexpr uint32_t kExp_vl6180x[] = {0xB4};
+static constexpr IdProbe kProbe_vl6180x = {0x00, 2, 1, false, 0xFF, kExp_vl6180x, 1};
 static constexpr uint8_t kAddr_veml7700[] = {0x10};
 static constexpr uint32_t kExp_veml7700[] = {0xC481};
 static constexpr IdProbe kProbe_veml7700 = {0x07, 1, 2, true, 0xFFFF, kExp_veml7700, 1};
@@ -401,6 +404,7 @@ static constexpr ChipEntry kChips[] = {
     {"tmp117", "tmp117", false, false, kAddr_tmp117, 4, &kProbe_tmp117},
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
+    {"vl6180x", nullptr, false, false, kAddr_vl6180x, 1, &kProbe_vl6180x},
     {"veml7700", nullptr, false, false, kAddr_veml7700, 1, &kProbe_veml7700},
     {"mpl3115a2", nullptr, false, false, kAddr_mpl3115a2, 1, &kProbe_mpl3115a2},
     {"sht31", "sht31", true, false, kAddr_sht31, 2, nullptr},
@@ -420,7 +424,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 144;
+static constexpr size_t kChipCount = 145;
 
 }  // namespace discovery
 }  // namespace periph
