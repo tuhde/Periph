@@ -1,0 +1,65 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-tmp102', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:           { value: '' },
+            bus:            { value: '1', required: true, validate: RED.validators.number() },
+            address:        { value: '0x48' },
+            conversionRate: { value: '4' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-thermometer-half',
+        label:   function() { return this.name || 'TMP102'; },
+        paletteLabel: 'TMP102'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-tmp102">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="TMP102">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <select id="node-input-address" style="width:200px">
+            <option value="0x48">0x48 (ADD0 = GND)</option>
+            <option value="0x49">0x49 (ADD0 = V+)</option>
+            <option value="0x4A">0x4A (ADD0 = SDA)</option>
+            <option value="0x4B">0x4B (ADD0 = SCL)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-conversionRate"><i class="fa fa-clock-o"></i> Conversion rate</label>
+        <select id="node-input-conversionRate" style="width:200px">
+            <option value="0.25">0.25 Hz</option>
+            <option value="1">1 Hz</option>
+            <option value="4">4 Hz</option>
+            <option value="8">8 Hz</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-tmp102">
+    <p>Reads the temperature from a TMP102 12-bit digital temperature sensor over I²C.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a temperature read.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in °C (0.0625 °C resolution).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the address selected by the board's ADD0 strap (<code>0x48</code>–<code>0x4B</code>) and the conversion rate (0.25, 1, 4 or 8 Hz; default 4 Hz).</p>
+</script>
