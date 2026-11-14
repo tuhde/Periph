@@ -1,0 +1,1 @@
+_periph_sht31.start_periodic(int(${_rate}) / 10.0)

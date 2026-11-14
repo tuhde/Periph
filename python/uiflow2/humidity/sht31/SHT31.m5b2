@@ -1,0 +1,276 @@
+{
+  "category": "SHT31",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SHT31_LANGUAGES = {\n  \"CUSTOM_SHT31_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_SHT31_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_SHT31_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%RH)\"\n  },\n  \"CUSTOM_SHT31_DEW_POINT\": {\n    \"en\": \"%1 dew point (°C)\"\n  },\n  \"CUSTOM_SHT31_SET_REPEATABILITY\": {\n    \"en\": \"%1 repeatability (0=low 1=medium 2=high) %2\"\n  },\n  \"CUSTOM_SHT31_SET_HEATER\": {\n    \"en\": \"%1 heater (1=on 0=off) %2\"\n  },\n  \"CUSTOM_SHT31_STATUS\": {\n    \"en\": \"%1 status register\"\n  },\n  \"CUSTOM_SHT31_CLEAR_STATUS\": {\n    \"en\": \"%1 clear status\"\n  },\n  \"CUSTOM_SHT31_START_PERIODIC\": {\n    \"en\": \"%1 start periodic mode, rate in tenths of mps (5, 10, 20, 40, 100) %2\"\n  },\n  \"CUSTOM_SHT31_STOP_PERIODIC\": {\n    \"en\": \"%1 stop periodic mode\"\n  },\n  \"CUSTOM_SHT31_FETCH_TEMPERATURE\": {\n    \"en\": \"%1 periodic temperature (°C, -999 if no data)\"\n  },\n  \"CUSTOM_SHT31_SOFT_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_sht31_init';\nBlockly.BlockRegExpList['custom_sht31'] = {\n  regexp: new RegExp(/^custom_sht31_/),\n  code: \"from SHT31 import SHT31\",\n  initBlockType: initType,\n  categoryId: 'custom_sht31',\n}\nBlockly.utils.registerLanguages(CUSTOM_SHT31_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SHT31_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SHT31 = 'SHT31'\n\nBlockly.utils.getcustom_sht31Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['sht31_0', 'sht31_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_sht31_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_sht31Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'sht31_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = SHT31(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_sht31_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sht31_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sht31_dew_point\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_DEW_POINT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_dew_point\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.dew_point()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sht31_set_repeatability\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_SET_REPEATABILITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'level'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_set_repeatability\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var level = Blockly.Python.valueToCode(block, 'level', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_repeatability(${level})\\n`\n}\n\nBlockly.Blocks[\"custom_sht31_set_heater\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_SET_HEATER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'True'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_set_heater\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var True = Blockly.Python.valueToCode(block, 'True', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_heater(${True})\\n`\n}\n\nBlockly.Blocks[\"custom_sht31_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sht31_clear_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_CLEAR_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_clear_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_status()\\n`\n}\n\nBlockly.Blocks[\"custom_sht31_start_periodic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_START_PERIODIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_start_periodic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate = Blockly.Python.valueToCode(block, 'rate', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_periodic(${rate})\\n`\n}\n\nBlockly.Blocks[\"custom_sht31_stop_periodic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_STOP_PERIODIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_stop_periodic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_periodic()\\n`\n}\n\nBlockly.Blocks[\"custom_sht31_fetch_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_FETCH_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_fetch_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fetch_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sht31_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHT31_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sht31Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sht31_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"SHT31\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_sht31\">\n<title text=\"SHT31\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_sht31_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">68</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sht31_temperature\"/><block type=\"custom_sht31_humidity\"/><block type=\"custom_sht31_dew_point\"/><block type=\"custom_sht31_set_repeatability\">\n  <value name=\"level\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sht31_set_heater\">\n  <value name=\"True\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sht31_status\"/><block type=\"custom_sht31_clear_status\"/><block type=\"custom_sht31_start_periodic\">\n  <value name=\"rate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sht31_stop_periodic\"/><block type=\"custom_sht31_fetch_temperature\"/><block type=\"custom_sht31_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_sht31",
+    "block_type": [
+      "custom_sht31___init__",
+      "custom_sht31_temperature",
+      "custom_sht31_humidity",
+      "custom_sht31_dew_point",
+      "custom_sht31_set_repeatability",
+      "custom_sht31_set_heater",
+      "custom_sht31_status",
+      "custom_sht31_clear_status",
+      "custom_sht31_start_periodic",
+      "custom_sht31_stop_periodic",
+      "custom_sht31_fetch_temperature",
+      "custom_sht31_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "SHT31",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "SHT31",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.sht31 import SHT31Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "68",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = SHT31Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "dew_point",
+        "note": {},
+        "label": {
+          "en": "%1 dew point (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.dew_point()",
+        "ast_return": {
+          "code": "self._driver.dew_point()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_repeatability",
+        "note": {},
+        "label": {
+          "en": "%1 repeatability (0=low 1=medium 2=high) %2"
+        },
+        "params": [
+          {
+            "name": "level",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_repeatability(['low', 'medium', 'high'][level])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_heater",
+        "note": {},
+        "label": {
+          "en": "%1 heater (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": true,
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_heater(bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 status register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_status()",
+        "ast_return": {
+          "code": "self._driver.read_status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_status",
+        "note": {},
+        "label": {
+          "en": "%1 clear status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_status()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_periodic",
+        "note": {},
+        "label": {
+          "en": "%1 start periodic mode, rate in tenths of mps (5, 10, 20, 40, 100) %2"
+        },
+        "params": [
+          {
+            "name": "rate",
+            "type": "int",
+            "default": "20",
+            "note": {},
+            "field": "number",
+            "max": "100",
+            "min": "5"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_periodic(rate / 10.0)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_periodic",
+        "note": {},
+        "label": {
+          "en": "%1 stop periodic mode"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_periodic()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fetch_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 periodic temperature (°C, -999 if no data)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (lambda r: r[0] if r else -999.0)(self._driver.fetch())",
+        "ast_return": {
+          "code": "(lambda r: r[0] if r else -999.0)(self._driver.fetch())",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "sht31"
+  },
+  "pyCode": "\"\"\"\nfile     SHT31\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.sht31 import SHT31Full\n\n\nclass SHT31:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 68):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '68'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = SHT31Full(connection)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def dew_point(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 dew point (°C)'\n        \"\"\"\n        return self._driver.dew_point()\n\n    def set_repeatability(self, level: int = 2):\n        \"\"\"\n        label:\n            en: '%1 repeatability (0=low 1=medium 2=high) %2'\n        params:\n            level:\n                name: level\n                type: int\n                default: '2'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        self._driver.set_repeatability(['low', 'medium', 'high'][level])\n\n    def set_heater(self, on: int = 0):\n        \"\"\"\n        label:\n            en: '%1 heater (1=on 0=off) %2'\n        params:\n            on:\n                name: on\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_heater(bool(on))\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 status register'\n        \"\"\"\n        return self._driver.read_status()\n\n    def clear_status(self):\n        \"\"\"\n        label:\n            en: '%1 clear status'\n        \"\"\"\n        self._driver.clear_status()\n\n    def start_periodic(self, rate: int = 20):\n        \"\"\"\n        label:\n            en: '%1 start periodic mode, rate in tenths of mps (5, 10, 20, 40, 100) %2'\n        params:\n            rate:\n                name: rate\n                type: int\n                default: '20'\n                field: number\n                max: '100'\n                min: '5'\n        \"\"\"\n        self._driver.start_periodic(rate / 10.0)\n\n    def stop_periodic(self):\n        \"\"\"\n        label:\n            en: '%1 stop periodic mode'\n        \"\"\"\n        self._driver.stop_periodic()\n\n    def fetch_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 periodic temperature (°C, -999 if no data)'\n        \"\"\"\n        return (lambda r: r[0] if r else -999.0)(self._driver.fetch())\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.soft_reset()\n",
+  "version": "alpha2"
+}
