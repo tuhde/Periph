@@ -1,0 +1,1 @@
+all(_periph_bno055.self_test().values())

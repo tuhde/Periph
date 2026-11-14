@@ -1,0 +1,85 @@
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <cmath>
+#include "I2CConnectionZephyr.h"
+#include "BNO055.h"
+
+#define I2C_NODE DT_NODELABEL(i2c0)
+#define BNO055_ADDR 0x29
+
+static void on_int(uint8_t status) { printk("INT 0x%02X\n", (unsigned)status); }
+
+int main(void) {
+    const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
+    I2CConnectionZephyr connection(i2c_dev, BNO055_ADDR);
+
+    // --- Configure for motion logging with moderate dynamic range ---
+    // ±4g captures typical tilting and handling forces without clipping;
+    // ±500 dps covers fast rotations while retaining sub-degree resolution.
+    BNO055Full imu(connection);                                         // Create BNO055 driver, (connection) → void
+    float h, r, p, qw, qx, qy, qz, lx, ly, lz, gx, gy, gz, ax, ay, az, mx, my, mz, rx, ry, rz;
+    uint8_t sys_c, gyr_c, acc_c, mag_c, status, error;
+    uint8_t blob[22];
+    uint8_t uid[16];
+    uint8_t chip_id, acc_id, mag_id, gyr_id, bootloader;
+    uint16_t sw_revision;
+    bool st_acc, st_mag, st_gyr, st_mcu;
+
+    // --- Identify the part ---
+    imu.revisions(chip_id, acc_id, mag_id, gyr_id, sw_revision, bootloader);// Read revisions, (chip_id, acc_id, mag_id, gyr_id, sw_revision, bootloader) → void
+    printk("chip 0x%02X, SW %u.%u, bootloader %u\n", (unsigned)chip_id, (unsigned)(sw_revision >> 8), (unsigned)(sw_revision & 0xFF), (unsigned)bootloader);
+    imu.unique_id(uid);                                                 // Read unique ID, (out[16]) → void
+    printk("unique id %02X%02X%02X%02X...\n", (unsigned)uid[0], (unsigned)uid[1], (unsigned)uid[2], (unsigned)uid[3]);
+
+    // --- Orientation monitor until fully calibrated (move the board in a figure eight) ---
+    while (true) {
+        imu.euler(h, r, p);                                             // Read fused Euler angles, (heading, roll, pitch) → void rad
+        imu.quaternion(qw, qx, qy, qz);                                 // Read orientation quaternion, (w, x, y, z) → void
+        imu.linear_acceleration(lx, ly, lz);                            // Read gravity-free acceleration, (x, y, z) → void m/s²
+        imu.gravity(gx, gy, gz);                                        // Read gravity vector, (x, y, z) → void m/s²
+        imu.calibration_status(sys_c, gyr_c, acc_c, mag_c);             // Read calibration status, (sys, gyr, acc, mag) → void
+        printk("euler %.2f %.2f %.2f  quat %.3f %.3f %.3f %.3f  cal %u%u%u%u\n", (double)(h), (double)(r), (double)(p), (double)(qw), (double)(qx), (double)(qy), (double)(qz), (unsigned)sys_c, (unsigned)gyr_c, (unsigned)acc_c, (unsigned)mag_c);
+        printk("linear %.2f %.2f %.2f  gravity %.2f %.2f %.2f\n", (double)(lx), (double)(ly), (double)(lz), (double)(gx), (double)(gy), (double)(gz));
+        if (imu.is_calibrated()) break;                                  // Check full calibration, () → bool
+        k_sleep(K_MSEC(100));
+    }
+
+    // --- Save the calibration, relative mode for 5 s, restore it ---
+    imu.get_calibration(blob);                                          // Read offsets and radii, (out[22]) → void
+    imu.set_mode(BNO055Full::MODE_IMU);                                 // Select operation mode, (mode) → void
+    printk("mode %u\n", (unsigned)imu.get_mode());
+    k_sleep(K_MSEC(5000));
+    imu.set_mode(BNO055Full::MODE_NDOF);                                // Select operation mode, (mode) → void
+    imu.set_calibration(blob);                                          // Restore offsets and radii, (data[22]) → void
+
+    // --- Self-test, temperature and configuration ---
+    imu.self_test(st_acc, st_mag, st_gyr, st_mcu);                      // Run self-test, (acc, mag, gyr, mcu) → void
+    printk("self-test acc %u mag %u gyr %u mcu %u\n", (unsigned)st_acc, (unsigned)st_mag, (unsigned)st_gyr, (unsigned)st_mcu);
+    printk("temperature %d C\n", (int)imu.temperature());
+    imu.set_temperature_source(BNO055Full::TEMP_SOURCE_GYROSCOPE);      // Select temperature sensor, (source) → void
+    imu.set_axis_remap(0x24, 0x00);                                     // Remap axes, (config, sign) → void
+    imu.set_power_mode(BNO055Full::POWER_NORMAL);                       // Select power mode, (mode) → void
+    imu.use_external_crystal(false);                                    // Select clock source, (on) → void
+
+    // --- Raw sensors in AMG mode ---
+    imu.set_mode(BNO055Full::MODE_AMG);                                 // Select operation mode, (mode) → void
+    imu.acceleration(ax, ay, az);                                       // Read raw accelerometer, (x, y, z) → void m/s²
+    imu.magnetic_field(mx, my, mz);                                     // Read raw magnetometer, (x, y, z) → void µT
+    imu.angular_rate(rx, ry, rz);                                       // Read raw gyroscope, (x, y, z) → void rad/s
+    printk("acc %.2f %.2f %.2f  mag %.1f %.1f %.1f  gyr %.3f %.3f %.3f\n", (double)(ax), (double)(ay), (double)(az), (double)(mx), (double)(my), (double)(mz), (double)(rx), (double)(ry), (double)(rz));
+
+    // --- Interrupts: accelerometer/fusion data ready ---
+    imu.set_mode(BNO055Full::MODE_NDOF);                                // Select operation mode, (mode) → void
+    imu.enable_interrupt(BNO055Full::SOURCE_ACC_BSX_DRDY);              // Enable interrupt source, (source) → void
+    imu.on_interrupt(on_int);                                           // Subscribe to interrupts, (callback) → void
+    k_sleep(K_MSEC(500));
+    imu.off_interrupt();                                                // Unsubscribe, () → void
+    imu.disable_interrupt(BNO055Full::SOURCE_ACC_BSX_DRDY);             // Disable interrupt source, (source) → void
+    printk("interrupt status 0x%02X\n", (unsigned)imu.poll_interrupt());
+    imu.system_status(status, error);                                   // Read system status, (status, error) → void
+    printk("system status %u, error %u\n", (unsigned)status, (unsigned)error);
+    imu.reset();                                                        // Reset the chip, () → void
+    while (true) k_sleep(K_MSEC(1000));
+    return 0;
+}
