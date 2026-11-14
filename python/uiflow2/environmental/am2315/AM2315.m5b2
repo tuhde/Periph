@@ -1,0 +1,166 @@
+{
+  "category": "AM2315",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_AM2315_LANGUAGES = {\n  \"CUSTOM_AM2315_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_AM2315_TEMPERATURE\": {\n    \"en\": \"%1 temperature (\\u00b0C)\"\n  },\n  \"CUSTOM_AM2315_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%RH)\"\n  },\n  \"CUSTOM_AM2315_FRESH_TEMPERATURE\": {\n    \"en\": \"%1 real-time temperature (\\u00b0C, two reads)\"\n  },\n  \"CUSTOM_AM2315_FRESH_HUMIDITY\": {\n    \"en\": \"%1 real-time humidity (%RH, two reads)\"\n  },\n  \"CUSTOM_AM2315_DEVICE_ID\": {\n    \"en\": \"%1 device ID\"\n  },\n  \"CUSTOM_AM2315_WAKE\": {\n    \"en\": \"%1 wake\"\n  }\n};\n\nconst initType = 'custom_am2315_init';\nBlockly.BlockRegExpList['custom_am2315'] = {\n  regexp: new RegExp(/^custom_am2315_/),\n  code: \"from AM2315 import AM2315\",\n  initBlockType: initType,\n  categoryId: 'custom_am2315',\n}\nBlockly.utils.registerLanguages(CUSTOM_AM2315_LANGUAGES)\n\nBlockly.Msg.CUSTOM_AM2315_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_AM2315 = 'AM2315'\n\nBlockly.utils.getcustom_am2315Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['am2315_0', 'am2315_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_am2315_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_am2315Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'am2315_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = AM2315(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_am2315_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_am2315Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\nBlockly.Blocks[\"custom_am2315_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_am2315Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\nBlockly.Blocks[\"custom_am2315_fresh_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_FRESH_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_am2315Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_fresh_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fresh_temperature()`, Blockly.Python.ORDER_NONE]\n}\nBlockly.Blocks[\"custom_am2315_fresh_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_FRESH_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_am2315Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_fresh_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fresh_humidity()`, Blockly.Python.ORDER_NONE]\n}\nBlockly.Blocks[\"custom_am2315_device_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_DEVICE_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_am2315Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_device_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.device_id()`, Blockly.Python.ORDER_NONE]\n}\nBlockly.Blocks[\"custom_am2315_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AM2315_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_am2315Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_am2315_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n",
+    "toolbox": "\n<category name=\"AM2315\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_am2315\">\n<title text=\"AM2315\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_am2315_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">92</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_am2315_temperature\"/><block type=\"custom_am2315_humidity\"/><block type=\"custom_am2315_fresh_temperature\"/><block type=\"custom_am2315_fresh_humidity\"/><block type=\"custom_am2315_device_id\"/><block type=\"custom_am2315_wake\"/>\n</category>\n",
+    "toolboxitemid": "custom_am2315",
+    "block_type": [
+      "custom_am2315___init__",
+      "custom_am2315_temperature",
+      "custom_am2315_humidity",
+      "custom_am2315_fresh_temperature",
+      "custom_am2315_fresh_humidity",
+      "custom_am2315_device_id",
+      "custom_am2315_wake"
+    ]
+  },
+  "data": {
+    "name": "AM2315",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "AM2315",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.am2315 import AM2315Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "92",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = AM2315Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fresh_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 real-time temperature (°C, two reads)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fresh()['temperature_c']",
+        "ast_return": {
+          "code": "self._driver.read_fresh()['temperature_c']",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fresh_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 real-time humidity (%RH, two reads)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fresh()['humidity_pct']",
+        "ast_return": {
+          "code": "self._driver.read_fresh()['humidity_pct']",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "device_id",
+        "note": {},
+        "label": {
+          "en": "%1 device ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_device_info()['device_id']",
+        "ast_return": {
+          "code": "self._driver.read_device_info()['device_id']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "am2315"
+  },
+  "pyCode": "\"\"\"\nfile     AM2315\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.am2315 import AM2315Full\n\n\nclass AM2315:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 92):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '92'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = AM2315Full(connection)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def fresh_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 real-time temperature (°C, two reads)'\n        \"\"\"\n        return self._driver.read_fresh()['temperature_c']\n\n    def fresh_humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 real-time humidity (%RH, two reads)'\n        \"\"\"\n        return self._driver.read_fresh()['humidity_pct']\n\n    def device_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 device ID'\n        \"\"\"\n        return self._driver.read_device_info()['device_id']\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n",
+  "version": "alpha2"
+}

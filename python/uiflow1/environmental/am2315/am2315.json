@@ -1,0 +1,136 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "am2315_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init AM2315",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "am2315_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "AM2315 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "am2315_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "AM2315 relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "am2315_fresh_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "AM2315 real-time temperature (°C, two reads)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "am2315_fresh_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "AM2315 real-time humidity (%RH, two reads)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "am2315_device_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "AM2315 device ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "am2315_user_register",
+      "type": "value",
+      "params": [
+        {
+          "name": "AM2315 user register",
+          "type": "label"
+        },
+        {
+          "name": "number (1 or 2)",
+          "type": "label"
+        },
+        {
+          "name": "_n",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "am2315_set_user_registers",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AM2315 write user registers",
+          "type": "label"
+        },
+        {
+          "name": "user 1",
+          "type": "label"
+        },
+        {
+          "name": "_user1",
+          "type": "number"
+        },
+        {
+          "name": "user 2",
+          "type": "label"
+        },
+        {
+          "name": "_user2",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "am2315_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AM2315 wake",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
