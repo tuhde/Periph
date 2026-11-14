@@ -161,6 +161,9 @@ static constexpr uint32_t kExp_apds9960[] = {0xAB};
 static constexpr IdProbe kProbe_apds9960 = {0x92, 1, 1, false, 0xFF, kExp_apds9960, 1};
 static constexpr uint8_t kAddr_max44009[] = {0x4A, 0x4B};
 static constexpr uint8_t kAddr_as5600[] = {0x36};
+static constexpr uint8_t kAddr_ist8310[] = {0x0C, 0x0D, 0x0E, 0x0F};
+static constexpr uint32_t kExp_ist8310[] = {0x10};
+static constexpr IdProbe kProbe_ist8310 = {0x00, 1, 1, false, 0xFF, kExp_ist8310, 1};
 static constexpr uint8_t kAddr_mag3110[] = {0x0E};
 static constexpr uint32_t kExp_mag3110[] = {0xC4};
 static constexpr IdProbe kProbe_mag3110 = {0x07, 1, 1, false, 0xFF, kExp_mag3110, 1};
@@ -372,6 +375,7 @@ static constexpr ChipEntry kChips[] = {
     {"apds9960", "apds9960", false, false, kAddr_apds9960, 1, &kProbe_apds9960},
     {"max44009", "max44009", false, false, kAddr_max44009, 2, nullptr},
     {"as5600", "as5600", false, false, kAddr_as5600, 1, nullptr},
+    {"ist8310", nullptr, false, false, kAddr_ist8310, 4, &kProbe_ist8310},
     {"mag3110", nullptr, false, false, kAddr_mag3110, 1, &kProbe_mag3110},
     {"hmc5883l", "hmc5883l", false, false, kAddr_hmc5883l, 1, &kProbe_hmc5883l},
     {"24aa02uid", "24aa02uid", false, true, kAddr_24aa02uid, 8, nullptr},
@@ -434,7 +438,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
 };
-static constexpr size_t kChipCount = 149;
+static constexpr size_t kChipCount = 150;
 
 }  // namespace discovery
 }  // namespace periph
