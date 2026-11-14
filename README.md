@@ -103,6 +103,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 | 47XXX | EERAM 47L04/47C04/47L16/47C16 (4/16 Kbit SRAM with EEPROM backup) |  |  |  |  |  |  |  |  |
 | AD5251 | Dual 64-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) |  |  |  |  |  |  |  |  |
+| AD5252 | Dual 256-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) |  |  |  |  |  |  |  |  |
 | AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) |  |  |  |  |  |  |  |  |
 | AT24C02N | I²C EEPROM 2 Kbit (256 B, 8-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AT24C64 | I²C EEPROM 64 Kbit (8 KiB, 32-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
