@@ -303,14 +303,16 @@ mod tests {
 
     #[test]
     fn page_split_write() {
-        // 70 bytes from 0x0070: 16 (to the page boundary), 30, 24.
+        // 70 bytes from 0x0070 with 32-byte pages: 16 (to the boundary), 30, 2 (to the next boundary), 22.
         let data: Vec<u8> = (0..70).collect();
         let t = vec![
             I2cTransaction::write(ADDR, [vec![0x00, 0x70], data[..16].to_vec()].concat()),
             poll(),
             I2cTransaction::write(ADDR, [vec![0x00, 0x80], data[16..46].to_vec()].concat()),
             poll(),
-            I2cTransaction::write(ADDR, [vec![0x00, 0x9E], data[46..].to_vec()].concat()),
+            I2cTransaction::write(ADDR, [vec![0x00, 0x9E], data[46..48].to_vec()].concat()),
+            poll(),
+            I2cTransaction::write(ADDR, [vec![0x00, 0xA0], data[48..].to_vec()].concat()),
             poll(),
         ];
         let mut chip = At24c64Full::new(I2cMock::new(&t), ADDR);
@@ -361,7 +363,7 @@ mod tests {
 
     #[test]
     fn range_rules() {
-        let t = vec![I2cTransaction::write(ADDR, vec![0xFF, 0xFE, 1, 2]), poll()];
+        let t = vec![I2cTransaction::write(ADDR, vec![0x1F, 0xFE, 1, 2]), poll()];
         let mut chip = At24c64Full::new(I2cMock::new(&t), ADDR);
         chip.write(0x1FFE, &[1, 2], &mut NoopDelay).unwrap();
         assert_eq!(chip.write(0x1FFF, &[1, 2], &mut NoopDelay), Err(Error::OutOfRange));

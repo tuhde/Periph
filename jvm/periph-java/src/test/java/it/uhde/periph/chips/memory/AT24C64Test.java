@@ -75,11 +75,12 @@ class AT24C64Test {
         for (int i = 0; i < 70; i++) data[i] = (byte) i;
         ee.write(0x0070, data);
         List<byte[]> frames = dataFrames(connection);
-        assertEquals(3, frames.size());
+        assertEquals(4, frames.size());
         assertArrayEquals(concat(new byte[]{0x00, 0x70}, Arrays.copyOfRange(data, 0, 16)), frames.get(0));
         assertArrayEquals(concat(new byte[]{0x00, (byte) 0x80}, Arrays.copyOfRange(data, 16, 46)), frames.get(1));
-        assertArrayEquals(concat(new byte[]{0x00, (byte) 0x9E}, Arrays.copyOfRange(data, 46, 70)), frames.get(2));
-        assertEquals(6, connection.writes().size());
+        assertArrayEquals(concat(new byte[]{0x00, (byte) 0x9E}, Arrays.copyOfRange(data, 46, 48)), frames.get(2));
+        assertArrayEquals(concat(new byte[]{0x00, (byte) 0xA0}, Arrays.copyOfRange(data, 48, 70)), frames.get(3));
+        assertEquals(8, connection.writes().size());
         assertArrayEquals(data, ee.read(0x0070, 70));
 
         ee.setMaxChunk(8);

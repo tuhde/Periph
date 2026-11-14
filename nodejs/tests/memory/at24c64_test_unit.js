@@ -60,7 +60,8 @@ async function main() {
     const frames = connection.writes.filter((w) => w.length > 2);
     checkTrue('write_first_chunk_stops_at_page', eq(frames[0], Buffer.concat([Buffer.from([0x00, 0x70]), data.subarray(0, 16)])));
     checkTrue('write_second_chunk_page_start', eq(frames[1], Buffer.concat([Buffer.from([0x00, 0x80]), data.subarray(16, 46)])));
-    checkTrue('write_third_chunk', eq(frames[2], Buffer.concat([Buffer.from([0x00, 0x9E]), data.subarray(46)])));
+    checkTrue('write_third_chunk_stops_at_page', eq(frames[2], Buffer.concat([Buffer.from([0x00, 0x9E]), data.subarray(46, 48)])));
+    checkTrue('write_fourth_chunk', eq(frames[3], Buffer.concat([Buffer.from([0x00, 0xA0]), data.subarray(48)])));
     checkTrue('write_ack_polled_per_chunk', connection.writes.length === 2 * frames.length);
     checkTrue('write_roundtrip', eq(await ee.read(0x0070, 70), data));
 

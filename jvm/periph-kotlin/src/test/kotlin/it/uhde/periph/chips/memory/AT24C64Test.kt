@@ -61,11 +61,12 @@ class AT24C64Test {
         val data = ByteArray(70) { it.toByte() }
         ee.write(0x0070, data)
         val frames = dataFrames(connection)
-        assertEquals(3, frames.size)
+        assertEquals(4, frames.size)
         assertArrayEquals(byteArrayOf(0x00, 0x70) + data.copyOfRange(0, 16), frames[0])
         assertArrayEquals(byteArrayOf(0x00, 0x80.toByte()) + data.copyOfRange(16, 46), frames[1])
-        assertArrayEquals(byteArrayOf(0x00, 0x9E.toByte()) + data.copyOfRange(46, 70), frames[2])
-        assertEquals(6, connection.writes().size)
+        assertArrayEquals(byteArrayOf(0x00, 0x9E.toByte()) + data.copyOfRange(46, 48), frames[2])
+        assertArrayEquals(byteArrayOf(0x00, 0xA0.toByte()) + data.copyOfRange(48, 70), frames[3])
+        assertEquals(8, connection.writes().size)
         assertArrayEquals(data, ee.read(0x0070, 70))
 
         ee.maxChunk = 8

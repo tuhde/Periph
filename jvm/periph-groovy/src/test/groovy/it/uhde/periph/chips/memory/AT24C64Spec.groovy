@@ -104,11 +104,12 @@ class AT24C64Spec extends Specification {
 
         then:
         ee.getMaxChunk() == 30
-        frames.size() == 3
+        frames.size() == 4
         frames[0] == concat([0x00, 0x70] as byte[], Arrays.copyOfRange(data, 0, 16))
         frames[1] == concat([0x00, 0x80] as byte[], Arrays.copyOfRange(data, 16, 46))
-        frames[2] == concat([0x00, 0x9E] as byte[], Arrays.copyOfRange(data, 46, 70))
-        connection.writes().size() == 6
+        frames[2] == concat([0x00, 0x9E] as byte[], Arrays.copyOfRange(data, 46, 48))
+        frames[3] == concat([0x00, 0xA0] as byte[], Arrays.copyOfRange(data, 48, 70))
+        connection.writes().size() == 8
         ee.read(0x0070, 70) == data
 
         when:
@@ -137,7 +138,7 @@ class AT24C64Spec extends Specification {
         ee.writePage(0x0300, page)
 
         then:
-        (0..127).every { connection.registers().get(0x0300 + it) == it }
+        (0..31).every { connection.registers().get(0x0300 + it) == it }
 
         when:
         ee.writePage(0x037C, new byte[8])

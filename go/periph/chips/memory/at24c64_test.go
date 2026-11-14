@@ -83,7 +83,7 @@ func (m *at24c64Mock) IsEnabled() bool             { return true }
 func (m *at24c64Mock) IntPin() connection.InputPin { return nil }
 func (m *at24c64Mock) EnPin() connection.OutputPin { return nil }
 
-func newEE(t *testing.T) (*at24c64Mock, *AT24C64Full) {
+func newAtEE(t *testing.T) (*at24c64Mock, *AT24C64Full) {
 	t.Helper()
 	conn := newAT24C64Mock(2)
 	ee, err := NewAT24C64Full(conn)
@@ -94,7 +94,7 @@ func newEE(t *testing.T) (*at24c64Mock, *AT24C64Full) {
 }
 
 func TestAT24C64ByteAccess(t *testing.T) {
-	conn, ee := newEE(t)
+	conn, ee := newAtEE(t)
 	if len(conn.writes) != 0 {
 		t.Errorf("init generated bus traffic")
 	}
@@ -130,7 +130,7 @@ func TestAT24C64ByteAccess(t *testing.T) {
 }
 
 func TestAT24C64AckPolling(t *testing.T) {
-	conn, ee := newEE(t)
+	conn, ee := newAtEE(t)
 	conn.nack = 2
 	conn.writes = nil
 	if !ee.WaitReady(50 * time.Millisecond) {
@@ -151,7 +151,7 @@ func TestAT24C64AckPolling(t *testing.T) {
 }
 
 func TestAT24C64PageSplitWrite(t *testing.T) {
-	conn, ee := newEE(t)
+	conn, ee := newAtEE(t)
 	if ee.MaxChunk() != 30 {
 		t.Errorf("MaxChunk default = %d", ee.MaxChunk())
 	}
@@ -168,14 +168,15 @@ func TestAT24C64PageSplitWrite(t *testing.T) {
 			frames = append(frames, w)
 		}
 	}
-	if len(frames) != 3 ||
+	if len(frames) != 4 ||
 		!bytes.Equal(frames[0], append([]byte{0x00, 0x70}, data[:16]...)) ||
 		!bytes.Equal(frames[1], append([]byte{0x00, 0x80}, data[16:46]...)) ||
-		!bytes.Equal(frames[2], append([]byte{0x00, 0x9E}, data[46:]...)) {
+		!bytes.Equal(frames[2], append([]byte{0x00, 0x9E}, data[46:48]...)) ||
+		!bytes.Equal(frames[3], append([]byte{0x00, 0xA0}, data[48:]...)) {
 		t.Errorf("page-split frames wrong: %v", frames)
 	}
-	if len(conn.writes) != 6 {
-		t.Errorf("writes incl. polls = %d, want 6", len(conn.writes))
+	if len(conn.writes) != 8 {
+		t.Errorf("writes incl. polls = %d, want 8", len(conn.writes))
 	}
 	got, err := ee.Read(0x0070, 70)
 	if err != nil || !bytes.Equal(got, data) {
@@ -201,7 +202,7 @@ func TestAT24C64PageSplitWrite(t *testing.T) {
 }
 
 func TestAT24C64WritePageAndFill(t *testing.T) {
-	conn, ee := newEE(t)
+	conn, ee := newAtEE(t)
 	page := make([]byte, 32)
 	for i := range page {
 		page[i] = byte(i)
@@ -234,7 +235,7 @@ func TestAT24C64WritePageAndFill(t *testing.T) {
 }
 
 func TestAT24C64RangeRules(t *testing.T) {
-	_, ee := newEE(t)
+	_, ee := newAtEE(t)
 	if err := ee.Write(0x1FFE, []byte{1, 2}); err != nil {
 		t.Errorf("write to end failed: %v", err)
 	}
