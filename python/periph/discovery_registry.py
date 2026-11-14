@@ -204,7 +204,7 @@ CHIPS = (
     {"id": "mpu6050", "driver": "mpu6050", "write_sensitive": False, "aliased": False,
      "addresses": (0x68, 0x69,),
      "probe": {"register": 0x75, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0x7E, "expected": (0x68,)}},
-    {"id": "bno055", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "bno055", "driver": "bno055", "write_sensitive": False, "aliased": False,
      "addresses": (0x28, 0x29,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xA0,)}},
     {"id": "icm20948", "driver": "icm20948", "write_sensitive": False, "aliased": False,

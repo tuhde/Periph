@@ -60,6 +60,7 @@ Each chip exposes two classes:
 | BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |
 | BMP384 | Pressure sensor | `periph/src/chips/pressure/bmp384` |
 | BMP581 | Pressure sensor | `periph/src/chips/pressure/bmp581` |
+| BNO055 | IMU | `periph/src/chips/imu/bno055` |
 | CAT5171 | ADC/DAC | `periph/src/chips/adc_dac/cat5171` |
 | CS43L22 | ADC/DAC | `periph/src/chips/adc_dac/cs43l22` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
