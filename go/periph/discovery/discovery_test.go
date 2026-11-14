@@ -163,8 +163,8 @@ func TestIdentifiesMultiByteAndMaskedRegisters(t *testing.T) {
 		regs map[uint32]byte
 	}{
 		{"ens160", 0x52, map[uint32]byte{0x00: 0x60, 0x01: 0x01}},
-		{"ina226", 0x40, map[uint32]byte{0xFF: 0x22, 0x100: 0x60}},
-		{"ina3221", 0x40, map[uint32]byte{0xFF: 0x32, 0x100: 0x20}},
+		{"ina226", 0x41, map[uint32]byte{0xFF: 0x22, 0x100: 0x60}},
+		{"ina3221", 0x41, map[uint32]byte{0xFF: 0x32, 0x100: 0x20}},
 		{"mcp9808", 0x18, map[uint32]byte{0x07: 0x04, 0x08: 0x01}},
 		{"vl53l1x", 0x29, map[uint32]byte{0x010F: 0xEA, 0x0110: 0xCC}},
 	}
@@ -232,7 +232,7 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 	}{
 		// 0x68 hosts the write-sensitive MCP3422, so passive scans skip probing there.
 		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"}, false, SkipWriteSensitive},
-		{0x40, []string{"hdc1008", "htu21df", "ina219"}, false, SkipNone},
+		{0x40, []string{"bma180", "hdc1008", "hdc1080", "htu21df", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"}, false, SkipWriteSensitive},
 		{0x36, []string{"as5600"}, true, SkipNone},
 		{0x0B, []string{"lc709203f"}, false, SkipNone},
 		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "saa1064", "uc1611s"}, true, SkipWriteSensitive},

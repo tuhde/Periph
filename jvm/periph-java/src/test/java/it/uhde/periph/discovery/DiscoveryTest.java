@@ -114,8 +114,8 @@ class DiscoveryTest {
     @Test
     void identifiesMultiByteAndMaskedIdentityRegisters() throws IOException {
         assertEquals("ens160", one(0x52, 0x00, 0x60, 0x01, 0x01).identified());
-        assertEquals("ina226", one(0x40, 0xFF, 0x22, 0x100, 0x60).identified());
-        assertEquals("ina3221", one(0x40, 0xFF, 0x32, 0x100, 0x20).identified());
+        assertEquals("ina226", one(0x41, 0xFF, 0x22, 0x100, 0x60).identified());
+        assertEquals("ina3221", one(0x41, 0xFF, 0x32, 0x100, 0x20).identified());
         assertEquals("mcp9808", one(0x18, 0x07, 0x04, 0x08, 0x01).identified());
         var bus = new FakeBus().with(0x29, 0x010F, 0xEA, 0x0110, 0xCC);
         assertEquals("vl53l1x", only(bus, true).identified());
@@ -174,7 +174,7 @@ class DiscoveryTest {
         var d68 = one(0x68);
         assertEquals(List.of("bq32000", "drv8830", "ds3231", "icm20948", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523"), d68.candidates());
         assertEquals(ProbeSkipReason.WRITE_SENSITIVE_CANDIDATE, d68.probeSkippedReason());
-        assertEquals(List.of("hdc1008", "htu21df", "ina219"), one(0x40).candidates());
+        assertEquals(List.of("bma180", "hdc1008", "hdc1080", "htu21df", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"), one(0x40).candidates());
         var d = one(0x36);
         assertNull(d.identified());
         assertEquals(List.of("as5600"), d.candidates());
