@@ -2273,7 +2273,7 @@
         ]
       },
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "si7021",
       "datasheet": "datasheets/humidity/si7021.pdf"
     },
     {

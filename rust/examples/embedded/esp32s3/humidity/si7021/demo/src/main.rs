@@ -1,4 +1,4 @@
-//! Demo for the Si7021 — condensation-aware hygrometer: device ID, dew point, resolutions and heater test.
+#![no_std]
 #![no_main]
 
 use esp_backtrace as _;
