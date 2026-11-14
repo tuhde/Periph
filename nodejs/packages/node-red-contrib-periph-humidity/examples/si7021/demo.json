@@ -1,0 +1,86 @@
+[
+  {
+    "id": "si7021-tab",
+    "type": "tab",
+    "label": "Si7021 humidity logger",
+    "disabled": false,
+    "info": "Reads relative humidity and temperature from an Si7021 every 2 s and formats them. Demonstrates the no-hold-master RH measurement with CRC checking and the temperature of the same conversion."
+  },
+  {
+    "id": "si7021-inject",
+    "type": "inject",
+    "z": "si7021-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "si7021-node"
+      ]
+    ]
+  },
+  {
+    "id": "si7021-node",
+    "type": "periph-si7021",
+    "z": "si7021-tab",
+    "name": "Si7021",
+    "bus": "1",
+    "address": "0x40",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "si7021-format"
+      ]
+    ],
+    "resolution": "12/14",
+    "heater": false
+  },
+  {
+    "id": "si7021-format",
+    "type": "function",
+    "z": "si7021-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(2) + ' °C, ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "si7021-debug"
+      ]
+    ]
+  },
+  {
+    "id": "si7021-debug",
+    "type": "debug",
+    "z": "si7021-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]
