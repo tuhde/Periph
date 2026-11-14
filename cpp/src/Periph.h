@@ -36,6 +36,7 @@
 #include "chips/accelerometer/MMA8451Q.h"
 #include "chips/adc_dac/AD5243.h"
 #include "chips/adc_dac/AD5248.h"
+#include "chips/adc_dac/AD5252.h"
 #include "chips/adc_dac/AD7705.h"
 #include "chips/adc_dac/AD7706.h"
 #include "chips/adc_dac/ADS1013.h"
