@@ -1,0 +1,71 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-bno055', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x29' },
+            mode:    { value: '12', required: true, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label: function() {
+            return this.name || ('BNO055 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-bno055">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BNO055">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-input-address" style="width:160px">
+            <option value="0x29" selected>0x29 (COM3 = high)</option>
+            <option value="0x28">0x28 (COM3 = low)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-cog"></i> Operation mode</label>
+        <select id="node-input-mode" style="width:260px">
+            <option value="12" selected>NDOF (9-DOF absolute orientation)</option>
+            <option value="11">NDOF, fast magnetometer calibration off</option>
+            <option value="8">IMU (relative orientation)</option>
+            <option value="9">COMPASS</option>
+            <option value="10">M4G</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-bno055">
+    <p>Reads the fused absolute orientation of a Bosch BNO055 9-axis sensor over I²C (0x29 with COM3 high,
+    0x28 with COM3 low). The chip stretches the I²C clock, so the host bus must support clock stretching.
+    Allow up to about one second after deploying for the chip to boot.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.heading <span class="property-type">number</span></dt>
+        <dd>Heading in rad (0 … 2π).</dd>
+        <dt>payload.roll <span class="property-type">number</span></dt>
+        <dd>Roll in rad.</dd>
+        <dt>payload.pitch <span class="property-type">number</span></dt>
+        <dd>Pitch in rad.</dd>
+        <dt>payload.calibration <span class="property-type">object</span></dt>
+        <dd><code>{ sys, gyr, acc, mag }</code>, each 0 (uncalibrated) … 3 (fully calibrated). Absolute heading is
+        only accurate once the magnetometer and system values reach 3.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address and the operation mode (default NDOF, 100 Hz absolute orientation).</p>
+</script>
