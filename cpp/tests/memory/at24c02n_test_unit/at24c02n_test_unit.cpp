@@ -13,7 +13,7 @@ static void check_true(bool cond, const char *label) {
 // Number of logged writes carrying data (address bytes + at least one data byte).
 static size_t data_frames(const I2CConnectionMock& c, size_t from) {
     size_t n = 0;
-    for (size_t i = from; i < c.writes().size(); i++) if (c.writes()[i].size() > 2) n++;
+    for (size_t i = from; i < c.writes().size(); i++) if (c.writes()[i].size() > 1) n++;
     return n;
 }
 
@@ -26,8 +26,8 @@ int main() {
 
     connection.setRegister(0x0034, {0x42});
     check_true(ee.read_byte(0x0034) == 0x42, "read_byte");
-    check_true(connection.writes().back().size() == 2 &&
-               connection.writes().back()[0] == 0x12 && connection.writes().back()[1] == 0x34,
+    check_true(connection.writes().back().size() == 1 &&
+               connection.writes().back()[0] == 0x34,
                "read_byte_address_bytes");
     check_true(ee.read_byte(0x00FF) == 0, "read_byte_high_address");
 
@@ -35,9 +35,9 @@ int main() {
     check_true(ee.write_byte(0x0010, 0x99), "write_byte_ok");
     check_true(connection.registers().at(0x0010) == 0x99, "write_byte");
     const auto& w = connection.writes()[before];
-    check_true(w.size() == 3 && w[0] == 0x00 && w[1] == 0x10 && w[2] == 0x99, "write_byte_frame");
+    check_true(w.size() == 2 && w[0] == 0x10 && w[1] == 0x99, "write_byte_frame");
     const auto& poll = connection.writes()[before + 1];
-    check_true(poll.size() == 2 && poll[0] == 0 && poll[1] == 0, "write_byte_ack_poll");
+    check_true(poll.size() == 1 && poll[0] == 0, "write_byte_ack_poll");
 
     AT24C02NMinimal minimal(connection);
     check_true(minimal.read_byte(0x0034) == 0x42, "minimal_class");
@@ -54,26 +54,23 @@ int main() {
     check_true(!ee.write_byte(0x0021, 2), "write_byte_timeout_false");
     connection.failNextWrites(0);
 
-    // Page splitting: 70 bytes from 0x0070 (page boundary at 0x0080, max_chunk 30).
+    // Page splitting: 20 bytes from 0x0074 (pages of 8: chunks of 4, 8 and 8 bytes).
     check_true(ee.max_chunk() == 30, "max_chunk_default");
-    uint8_t data[70];
-    for (int i = 0; i < 70; i++) data[i] = (uint8_t)i;
+    uint8_t data[20];
+    for (int i = 0; i < 20; i++) data[i] = (uint8_t)i;
     before = connection.writes().size();
-    check_true(ee.write(0x0070, data, 70), "write_ok");
+    check_true(ee.write(0x0074, data, 20), "write_ok");
     std::vector<std::vector<uint8_t>> frames;
     for (size_t i = before; i < connection.writes().size(); i++)
-        if (connection.writes()[i].size() > 2) frames.push_back(connection.writes()[i]);
-    check_true(frames.size() == 4, "write_chunk_count");
-    check_true(frames[0].size() == 18 && frames[0][0] == 0x00 && frames[0][1] == 0x70 && frames[0][17] == 15,
-               "write_first_chunk_stops_at_page");
-    check_true(frames[1].size() == 32 && frames[1][0] == 0x00 && frames[1][1] == 0x80 && frames[1][2] == 16,
-               "write_second_chunk_page_start");
-    check_true(frames[2].size() == 4 && frames[2][1] == 0x9E && frames[2][3] == 47, "write_third_chunk_stops_at_page");
-    check_true(frames[3].size() == 24 && frames[3][1] == 0xA0 && frames[3][23] == 69, "write_fourth_chunk");
-    check_true(connection.writes().size() - before == 8, "write_ack_polled_per_chunk");
-    uint8_t back[70];
-    check_true(ee.read(0x0070, back, 70), "read_ok");
-    check_true(memcmp(back, data, 70) == 0, "read_roundtrip");
+        if (connection.writes()[i].size() > 1) frames.push_back(connection.writes()[i]);
+    check_true(frames.size() == 3, "write_chunk_count");
+    check_true(frames[0].size() == 5 && frames[0][0] == 0x74 && frames[0][4] == 3, "write_first_chunk_stops_at_page");
+    check_true(frames[1].size() == 9 && frames[1][0] == 0x78 && frames[1][1] == 4 && frames[1][8] == 11, "write_second_chunk_full_page");
+    check_true(frames[2].size() == 9 && frames[2][0] == 0x80 && frames[2][8] == 19, "write_third_chunk");
+    check_true(connection.writes().size() - before == 6, "write_ack_polled_per_chunk");
+    uint8_t back[20];
+    check_true(ee.read(0x0074, back, 20), "read_ok");
+    check_true(memcmp(back, data, 20) == 0, "read_roundtrip");
 
     ee.set_max_chunk(8);
     before = connection.writes().size();
