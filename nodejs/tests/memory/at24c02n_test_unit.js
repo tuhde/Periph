@@ -26,13 +26,13 @@ async function main() {
 
     connection.setRegister(0x0034, [0x42]);
     checkTrue('read_byte', (await ee.readByte(0x0034)) === 0x42);
-    checkTrue('read_byte_address_bytes', eq(connection.writes[connection.writes.length - 1], [0x12, 0x34]));
+    checkTrue('read_byte_address_bytes', eq(connection.writes[connection.writes.length - 1], [0x34]));
 
     connection.writes.length = 0;
     await ee.writeByte(0x0010, 0x99);
     checkTrue('write_byte', connection.registers.get(0x0010) === 0x99);
-    checkTrue('write_byte_frame', eq(connection.writes[0], [0x00, 0x10, 0x99]));
-    checkTrue('write_byte_ack_poll', eq(connection.writes[1], [0x00, 0x00]));
+    checkTrue('write_byte_frame', eq(connection.writes[0], [0x10, 0x99]));
+    checkTrue('write_byte_ack_poll', eq(connection.writes[1], [0x00]));
 
     checkTrue('minimal_class', new AT24C02NMinimal(connection) instanceof AT24C02NMinimal);
     checkTrue('read_byte_range_hi', await rejects(() => ee.readByte(0x0100)));
@@ -51,23 +51,23 @@ async function main() {
     checkTrue('write_byte_timeout_raises', await rejects(() => ee.writeByte(0x0021, 2), Error));
     connection.failNextWrites(0);
 
-    // Page splitting: 70 bytes from 0x0070 (boundary at 0x0080, maxChunk 30).
+    // Page splitting: 20 bytes from 0x0074 (pages of 8: chunks of 4, 8 and 8 bytes).
     checkTrue('max_chunk_default', ee.maxChunk === 30);
-    const data = Buffer.from(Array.from({ length: 70 }, (_, i) => i));
+    const data = Buffer.from(Array.from({ length: 20 }, (_, i) => i));
     connection.writes.length = 0;
-    await ee.write(0x0070, data);
-    const frames = connection.writes.filter((w) => w.length > 2);
-    checkTrue('write_first_chunk_stops_at_page', eq(frames[0], Buffer.concat([Buffer.from([0x00, 0x70]), data.subarray(0, 16)])));
-    checkTrue('write_second_chunk_page_start', eq(frames[1], Buffer.concat([Buffer.from([0x00, 0x80]), data.subarray(16, 46)])));
-    checkTrue('write_third_chunk_stops_at_page', eq(frames[2], Buffer.concat([Buffer.from([0x00, 0x9E]), data.subarray(46, 48)])));
-    checkTrue('write_fourth_chunk', eq(frames[3], Buffer.concat([Buffer.from([0x00, 0xA0]), data.subarray(48)])));
+    await ee.write(0x0074, data);
+    const frames = connection.writes.filter((w) => w.length > 1);
+    checkTrue('write_chunk_count', frames.length === 3);
+    checkTrue('write_first_chunk_stops_at_page', eq(frames[0], Buffer.concat([Buffer.from([0x74]), data.subarray(0, 4)])));
+    checkTrue('write_second_chunk_full_page', eq(frames[1], Buffer.concat([Buffer.from([0x78]), data.subarray(4, 12)])));
+    checkTrue('write_third_chunk', eq(frames[2], Buffer.concat([Buffer.from([0x80]), data.subarray(12, 20)])));
     checkTrue('write_ack_polled_per_chunk', connection.writes.length === 2 * frames.length);
-    checkTrue('write_roundtrip', eq(await ee.read(0x0070, 70), data));
+    checkTrue('write_roundtrip', eq(await ee.read(0x0074, 20), data));
 
     ee.maxChunk = 8;
     connection.writes.length = 0;
     await ee.write(0x00E0, Buffer.alloc(20));
-    checkTrue('custom_max_chunk', connection.writes.filter((w) => w.length > 2).length === 3);
+    checkTrue('custom_max_chunk', connection.writes.filter((w) => w.length > 1).length === 3);
     let threw = false;
     try { ee.maxChunk = 0; } catch (e) { threw = e instanceof RangeError; }
     checkTrue('max_chunk_invalid', threw);
@@ -77,7 +77,7 @@ async function main() {
     connection.writes.length = 0;
     const page = Buffer.from(Array.from({ length: 8 }, (_, i) => i));
     await ee.writePage(0x00C0, page);
-    checkTrue('write_page_full', eq(connection.writes[0], Buffer.concat([Buffer.from([0x03, 0x00]), page])));
+    checkTrue('write_page_full', eq(connection.writes[0], Buffer.concat([Buffer.from([0xC0]), page])));
     checkTrue('write_page_cross_rejected', await rejects(() => ee.writePage(0x00CC, Buffer.alloc(8))));
     checkTrue('write_page_too_long', await rejects(() => ee.writePage(0x00D0, Buffer.alloc(9))));
     checkTrue('write_page_range', await rejects(() => ee.writePage(0x00FF, Buffer.alloc(2))));

@@ -17,6 +17,7 @@
     "nodes": {
       "23x1024": "nodes/23x1024/23x1024.js",
       "24aa02uid": "nodes/24aa02uid/24aa02uid.js",
+      "at24c02n": "nodes/at24c02n/at24c02n.js",
       "at24c64": "nodes/at24c64/at24c64.js",
       "cat24c512": "nodes/cat24c512/cat24c512.js",
       "mb85rc": "nodes/mb85rc/mb85rc.js",
