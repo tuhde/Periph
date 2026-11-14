@@ -1962,7 +1962,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "sht31",
       "datasheet": "datasheets/humidity/sht31.pdf"
     },
     {

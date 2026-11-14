@@ -56,6 +56,9 @@ public:
     /** @brief Log of every write()/write_read() write phase, in call order. */
     const std::vector<std::vector<uint8_t>>& writes() const { return _writes; }
 
+    /** @brief Forget the logged writes (the register map and read queue are untouched). */
+    void clearWrites() { _writes.clear(); }
+
     /** @brief Direct access to the register map for assertions. */
     const std::map<uint16_t, uint8_t>& registers() const { return _registers; }
 

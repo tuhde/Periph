@@ -387,7 +387,7 @@ CHIPS = (
     {"id": "mpl3115a2", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x60,),
      "probe": {"register": 0x0C, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xC4,)}},
-    {"id": "sht31", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "sht31", "driver": "sht31", "write_sensitive": True, "aliased": False,
      "addresses": (0x44, 0x45,),
      "probe": None},
     {"id": "shtc3", "driver": None, "write_sensitive": True, "aliased": False,

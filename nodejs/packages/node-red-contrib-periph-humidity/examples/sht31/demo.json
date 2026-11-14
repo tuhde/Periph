@@ -1,0 +1,85 @@
+[
+  {
+    "id": "sht31-tab",
+    "type": "tab",
+    "label": "SHT31 humidity logger",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an SHT31 every 2 s and formats them. Demonstrates the single-shot measurement with CRC checking."
+  },
+  {
+    "id": "sht31-inject",
+    "type": "inject",
+    "z": "sht31-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "sht31-node"
+      ]
+    ]
+  },
+  {
+    "id": "sht31-node",
+    "type": "periph-sht31",
+    "z": "sht31-tab",
+    "name": "SHT31",
+    "bus": "1",
+    "address": "0x44",
+    "repeatability": "high",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "sht31-format"
+      ]
+    ]
+  },
+  {
+    "id": "sht31-format",
+    "type": "function",
+    "z": "sht31-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature.toFixed(2) + ' °C, ' + msg.payload.humidity.toFixed(1) + ' %RH';\\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "sht31-debug"
+      ]
+    ]
+  },
+  {
+    "id": "sht31-debug",
+    "type": "debug",
+    "z": "sht31-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

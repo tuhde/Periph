@@ -317,6 +317,8 @@ SH1106Minimal	KEYWORD1
 SH1106SpiBus	KEYWORD1
 SH1106SpiFull	KEYWORD1
 SH1106SpiMinimal	KEYWORD1
+SHT31Full	KEYWORD1
+SHT31Minimal	KEYWORD1
 SK6812RGBWFull	KEYWORD1
 SK6812RGBWMinimal	KEYWORD1
 SMBusConnection	KEYWORD1
@@ -474,6 +476,7 @@ clear_interrupt	KEYWORD2
 clear_overcurrent	KEYWORD2
 clear_overflow	KEYWORD2
 clear_proximity_interrupt	KEYWORD2
+clear_status	KEYWORD2
 clockingFor	KEYWORD2
 close	KEYWORD2
 coldStart	KEYWORD2
@@ -670,6 +673,7 @@ fast_read	KEYWORD2
 fatfs_attach	KEYWORD2
 fatfs_dev	KEYWORD2
 feedWatchdog	KEYWORD2
+fetch	KEYWORD2
 fifoLevel	KEYWORD2
 fifo_configure	KEYWORD2
 fifo_count	KEYWORD2
@@ -1400,6 +1404,7 @@ set_calibration	KEYWORD2
 set_charge_pump	KEYWORD2
 set_click	KEYWORD2
 set_clock	KEYWORD2
+set_clock_stretching	KEYWORD2
 set_com_config	KEYWORD2
 set_compensation	KEYWORD2
 set_contrast	KEYWORD2
@@ -1532,6 +1537,7 @@ set_raw	KEYWORD2
 set_raw_eeprom	KEYWORD2
 set_reference	KEYWORD2
 set_remap	KEYWORD2
+set_repeatability	KEYWORD2
 set_resistance	KEYWORD2
 set_resistance_wa	KEYWORD2
 set_resolution	KEYWORD2
@@ -1609,6 +1615,7 @@ start	KEYWORD2
 startClock	KEYWORD2
 startContinuous	KEYWORD2
 start_counter	KEYWORD2
+start_periodic	KEYWORD2
 stats	KEYWORD2
 status	KEYWORD2
 status_byte	KEYWORD2
@@ -1620,6 +1627,7 @@ stopBeep	KEYWORD2
 stopClock	KEYWORD2
 stopContinuous	KEYWORD2
 stop_crypto	KEYWORD2
+stop_periodic	KEYWORD2
 stop_receive	KEYWORD2
 store	KEYWORD2
 storeWiper	KEYWORD2
@@ -2349,6 +2357,9 @@ REG_IPOL	LITERAL1
 REG_OLAT	LITERAL1
 REG_OUTPUT	LITERAL1
 REG_POLARITY	LITERAL1
+REPEATABILITY_HIGH	LITERAL1
+REPEATABILITY_LOW	LITERAL1
+REPEATABILITY_MEDIUM	LITERAL1
 RETRY_DELAY_MS	LITERAL1
 ROWS	LITERAL1
 RX_GAIN_18_DB	LITERAL1

@@ -145,6 +145,7 @@ Each chip exposes two classes:
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
 | SD_SPI | Memory | SD card in SPI mode |
 | SH1106 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
+| SHT31 | Humidity sensor | Temperature and humidity sensor |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1305 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1306 | Display driver | 128 x 64 OLED controller-driver — minimal interface (I²C). |

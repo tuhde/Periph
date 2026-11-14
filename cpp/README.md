@@ -139,6 +139,7 @@ Each chip exposes two classes:
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SD_SPI | Memory | `chips/memory/SD_SPI.h` |
 | SH1106 | Display driver | `chips/display/SH1106.h` |
+| SHT31 | Humidity sensor | `chips/humidity/SHT31.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | SSD1305 | Display driver | `chips/display/SSD1305.h` |
 | SSD1306 | Display driver | `chips/display/SSD1306.h` |

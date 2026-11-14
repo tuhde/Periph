@@ -1,0 +1,166 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "sht31_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init SHT31",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sht31_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHT31 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHT31 relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHT31 dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_set_repeatability",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHT31 repeatability (0=low 1=medium 2=high)",
+          "type": "label"
+        },
+        {
+          "name": "level",
+          "type": "label"
+        },
+        {
+          "name": "_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sht31_set_heater",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHT31 heater (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sht31_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHT31 status register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_clear_status",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHT31 clear status",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_start_periodic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHT31 start periodic mode, rate in tenths of mps (5, 10, 20, 40, 100)",
+          "type": "label"
+        },
+        {
+          "name": "rate",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sht31_stop_periodic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHT31 stop periodic mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_fetch_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHT31 periodic temperature (°C, -999 if no data)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sht31_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHT31 soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

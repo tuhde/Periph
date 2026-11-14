@@ -233,6 +233,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/dht11.py"
     ],
     [
+      "periph/chips/humidity/sht31.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/sht31.py"
+    ],
+    [
       "periph/chips/imu/bno055.py",
       "github:tuhde/Periph/python/periph/chips/imu/bno055.py"
     ],

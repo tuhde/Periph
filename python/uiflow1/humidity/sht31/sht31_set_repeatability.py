@@ -1,0 +1,1 @@
+_periph_sht31.set_repeatability(['low', 'medium', 'high'][int(${_level})])

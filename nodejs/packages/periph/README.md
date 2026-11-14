@@ -129,6 +129,7 @@ Each chip exposes two classes:
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
 | SH1106 | Display driver | `periph/src/chips/display/sh1106` |
+| SHT31 | Humidity sensor | `periph/src/chips/humidity/sht31` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | SSD1305 | Display driver | `periph/src/chips/display/ssd1305` |
 | SSD1306 | Display driver | `periph/src/chips/display/ssd1306` |

@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/dht11.py"
     ],
     [
+      "periph/chips/humidity/sht31.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/sht31.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
@@ -23,6 +27,14 @@
     [
       "periph/connection/dhtxx_micropython.py",
       "github:tuhde/Periph/python/periph/connection/dhtxx_micropython.py"
+    ],
+    [
+      "periph/connection/i2c_auto.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_auto.py"
+    ],
+    [
+      "periph/connection/i2c_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_micropython.py"
     ],
     [
       "periph/connection/input_pin.py",

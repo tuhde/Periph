@@ -1,0 +1,64 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-sht31', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:          { value: '' },
+            bus:           { value: '1', required: true, validate: RED.validators.number() },
+            address:       { value: '0x44' },
+            repeatability: { value: 'high' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label: function() {
+            return this.name || ('SHT31 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-sht31">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SHT31">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-input-address" style="width:160px">
+            <option value="0x44" selected>0x44 (ADDR = low)</option>
+            <option value="0x45">0x45 (ADDR = high)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-repeatability"><i class="fa fa-cog"></i> Repeatability</label>
+        <select id="node-input-repeatability" style="width:160px">
+            <option value="high" selected>High (15 ms)</option>
+            <option value="medium">Medium (6 ms)</option>
+            <option value="low">Low (4 ms)</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-sht31">
+    <p>Reads temperature and relative humidity from a Sensirion SHT31 over I²C (0x44 with ADDR low, 0x45 with
+    ADDR high) with one single-shot measurement per message. Both CRC bytes are verified.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address and the single-shot repeatability (high / medium / low; measurement time
+    15 / 6 / 4 ms).</p>
+</script>

@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "dht11": "nodes/dht11/dht11.js"
+      "dht11": "nodes/dht11/dht11.js",
+      "sht31": "nodes/sht31/sht31.js"
     }
   },
   "dependencies": {

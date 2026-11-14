@@ -1,0 +1,1 @@
+_periph_sht31.set_heater(bool(int(${_on})))
