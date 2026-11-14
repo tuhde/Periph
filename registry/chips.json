@@ -1882,6 +1882,18 @@
       "datasheet": "datasheets/temperature/mcp9808.pdf"
     },
     {
+      "id": "mlx90614",
+      "name": "MLX90614",
+      "category": "temperature",
+      "addresses": [
+        "0x5A"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/temperature/mlx90614.pdf"
+    },
+    {
       "id": "stds75",
       "name": "STDS75",
       "category": "temperature",
