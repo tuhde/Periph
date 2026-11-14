@@ -1,0 +1,129 @@
+[
+    {
+        "id": "tab-vl6180x-demo",
+        "type": "tab",
+        "label": "VL6180X Proximity Light Demo",
+        "disabled": false,
+        "info": "An Inject node fires every 500 ms into a periph-vl6180x node (I²C bus 1, address 0x29, ALS gain 1, 100 ms integration). The node performs one single-shot range measurement and one single-shot ambient-light measurement per message and outputs msg.payload = { range_mm, range_error, valid, lux }. A Switch node routes on msg.payload.range_mm < 50 with msg.payload.valid true: a hand within 50 mm goes to a Debug node labelled \"hand detected\" and to a gauge-style Function node that reports the proximity in percent (100 at 0 mm, 0 at 50 mm); everything else goes to a Debug node labelled \"idle\" that shows the lux reading, so the sensor works as a proximity-activated light meter."
+    },
+    {
+        "id": "inj-vl6180x",
+        "type": "inject",
+        "name": "Measure (500 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-vl6180x-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "vl6180x-node"
+            ]
+        ]
+    },
+    {
+        "id": "vl6180x-node",
+        "type": "periph-vl6180x",
+        "name": "Proximity VL6180X",
+        "bus": "1",
+        "address": "0x29",
+        "gain": "6",
+        "integrationMs": "100",
+        "z": "tab-vl6180x-demo",
+        "x": 360,
+        "y": 100,
+        "wires": [
+            [
+                "sw-near"
+            ]
+        ]
+    },
+    {
+        "id": "sw-near",
+        "type": "switch",
+        "name": "range < 50 mm?",
+        "property": "payload.range_mm",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "50",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repeat": false,
+        "outputs": 2,
+        "z": "tab-vl6180x-demo",
+        "x": 570,
+        "y": 100,
+        "wires": [
+            [
+                "fn-percent"
+            ],
+            [
+                "dbg-idle"
+            ]
+        ]
+    },
+    {
+        "id": "fn-percent",
+        "type": "function",
+        "name": "proximity %",
+        "func": "if (!msg.payload.valid) { return null; }\nmsg.payload = Math.round(100 * (50 - msg.payload.range_mm) / 50);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-vl6180x-demo",
+        "x": 780,
+        "y": 60,
+        "wires": [
+            [
+                "dbg-hand"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-hand",
+        "type": "debug",
+        "name": "hand detected",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-vl6180x-demo",
+        "x": 990,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-idle",
+        "type": "debug",
+        "name": "idle",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-vl6180x-demo",
+        "x": 770,
+        "y": 140,
+        "wires": []
+    }
+]

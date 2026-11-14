@@ -153,3 +153,4 @@
 #include "chips/tof/VL53Base.h"
 #include "chips/tof/VL53L0X.h"
 #include "chips/tof/VL53L1X.h"
+#include "chips/tof/VL6180X.h"

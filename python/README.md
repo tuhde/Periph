@@ -166,6 +166,7 @@ Each chip exposes two classes:
 | UC8276C | Display driver | Black/white/red e-paper controller |
 | VL53L0X | Time-of-flight | Time-of-Flight ranging sensor |
 | VL53L1X | Time-of-flight | Time-of-Flight ranging sensor |
+| VL6180X | Time-of-flight | Proximity sensor |
 | WS2812B | LED driver | Addressable RGB LED strip |
 | WS2814 | LED driver | Addressable RGBW LED strip |
 

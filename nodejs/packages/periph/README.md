@@ -150,6 +150,7 @@ Each chip exposes two classes:
 | UC8276C | Display driver | `periph/src/chips/display/uc8276c` |
 | VL53L0X | Time-of-flight | `periph/src/chips/tof/vl53l0x` |
 | VL53L1X | Time-of-flight | `periph/src/chips/tof/vl53l1x` |
+| VL6180X | Time-of-flight | `periph/src/chips/tof/vl6180x` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
 | WS2814 | LED driver | `periph/src/chips/led/ws2814` |
 
