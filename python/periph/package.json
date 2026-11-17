@@ -321,6 +321,10 @@
       "github:tuhde/Periph/python/periph/chips/io_expander/pcf8575.py"
     ],
     [
+      "periph/chips/io_expander/tca9554.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/tca9554.py"
+    ],
+    [
       "periph/chips/io_expander/tpic6b595.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/tpic6b595.py"
     ],

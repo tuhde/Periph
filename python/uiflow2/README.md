@@ -69,6 +69,7 @@ uiflow2/
 | [PCF8574](io_expander/pcf8574/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [SK6812RGBW](led/sk6812rgbw/) | led | init, `fill`, `set_pixel`, `show`, `off` |
+| [TCA9554](io_expander/tca9554/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `configure_polarity`, `set_direction`, `get_direction`, `poll_interrupt`, `reset` |
 | [WS2812B](led/ws2812b/) | led | init, `fill`, `set_pixel`, `show`, `off` |
 | [APDS9960](light/apds9960/) | light | init, `color_clear`, `color_red`, `color_green`, `color_blue`, `enable_proximity`, `proximity` |
 | [MAX44009](light/max44009/) | light | init, `lux`, `is_overrange`, `resolution`, `set_continuous`, `set_automatic`, `set_manual`, `set_thresholds`, `get_low_threshold`, `get_high_threshold`, `set_threshold_delay`, `get_threshold_delay`, `enable_interrupt`, `disable_interrupt`, `poll_interrupt` |

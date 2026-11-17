@@ -106,6 +106,7 @@
 #include "chips/io_expander/PCA9539.h"
 #include "chips/io_expander/PCF8574.h"
 #include "chips/io_expander/PCF8575.h"
+#include "chips/io_expander/TCA9554.h"
 #include "chips/io_expander/TPIC6B595.h"
 #include "chips/led/APA102.h"
 #include "chips/led/NeoPixelColor.h"

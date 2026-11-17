@@ -85,6 +85,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [PCF8574](io_expander/pcf8574/) | io_expander | `pcf8574_init`, `pcf8574_set_pin_mode`, `pcf8574_write_pin`, `pcf8574_read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | `pcf8575_init`, `pcf8575_set_pin_mode`, `pcf8575_write_pin`, `pcf8575_read_pin` |
 | [SK6812RGBW](led/sk6812rgbw/) | led | `sk6812rgbw_init`, `sk6812rgbw_fill`, `sk6812rgbw_set_pixel`, `sk6812rgbw_show`, `sk6812rgbw_off` |
+| [TCA9554](io_expander/tca9554/) | io_expander | `tca9554_init`, `tca9554_set_pin_mode`, `tca9554_write_pin`, `tca9554_read_pin`, `tca9554_read_port`, `tca9554_write_port`, `tca9554_configure_polarity`, `tca9554_set_direction`, `tca9554_get_direction`, `tca9554_poll_interrupt`, `tca9554_reset` |
 | [WS2812B](led/ws2812b/) | led | `ws2812b_init`, `ws2812b_fill`, `ws2812b_set_pixel`, `ws2812b_show`, `ws2812b_off` |
 | [APDS9960](light/apds9960/) | light | `apds9960_init`, `apds9960_color_clear`, `apds9960_color_red`, `apds9960_color_green`, `apds9960_color_blue`, `apds9960_enable_proximity`, `apds9960_proximity` |
 | [MAX44009](light/max44009/) | light | `max44009_init`, `max44009_lux`, `max44009_is_overrange`, `max44009_resolution`, `max44009_set_continuous`, `max44009_set_automatic`, `max44009_set_manual`, `max44009_set_thresholds`, `max44009_get_low_threshold`, `max44009_get_high_threshold`, `max44009_set_threshold_delay`, `max44009_get_threshold_delay`, `max44009_enable_interrupt`, `max44009_disable_interrupt`, `max44009_poll_interrupt` |
