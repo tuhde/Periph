@@ -53,6 +53,7 @@ uiflow2/
 | [PCF8578](display/pcf8578/) | display | init, `clear`, `set_pixel`, `get_pixel`, `write_column`, `fill`, `draw_line`, `draw_rect`, `set_display`, `set_mode`, `set_start_bank`, `scroll`, `device_select`, `reset` |
 | [PCF8579](display/pcf8579/) | display | init, `clear`, `set_pixel`, `get_pixel`, `write_column`, `fill`, `draw_line`, `draw_rect`, `set_display`, `set_mode`, `set_start_bank`, `scroll`, `reset` |
 | [AHT10](environmental/aht10/) | environmental | init, `read_temperature`, `read_humidity` (wrapper only — `.m5b2` not yet built) |
+| [AHT20](environmental/aht20/) | environmental | init, `read_temperature`, `read_humidity` |
 | [AHT21](environmental/aht21/) | environmental | init, `read_temperature`, `read_humidity` |
 | [BME280](environmental/bme280/) | environmental | init, `temperature`, `pressure`, `humidity` |
 | [BME680](environmental/bme680/) | environmental | init, `temperature`, `pressure`, `humidity`, `gas_resistance` |
