@@ -101,6 +101,7 @@ Each chip exposes two structs:
 | IL0373 | Display driver | Black/white e-paper controller (104 x 212 panels such as the |
 | INA219 | Power monitor | 26 V, 12-bit current/voltage/power monitor (Texas Instruments). |
 | INA226 | Power monitor | 36 V, 16-bit current/voltage/power monitor (Texas Instruments). |
+| INA260 | Power monitor | 36 V, 16-bit current/voltage/power monitor with integrated 2 mΩ shunt (Texas Instruments). |
 | INA3221 | Power monitor | Three-channel 26 V current/voltage/power monitor (Texas Instruments). |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
 | L3GD20H | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |

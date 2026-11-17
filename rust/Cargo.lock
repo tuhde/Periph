@@ -2191,6 +2191,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "ina260_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ina260_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ina260_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ina260_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "ina3221_complete"
 version = "0.1.0"
 dependencies = [
