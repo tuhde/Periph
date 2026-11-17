@@ -1530,7 +1530,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "lc709203f",
       "datasheet": "datasheets/power/lc709203f.pdf"
     },
     {

@@ -318,7 +318,7 @@ CHIPS = (
     {"id": "axp2101", "driver": "axp2101", "write_sensitive": False, "aliased": False,
      "addresses": (0x34,),
      "probe": None},
-    {"id": "lc709203f", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "lc709203f", "driver": "lc709203f", "write_sensitive": False, "aliased": False,
      "addresses": (0x0B,),
      "probe": None},
     {"id": "lm25066", "driver": None, "write_sensitive": False, "aliased": False,

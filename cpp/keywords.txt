@@ -176,6 +176,8 @@ L3G4200DFull	KEYWORD1
 L3G4200DMinimal	KEYWORD1
 L3gd20hFull	KEYWORD1
 L3gd20hMinimal	KEYWORD1
+LC709203FFull	KEYWORD1
+LC709203FMinimal	KEYWORD1
 LIS3DHFull	KEYWORD1
 LIS3DHMinimal	KEYWORD1
 LPS22DFFull	KEYWORD1
@@ -435,6 +437,7 @@ angular_rate	KEYWORD2
 antenna_gain	KEYWORD2
 antenna_off	KEYWORD2
 antenna_on	KEYWORD2
+apaFor	KEYWORD2
 apparentEnergy	KEYWORD2
 apparentEnergyB	KEYWORD2
 apparentPower	KEYWORD2
@@ -450,6 +453,7 @@ baseline	KEYWORD2
 batteryPercent	KEYWORD2
 batteryVoltage	KEYWORD2
 battery_low	KEYWORD2
+before_rsoc	KEYWORD2
 begin	KEYWORD2
 blit	KEYWORD2
 block_count	KEYWORD2
@@ -772,8 +776,14 @@ getVoltage	KEYWORD2
 getVolume	KEYWORD2
 getWiper	KEYWORD2
 get_accel_offset	KEYWORD2
+get_alarm_rsoc	KEYWORD2
+get_alarm_voltage	KEYWORD2
+get_apa	KEYWORD2
+get_apt	KEYWORD2
+get_b_constant	KEYWORD2
 get_brightness	KEYWORD2
 get_calibration	KEYWORD2
+get_current_direction	KEYWORD2
 get_direction	KEYWORD2
 get_firmware_version	KEYWORD2
 get_gain_calibration	KEYWORD2
@@ -784,6 +794,7 @@ get_nv_wiper	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
 get_pixel	KEYWORD2
+get_profile	KEYWORD2
 get_range_offset	KEYWORD2
 get_ratio	KEYWORD2
 get_resistance	KEYWORD2
@@ -819,6 +830,7 @@ hw_copy	KEYWORD2
 hw_dim	KEYWORD2
 hw_line	KEYWORD2
 hw_rect	KEYWORD2
+ic_version	KEYWORD2
 icon	KEYWORD2
 identify	KEYWORD2
 idle_clocks	KEYWORD2
@@ -826,6 +838,7 @@ increment	KEYWORD2
 increment_value	KEYWORD2
 info	KEYWORD2
 init	KEYWORD2
+init_rsoc	KEYWORD2
 intPin	KEYWORD2
 interMeasurement	KEYWORD2
 interruptThresholds	KEYWORD2
@@ -871,8 +884,10 @@ is_proximity_saturated	KEYWORD2
 is_proximity_valid	KEYWORD2
 is_ready	KEYWORD2
 is_shutdown	KEYWORD2
+is_sleeping	KEYWORD2
 is_station	KEYWORD2
 is_stereo	KEYWORD2
+is_thermistor_mode	KEYWORD2
 is_touched	KEYWORD2
 is_wiper_locked	KEYWORD2
 is_write_protected	KEYWORD2
@@ -882,6 +897,7 @@ last_error	KEYWORD2
 last_packet_rssi	KEYWORD2
 last_packet_snr	KEYWORD2
 latitude	KEYWORD2
+lc709203f_crc8	KEYWORD2
 lineFrequency	KEYWORD2
 linePeriod	KEYWORD2
 linear_acceleration	KEYWORD2
@@ -955,6 +971,7 @@ page	KEYWORD2
 page_program	KEYWORD2
 page_size	KEYWORD2
 pages	KEYWORD2
+percent	KEYWORD2
 pin	KEYWORD2
 playEffect	KEYWORD2
 playSequence	KEYWORD2
@@ -976,6 +993,7 @@ power_valid	KEYWORD2
 present	KEYWORD2
 pressure	KEYWORD2
 print_at	KEYWORD2
+profile_id	KEYWORD2
 programOtp	KEYWORD2
 program_otp	KEYWORD2
 protection	KEYWORD2
@@ -1194,6 +1212,7 @@ roi	KEYWORD2
 roiCenter	KEYWORD2
 rotate	KEYWORD2
 rows	KEYWORD2
+rsoc	KEYWORD2
 rssi	KEYWORD2
 rtpLevel	KEYWORD2
 rtpWrite	KEYWORD2
@@ -1445,6 +1464,8 @@ set_adc_volume	KEYWORD2
 set_adcdat_mode	KEYWORD2
 set_address	KEYWORD2
 set_addressing_mode	KEYWORD2
+set_alarm_rsoc	KEYWORD2
+set_alarm_voltage	KEYWORD2
 set_alert	KEYWORD2
 set_all	KEYWORD2
 set_all_eeprom	KEYWORD2
@@ -1456,6 +1477,8 @@ set_als_thresholds	KEYWORD2
 set_ambient_temperature	KEYWORD2
 set_antenna_gain	KEYWORD2
 set_any_motion	KEYWORD2
+set_apa	KEYWORD2
+set_apt	KEYWORD2
 set_area_color	KEYWORD2
 set_auto_sleep	KEYWORD2
 set_autorifp	KEYWORD2
@@ -1486,6 +1509,7 @@ set_contrast	KEYWORD2
 set_crc	KEYWORD2
 set_critical_alert	KEYWORD2
 set_crosstalk_rate	KEYWORD2
+set_current_direction	KEYWORD2
 set_cursor	KEYWORD2
 set_dac	KEYWORD2
 set_dac_eq	KEYWORD2
@@ -1601,6 +1625,7 @@ set_power_valid_limits	KEYWORD2
 set_precharge	KEYWORD2
 set_pressure_offset	KEYWORD2
 set_pressure_threshold	KEYWORD2
+set_profile	KEYWORD2
 set_protection	KEYWORD2
 set_proximity_mask	KEYWORD2
 set_proximity_offset	KEYWORD2
@@ -1623,6 +1648,7 @@ set_repeatability	KEYWORD2
 set_resistance	KEYWORD2
 set_resistance_wa	KEYWORD2
 set_resolution	KEYWORD2
+set_rsoc	KEYWORD2
 set_rx_mode	KEYWORD2
 set_sample_skip	KEYWORD2
 set_scale	KEYWORD2
@@ -1647,6 +1673,7 @@ set_summation_channels	KEYWORD2
 set_sync_sample	KEYWORD2
 set_tap	KEYWORD2
 set_tap_detection	KEYWORD2
+set_temperature	KEYWORD2
 set_temperature_compensation	KEYWORD2
 set_temperature_sensor	KEYWORD2
 set_temperature_source	KEYWORD2
@@ -1745,6 +1772,8 @@ unwatch	KEYWORD2
 unwatchChanges	KEYWORD2
 update	KEYWORD2
 use_external_crystal	KEYWORD2
+use_i2c_temperature	KEYWORD2
+use_thermistor	KEYWORD2
 usesInternalReference	KEYWORD2
 utcDate	KEYWORD2
 utcTime	KEYWORD2
@@ -1851,6 +1880,8 @@ ALARM2_MATCH_DAY_HOURS_MINUTES	LITERAL1
 ALARM2_MATCH_HOURS_MINUTES	LITERAL1
 ALARM2_MATCH_MINUTES	LITERAL1
 ALARM_DISABLED	LITERAL1
+ALARM_RSOC	LITERAL1
+ALARM_VOLTAGE	LITERAL1
 AVG_1	LITERAL1
 AVG_128	LITERAL1
 AVG_16	LITERAL1
@@ -2086,6 +2117,9 @@ DEFAULT_HEIGHT	LITERAL1
 DEFAULT_WIDTH	LITERAL1
 DEVICE_ID	LITERAL1
 DIFF_0_1	LITERAL1
+DIRECTION_AUTO	LITERAL1
+DIRECTION_CHARGE	LITERAL1
+DIRECTION_DISCHARGE	LITERAL1
 DISPLAY_ALL_ON	LITERAL1
 DISPLAY_BLANK	LITERAL1
 DISPLAY_INVERSE	LITERAL1

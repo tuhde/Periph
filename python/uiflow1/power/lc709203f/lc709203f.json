@@ -1,0 +1,284 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lc709203f_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init LC709203F",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "capacity (mAh)",
+          "type": "label"
+        },
+        {
+          "name": "_capacity",
+          "type": "number"
+        },
+        {
+          "name": "profile",
+          "type": "label"
+        },
+        {
+          "name": "_profile",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_read_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F cell voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_read_percent",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F state of charge (%)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_read_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F cell temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_read_rsoc",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F RSOC (%, integer)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_temperature",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F set cell temperature (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_rsoc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F force RSOC (%)",
+          "type": "label"
+        },
+        {
+          "name": "_percent",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_init_rsoc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F initialize RSOC from voltage",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_use_thermistor",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F use thermistor, B constant (K)",
+          "type": "label"
+        },
+        {
+          "name": "_b_constant",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_use_i2c_temperature",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F use I2C temperature (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_apa",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F set APA (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_current_direction",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F current direction (0 auto, 1 charge, 65535 discharge)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_profile",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F battery profile (0 or 1)",
+          "type": "label"
+        },
+        {
+          "name": "_profile",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_profile_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F profile ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_ic_version",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F IC version",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_alarm_rsoc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F alarm RSOC (%, 0 = off)",
+          "type": "label"
+        },
+        {
+          "name": "_percent",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_set_alarm_voltage",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F alarm voltage (V, 0 = off)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_poll_alarm",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F alarm bitmask (1 RSOC, 2 voltage)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F sleep",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LC709203F wake",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lc709203f_is_sleeping",
+      "type": "value",
+      "params": [
+        {
+          "name": "LC709203F is sleeping",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
