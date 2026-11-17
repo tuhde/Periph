@@ -132,9 +132,11 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | APDS-9930 | Proximity/ALS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AS7262 | 6-channel visible spectral sensor (450–650 nm, calibrated floats, LED drivers) | | | | | | | | |
 | AT24C02N | I²C EEPROM 2 Kbit (256 B, 8-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AT24C64 | I²C EEPROM 64 Kbit (8 KiB, 32-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AXP2101 | Power management IC (single-cell charger, 15 rails, fuel gauge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BH1750FVI | Digital ambient light sensor (16-bit, 1 lx / 0.5 lx / 4 lx modes, adjustable sensitivity) | | | | | | | | |
 | BMA150 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMA180 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -167,7 +169,9 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) |  |  |  |  |  |  |  |  |
 | HS40xx | Humidity and temperature sensor (CRC, periodic mode, alert pin) |  |  |  |  |  |  |  |  |
 | HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) |  |  |  |  |  |  |  |  |
+| HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | | | | | | | | |
 | HTU21D-F | Humidity + temperature sensor (±2 %RH, ±0.3 °C, heater, CRC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HTU31D | Digital humidity and temperature sensor (16-bit, OSR 0–3, CRC-8, heater, diagnostic) | | | | | | | | |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
@@ -178,6 +182,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IS31FL3731 | 144-LED matrix driver (9×16, per-LED 8-bit PWM, 8 frames, auto-play, breath, audio modulation) | | | | | | | | |
 | IST8310 | 3-axis AMR magnetometer (±1600/±2500 µT, 0.3 µT/LSB, DRDY, up to 200 Hz) |  |  |  |  |  |  |  |  |
 | ITG3200 | Gyroscope (3-axis, ±2000 °/s, 16-bit, DLPF, temperature, data-ready interrupt) |  |  |  |  |  |  |  |  |
 | L3G4200D | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -191,7 +196,9 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | LPS28DFW | Pressure sensor (water-resistant, dual FS) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS33HW | Pressure sensor (water-resistant) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LSM303 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LTC4151 | High-voltage (7–80 V) high-side current/voltage/power monitor (12-bit, snapshot mode, ADIN) | | | | | | | | |
 | MAG3110 | 3-axis digital magnetometer (±1000 µT, 80 Hz, INT1) |  |  |  |  |  |  |  |  |
+| MAX17048 | 1-cell/2-cell (MAX17049) lithium fuel gauge, ModelGauge, no sense resistor (alerts, hibernate/sleep) | | | | | | | | |
 | MAX44009 | Ambient light sensor (ultra-low power, lux output) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -212,6 +219,8 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9255 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MS5607 | Barometric pressure sensor (10–2000 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | | | | | | | | |
+| MS5611 | Barometric pressure sensor (10–1200 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | | | | | | | | |
 | MX25L12845E | NOR flash (128 Mbit, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA6408A | IO expander (8-bit, low-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

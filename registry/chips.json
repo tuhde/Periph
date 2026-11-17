@@ -2344,6 +2344,133 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/rtc/pcf8573.pdf"
+    },
+    {
+      "id": "ltc4151",
+      "name": "LTC4151",
+      "category": "power",
+      "addresses": [
+        "0x67..0x6F"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/power/ltc4151.pdf"
+    },
+    {
+      "id": "max17048",
+      "name": "MAX17048",
+      "category": "power",
+      "addresses": [
+        "0x36"
+      ],
+      "id_probe": {
+        "register": "0x08",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFF0",
+        "expected": [
+          "0x0010"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/power/max17048.pdf"
+    },
+    {
+      "id": "is31fl3731",
+      "name": "IS31FL3731",
+      "category": "led",
+      "addresses": [
+        "0x74..0x77"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/led/is31fl3731.pdf"
+    },
+    {
+      "id": "as7262",
+      "name": "AS7262",
+      "category": "color",
+      "addresses": [
+        "0x49"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/color/as7262.pdf"
+    },
+    {
+      "id": "hts221",
+      "name": "HTS221",
+      "category": "humidity",
+      "addresses": [
+        "0x5F"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xBC"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/humidity/hts221.pdf"
+    },
+    {
+      "id": "htu31d",
+      "name": "HTU31D",
+      "category": "humidity",
+      "addresses": [
+        "0x40..0x41"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/humidity/htu31d.pdf"
+    },
+    {
+      "id": "bh1750",
+      "name": "BH1750FVI",
+      "category": "light",
+      "addresses": [
+        "0x23",
+        "0x5C"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/light/bh1750.pdf"
+    },
+    {
+      "id": "ms5607",
+      "name": "MS5607",
+      "category": "pressure",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/pressure/ms5607.pdf"
+    },
+    {
+      "id": "ms5611",
+      "name": "MS5611",
+      "category": "pressure",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/pressure/ms5611.pdf"
     }
   ]
 }

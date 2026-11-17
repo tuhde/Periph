@@ -165,5 +165,14 @@ public final class DiscoveryRegistry {
         new Chip("pcf8563", null, false, false, new int[] {0x51}, null),
         new Chip("mcp7940n", null, false, false, new int[] {0x6F}, null),
         new Chip("pcf8573", null, true, false, new int[] {0x68, 0x69, 0x6A, 0x6B}, null),
+        new Chip("ltc4151", null, false, false, new int[] {0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F}, null),
+        new Chip("max17048", null, false, false, new int[] {0x36}, new IdProbe(0x08, 1, 2, false, 0xFFF0L, new long[] {0x0010L})),
+        new Chip("is31fl3731", null, false, false, new int[] {0x74, 0x75, 0x76, 0x77}, null),
+        new Chip("as7262", null, true, false, new int[] {0x49}, null),
+        new Chip("hts221", null, false, false, new int[] {0x5F}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xBCL})),
+        new Chip("htu31d", null, true, false, new int[] {0x40, 0x41}, null),
+        new Chip("bh1750", null, true, false, new int[] {0x23, 0x5C}, null),
+        new Chip("ms5607", null, true, false, new int[] {0x76, 0x77}, null),
+        new Chip("ms5611", null, true, false, new int[] {0x76, 0x77}, null),
     };
 }
