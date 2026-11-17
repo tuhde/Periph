@@ -37,6 +37,10 @@
       "github:tuhde/Periph/python/periph/chips/power/lm25066.py"
     ],
     [
+      "periph/chips/power/ltc4151.py",
+      "github:tuhde/Periph/python/periph/chips/power/ltc4151.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

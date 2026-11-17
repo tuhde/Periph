@@ -1,0 +1,246 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ltc4151_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init LTC4151",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "sense resistor (mOhm)",
+          "type": "label"
+        },
+        {
+          "name": "_rsense",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 VIN voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_current",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 load current (A)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_power",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 load power (W)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_sense_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 sense voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_adin_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 ADIN voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_read_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 raw code of channel (0 SENSE, 1 VIN, 2 ADIN)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_set_sense_resistor",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LTC4151 set sense resistor (mOhm)",
+          "type": "label"
+        },
+        {
+          "name": "_mohm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_get_sense_resistor",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 sense resistor (Ohm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_snapshot",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 snapshot of channel (0 SENSE, 1 VIN, 2 ADIN) (V)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_set_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LTC4151 back to continuous scan",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_is_snapshot_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 is in snapshot mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_is_busy",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 channel busy (0 SENSE, 1 VIN, 2 ADIN)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_set_stuck_bus_timer",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LTC4151 set stuck-bus timer (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_set_page_rw",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LTC4151 set page read/write (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_read_control",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 CONTROL register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_write_control",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LTC4151 write CONTROL register",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ltc4151_temperature_from_adin",
+      "type": "value",
+      "params": [
+        {
+          "name": "LTC4151 temperature from ADIN code, VIN code (C)",
+          "type": "label"
+        },
+        {
+          "name": "_adin",
+          "type": "number"
+        },
+        {
+          "name": "_vin",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

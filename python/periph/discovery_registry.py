@@ -462,7 +462,7 @@ CHIPS = (
     {"id": "pcf8573", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x68, 0x69, 0x6A, 0x6B,),
      "probe": None},
-    {"id": "ltc4151", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "ltc4151", "driver": "ltc4151", "write_sensitive": False, "aliased": False,
      "addresses": (0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,),
      "probe": None},
     {"id": "max17048", "driver": None, "write_sensitive": False, "aliased": False,
