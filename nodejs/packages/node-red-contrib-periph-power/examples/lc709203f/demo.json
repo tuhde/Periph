@@ -1,0 +1,107 @@
+[
+    {
+        "id": "tab-lc709203f-demo",
+        "type": "tab",
+        "label": "LC709203F Battery Monitor",
+        "disabled": false,
+        "info": "Battery monitor: every 5 s reads cell voltage, state of charge and temperature from an LC709203F fuel gauge on a 1000 mAh LiPo and shows a formatted string in the debug panel. The host temperature is fed as 25 °C."
+    },
+    {
+        "id": "cfg-lc709203f",
+        "type": "lc709203f-device",
+        "name": "LC709203F",
+        "bus": "1",
+        "address": "0B",
+        "capacity": "1000",
+        "profile": "1"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lc709203f-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "set-temp"
+            ]
+        ]
+    },
+    {
+        "id": "set-temp",
+        "type": "function",
+        "name": "host temperature 25 °C",
+        "func": "msg.temperature = 25;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-lc709203f-demo",
+        "x": 320,
+        "y": 160,
+        "wires": [
+            [
+                "read-lc709203f"
+            ]
+        ]
+    },
+    {
+        "id": "read-lc709203f",
+        "type": "lc709203f",
+        "name": "LC709203F",
+        "device": "cfg-lc709203f",
+        "z": "tab-lc709203f-demo",
+        "x": 530,
+        "y": 160,
+        "wires": [
+            [
+                "fmt-readings"
+            ]
+        ]
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format",
+        "func": "const p = msg.payload;\nmsg.payload = p.voltage_v.toFixed(3) + ' V  ' + p.percent.toFixed(1) + ' %  ' + p.temperature_c.toFixed(1) + ' °C';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-lc709203f-demo",
+        "x": 720,
+        "y": 160,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "battery",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-lc709203f-demo",
+        "x": 900,
+        "y": 160,
+        "wires": []
+    }
+]
