@@ -69,6 +69,7 @@ Each chip exposes two classes:
 | AHT20 | Environmental sensor | Temperature and humidity sensor |
 | AHT21 | Environmental sensor | Temperature and humidity sensor |
 | AM2315 | Environmental sensor | Humidity and temperature sensor |
+| AM2320 | Environmental sensor | Humidity and temperature sensor |
 | APA102 | LED driver | Addressable RGB LED strip |
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |

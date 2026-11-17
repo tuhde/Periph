@@ -63,6 +63,7 @@ Each chip exposes two structs:
 | AHT20 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AM2315 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
+| AM2320 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
 | APA102 | LED driver | Addressable RGB LED strip driver. |
 | APDS-9930 | Light sensor | Digital ambient light and proximity sensor (Broadcom/Avago). |
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |

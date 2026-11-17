@@ -174,7 +174,7 @@ CHIPS = (
     {"id": "am2315", "driver": "am2315", "write_sensitive": True, "aliased": False,
      "addresses": (0x5C,),
      "probe": None},
-    {"id": "am2320", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "am2320", "driver": "am2320", "write_sensitive": True, "aliased": False,
      "addresses": (0x5C,),
      "probe": None},
     {"id": "aht10", "driver": "aht10", "write_sensitive": True, "aliased": False,

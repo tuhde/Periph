@@ -1,0 +1,1 @@
+_periph_am2320.read_user_registers()[int(${_n}) - 1]

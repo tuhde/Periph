@@ -225,6 +225,10 @@
       "github:tuhde/Periph/python/periph/chips/environmental/am2315.py"
     ],
     [
+      "periph/chips/environmental/am2320.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/am2320.py"
+    ],
+    [
       "periph/chips/environmental/bme280.py",
       "github:tuhde/Periph/python/periph/chips/environmental/bme280.py"
     ],

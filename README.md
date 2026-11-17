@@ -127,7 +127,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AK8975 | 3-axis electronic compass (Hall, 13-bit, ±1229 µT, self-test, DRDY) |  |  |  |  |  |  |  |  |
 | AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AM2320 | Temperature/humidity |  |  |  |  |  |  |  |  |
+| AM2320 | Temperature/humidity sensor (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APA102 | LED (addressable RGB, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS-9930 | Proximity/ALS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
