@@ -176,7 +176,7 @@ var registry = []Chip{
 	{ID: "pcf8563", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x51}, Probe: nil},
 	{ID: "mcp7940n", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x6F}, Probe: nil},
 	{ID: "pcf8573", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x68, 0x69, 0x6A, 0x6B}, Probe: nil},
-	{ID: "ltc4151", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F}, Probe: nil},
+	{ID: "ltc4151", Driver: "ltc4151", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F}, Probe: nil},
 	{ID: "max17048", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x36}, Probe: &IdProbe{Register: 0x08, RegBytes: 1, Length: 2, LittleEndian: false, Mask: 0xFFF0, Expected: []uint32{0x0010}}},
 	{ID: "is31fl3731", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x74, 0x75, 0x76, 0x77}, Probe: nil},
 	{ID: "as7262", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x49}, Probe: nil},
