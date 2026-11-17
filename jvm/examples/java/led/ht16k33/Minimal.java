@@ -10,15 +10,15 @@ import it.uhde.periph.chips.led.HT16K33Minimal;
 public class Minimal {
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
-        int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x38"));
-        try (var connection = new I2CConnection(bus, addr)) {              // open I²C bus, (bus, address=0x38) → I2CConnection
-            var lcd = new HT16K33Minimal(connection);                      // construct driver, (connection) → HT16K33Minimal
+        int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x70"));
+        try (var connection = new I2CConnection(bus, addr)) {              // open I²C bus, (bus, address=0x70) → I2CConnection
+            var matrix = new HT16K33Minimal(connection);                      // construct driver, (connection) → HT16K33Minimal
 
-            int[] digits = {1, 2, 3, 4};
-            for (int i = 0; i < digits.length; i++) {
-                int seg = HT16K33Minimal.SEVEN_SEG[digits[i]];            // encode 7-segment digit, (digit 0–9) → int
-                lcd.setDigit7seg(i, seg);                                 // write one digit, (position 0–19, segments 0–255) → void
+            for (int row = 0; row < HT16K33Minimal.ROWS; row++) {
+                matrix.setPixel(0, row);                                      // set one LED in the shadow RAM, (com 0–7, row 0–15, on) → void
             }
+            matrix.show();                                                    // write the shadow RAM to the chip, () → void
+            Thread.sleep(1000);
         }
     }
 }

@@ -5,127 +5,168 @@ import spock.lang.Specification
 
 class HT16K33Spec extends Specification {
 
-    private static byte[] zeros21() {
-        new byte[21]
+    private static byte[] b(int... v) {
+        byte[] r = new byte[v.length]
+        for (int i = 0; i < v.length; i++) r[i] = (byte) v[i]
+        r
     }
 
-    private static byte[] lastWrite(MockConnection connection) {
-        def writes = connection.writes()
-        writes[writes.size() - 1]
+    private static byte[] lastWrite(MockConnection c) {
+        def w = c.writes()
+        w[w.size() - 1]
     }
 
     def "full API"() {
         given:
-        def connection = new MockConnection()
+        def c = new MockConnection()
 
         when:
-        def sensor = new HT16K33Full(connection)
+        def d = new HT16K33Full(c)
 
-        then: "init: mode-set (E=1, bias=1/3, mode=1:4 -> 0x48), then load-ptr(0) + 20 zero bytes"
-        connection.writes()[0] == [0x48] as byte[]
-        connection.writes()[1] == zeros21()
-
-        when:
-        sensor.clear()
-        def clearWrites = connection.writes()
-
-        then:
-        clearWrites[clearWrites.size() - 2] == [0x48] as byte[]
-        clearWrites[clearWrites.size() - 1] == zeros21()
+        then: "init sequence"
+        c.writes()[0] == b(0x21)
+        c.writes()[1] == b(0xA0)
+        c.writes()[2] == b(0xEF)
+        c.writes()[3] == new byte[17]
+        c.writes()[4] == b(0x81)
 
         when:
-        sensor.writeRaw(5, [0xAB, 0xCD] as byte[])
+        d.setPixel(1, 9, true)
+        d.show()
+        def exp = new byte[17]
+        exp[1 + 3] = (byte) 0x02
 
         then:
-        lastWrite(connection) == [0x05, 0xAB, 0xCD] as byte[]
+        lastWrite(c) == exp
+        d.getPixel(1, 9)
+        !d.getPixel(1, 8)
 
         when:
-        int nBefore = connection.writes().size()
-        sensor.writeRaw(3, new byte[0])
+        d.setPixel(7, 15)
+        d.setPixel(1, 9, false)
 
         then:
-        connection.writes().size() == nBefore
-
-        when: "digit '7' -> 0xE0, at RAM address 3*2=6"
-        sensor.setDigit7seg(3, HT16K33Minimal.SEVEN_SEG[7] as int)
-
-        then:
-        lastWrite(connection) == [0x06, 0xE0] as byte[]
+        !d.getPixel(1, 9)
+        d.getPixel(7, 15)
 
         when:
-        sensor.disable()
+        d.setPixel(8, 0)
 
         then:
-        lastWrite(connection) == [0x40] as byte[]
+        thrown(IllegalArgumentException)
 
         when:
-        sensor.enable()
+        d.clear()
 
         then:
-        lastWrite(connection) == [0x48] as byte[]
-
-        when: "setMode(): mode-set byte = 0x40 | E(0x08) | bias | mode"
-        sensor.setMode(HT16K33Full.BACKPLANES_1, HT16K33Full.BIAS_1_2_FULL)
-
-        then:
-        lastWrite(connection) == [0x4D] as byte[] // 0x40|8|4|1
+        lastWrite(c) == new byte[17]
 
         when:
-        sensor.setMode(HT16K33Full.BACKPLANES_2, HT16K33Full.BIAS_1_3_FULL)
+        d.writeRaw(b(0xAB, 0xCD), 4)
 
         then:
-        lastWrite(connection) == [0x4A] as byte[] // 0x40|8|0|2
+        lastWrite(c) == b(0x04, 0xAB, 0xCD)
 
         when:
-        sensor.setMode(HT16K33Full.BACKPLANES_3, HT16K33Full.BIAS_1_3_FULL)
+        d.writeRaw(b(0, 0, 0), 14)
 
         then:
-        lastWrite(connection) == [0x4B] as byte[] // 0x40|8|0|3
+        thrown(IllegalArgumentException)
 
         when:
-        sensor.setMode(HT16K33Full.BACKPLANES_4, HT16K33Full.BIAS_1_3_FULL)
+        d.setBrightness(7)
 
         then:
-        lastWrite(connection) == [0x48] as byte[] // 0x40|8|0|0
+        lastWrite(c) == b(0xE7)
 
         when:
-        sensor.setBlink(HT16K33Full.BLINK_1_HZ, false)
+        d.setBlink(1.0d)
 
         then:
-        lastWrite(connection) == [0x72] as byte[] // 0x70|0|2
+        lastWrite(c) == b(0x85)
 
         when:
-        sensor.setBlink(HT16K33Full.BLINK_2_HZ, true)
+        d.setBlink(0.5d)
 
         then:
-        lastWrite(connection) == [0x75] as byte[] // 0x70|4|1
+        lastWrite(c) == b(0x87)
 
         when:
-        sensor.setBank(1, 0)
+        d.setBlink(2.0d)
 
         then:
-        lastWrite(connection) == [0x7A] as byte[] // 0x78|(1<<1)|0
+        lastWrite(c) == b(0x83)
 
         when:
-        sensor.deviceSelect(5)
+        d.setBlink(3.0d)
 
         then:
-        lastWrite(connection) == [0x65] as byte[] // 0x60|5
-    }
-
-    def "minimal init matches default backplanes"() {
-        // Regression test for a bug where HT16K33Minimal's `backplanes`
-        // field defaulted to MODE_1_4 (0x00, a drive-mode bit pattern)
-        // instead of the backplane count 4 - harmless only by coincidence,
-        // since HT16K33Full.modeCode()'s default arm also happens to
-        // return MODE_1_4.
-        given:
-        def connection = new MockConnection()
+        thrown(IllegalArgumentException)
 
         when:
-        def sensor = new HT16K33Minimal(connection)
+        d.displayOff()
 
         then:
-        sensor.backplanes == 4
+        lastWrite(c) == b(0x82)
+
+        when:
+        d.displayOn()
+        d.setBlink(0.0d)
+        d.setIntOutput(true, false)
+
+        then:
+        lastWrite(c) == b(0xA1)
+
+        when:
+        d.setIntOutput(true, true)
+
+        then:
+        lastWrite(c) == b(0xA3)
+
+        when:
+        d.standby()
+
+        then:
+        lastWrite(c) == b(0x20)
+
+        when:
+        int n = c.writes().size()
+        d.wake()
+        def w = c.writes()
+
+        then:
+        w[n] == b(0x21)
+        w[n + 1] == b(0xA3)
+        w[n + 2] == b(0xE7)
+        w[n + 3].length == 17
+        w[n + 4] == b(0x81)
+
+        when:
+        c.queueRead(b(0x01, 0x00, 0x00, 0x10, 0x00, 0x00))
+        long keys = d.readKeys()
+
+        then:
+        lastWrite(c) == b(0x40)
+        keys == (1L | (1L << 25))
+
+        when:
+        c.queueRead(b(0x01))
+
+        then:
+        d.keyPressed()
+        lastWrite(c) == b(0x60)
+
+        when:
+        c.queueRead(b(0x00))
+
+        then:
+        d.pollInterrupt() == 0L
+
+        when:
+        c.queueRead(b(0x01))
+        c.queueRead(b(0, 0, 0, 0, 0x01, 0))
+
+        then:
+        d.pollInterrupt() == (1L << 26)
     }
 }

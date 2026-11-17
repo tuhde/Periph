@@ -1,51 +1,27 @@
 package it.uhde.periph.chips.led;
 
 import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.EdgeHandler;
+import it.uhde.periph.connection.EdgeTrigger;
+import it.uhde.periph.connection.InputPin;
 
 import java.io.IOException;
+import java.util.function.LongConsumer;
 
 /**
- * HT16K33 — full driver. Extends {@link HT16K33Minimal} with drive mode, bias,
- * blink configuration, RAM bank selection, and subaddress counter control
- * for cascaded displays.
- *
- * <h2>Drive mode constants</h2>
- * {@link #BACKPLANES_1}, {@link #BACKPLANES_2}, {@link #BACKPLANES_3},
- * {@link #BACKPLANES_4}
- *
- * <h2>Bias constants</h2>
- * {@link #BIAS_1_3}, {@link #BIAS_1_2}
- *
- * <h2>Blink constants</h2>
- * {@link #BLINK_OFF}, {@link #BLINK_2_HZ}, {@link #BLINK_1_HZ},
- * {@link #BLINK_0_5_HZ}
- *
- * <h2>Bank constants</h2>
- * {@link #BANK_0}, {@link #BANK_1}
+ * HT16K33 — full driver. Extends {@link HT16K33Minimal} with display control,
+ * standby, key scan and the INT output.
  */
 public class HT16K33Full extends HT16K33Minimal {
 
-    public static final int BLINK_OFF     = 0;
-    public static final int BLINK_2_HZ    = 1;
-    public static final int BLINK_1_HZ    = 2;
-    public static final int BLINK_0_5_HZ  = 3;
-
-    public static final int BIAS_1_3_FULL = 0;
-    public static final int BIAS_1_2_FULL = 1;
-
-    public static final int BACKPLANES_1 = 1;
-    public static final int BACKPLANES_2 = 2;
-    public static final int BACKPLANES_3 = 3;
-    public static final int BACKPLANES_4 = 4;
-
-    public static final int BANK_0 = 0;
-    public static final int BANK_1 = 1;
-
-    private boolean enabled = true;
-    private int bias = BIAS_1_3_FULL;
+    private LongConsumer callback;
+    private InputPin subscribedPin;
+    private volatile boolean polling;
+    private Thread pollThread;
+    private final EdgeHandler edgeHandler = this::handleEdge;
 
     /**
-     * Construct the full driver and initialise the chip with defaults.
+     * Construct the driver and run the initialization sequence.
      *
      * @param connection I2C connection bound to the HT16K33 address
      * @throws IOException on I2C error
@@ -54,88 +30,194 @@ public class HT16K33Full extends HT16K33Minimal {
         super(connection);
     }
 
-    private int modeCode(int backplanes) {
-        switch (backplanes) {
-            case BACKPLANES_1: return MODE_STATIC;
-            case BACKPLANES_2: return MODE_1_2;
-            case BACKPLANES_3: return MODE_1_3;
-            default:           return MODE_1_4;
-        }
-    }
-
-    private void applyMode() throws IOException {
-        int biasBits = (bias == BIAS_1_2_FULL) ? BIAS_1_2 : BIAS_1_3;
-        sendCommands(cmdMode(enabled, biasBits, modeCode(backplanes)));
-    }
-
     /**
-     * Turn the display on (E = 1). RAM contents are preserved.
+     * Turn the display output on (keeps the blink setting).
      *
      * @throws IOException on I2C error
      */
-    public void enable() throws IOException {
-        enabled = true;
-        applyMode();
+    public void displayOn() throws IOException {
+        display = true;
+        applyDisplay();
     }
 
     /**
-     * Blank the display output (E = 0). RAM contents are preserved.
+     * Turn the display output off (keeps the blink setting).
      *
      * @throws IOException on I2C error
      */
-    public void disable() throws IOException {
-        enabled = false;
-        applyMode();
-    }
-
-    /**
-     * Reconfigure drive mode and bias at runtime.
-     *
-     * @param backplanes number of backplanes — 1 (static), 2 (1:2), 3 (1:3),
-     *                   4 (1:4 multiplex)
-     * @param bias       0 = 1/3 bias (recommended for 1:3 and 1:4 multiplex),
-     *                   1 = 1/2 bias
-     * @throws IOException on I2C error
-     */
-    public void setMode(int backplanes, int bias) throws IOException {
-        this.backplanes = backplanes;
-        this.bias = bias;
-        applyMode();
+    public void displayOff() throws IOException {
+        display = false;
+        applyDisplay();
     }
 
     /**
      * Set the blink frequency.
      *
-     * @param frequency     0 = off, 1 = ~2 Hz, 2 = ~1 Hz, 3 = ~0.5 Hz
-     * @param alternateBank true to enable alternate-RAM-bank blinking
-     *                      (static and 1:2 multiplex only)
+     * @param frequency 0 (off), 2, 1 or 0.5 Hz
+     * @throws IllegalArgumentException for any other value
      * @throws IOException on I2C error
      */
-    public void setBlink(int frequency, boolean alternateBank) throws IOException {
-        int ab = alternateBank ? 0x04 : 0x00;
-        sendCommands(CMD_BLINK_SELECT | ab | (frequency & 0x03));
+    public void setBlink(double frequency) throws IOException {
+        int code;
+        if (frequency == 0.0) code = 0;
+        else if (frequency == 2.0) code = 1;
+        else if (frequency == 1.0) code = 2;
+        else if (frequency == 0.5) code = 3;
+        else throw new IllegalArgumentException("frequency must be 0, 2, 1 or 0.5");
+        blink = code;
+        applyDisplay();
     }
 
     /**
-     * Select the active RAM bank.
+     * Stop the oscillator (display off, key scan stopped).
      *
-     * @param inputBank  0 (rows 0-1) or 1 (rows 2-3)
-     * @param outputBank 0 (rows 0-1) or 1 (rows 2-3).
-     *                   Only meaningful in static and 1:2 multiplex modes.
      * @throws IOException on I2C error
      */
-    public void setBank(int inputBank, int outputBank) throws IOException {
-        sendCommands(CMD_BANK_SELECT | ((inputBank & 1) << 1) | (outputBank & 1));
+    public void standby() throws IOException {
+        command(CMD_SYSTEM);
     }
 
     /**
-     * Change the subaddress counter for cascaded displays.
+     * Start the oscillator and restore display, dimming, ROW/INT and RAM.
      *
-     * @param subaddress 0-7; must match the A0/A1/A2 pin state of the target
-     *                   device on the bus
      * @throws IOException on I2C error
      */
-    public void deviceSelect(int subaddress) throws IOException {
-        sendCommands(CMD_DEVICE_SELECT | (subaddress & 0x07));
+    public void wake() throws IOException {
+        command(CMD_SYSTEM | 0x01);
+        command(rowInt);
+        command(CMD_DIMMING | brightness);
+        show();
+        applyDisplay();
+    }
+
+    /**
+     * Select the function of the ROW15/INT pin.
+     *
+     * @param enable     true makes the pin an interrupt output (ROW15/K13 unusable)
+     * @param activeHigh INT polarity when enabled (false = active low)
+     * @throws IOException on I2C error
+     */
+    public void setIntOutput(boolean enable, boolean activeHigh) throws IOException {
+        rowInt = enable ? (activeHigh ? 0xA3 : 0xA1) : 0xA0;
+        command(rowInt);
+    }
+
+    /**
+     * Read and clear the key data RAM.
+     *
+     * @return key bitmask, bit {@code k * 13 + (K - 1)} for key input K (1-13) on key source KSk (0-2)
+     * @throws IOException on I2C error
+     */
+    public long readKeys() throws IOException {
+        connection.write(new byte[]{(byte) CMD_KEY_PTR});
+        byte[] b = connection.read(6);
+        long mask = 0;
+        for (int k = 0; k < 3; k++) {
+            long word = ((b[2 * k] & 0xFF) | ((b[2 * k + 1] & 0xFF) << 8)) & 0x1FFF;
+            mask |= word << (13 * k);
+        }
+        return mask;
+    }
+
+    /**
+     * Read the INT flag.
+     *
+     * @return true if a key press is pending
+     * @throws IOException on I2C error
+     */
+    public boolean keyPressed() throws IOException {
+        connection.write(new byte[]{(byte) CMD_INT_PTR});
+        return (connection.read(1)[0] & 0x01) != 0;
+    }
+
+    /**
+     * Read one LED state from the shadow RAM.
+     *
+     * @param com COM line, 0-7
+     * @param row ROW line, 0-15
+     * @return true if the LED is set
+     */
+    public boolean getPixel(int com, int row) {
+        if (com < 0 || com > 7 || row < 0 || row > 15) {
+            throw new IllegalArgumentException("com 0..7, row 0..15");
+        }
+        return ((ram[2 * com + (row >> 3)] >> (row & 7)) & 1) == 1;
+    }
+
+    /**
+     * Check the INT flag and, if set, read (and clear) the key data.
+     *
+     * @return key bitmask, or 0 if no key is pending
+     * @throws IOException on I2C error
+     */
+    public long pollInterrupt() throws IOException {
+        if (!keyPressed()) return 0;
+        return readKeys();
+    }
+
+    /**
+     * Subscribe to key-press events on the connection's interrupt pin, or a 20 ms polling thread.
+     *
+     * @param callback receives the key bitmask
+     * @throws IOException on I2C error
+     */
+    public void onInterrupt(LongConsumer callback) throws IOException {
+        onInterrupt(callback, connection.intPin());
+    }
+
+    /**
+     * Subscribe to key-press events on an explicit pin.
+     *
+     * @param callback receives the key bitmask
+     * @param intPin   pin to arm, or {@code null} to force the 20 ms polling fallback
+     * @throws IOException on I2C error
+     */
+    public void onInterrupt(LongConsumer callback, InputPin intPin) throws IOException {
+        offInterrupt();
+        this.callback = callback;
+        if (intPin != null) {
+            subscribedPin = intPin;
+            intPin.onEdge(edgeHandler, rowInt == 0xA3 ? EdgeTrigger.RISING : EdgeTrigger.FALLING);
+        } else {
+            polling = true;
+            pollThread = new Thread(() -> {
+                while (polling) {
+                    handleEdge();
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }, "ht16k33-poll");
+            pollThread.setDaemon(true);
+            pollThread.start();
+        }
+    }
+
+    /** Unsubscribe and stop delivery. */
+    public void offInterrupt() {
+        callback = null;
+        if (subscribedPin != null) {
+            subscribedPin.offEdge(edgeHandler);
+            subscribedPin = null;
+        }
+        polling = false;
+        if (pollThread != null) {
+            pollThread.interrupt();
+            pollThread = null;
+        }
+    }
+
+    private void handleEdge() {
+        LongConsumer cb = callback;
+        if (cb == null) return;
+        try {
+            long keys = pollInterrupt();
+            if (keys != 0) cb.accept(keys);
+        } catch (IOException e) {
+            // transient bus error: the next edge or tick retries
+        }
     }
 }

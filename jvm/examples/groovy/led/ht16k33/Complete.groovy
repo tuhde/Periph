@@ -4,39 +4,43 @@
 //DEPS it.uhde:periph-connection:1.5.0
 //DEPS it.uhde:periph-groovy:1.5.0
 
-import it.uhde.periph.chips.led.HT16K33Full
 import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.led.HT16K33Full
 
 int bus  = System.getenv("I2C_BUS")  ? System.getenv("I2C_BUS").toInteger()  : 1
-String addrStr = System.getenv("I2C_ADDR") ?: "0x38"
+String addrStr = System.getenv("I2C_ADDR") ?: "0x70"
 int addr = Integer.decode(addrStr)
 
-I2CConnection connection = new I2CConnection(bus, addr)                          // open I²C bus, (bus, address=0x38) → I2CConnection
+I2CConnection connection = new I2CConnection(bus, addr)                         // open I²C bus, (bus, address=0x70) → I2CConnection
 try {
-    def lcd = new HT16K33Full(connection)                                        // construct driver, (connection) → HT16K33Full
-    lcd.clear()                                                                 // blank the display, () → void
-                                                                                 // zeros all 40 columns of display RAM
-    lcd.deviceSelect(0)                                                         // select device on the bus, (subaddress 0–7) → void
-                                                                                 // sets the subaddress counter for cascaded use
-    lcd.setMode(HT16K33Full.BACKPLANES_4, HT16K33Full.BIAS_1_3_FULL)            // set drive mode, (backplanes 1–4, bias 0/1) → void
-                                                                                 // configures 1:4 multiplex with 1/3 bias
-    lcd.setBlink(HT16K33Full.BLINK_2_HZ, false)                                 // set blink frequency, (frequency 0–3, alternateBank=false) → void
-                                                                                 // ~2 Hz blink for visual attention
-    lcd.setBank(HT16K33Full.BANK_0, HT16K33Full.BANK_0)                         // select RAM bank, (inputBank 0/1, outputBank 0/1) → void
-                                                                                 // selects rows 0-1 for both input and output
+    def matrix = new HT16K33Full(connection)                         // construct driver, (connection) → HT16K33Full
 
-    int[] digits = [5, 6, 7, 8]
-    byte[] out = new byte[digits.length]
-    for (int i = 0; i < digits.length; i++) {
-        out[i] = (byte) HT16K33Full.SEVEN_SEG[digits[i]]                        // encode 7-segment digit, (digit 0–9) → int
-    }
-    lcd.writeRaw(0, out)                                                         // write raw bytes, (address 0–39, data) → void
-                                                                                 // sets data pointer to 0 and writes all four digits
-
-    lcd.disable()                                                                // disable display output, () → void
-                                                                                 // blanks the panel while keeping RAM contents
-    lcd.enable()                                                                 // enable display output, () → void
-                                                                                 // resumes output from RAM with the prior configuration
+    matrix.clear()                                                   // blank the display, () → void
+                                                                      // zeros the shadow RAM and writes it
+    matrix.setPixel(2, 5, true)                                      // set one LED, (com 0–7, row 0–15, on) → void
+    matrix.show()                                                    // write the shadow RAM, () → void
+    println(matrix.getPixel(2, 5))                        // read a pixel from the shadow RAM, (com, row) → boolean
+    matrix.writeRaw([(byte) 0xFF, (byte) 0x0F] as byte[], 0)                // write raw RAM bytes, (data 1–16 bytes, address 0–15) → void
+                                                                      // com 0 rows 0–11 lit
+    matrix.setBrightness(8)                                          // set dimming, (level 0–15) → void
+                                                                      // 9/16 duty
+    matrix.setBlink(1.0d)                                             // set blink frequency, (0, 0.5, 1, 2 Hz) → void
+                                                                      // blinks at 1 Hz
+    Thread.sleep(3000)
+    matrix.setBlink(0.0d)
+    matrix.displayOff()                                              // display output off, () → void
+    matrix.displayOn()                                               // display output on, () → void
+    matrix.setIntOutput(true, false)                                 // ROW15/INT pin as INT output, (enable, activeHigh) → void
+                                                                      // active low interrupt output
+    println(matrix.readKeys())                            // read and clear key data, () → long bitmask
+    println(matrix.keyPressed())                          // read the INT flag, () → boolean
+    println(matrix.pollInterrupt())                       // read keys if INT flag set, () → long (0 if none)
+    matrix.onInterrupt({ long keys -> println(keys) } as java.util.function.LongConsumer)             // subscribe to key presses, (callback) → void
+                                                                      // polls every 20 ms when no INT pin is wired
+    Thread.sleep(100)
+    matrix.offInterrupt()                                            // unsubscribe, () → void
+    matrix.standby()                                                 // oscillator off, () → void
+    matrix.wake()                                                    // oscillator on and restore state, () → void
 } finally {
     connection.close()
 }

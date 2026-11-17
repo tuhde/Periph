@@ -1,20 +1,16 @@
 """
-HT16K33 40x4 universal LCD segment driver sigrok protocol decoder.
+HT16K33 16x8 LED matrix driver with key scan — sigrok protocol decoder.
 
-Stacks on the i2c decoder. The HT16K33 is a write-only device that uses a
-command-stream protocol: each I2C write transaction contains one or more
-command bytes (with bit 7 = C the continuation flag) followed by zero or
-more display data bytes.
-
-The decoder annotates:
-  - mode-set        command (0x40 | flags) → E, B, M
-  - load-data-pointer command (0x00 | addr) → RAM address 0-39
-  - device-select   command (0x60 | subaddress) → 0-7
-  - bank-select     command (0x78 | flags) → input/output bank
-  - blink-select    command (0x70 | flags) → blink frequency, alternate bank
-  - display data bytes following the last command
-
-Supports both I2C addresses: 0x38 (SA0 = VSS) and 0x39 (SA0 = VDD).
+Stacks on the i2c decoder (addresses 0x70-0x77). The first byte of each write
+is a command / address byte; the decoder annotates:
+  - display data address pointer (0x00-0x0F) with the following RAM bytes as
+    per-COM ROW bitmaps
+  - system setup (oscillator on / standby), display setup (display on/off,
+    blink frequency), ROW/INT set (ROW15 or INT output, polarity), dimming set
+  - key data (0x40) and INT flag (0x60) pointers and the reads that follow
+    (pressed-key list, INT flag)
+Warnings: test-mode command 0xD9, commands other than system setup after a
+standby command, display data running past RAM address 0x0F.
 """
 
 from .pd import Decoder

@@ -9,14 +9,14 @@ import it.uhde.periph.chips.led.HT16K33Minimal
 
 fun main() {
     val bus  = System.getenv("I2C_BUS")?.toInt()  ?: 1
-    val addr = System.getenv("I2C_ADDR")?.let { Integer.decode(it) } ?: 0x38
-    I2CConnection(bus, addr).use { connection ->                                   // open I²C bus, (bus, address=0x38) → I2CConnection
-        val lcd = HT16K33Minimal(connection)                                       // construct driver, (connection) → HT16K33Minimal
+    val addr = System.getenv("I2C_ADDR")?.let { Integer.decode(it) } ?: 0x70
+    I2CConnection(bus, addr).use { connection ->                                   // open I²C bus, (bus, address=0x70) → I2CConnection
+        val matrix = HT16K33Minimal(connection)                      // construct driver, (connection) → HT16K33Minimal
 
-        val digits = intArrayOf(1, 2, 3, 4)
-        for (i in digits.indices) {
-            val seg = HT16K33Minimal.SEVEN_SEG[digits[i]]                        // encode 7-segment digit, (digit 0–9) → int
-            lcd.setDigit7seg(i, seg)                                              // write one digit, (position 0–19, segments 0–255) → void
+        for (row in 0 until HT16K33Minimal.ROWS) {
+            matrix.setPixel(0, row)                                      // set one LED in the shadow RAM, (com 0–7, row 0–15, on) → void
         }
+        matrix.show()                                                    // write the shadow RAM to the chip, () → void
+        Thread.sleep(1000)
     }
 }

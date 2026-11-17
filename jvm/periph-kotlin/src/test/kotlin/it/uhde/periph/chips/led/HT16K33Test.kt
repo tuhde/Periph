@@ -3,90 +3,95 @@ package it.uhde.periph.chips.led
 import it.uhde.periph.connection.MockConnection
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class HT16K33Test {
 
-    private fun zeros21(): ByteArray = ByteArray(21)
+    private fun b(vararg v: Int): ByteArray = ByteArray(v.size) { v[it].toByte() }
 
-    private fun lastWrite(connection: MockConnection): ByteArray {
-        val writes = connection.writes()
-        return writes[writes.size - 1]
-    }
+    private fun lastWrite(c: MockConnection): ByteArray = c.writes().last()
 
     @Test
     fun fullApi() {
-        val connection = MockConnection()
-        val sensor = HT16K33Full(connection)
+        val c = MockConnection()
+        val d = HT16K33Full(c)
 
-        // init: mode-set (E=1, bias=1/3, mode=1:4 -> 0x40|0x08|0x00|0x00 = 0x48),
-        // then load-ptr(0) + 20 zero bytes to blank all RAM.
-        assertArrayEquals(byteArrayOf(0x48), connection.writes()[0])
-        assertArrayEquals(zeros21(), connection.writes()[1])
+        assertArrayEquals(b(0x21), c.writes()[0])
+        assertArrayEquals(b(0xA0), c.writes()[1])
+        assertArrayEquals(b(0xEF), c.writes()[2])
+        assertArrayEquals(ByteArray(17), c.writes()[3])
+        assertArrayEquals(b(0x81), c.writes()[4])
 
-        sensor.clear()
-        val writes = connection.writes()
-        assertArrayEquals(byteArrayOf(0x48), writes[writes.size - 2])
-        assertArrayEquals(zeros21(), writes[writes.size - 1])
+        d.setPixel(1, 9)
+        d.show()
+        val exp = ByteArray(17)
+        exp[1 + 3] = 0x02
+        assertArrayEquals(exp, lastWrite(c))
+        assertTrue(d.getPixel(1, 9))
+        assertFalse(d.getPixel(1, 8))
+        d.setPixel(7, 15)
+        d.setPixel(1, 9, false)
+        assertFalse(d.getPixel(1, 9))
+        assertTrue(d.getPixel(7, 15))
+        assertThrows(IllegalArgumentException::class.java) { d.setPixel(8, 0) }
+        assertThrows(IllegalArgumentException::class.java) { d.setPixel(0, 16) }
 
-        sensor.writeRaw(5, byteArrayOf(0xAB.toByte(), 0xCD.toByte()))
-        assertArrayEquals(byteArrayOf(0x05, 0xAB.toByte(), 0xCD.toByte()), lastWrite(connection))
+        d.clear()
+        assertArrayEquals(ByteArray(17), lastWrite(c))
+        d.writeRaw(b(0xAB, 0xCD), 4)
+        assertArrayEquals(b(0x04, 0xAB, 0xCD), lastWrite(c))
+        var n = c.writes().size
+        assertThrows(IllegalArgumentException::class.java) { d.writeRaw(b(0, 0, 0), 14) }
+        assertThrows(IllegalArgumentException::class.java) { d.writeRaw(b(), 0) }
+        assertEquals(n, c.writes().size)
 
-        val nBefore = connection.writes().size
-        sensor.writeRaw(3, ByteArray(0))
-        assertEquals(nBefore, connection.writes().size, "writeRaw with empty data should be a no-op")
+        d.setBrightness(7)
+        assertArrayEquals(b(0xE7), lastWrite(c))
+        assertThrows(IllegalArgumentException::class.java) { d.setBrightness(16) }
 
-        // digit '7' -> 0xE0, at RAM address 3*2=6.
-        sensor.setDigit7seg(3, HT16K33Minimal.SEVEN_SEG[7])
-        assertArrayEquals(byteArrayOf(0x06, 0xE0.toByte()), lastWrite(connection))
+        d.setBlink(1.0)
+        assertArrayEquals(b(0x85), lastWrite(c))
+        d.setBlink(0.5)
+        assertArrayEquals(b(0x87), lastWrite(c))
+        d.setBlink(2.0)
+        assertArrayEquals(b(0x83), lastWrite(c))
+        assertThrows(IllegalArgumentException::class.java) { d.setBlink(3.0) }
+        d.displayOff()
+        assertArrayEquals(b(0x82), lastWrite(c))
+        d.displayOn()
+        assertArrayEquals(b(0x83), lastWrite(c))
+        d.setBlink(0.0)
 
-        sensor.disable()
-        assertArrayEquals(byteArrayOf(0x40), lastWrite(connection))
-        sensor.enable()
-        assertArrayEquals(byteArrayOf(0x48), lastWrite(connection))
+        d.setIntOutput(true, false)
+        assertArrayEquals(b(0xA1), lastWrite(c))
+        d.setIntOutput(true, true)
+        assertArrayEquals(b(0xA3), lastWrite(c))
 
-        // setMode(): mode-set byte = 0x40 | E(0x08) | bias | mode.
-        sensor.setMode(HT16K33Full.BACKPLANES_1, HT16K33Full.BIAS_1_2_FULL)
-        assertArrayEquals(byteArrayOf(0x4D), lastWrite(connection)) // 0x40|8|4|1
+        d.standby()
+        assertArrayEquals(b(0x20), lastWrite(c))
+        n = c.writes().size
+        d.wake()
+        val w = c.writes()
+        assertArrayEquals(b(0x21), w[n])
+        assertArrayEquals(b(0xA3), w[n + 1])
+        assertArrayEquals(b(0xE7), w[n + 2])
+        assertEquals(17, w[n + 3].size)
+        assertArrayEquals(b(0x81), w[n + 4])
 
-        sensor.setMode(HT16K33Full.BACKPLANES_2, HT16K33Full.BIAS_1_3_FULL)
-        assertArrayEquals(byteArrayOf(0x4A), lastWrite(connection)) // 0x40|8|0|2
-
-        sensor.setMode(HT16K33Full.BACKPLANES_3, HT16K33Full.BIAS_1_3_FULL)
-        assertArrayEquals(byteArrayOf(0x4B), lastWrite(connection)) // 0x40|8|0|3
-
-        sensor.setMode(HT16K33Full.BACKPLANES_4, HT16K33Full.BIAS_1_3_FULL)
-        assertArrayEquals(byteArrayOf(0x48), lastWrite(connection)) // 0x40|8|0|0
-
-        sensor.setBlink(HT16K33Full.BLINK_1_HZ, alternateBank = false)
-        assertArrayEquals(byteArrayOf(0x72), lastWrite(connection)) // 0x70|0|2
-
-        sensor.setBlink(HT16K33Full.BLINK_2_HZ, alternateBank = true)
-        assertArrayEquals(byteArrayOf(0x75), lastWrite(connection)) // 0x70|4|1
-
-        sensor.setBank(1, 0)
-        assertArrayEquals(byteArrayOf(0x7A), lastWrite(connection)) // 0x78|(1<<1)|0
-
-        sensor.deviceSelect(5)
-        assertArrayEquals(byteArrayOf(0x65), lastWrite(connection)) // 0x60|5
-    }
-
-    // Kotlin's `protected` is subclass-only (unlike Java's, which also
-    // allows same-package access), so a small test-only subclass is the way
-    // to reach the field below.
-    private class BackplanesAccess(connection: MockConnection) : HT16K33Minimal(connection) {
-        fun backplanesValue() = backplanes
-    }
-
-    @Test
-    fun minimalInitMatchesDefaultBackplanes() {
-        // Regression test for a bug where HT16K33Minimal's `backplanes` field
-        // defaulted to MODE_1_4 (0x00, a drive-mode bit pattern) instead of
-        // the backplane count 4 - harmless only by coincidence, since
-        // HT16K33Full.modeCode()'s default arm also happens to return
-        // MODE_1_4.
-        val connection = MockConnection()
-        val sensor = BackplanesAccess(connection)
-        assertEquals(4, sensor.backplanesValue())
+        c.queueRead(b(0x01, 0x00, 0x00, 0x10, 0x00, 0x00))
+        val keys = d.readKeys()
+        assertArrayEquals(b(0x40), lastWrite(c))
+        assertEquals(1L or (1L shl 25), keys)
+        c.queueRead(b(0x01))
+        assertTrue(d.keyPressed())
+        assertArrayEquals(b(0x60), lastWrite(c))
+        c.queueRead(b(0x00))
+        assertEquals(0L, d.pollInterrupt())
+        c.queueRead(b(0x01))
+        c.queueRead(b(0, 0, 0, 0, 0x01, 0))
+        assertEquals(1L shl 26, d.pollInterrupt())
     }
 }

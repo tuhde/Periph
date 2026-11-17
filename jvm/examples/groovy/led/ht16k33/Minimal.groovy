@@ -8,18 +8,18 @@ import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.led.HT16K33Minimal
 
 int bus  = System.getenv("I2C_BUS")  ? System.getenv("I2C_BUS").toInteger()  : 1
-String addrStr = System.getenv("I2C_ADDR") ?: "0x38"
+String addrStr = System.getenv("I2C_ADDR") ?: "0x70"
 int addr = Integer.decode(addrStr)
 
-I2CConnection connection = new I2CConnection(bus, addr)                         // open I²C bus, (bus, address=0x38) → I2CConnection
+I2CConnection connection = new I2CConnection(bus, addr)                         // open I²C bus, (bus, address=0x70) → I2CConnection
 try {
-    def lcd = new HT16K33Minimal(connection)                                    // construct driver, (connection) → HT16K33Minimal
+    def matrix = new HT16K33Minimal(connection)                      // construct driver, (connection) → HT16K33Minimal
 
-    int[] digits = [1, 2, 3, 4]
-    for (int i = 0; i < digits.length; i++) {
-        int seg = HT16K33Minimal.SEVEN_SEG[digits[i]]                          // encode 7-segment digit, (digit 0–9) → int
-        lcd.setDigit7seg(i, seg)                                                // write one digit, (position 0–19, segments 0–255) → void
+    for (int row = 0; row < HT16K33Minimal.ROWS; row++) {
+        matrix.setPixel(0, row)                                      // set one LED in the shadow RAM, (com 0–7, row 0–15, on) → void
     }
+    matrix.show()                                                    // write the shadow RAM to the chip, () → void
+    Thread.sleep(1000)
 } finally {
     connection.close()
 }

@@ -4,43 +4,50 @@
 //DEPS it.uhde:periph-connection:1.5.0
 //DEPS it.uhde:periph-kotlin:1.5.0
 
-import it.uhde.periph.chips.led.HT16K33Full
 import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.led.HT16K33Full
+import it.uhde.periph.chips.led.HT16K33Minimal
 
 fun main() {
     val bus  = System.getenv("I2C_BUS")?.toInt()  ?: 1
-    val addr = System.getenv("I2C_ADDR")?.let { Integer.decode(it) } ?: 0x38
-    I2CConnection(bus, addr).use { connection ->
+    val addr = System.getenv("I2C_ADDR")?.let { Integer.decode(it) } ?: 0x70
+    I2CConnection(bus, addr).use { connection ->                                   // open I²C bus, (bus, address=0x70) → I2CConnection
+        // --- Scrolling pixel, brightness sweep, blink and key matrix on a 16x8 matrix ---
+        // A single lit pixel visits all 16 x 8 positions, the brightness is swept from
+        // 0 to 15, the display blinks at 2, 1 and 0.5 Hz, then key presses are reported
+        // for 20 s via the INT output before standby and wake.
+        val matrix = HT16K33Full(connection)                         // construct driver, (connection) → HT16K33Full
 
-        // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
-        // The HT16K33 drives four 7-segment digits from a single I2C bus; the host
-        // encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
-        // and writes all four with one writeRaw() call. The countdown runs once per
-        // second and the terminal mirrors the value sent to the display.
-        val lcd = HT16K33Full(connection)                                          // construct driver, (connection) → HT16K33Full
-
-        for (n in 9999 downTo 0) {
-            val d0 = (n / 1000) % 10
-            val d1 = (n / 100) % 10
-            val d2 = (n / 10) % 10
-            val d3 = n % 10
-            val out = byteArrayOf(
-                HT16K33Full.SEVEN_SEG[d0].toByte(),                               // encode 7-segment digit, (digit 0–9) → int
-                HT16K33Full.SEVEN_SEG[d1].toByte(),                               // encode 7-segment digit, (digit 0–9) → int
-                HT16K33Full.SEVEN_SEG[d2].toByte(),                               // encode 7-segment digit, (digit 0–9) → int
-                HT16K33Full.SEVEN_SEG[d3].toByte(),                               // encode 7-segment digit, (digit 0–9) → int
-            )
-            lcd.writeRaw(0, out)                                                  // write all four digits, (address 0, 4 bytes) → void
-            println("countdown: %04d".format(n))
-            Thread.sleep(1000)
+        for (com in 0 until HT16K33Minimal.COMMONS) {
+            for (row in 0 until HT16K33Minimal.ROWS) {
+                matrix.clear()                                           // blank the display, () → void
+                matrix.setPixel(com, row, true)                          // set one LED, (com 0–7, row 0–15, on) → void
+                matrix.show()                                            // write the shadow RAM, () → void
+                Thread.sleep(50)
+            }
         }
 
-        // --- Stop indicator: light only the middle segments (g) on every digit ---
-        // When the counter reaches zero we replace the "0000" pattern with "----" to
-        // signal that the demo has finished. Each digit's g segment is bit 1, so a
-        // 0x02 byte lights just the bar across the middle.
-        val dash = byteArrayOf(0x02, 0x02, 0x02, 0x02)
-        lcd.writeRaw(0, dash)                                                     // write dash pattern, (address 0, 4 bytes) → void
-        println("countdown complete")
+        val allOn = ByteArray(16) { 0xFF.toByte() }
+        matrix.writeRaw(allOn, 0)                                        // all LEDs on, (data, address) → void
+        for (level in 0 until 16) {
+            matrix.setBrightness(level)                                  // sweep dimming, (level 0–15) → void
+            Thread.sleep(100)
+        }
+
+        for (f in doubleArrayOf(2.0, 1.0, 0.5, 0.0)) {
+            matrix.setBlink(f)                                           // set blink frequency, (0, 0.5, 1, 2 Hz) → void
+            Thread.sleep(3000)
+        }
+
+        matrix.setIntOutput(true, false)                                 // INT output, active low, (enable, activeHigh) → void
+        for (i in 0 until 1000) {                                  // 1000 x 20 ms = 20 s
+            val keys = matrix.pollInterrupt()                           // read keys if pending, () → long bitmask
+            if (keys != 0L) println("keys: 0x" + keys.toString(16))
+            Thread.sleep(20)
+        }
+
+        matrix.standby()                                                 // oscillator off, () → void
+        Thread.sleep(1000)
+        matrix.wake()                                                    // oscillator on, state restored, () → void
     }
 }

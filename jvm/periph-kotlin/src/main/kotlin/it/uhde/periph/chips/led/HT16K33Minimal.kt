@@ -4,108 +4,106 @@ import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
- * HT16K33 — 40x4 universal LCD segment driver (minimal driver).
+ * HT16K33 — 16 x 8 LED matrix driver (minimal driver).
  *
- * Drives a single 7-segment LCD display (static or 1:4 multiplex) out of
- * the box. The chip is write-only — the host never reads back. I2C address
- * is 0x38 (SA0 = VSS) or 0x39 (SA0 = VDD).
+ * Drives up to 16 ROW x 8 COM = 128 LEDs through a 16-byte display RAM that
+ * is shadowed in the driver. I2C address 0x70 (A0-A2 select 0x70-0x77).
  *
- * Default configuration: 1:4 multiplex drive mode, 1/3 bias, display
- * enabled, and a 7-segment digit lookup table for the default multiplex mode.
+ * Defaults baked in at construction: oscillator on, ROW15 pin as a ROW
+ * output, brightness 16/16, blink off, RAM cleared, display on.
  */
-open class HT16K33Minimal(protected val connection: Connection) {
+open class HT16K33Minimal @Throws(IOException::class) constructor(protected val connection: Connection) {
 
     companion object {
-        const val ADDR_SA0_LOW  = 0x38
-        const val ADDR_SA0_HIGH = 0x39
+        const val COMMONS = 8
+        const val ROWS    = 16
 
-        const val CMD_MODE_SET      = 0x40
-        const val CMD_LOAD_PTR      = 0x00
-        const val CMD_DEVICE_SELECT = 0x60
-        const val CMD_BANK_SELECT   = 0x78
-        const val CMD_BLINK_SELECT  = 0x70
-
-        const val MODE_1_4    = 0x00
-        const val MODE_STATIC = 0x01
-        const val MODE_1_2    = 0x02
-        const val MODE_1_3    = 0x03
-
-        const val BIAS_1_3 = 0x00
-        const val BIAS_1_2 = 0x04
-
-        const val DISPLAY_OFF = 0x00
-        const val DISPLAY_ON  = 0x08
-
-        val SEVEN_SEG = intArrayOf(
-            0xED, 0x60, 0xA7, 0xE3, 0x6A,
-            0xCB, 0xCF, 0xE0, 0xEF, 0xEB,
-        )
+        const val CMD_SYSTEM  = 0x20
+        const val CMD_DISPLAY = 0x80
+        const val CMD_DIMMING = 0xE0
+        const val CMD_KEY_PTR = 0x40
+        const val CMD_INT_PTR = 0x60
     }
 
-    // Backplane count (1/2/3/4), not a MODE_* bit pattern - default matches
-    // the 1:4 multiplex drive mode this constructor initialises the chip to.
-    protected var backplanes: Int = 4
+    protected val ram = ByteArray(16)
+    protected var brightnessLevel: Int = 15
+    protected var blinkCode: Int = 0
+    protected var displayEnabled: Boolean = true
+    protected var rowInt: Int = 0xA0
 
     init {
-        doClear()
+        command(CMD_SYSTEM or 0x01)
+        command(rowInt)
+        command(CMD_DIMMING or brightnessLevel)
+        show()
+        applyDisplay()
     }
 
-    protected fun cmdMode(enable: Boolean, bias: Int, mode: Int): Int {
-        return CMD_MODE_SET or (if (enable) DISPLAY_ON else DISPLAY_OFF) or bias or mode
+    @Throws(IOException::class)
+    protected fun command(b: Int) {
+        connection.write(byteArrayOf(b.toByte()))
     }
 
-    protected fun sendCommands(vararg cmds: Int) {
-        val buf = ByteArray(cmds.size)
-        for (i in cmds.indices) {
-            buf[i] = if (i + 1 < cmds.size) {
-                (0x80 or (cmds[i] and 0x7F)).toByte()
-            } else {
-                (cmds[i] and 0x7F).toByte()
-            }
-        }
-        connection.write(buf)
+    @Throws(IOException::class)
+    protected fun applyDisplay() {
+        command(CMD_DISPLAY or (blinkCode shl 1) or (if (displayEnabled) 1 else 0))
     }
 
-    protected fun sendCommandsWithData(cmd: Int, data: ByteArray) {
-        val buf = ByteArray(1 + data.size)
-        buf[0] = (cmd and 0x7F).toByte()
-        System.arraycopy(data, 0, buf, 1, data.size)
-        connection.write(buf)
-    }
-
-    private fun doClear() {
-        sendCommands(cmdMode(true, BIAS_1_3, MODE_1_4))
-        val zeros = ByteArray(20)
-        sendCommandsWithData(CMD_LOAD_PTR, zeros)
-    }
-
-    /**
-     * Zero all 40 columns of display RAM; all segments off.
-     */
+    /** Zero the shadow RAM and write it to the chip. */
+    @Throws(IOException::class)
     fun clear() {
-        doClear()
+        ram.fill(0)
+        show()
     }
 
     /**
-     * Set the data pointer to [address] and write raw data bytes.
+     * Set or clear one LED in the shadow RAM (does not write to the chip).
      *
-     * @param address RAM column address, 0-39
-     * @param data    bytes to write to display RAM; one byte covers two
-     *                adjacent columns in 1:4 multiplex mode
+     * @param com COM line, 0-7
+     * @param row ROW line, 0-15
+     * @param on true to light the LED
+     * @throws IllegalArgumentException if com or row is out of range
      */
-    fun writeRaw(address: Int, data: ByteArray) {
-        if (data.isEmpty()) return
-        sendCommandsWithData(CMD_LOAD_PTR or (address and 0x3F), data)
+    fun setPixel(com: Int, row: Int, on: Boolean = true) {
+        require(com in 0..7) { "com must be in 0..7" }
+        require(row in 0..15) { "row must be in 0..15" }
+        val idx = 2 * com + (row shr 3)
+        val mask = 1 shl (row and 7)
+        ram[idx] = if (on) (ram[idx].toInt() or mask).toByte() else (ram[idx].toInt() and mask.inv()).toByte()
     }
 
     /**
-     * Write one 7-segment byte at column [position] * 2.
+     * Write raw RAM bytes at [address] and update the shadow RAM.
      *
-     * @param position digit index, 0-19. Maps to RAM address [position] * 2
-     * @param segments 7-segment byte (a/c/b/DP/f/e/g/d packed, MSB-first).
-     *                 Add 0x10 to set the decimal point.
+     * @param data 1-16 bytes of display data
+     * @param address start RAM address, 0-15
+     * @throws IllegalArgumentException if data is empty or address + length exceeds 16
      */
-    fun setDigit7seg(position: Int, segments: Int) {
-        writeRaw(position * 2, byteArrayOf((segments and 0xFF).toByte()))
+    @Throws(IOException::class)
+    fun writeRaw(data: ByteArray, address: Int = 0) {
+        require(data.isNotEmpty() && address >= 0 && address + data.size <= 16) {
+            "address + data.size must be within 0..16"
+        }
+        data.copyInto(ram, address)
+        connection.write(byteArrayOf(address.toByte()) + data)
+    }
+
+    /** Write the whole 16-byte shadow RAM to the chip. */
+    @Throws(IOException::class)
+    fun show() {
+        connection.write(byteArrayOf(0) + ram)
+    }
+
+    /**
+     * Set the dimming level.
+     *
+     * @param level 0-15, giving (level + 1)/16 duty
+     * @throws IllegalArgumentException if level is out of range
+     */
+    @Throws(IOException::class)
+    fun setBrightness(level: Int) {
+        require(level in 0..15) { "level must be in 0..15" }
+        brightnessLevel = level
+        command(CMD_DIMMING or level)
     }
 }

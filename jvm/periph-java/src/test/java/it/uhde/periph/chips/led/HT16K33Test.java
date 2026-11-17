@@ -5,11 +5,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HT16K33Test {
 
-    private static byte[] zeros21() {
-        return new byte[21];
+    private static byte[] b(int... v) {
+        byte[] r = new byte[v.length];
+        for (int i = 0; i < v.length; i++) r[i] = (byte) v[i];
+        return r;
     }
 
     private static byte[] lastWrite(MockConnection connection) {
@@ -19,70 +24,82 @@ class HT16K33Test {
 
     @Test
     void fullApi() throws Exception {
-        MockConnection connection = new MockConnection();
-        HT16K33Full sensor = new HT16K33Full(connection);
+        MockConnection c = new MockConnection();
+        HT16K33Full d = new HT16K33Full(c);
 
-        // init: mode-set (E=1, bias=1/3, mode=1:4 -> 0x40|0x08|0x00|0x00 = 0x48),
-        // then load-ptr(0) + 20 zero bytes to blank all RAM.
-        assertArrayEquals(new byte[]{0x48}, connection.writes().get(0));
-        assertArrayEquals(zeros21(), connection.writes().get(1));
+        assertArrayEquals(b(0x21), c.writes().get(0));
+        assertArrayEquals(b(0xA0), c.writes().get(1));
+        assertArrayEquals(b(0xEF), c.writes().get(2));
+        assertArrayEquals(new byte[17], c.writes().get(3));
+        assertArrayEquals(b(0x81), c.writes().get(4));
 
-        sensor.clear();
-        var writes = connection.writes();
-        assertArrayEquals(new byte[]{0x48}, writes.get(writes.size() - 2));
-        assertArrayEquals(zeros21(), writes.get(writes.size() - 1));
+        d.setPixel(1, 9, true);
+        d.show();
+        byte[] exp = new byte[17];
+        exp[1 + 3] = 0x02;
+        assertArrayEquals(exp, lastWrite(c));
+        assertTrue(d.getPixel(1, 9));
+        assertFalse(d.getPixel(1, 8));
+        d.setPixel(7, 15);
+        d.setPixel(1, 9, false);
+        assertFalse(d.getPixel(1, 9));
+        assertTrue(d.getPixel(7, 15));
+        assertThrows(IllegalArgumentException.class, () -> d.setPixel(8, 0));
+        assertThrows(IllegalArgumentException.class, () -> d.setPixel(0, 16));
 
-        sensor.writeRaw(5, new byte[]{(byte) 0xAB, (byte) 0xCD});
-        assertArrayEquals(new byte[]{0x05, (byte) 0xAB, (byte) 0xCD}, lastWrite(connection));
+        d.clear();
+        assertArrayEquals(new byte[17], lastWrite(c));
+        d.writeRaw(b(0xAB, 0xCD), 4);
+        assertArrayEquals(b(0x04, 0xAB, 0xCD), lastWrite(c));
+        int n = c.writes().size();
+        assertThrows(IllegalArgumentException.class, () -> d.writeRaw(b(0, 0, 0), 14));
+        assertThrows(IllegalArgumentException.class, () -> d.writeRaw(b(), 0));
+        assertEquals(n, c.writes().size());
 
-        int nBefore = connection.writes().size();
-        sensor.writeRaw(3, new byte[0]);
-        assertEquals(nBefore, connection.writes().size(), "writeRaw with empty data should be a no-op");
+        d.setBrightness(7);
+        assertArrayEquals(b(0xE7), lastWrite(c));
+        assertThrows(IllegalArgumentException.class, () -> d.setBrightness(16));
 
-        // digit '7' -> 0xE0, at RAM address 3*2=6.
-        sensor.setDigit7seg(3, HT16K33Minimal.SEVEN_SEG[7]);
-        assertArrayEquals(new byte[]{0x06, (byte) 0xE0}, lastWrite(connection));
+        d.setBlink(1);
+        assertArrayEquals(b(0x85), lastWrite(c));
+        d.setBlink(0.5);
+        assertArrayEquals(b(0x87), lastWrite(c));
+        d.setBlink(2);
+        assertArrayEquals(b(0x83), lastWrite(c));
+        assertThrows(IllegalArgumentException.class, () -> d.setBlink(3));
+        d.displayOff();
+        assertArrayEquals(b(0x82), lastWrite(c));
+        d.displayOn();
+        assertArrayEquals(b(0x83), lastWrite(c));
+        d.setBlink(0);
 
-        sensor.disable();
-        assertArrayEquals(new byte[]{0x40}, lastWrite(connection));
-        sensor.enable();
-        assertArrayEquals(new byte[]{0x48}, lastWrite(connection));
+        d.setIntOutput(true, false);
+        assertArrayEquals(b(0xA1), lastWrite(c));
+        d.setIntOutput(true, true);
+        assertArrayEquals(b(0xA3), lastWrite(c));
 
-        // setMode(): mode-set byte = 0x40 | E(0x08) | bias | mode.
-        sensor.setMode(HT16K33Full.BACKPLANES_1, HT16K33Full.BIAS_1_2_FULL);
-        assertArrayEquals(new byte[]{0x4D}, lastWrite(connection)); // 0x40|8|4|1
+        d.standby();
+        assertArrayEquals(b(0x20), lastWrite(c));
+        n = c.writes().size();
+        d.wake();
+        var w = c.writes();
+        assertArrayEquals(b(0x21), w.get(n));
+        assertArrayEquals(b(0xA3), w.get(n + 1));
+        assertArrayEquals(b(0xE7), w.get(n + 2));
+        assertEquals(17, w.get(n + 3).length);
+        assertArrayEquals(b(0x81), w.get(n + 4));
 
-        sensor.setMode(HT16K33Full.BACKPLANES_2, HT16K33Full.BIAS_1_3_FULL);
-        assertArrayEquals(new byte[]{0x4A}, lastWrite(connection)); // 0x40|8|0|2
-
-        sensor.setMode(HT16K33Full.BACKPLANES_3, HT16K33Full.BIAS_1_3_FULL);
-        assertArrayEquals(new byte[]{0x4B}, lastWrite(connection)); // 0x40|8|0|3
-
-        sensor.setMode(HT16K33Full.BACKPLANES_4, HT16K33Full.BIAS_1_3_FULL);
-        assertArrayEquals(new byte[]{0x48}, lastWrite(connection)); // 0x40|8|0|0
-
-        sensor.setBlink(HT16K33Full.BLINK_1_HZ, false);
-        assertArrayEquals(new byte[]{0x72}, lastWrite(connection)); // 0x70|0|2
-
-        sensor.setBlink(HT16K33Full.BLINK_2_HZ, true);
-        assertArrayEquals(new byte[]{0x75}, lastWrite(connection)); // 0x70|4|1
-
-        sensor.setBank(1, 0);
-        assertArrayEquals(new byte[]{0x7A}, lastWrite(connection)); // 0x78|(1<<1)|0
-
-        sensor.deviceSelect(5);
-        assertArrayEquals(new byte[]{0x65}, lastWrite(connection)); // 0x60|5
-    }
-
-    @Test
-    void minimalInitMatchesDefaultBackplanes() throws Exception {
-        // Regression test for a bug where HT16K33Minimal's `backplanes` field
-        // defaulted to MODE_1_4 (0x00, a drive-mode bit pattern) instead of
-        // the backplane count 4 - harmless only by coincidence, since
-        // HT16K33Full.modeCode()'s default arm also happens to return
-        // MODE_1_4.
-        MockConnection connection = new MockConnection();
-        HT16K33Minimal sensor = new HT16K33Minimal(connection);
-        assertEquals(4, sensor.backplanes);
+        c.queueRead(b(0x01, 0x00, 0x00, 0x10, 0x00, 0x00));
+        long keys = d.readKeys();
+        assertArrayEquals(b(0x40), lastWrite(c));
+        assertEquals(1L | (1L << 25), keys);
+        c.queueRead(b(0x01));
+        assertTrue(d.keyPressed());
+        assertArrayEquals(b(0x60), lastWrite(c));
+        c.queueRead(b(0x00));
+        assertEquals(0L, d.pollInterrupt());
+        c.queueRead(b(0x01));
+        c.queueRead(b(0, 0, 0, 0, 0x01, 0));
+        assertEquals(1L << 26, d.pollInterrupt());
     }
 }

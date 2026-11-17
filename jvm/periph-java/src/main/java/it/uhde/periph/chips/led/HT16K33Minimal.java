@@ -5,137 +5,132 @@ import it.uhde.periph.connection.Connection;
 import java.io.IOException;
 
 /**
- * HT16K33 — 40x4 universal LCD segment driver (minimal driver).
+ * HT16K33 — 16 x 8 LED matrix driver (minimal driver).
  *
- * <p>Drives a single 7-segment LCD display (static or 1:4 multiplex) out of
- * the box. The chip is write-only — the host never reads back. I2C address is
- * 0x38 (SA0 = VSS) or 0x39 (SA0 = VDD).
+ * <p>Drives up to 16 ROW x 8 COM = 128 LEDs through a 16-byte display RAM that
+ * is shadowed in the driver. I2C address 0x70 (A0-A2 select 0x70-0x77).
  *
- * <p>Default configuration: 1:4 multiplex drive mode, 1/3 bias, display
- * enabled, and a 7-segment digit lookup table for the default multiplex mode.
+ * <p>Defaults baked in at construction: oscillator on, ROW15 pin as a ROW
+ * output, brightness 16/16, blink off, RAM cleared, display on.
  */
 public class HT16K33Minimal {
 
-    public static final int ADDR_SA0_LOW  = 0x38;
-    public static final int ADDR_SA0_HIGH = 0x39;
+    public static final int COMMONS = 8;
+    public static final int ROWS    = 16;
 
-    public static final int CMD_MODE_SET      = 0x40;
-    public static final int CMD_LOAD_PTR      = 0x00;
-    public static final int CMD_DEVICE_SELECT = 0x60;
-    public static final int CMD_BANK_SELECT   = 0x78;
-    public static final int CMD_BLINK_SELECT  = 0x70;
-
-    public static final int MODE_1_4    = 0x00;
-    public static final int MODE_STATIC = 0x01;
-    public static final int MODE_1_2    = 0x02;
-    public static final int MODE_1_3    = 0x03;
-
-    public static final int BIAS_1_3 = 0x00;
-    public static final int BIAS_1_2 = 0x04;
-
-    public static final int DISPLAY_OFF = 0x00;
-    public static final int DISPLAY_ON  = 0x08;
-
-    public static final int[] SEVEN_SEG = {
-        0xED, 0x60, 0xA7, 0xE3, 0x6A,
-        0xCB, 0xCF, 0xE0, 0xEF, 0xEB,
-    };
+    protected static final int CMD_SYSTEM  = 0x20;
+    protected static final int CMD_DISPLAY = 0x80;
+    protected static final int CMD_DIMMING = 0xE0;
+    protected static final int CMD_KEY_PTR = 0x40;
+    protected static final int CMD_INT_PTR = 0x60;
 
     protected final Connection connection;
-    // Backplane count (1/2/3/4), not a MODE_* bit pattern - default matches
-    // the 1:4 multiplex drive mode this constructor initialises the chip to.
-    protected int backplanes = 4;
+    protected final byte[] ram = new byte[16];
+    protected int brightness = 15;
+    protected int blink = 0;
+    protected boolean display = true;
+    protected int rowInt = 0xA0;
 
     /**
-     * Construct the driver and initialise the chip with defaults.
+     * Construct the driver and run the initialization sequence.
      *
      * @param connection I2C connection bound to the HT16K33 address
      * @throws IOException on I2C error
      */
     public HT16K33Minimal(Connection connection) throws IOException {
         this.connection = connection;
-        doClear();
+        command(CMD_SYSTEM | 0x01);
+        command(rowInt);
+        command(CMD_DIMMING | brightness);
+        show();
+        applyDisplay();
+    }
+
+    protected void command(int b) throws IOException {
+        connection.write(new byte[]{(byte) b});
+    }
+
+    protected void applyDisplay() throws IOException {
+        command(CMD_DISPLAY | (blink << 1) | (display ? 1 : 0));
     }
 
     /**
-     * @param enable display enable flag
-     * @param bias   bias bits
-     * @param mode   drive mode bits
-     * @return the mode-set command byte
+     * Zero the shadow RAM and write it to the chip.
+     *
+     * @throws IOException on I2C error
      */
-    protected int cmdMode(boolean enable, int bias, int mode) {
-        return CMD_MODE_SET | (enable ? DISPLAY_ON : DISPLAY_OFF) | bias | mode;
+    public void clear() throws IOException {
+        java.util.Arrays.fill(ram, (byte) 0);
+        show();
     }
 
     /**
-     * Send one or more command bytes; the last byte carries C=0, all others C=1.
+     * Set or clear one LED in the shadow RAM (does not write to the chip).
+     *
+     * @param com COM line, 0-7
+     * @param row ROW line, 0-15
+     * @param on  true to light the LED
+     * @throws IllegalArgumentException if com or row is out of range
      */
-    protected void sendCommands(int... cmds) throws IOException {
-        byte[] buf = new byte[cmds.length];
-        for (int i = 0; i < cmds.length; i++) {
-            if (i + 1 < cmds.length) {
-                buf[i] = (byte) (0x80 | (cmds[i] & 0x7F));
-            } else {
-                buf[i] = (byte) (cmds[i] & 0x7F);
-            }
+    public void setPixel(int com, int row, boolean on) {
+        if (com < 0 || com > 7) throw new IllegalArgumentException("com must be in 0..7");
+        if (row < 0 || row > 15) throw new IllegalArgumentException("row must be in 0..15");
+        int idx = 2 * com + (row >> 3);
+        int mask = 1 << (row & 7);
+        if (on) ram[idx] |= (byte) mask;
+        else ram[idx] &= (byte) ~mask;
+    }
+
+    /**
+     * Light one LED in the shadow RAM (does not write to the chip).
+     *
+     * @param com COM line, 0-7
+     * @param row ROW line, 0-15
+     */
+    public void setPixel(int com, int row) {
+        setPixel(com, row, true);
+    }
+
+    /**
+     * Write raw RAM bytes at {@code address} and update the shadow RAM.
+     *
+     * @param data    1-16 bytes of display data
+     * @param address start RAM address, 0-15
+     * @throws IllegalArgumentException if data is empty or address + length exceeds 16
+     * @throws IOException on I2C error
+     */
+    public void writeRaw(byte[] data, int address) throws IOException {
+        if (data.length < 1 || address < 0 || address + data.length > 16) {
+            throw new IllegalArgumentException("address + data.length must be within 0..16");
         }
-        connection.write(buf);
-    }
-
-    /**
-     * Send a single command byte followed by data bytes.
-     */
-    protected void sendCommandsWithData(int cmd, byte[] data) throws IOException {
+        System.arraycopy(data, 0, ram, address, data.length);
         byte[] buf = new byte[1 + data.length];
-        buf[0] = (byte) (cmd & 0x7F);
+        buf[0] = (byte) address;
         System.arraycopy(data, 0, buf, 1, data.length);
         connection.write(buf);
     }
 
     /**
-     * Issue the device-select command for the given subaddress.
-     */
-    protected void sendCommand(int cmd) throws IOException {
-        sendCommands(cmd);
-    }
-
-    private void doClear() throws IOException {
-        sendCommands(cmdMode(true, BIAS_1_3, MODE_1_4));
-        byte[] zeros = new byte[20];
-        sendCommandsWithData(CMD_LOAD_PTR, zeros);
-    }
-
-    /**
-     * Zero all 40 columns of display RAM; all segments off.
+     * Write the whole 16-byte shadow RAM to the chip.
      *
      * @throws IOException on I2C error
      */
-    public void clear() throws IOException {
-        doClear();
+    public void show() throws IOException {
+        byte[] buf = new byte[17];
+        System.arraycopy(ram, 0, buf, 1, 16);
+        connection.write(buf);
     }
 
     /**
-     * Set the data pointer to {@code address} and write raw data bytes.
+     * Set the dimming level.
      *
-     * @param address RAM column address, 0-39
-     * @param data    bytes to write to display RAM; one byte covers two
-     *                adjacent columns in 1:4 multiplex mode
+     * @param level 0-15, giving (level + 1)/16 duty
+     * @throws IllegalArgumentException if level is out of range
      * @throws IOException on I2C error
      */
-    public void writeRaw(int address, byte[] data) throws IOException {
-        if (data == null || data.length == 0) return;
-        sendCommandsWithData(CMD_LOAD_PTR | (address & 0x3F), data);
-    }
-
-    /**
-     * Write one 7-segment byte at column {@code position * 2}.
-     *
-     * @param position digit index, 0-19. Maps to RAM address {@code position * 2}
-     * @param segments 7-segment byte (a/c/b/DP/f/e/g/d packed, MSB-first).
-     *                 Add 0x10 to set the decimal point.
-     * @throws IOException on I2C error
-     */
-    public void setDigit7seg(int position, int segments) throws IOException {
-        writeRaw(position * 2, new byte[]{(byte) (segments & 0xFF)});
+    public void setBrightness(int level) throws IOException {
+        if (level < 0 || level > 15) throw new IllegalArgumentException("level must be in 0..15");
+        brightness = level;
+        command(CMD_DIMMING | level);
     }
 }

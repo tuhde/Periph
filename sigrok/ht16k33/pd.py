@@ -1,16 +1,8 @@
 import sigrokdecode as srd
 
-ADDRS = {0x38, 0x39}
+ADDRS = set(range(0x70, 0x78))
 
-CMD_MODE_SET       = 0x40
-CMD_LOAD_PTR       = 0x00
-CMD_DEVICE_SELECT  = 0x60
-CMD_BANK_SELECT    = 0x78
-CMD_BLINK_SELECT   = 0x70
-
-MODE_NAMES = {0: '1:4', 1: 'static', 2: '1:2', 3: '1:3'}
-BIAS_NAMES = {0: '1/3 bias', 1: '1/2 bias'}
-BLINK_FREQ = {0: 'off', 1: '~2 Hz', 2: '~1 Hz', 3: '~0.5 Hz'}
+BLINK_FREQ = {0: 'off', 1: '2 Hz', 2: '1 Hz', 3: '0.5 Hz'}
 
 ANN_CMD = 0
 ANN_DATA = 1
@@ -65,16 +57,16 @@ class Decoder(srd.Decoder):
     api_version = 3
     id = 'ht16k33'
     name = 'HT16K33'
-    longname = 'HT16K33 40x4 universal LCD segment driver'
-    desc = 'Decode HT16K33 I2C command-stream transactions.'
+    longname = 'HT16K33 16x8 LED matrix driver with key scan'
+    desc = 'Decode HT16K33 I2C command, display RAM and key data transfers.'
     license = 'gplv2+'
     inputs = ['i2c']
     outputs = ['ht16k33']
-    tags = ['IC', 'Display', 'LCD']
+    tags = ['IC', 'Display', 'LED']
 
     annotations = (
         ('cmd',     'Command'),
-        ('data',    'Display data'),
+        ('data',    'Display / key data'),
         ('warning', 'Warning'),
     )
     annotation_rows = (
@@ -121,8 +113,11 @@ class Decoder(srd.Decoder):
     def reset(self):
         self.state    = 'IDLE'
         self.addr     = None
-        self.cmds     = []
+        self.is_read  = False
+        self.cmd      = None
         self.databuf  = []
+        self.last_ptr = None
+        self.standby  = False
         self.ss_block = None
         self.ss       = None
         self.es       = None
@@ -134,60 +129,81 @@ class Decoder(srd.Decoder):
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
-    def _decode_mode_set(self, raw):
-        e = (raw >> 3) & 1
-        b = (raw >> 2) & 1
-        m = raw & 3
-        e_s = 'on' if e else 'off'
-        return 'mode-set 0x%02X: E=%s bias=%s mode=%s' % (
-            raw, e_s, BIAS_NAMES[b], MODE_NAMES[m])
-
-    def _decode_load_ptr(self, raw):
-        return 'load-data-pointer 0x%02X: addr=%d' % (raw, raw & 0x3F)
-
-    def _decode_device_select(self, raw):
-        return 'device-select 0x%02X: subaddress=%d' % (raw, raw & 0x07)
-
-    def _decode_bank_select(self, raw):
-        i = (raw >> 1) & 1
-        o = raw & 1
-        return 'bank-select 0x%02X: input=%d output=%d' % (raw, i, o)
-
-    def _decode_blink_select(self, raw):
-        ab = (raw >> 2) & 1
-        bf = raw & 3
-        ab_s = ' (alt bank)' if ab else ''
-        return 'blink-select 0x%02X: freq=%s%s' % (raw, BLINK_FREQ[bf], ab_s)
-
     def _decode_command(self, raw):
-        if raw & 0xF0 == CMD_MODE_SET:
-            return self._decode_mode_set(raw)
-        if raw & 0xC0 == CMD_LOAD_PTR:
-            return self._decode_load_ptr(raw)
-        if raw & 0xF8 == CMD_DEVICE_SELECT:
-            return self._decode_device_select(raw)
-        if raw & 0xFC == CMD_BANK_SELECT:
-            return self._decode_bank_select(raw)
-        if raw & 0xFC == CMD_BLINK_SELECT:
-            return self._decode_blink_select(raw)
+        """Return a label for a command byte (None for display-address bytes)."""
+        if raw == 0xD9:
+            return 'test mode 0xD9'
+        hi = raw & 0xF0
+        if hi == 0x00:
+            return 'display address pointer 0x%02X' % (raw & 0x0F)
+        if hi == 0x20:
+            return 'system setup 0x%02X: oscillator %s' % (raw, 'on' if raw & 1 else 'off (standby)')
+        if hi == 0x40:
+            return 'key data address pointer 0x%02X' % raw
+        if hi == 0x60:
+            return 'INT flag address pointer 0x%02X' % raw
+        if hi == 0x80:
+            return 'display setup 0x%02X: display %s, blink %s' % (
+                raw, 'on' if raw & 1 else 'off', BLINK_FREQ[(raw >> 1) & 3])
+        if hi == 0xA0:
+            if raw & 1:
+                return 'ROW/INT set 0x%02X: INT output, active %s' % (raw, 'high' if raw & 2 else 'low')
+            return 'ROW/INT set 0x%02X: ROW15 output' % raw
+        if hi == 0xE0:
+            return 'dimming set 0x%02X: %d/16 duty' % (raw, (raw & 0x0F) + 1)
         return 'unknown command 0x%02X' % raw
 
+    def _keys(self, buf):
+        keys = []
+        for k in range(min(3, len(buf) // 2)):
+            word = (buf[2 * k] | (buf[2 * k + 1] << 8)) & 0x1FFF
+            for n in range(13):
+                if word >> n & 1:
+                    keys.append('KS%d/K%d' % (k, n + 1))
+        return keys
+
     def _finish_transaction(self):
-        if self.state not in ('GET_CMD', 'GET_DATA'):
+        if self.state not in ('GET_CMD', 'GET_DATA', 'GET_READ'):
             return
         ss, es = self.ss_block, self.es
-        if self.cmds:
-            labels = [self._decode_command(c) for c in self.cmds]
-            label = 'Cmd: ' + ' → '.join(labels)
-            short = 'C' if len(self.cmds) == 1 else 'C(%d)' % len(self.cmds)
-            self.put(ss, es, self.out_ann, [ANN_CMD, [label, short]])
-        if self.databuf:
-            if len(self.databuf) == 1:
-                dshort = '0x%02X' % self.databuf[0]
+        if self.is_read:
+            if self.last_ptr == 0x40:
+                keys = self._keys(self.databuf)
+                label = 'Keys: ' + (', '.join(keys) if keys else 'none')
+                label += ' [' + ' '.join('0x%02X' % b for b in self.databuf) + ']'
+            elif self.last_ptr == 0x60:
+                label = 'INT flag: %d' % (self.databuf[0] & 1 if self.databuf else 0)
             else:
-                dshort = 'data[%d]' % len(self.databuf)
-            dlong = 'Display data: ' + ' '.join('0x%02X' % b for b in self.databuf)
+                label = 'Read: ' + ' '.join('0x%02X' % b for b in self.databuf)
+            self.put(ss, es, self.out_ann, [ANN_DATA, [label, 'Rd']])
+            return
+        if self.cmd is None:
+            return
+        raw = self.cmd
+        label = self._decode_command(raw)
+        if raw == 0xD9:
+            self._warn(ss, es, 'Test mode command 0xD9 is for Holtek use only')
+        if self.standby and (raw & 0xF0) != 0x20:
+            self._warn(ss, es, 'Command 0x%02X after standby: only system setup is accepted' % raw)
+        if (raw & 0xF0) == 0x20:
+            self.standby = not (raw & 1)
+        if (raw & 0xF0) in (0x40, 0x60):
+            self.last_ptr = raw & 0xF0
+        self.put(ss, es, self.out_ann, [ANN_CMD, ['Cmd: ' + label, 'C']])
+        if (raw & 0xF0) == 0x00 and self.databuf:
+            start = raw & 0x0F
+            if start + len(self.databuf) > 16:
+                self._warn(ss, es, 'Display data past RAM address 0x0F wraps around (address %d + %d bytes)' % (
+                    start, len(self.databuf)))
+            parts = []
+            for i, b in enumerate(self.databuf):
+                a = (start + i) & 0x0F
+                parts.append('COM%d %s: 0x%02X' % (a >> 1, 'ROW8-15' if a & 1 else 'ROW0-7', b))
+            dlong = 'Display RAM: ' + ', '.join(parts)
+            dshort = 'data[%d]' % len(self.databuf)
             self.put(ss, es, self.out_ann, [ANN_DATA, [dlong, dshort]])
+        elif self.databuf:
+            self._warn(ss, es, 'Unexpected data bytes after command 0x%02X' % raw)
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -195,8 +211,9 @@ class Decoder(srd.Decoder):
 
         if ptype in ('START', 'START REPEAT'):
             self._finish_transaction()
-            self.cmds    = []
+            self.cmd     = None
             self.databuf = []
+            self.is_read = False
             self.ss_block = ss
             self.state    = 'GET_ADDR'
 
@@ -208,27 +225,25 @@ class Decoder(srd.Decoder):
                 return
             self.addr = addr
             if ptype == 'ADDRESS READ':
-                self._warn(ss, es, 'HT16K33 is write-only; saw ADDRESS READ')
-                self.state = 'IDLE'
+                self.is_read = True
+                self.state = 'GET_READ'
             else:
                 self.state = 'GET_CMD'
 
         elif ptype == 'DATA WRITE':
-            byte = pdata
             if self.state == 'GET_CMD':
-                if byte & 0x80:
-                    self.cmds.append(byte & 0x7F)
-                else:
-                    self.cmds.append(byte & 0x7F)
-                    self.state = 'GET_DATA'
+                self.cmd = pdata
+                self.state = 'GET_DATA'
             elif self.state == 'GET_DATA':
-                self.databuf.append(byte)
+                self.databuf.append(pdata)
 
         elif ptype == 'DATA READ':
-            self._warn(ss, es, 'HT16K33 is write-only; saw DATA READ')
+            if self.state == 'GET_READ':
+                self.databuf.append(pdata)
 
         elif ptype == 'STOP':
             self._finish_transaction()
             self.state   = 'IDLE'
-            self.cmds    = []
+            self.cmd     = None
             self.databuf = []
+            self.is_read = False
