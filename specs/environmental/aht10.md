@@ -121,13 +121,13 @@ humidity_pct  = raw_rh / 2^20 * 100                  # 0..100 %RH (resolution 0.
 temperature_c = raw_t  / 2^20 * 200 - 50             # -50..150 °C (specified -40..85 °C)
 ```
 
-Example: `raw_t = 0x6B700` → 439040 / 1048576 × 200 − 50 = 33.7 °C. Humidity is clamped to 0–100 %RH.
+Example: `raw_t = 0x6B300` → 439040 / 1048576 × 200 − 50 = 33.7 °C. Humidity is clamped to 0–100 %RH.
 
 Dew point (Full): `γ = ln(RH/100) + 17.62·T / (243.12 + T)`, `Td = 243.12·γ / (17.62 − γ)`.
 
 ## Node-RED
 
-Node name: `periph-aht10`  
+Node name: `aht10` (config node `aht10-device`)  
 Package: `node-red-contrib-periph-environmental`
 
 | Input trigger | Output `msg.payload` fields | Notes |
@@ -138,7 +138,7 @@ Config panel fields: I²C bus number, address (`0x38`).
 
 ### Demo flow
 
-Inject node (every 5 s) → `periph-aht10` → function node formatting `"25.3 °C / 48.1 %RH"` → debug node; a second branch feeds temperature and humidity gauge widgets.
+Inject node (every 5 s) → `aht10` → function node formatting `"25.3 °C / 48.1 %RH"` → debug node; a second branch feeds temperature and humidity gauge widgets.
 
 ## Examples
 
@@ -177,114 +177,112 @@ Decoder id `aht10`, input `['i2c']`. Matches I²C address `0x38`. Decodes the co
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/environmental/aht10.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/environmental/aht10/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/environmental/aht10/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/environmental/aht10/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/environmental/aht10_test.py` (MicroPython)
-- [ ] Tests `python/tests/environmental/aht10_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/environmental/aht10_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/environmental/aht10_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `python/periph/chips/environmental/aht10.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/environmental/aht10/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/environmental/aht10/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/environmental/aht10/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/environmental/aht10_test.py` (MicroPython, CircuitPython and Linux — one shared `i2c_auto`-based test, as for AHT21)
+- [x] Unit test `python/tests/environmental/aht10_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/environmental/aht10/aht10.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/environmental/aht10/aht10_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/environmental/aht10/aht10.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/environmental/aht10/aht10.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/environmental/aht10/aht10_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [x] Generated `python/uiflow1/environmental/aht10/aht10.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/environmental/aht10/AHT10.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [x] Wrapper class `python/uiflow2/environmental/aht10/AHT10.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
 - [ ] Exported `python/uiflow2/environmental/aht10/AHT10.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/environmental/AHT10.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/environmental/AHT10.cpp`
-- [ ] Examples `cpp/examples/arduino/environmental/AHT10/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/environmental/AHT10/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/environmental/AHT10/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/environmental/AHT10/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/environmental/AHT10/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/environmental/AHT10/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/environmental/AHT10/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/environmental/AHT10/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/environmental/AHT10/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/environmental/AHT10/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/environmental/AHT10/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/environmental/AHT10/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/environmental/AHT10/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/stm32cube/environmental/AHT10/minimal/Core/Src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/environmental/AHT10/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/stm32cube/environmental/AHT10/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/environmental/AHT10/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/stm32cube/environmental/AHT10/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/environmental/aht10_test/aht10_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/environmental/aht10_test_linux/aht10_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/environmental/aht10_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/environmental/aht10_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/environmental/aht10_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Tests `cpp/tests/environmental/aht10_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
-- [ ] Unit test `cpp/tests/environmental/aht10_test_unit/aht10_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/environmental/AHT10.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/environmental/AHT10.cpp`
+- [x] Examples `cpp/examples/arduino/environmental/AHT10/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/environmental/AHT10/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/environmental/AHT10/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
+- [x] Examples `cpp/examples/linux/environmental/AHT10/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/environmental/AHT10/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/environmental/AHT10/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/environmental/AHT10/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/environmental/AHT10/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/environmental/AHT10/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/environmental/AHT10/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/environmental/AHT10/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/environmental/AHT10/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/environmental/AHT10/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/environmental/AHT10/minimal/Core/Src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/environmental/AHT10/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/environmental/AHT10/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/environmental/AHT10/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/environmental/AHT10/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/environmental/aht10_test/aht10_test.ino` (Arduino)
+- [x] Tests `cpp/tests/environmental/aht10_test_linux/aht10_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/environmental/aht10_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/environmental/aht10_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/environmental/aht10_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/environmental/aht10_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
+- [x] Unit test `cpp/tests/environmental/aht10_test_unit/aht10_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/environmental/aht10.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/environmental/aht10/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/environmental/aht10/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/environmental/aht10/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/environmental/aht10_test.js`
-- [ ] Unit test `nodejs/tests/environmental/aht10_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/environmental/aht10.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/environmental/aht10/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/environmental/aht10/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/environmental/aht10/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/environmental/aht10_test.js`
+- [x] Unit test `nodejs/tests/environmental/aht10_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht10/aht10.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht10/aht10.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-environmental/examples/aht10/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht10/aht10.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht10/aht10.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-environmental/examples/aht10/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/environmental/aht10.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/environmental/aht10/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/environmental/aht10/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/environmental/aht10/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/environmental/aht10_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/environmental/aht10_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/environmental/aht10.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `rust/periph/src/chips/environmental/aht10.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/linux/environmental/aht10/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/environmental/aht10/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/environmental/aht10/demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/environmental/aht10_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/environmental/aht10_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/environmental/aht10.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Go
-- [ ] Driver `go/periph/chips/environmental/aht10.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/environmental/aht10/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/environmental/aht10/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/environmental/aht10/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/environmental/aht10/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/environmental/aht10/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/environmental/aht10/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/environmental/aht10_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/environmental/aht10_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/environmental/aht10_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/environmental/aht10.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/linux/environmental/aht10/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/environmental/aht10/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/environmental/aht10/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/environmental/aht10/minimal/minimal.go` — Tier-1 (TinyGo)
+- [x] Examples `go/examples/tinygo/environmental/aht10/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [x] Examples `go/examples/tinygo/environmental/aht10/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [x] Tests `go/tests/environmental/aht10_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [x] Tests `go/tests/environmental/aht10_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [x] Unit test `go/periph/chips/environmental/aht10_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/environmental/AHT10Minimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/environmental/AHT10Full.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/environmental/AHT10Minimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/environmental/AHT10Full.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/environmental/AHT10Minimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/environmental/AHT10Full.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/environmental/aht10/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/environmental/aht10/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/environmental/aht10/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/environmental/aht10/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/environmental/aht10/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/environmental/aht10/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/environmental/aht10/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/environmental/aht10/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/environmental/aht10/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/environmental/aht10/AHT10Test.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/environmental/AHT10Test.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/environmental/AHT10Test.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/environmental/AHT10Spec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/environmental/Aht10Minimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/environmental/Aht10Full.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/environmental/Aht10Minimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/environmental/Aht10Full.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/environmental/Aht10Minimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/environmental/Aht10Full.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/environmental/aht10/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/environmental/aht10/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/environmental/aht10/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/environmental/aht10/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/environmental/aht10/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/environmental/aht10/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/environmental/aht10/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/environmental/aht10/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/environmental/aht10/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/environmental/aht10/Aht10Test.{java,kt,groovy}` (Pi hardware, JBang)
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/environmental/Aht10Test.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/environmental/Aht10Test.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/environmental/Aht10Spec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
-- [ ] Decoder `sigrok/aht10/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/aht10/pd.py` — annotates the command byte and the 2-byte result per the Sigrok Decoder section — for the conformance-checked Timing Constraints above, emits the named `conversion_start` / `conversion_done` annotation pair
+- [x] Decoder `sigrok/aht10/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/aht10/pd.py` — annotates the command byte and the 2-byte result per the Sigrok Decoder section — for the conformance-checked Timing Constraints above, emits the named `measurement_start` / `measurement_done` annotation pair
 
 ### Conformance
-- [ ] Checker `conformance/environmental/aht10_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
-- [ ] Timing config `specs/environmental/aht10_timing.conf`
-- [ ] Decoder `sigrok/aht10/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
+- [x] Checker `conformance/environmental/aht10_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [x] Timing config `specs/environmental/aht10_timing.conf`
+- [x] Decoder `sigrok/aht10/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
