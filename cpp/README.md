@@ -57,6 +57,7 @@ Each chip exposes two classes:
 | ADS7828 | ADC/DAC | `chips/adc_dac/ADS7828.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
+| AHT10 | Environmental sensor | `chips/environmental/AHT10.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | AM2315 | Environmental sensor | `chips/environmental/AM2315.h` |
 | APA102 | LED driver | `chips/led/APA102.h` |
