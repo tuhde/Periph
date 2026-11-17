@@ -473,6 +473,10 @@
       "github:tuhde/Periph/python/periph/chips/power/lc709203f.py"
     ],
     [
+      "periph/chips/power/lm25066.py",
+      "github:tuhde/Periph/python/periph/chips/power/lm25066.py"
+    ],
+    [
       "periph/chips/pressure/bmp085.py",
       "github:tuhde/Periph/python/periph/chips/pressure/bmp085.py"
     ],

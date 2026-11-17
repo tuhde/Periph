@@ -109,6 +109,7 @@ Each chip exposes two structs:
 | L3GD20H | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
 | LC709203F | Power monitor | 1-cell lithium-ion / polymer battery fuel gauge ("Smart LiB Gauge", onsemi). |
 | LIS3DH | Accelerometer | 3-axis ultra-low-power MEMS accelerometer (STMicroelectronics). |
+| LM25066 | Power monitor | Hot-swap controller / PMBus power monitor (Texas Instruments). |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor (STMicroelectronics). |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |

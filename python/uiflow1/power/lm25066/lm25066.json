@@ -1,0 +1,388 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lm25066_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init LM25066",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "sense resistor (mOhm)",
+          "type": "label"
+        },
+        {
+          "name": "_rsense",
+          "type": "number"
+        },
+        {
+          "name": "CL pin at VDD (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_clhigh",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_voltage_in",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 VIN (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_voltage_out",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 VOUT (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_current",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 input current (A)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_power",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 input power (W)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 MOSFET temperature (C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_voltage_aux",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 VAUX pin voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_voltage_in_avg",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 averaged VIN (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_voltage_out_avg",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 averaged VOUT (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_current_avg",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 averaged input current (A)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_power_avg",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 averaged input power (W)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_power_peak",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 peak input power (W)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_clear_power_peak",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 clear peak power",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_averaging",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 set averaging exponent (0-12)",
+          "type": "label"
+        },
+        {
+          "name": "_exponent",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_get_averaging",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 averaging exponent",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_vin_ov_warn",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 VIN over-voltage warning (V)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_vin_uv_warn",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 VIN under-voltage warning (V)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_vout_uv_warn",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 VOUT under-voltage warning (V)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_ot_warn",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 over-temperature warning (C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_ot_fault",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 over-temperature fault (C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_iin_warn",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 input over-current warning (A)",
+          "type": "label"
+        },
+        {
+          "name": "_amps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_set_pin_warn",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 input over-power warning (W)",
+          "type": "label"
+        },
+        {
+          "name": "_watts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_status_word",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 STATUS_WORD",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_diagnostic_word",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 diagnostic word",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_clear_faults",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 clear faults",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_operation_on",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 switch MOSFET ON",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_operation_off",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 switch MOSFET OFF (cuts the load)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_is_on",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 MOSFET is on",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 unmask alert source (ALERT_MASK bits)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LM25066 mask alert source (ALERT_MASK bits)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lm25066_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "LM25066 alert flags (diagnostic word)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

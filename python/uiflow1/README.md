@@ -97,6 +97,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [INA226](power/ina226/) | power | `ina226_init`, `ina226_read_voltage`, `ina226_read_current`, `ina226_read_power` |
 | [INA260](power/ina260/) | power | `ina260_init`, `ina260_read_voltage`, `ina260_read_current`, `ina260_read_power` |
 | [LC709203F](power/lc709203f/) | power | `lc709203f_init`, `lc709203f_read_voltage`, `lc709203f_read_percent`, `lc709203f_read_temperature` and setters (RSOC, temperature, alarms, profile, sleep/wake) |
+| [LM25066](power/lm25066/) | power | `lm25066_init`, `lm25066_voltage_in`, `lm25066_voltage_out`, `lm25066_current`, `lm25066_power`, `lm25066_temperature` and averaging, warning limits, fault clearing, MOSFET on/off, alert masks |
 | [INA3221](power/ina3221/) | power | `ina3221_init`, `ina3221_read_voltage`, `ina3221_read_current`, `ina3221_read_power` (each takes a `_channel` param) |
 | [BMP180](pressure/bmp180/) | pressure | `bmp180_init`, `bmp180_read_temperature`, `bmp180_read_pressure`, `bmp180_read_altitude` |
 | [BMP280](pressure/bmp280/) | pressure | `bmp280_init`, `bmp280_read_temperature`, `bmp280_read_pressure`, `bmp280_read_altitude` |

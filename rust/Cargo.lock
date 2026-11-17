@@ -2499,6 +2499,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "lm25066_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lm25066_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lm25066_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lm25066_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "lps22df_complete"
 version = "0.1.0"
 dependencies = [
