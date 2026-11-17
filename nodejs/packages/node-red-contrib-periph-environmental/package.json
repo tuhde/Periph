@@ -17,6 +17,7 @@
       "aht20": "nodes/aht20/aht20.js",
       "aht21": "nodes/aht21/aht21.js",
       "am2315": "nodes/am2315/am2315.js",
+      "am2320": "nodes/am2320/am2320.js",
       "bme280": "nodes/bme280/bme280.js",
       "bme680": "nodes/bme680/bme680.js"
     }

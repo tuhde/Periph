@@ -82,6 +82,7 @@
 #include "chips/environmental/AHT20.h"
 #include "chips/environmental/AHT21.h"
 #include "chips/environmental/AM2315.h"
+#include "chips/environmental/AM2320.h"
 #include "chips/environmental/BME280.h"
 #include "chips/environmental/BME680.h"
 #include "chips/gas/ENS160.h"

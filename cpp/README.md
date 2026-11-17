@@ -61,6 +61,7 @@ Each chip exposes two classes:
 | AHT20 | Environmental sensor | `chips/environmental/AHT20.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | AM2315 | Environmental sensor | `chips/environmental/AM2315.h` |
+| AM2320 | Environmental sensor | `chips/environmental/AM2320.h` |
 | APA102 | LED driver | `chips/led/APA102.h` |
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |

@@ -384,7 +384,7 @@ static constexpr ChipEntry kChips[] = {
     {"ssd1306", "ssd1306", true, false, kAddr_ssd1306, 2, nullptr},
     {"uc1611s", "uc1611s", true, false, kAddr_uc1611s, 8, nullptr},
     {"am2315", "am2315", true, false, kAddr_am2315, 1, nullptr},
-    {"am2320", nullptr, true, false, kAddr_am2320, 1, nullptr},
+    {"am2320", "am2320", true, false, kAddr_am2320, 1, nullptr},
     {"aht10", "aht10", true, false, kAddr_aht10, 1, nullptr},
     {"aht20", "aht20", true, false, kAddr_aht20, 1, nullptr},
     {"aht21", "aht21", true, false, kAddr_aht21, 1, nullptr},
