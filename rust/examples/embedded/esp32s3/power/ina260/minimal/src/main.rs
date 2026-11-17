@@ -3,6 +3,7 @@
 
 use esp_backtrace as _;
 use esp_bootloader_esp_idf::esp_app_desc;
+use embedded_hal::delay::DelayNs;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;

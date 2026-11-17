@@ -104,9 +104,9 @@ async function main() {
     }
     d = await only(new FakeBus({ 0x52: { 0x00: 0x60, 0x01: 0x01 } }));
     checkTrue('identify_ens160_little_endian', d.identified === 'ens160');
-    d = await only(new FakeBus({ 0x41: { 0xff: 0x22, 0x100: 0x60 } }));
+    d = await only(new FakeBus({ 0x43: { 0xff: 0x22, 0x100: 0x60 } }));
     checkTrue('identify_ina226_die_id', d.identified === 'ina226');
-    d = await only(new FakeBus({ 0x41: { 0xff: 0x32, 0x100: 0x20 } }));
+    d = await only(new FakeBus({ 0x43: { 0xff: 0x32, 0x100: 0x20 } }));
     checkTrue('identify_ina3221_die_id', d.identified === 'ina3221');
     bus = new FakeBus({ 0x48: { 0x0f: 0x01, 0x10: 0x17 } });
     d = await only(bus);
