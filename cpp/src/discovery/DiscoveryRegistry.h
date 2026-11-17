@@ -303,6 +303,28 @@ static constexpr uint8_t kAddr_htu31d[] = {0x40, 0x41};
 static constexpr uint8_t kAddr_bh1750[] = {0x23, 0x5C};
 static constexpr uint8_t kAddr_ms5607[] = {0x76, 0x77};
 static constexpr uint8_t kAddr_ms5611[] = {0x76, 0x77};
+static constexpr uint8_t kAddr_pca9685[] = {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
+static constexpr uint8_t kAddr_spl06[] = {0x76, 0x77};
+static constexpr uint32_t kExp_spl06[] = {0x10};
+static constexpr IdProbe kProbe_spl06 = {0x0D, 1, 1, false, 0xFF, kExp_spl06, 1};
+static constexpr uint8_t kAddr_si1132[] = {0x60};
+static constexpr uint32_t kExp_si1132[] = {0x32};
+static constexpr IdProbe kProbe_si1132 = {0x00, 1, 1, false, 0xFF, kExp_si1132, 1};
+static constexpr uint8_t kAddr_si1133[] = {0x52, 0x55};
+static constexpr uint32_t kExp_si1133[] = {0x33};
+static constexpr IdProbe kProbe_si1133 = {0x00, 1, 1, false, 0xFF, kExp_si1133, 1};
+static constexpr uint8_t kAddr_si1145[] = {0x60};
+static constexpr uint32_t kExp_si1145[] = {0x45, 0x46, 0x47};
+static constexpr IdProbe kProbe_si1145 = {0x00, 1, 1, false, 0xFF, kExp_si1145, 3};
+static constexpr uint8_t kAddr_tsl2591[] = {0x29};
+static constexpr uint32_t kExp_tsl2591[] = {0x50};
+static constexpr IdProbe kProbe_tsl2591 = {0xB2, 1, 1, false, 0xFF, kExp_tsl2591, 1};
+static constexpr uint8_t kAddr_scd30[] = {0x61};
+static constexpr uint8_t kAddr_rrh46410[] = {0x38};
+static constexpr uint8_t kAddr_pn532[] = {0x24};
+static constexpr uint8_t kAddr_st25dv[] = {0x57};
+static constexpr uint32_t kExp_st25dv[] = {0x24, 0x26};
+static constexpr IdProbe kProbe_st25dv = {0x17, 2, 1, false, 0xFF, kExp_st25dv, 2};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -467,8 +489,18 @@ static constexpr ChipEntry kChips[] = {
     {"bh1750", nullptr, true, false, kAddr_bh1750, 2, nullptr},
     {"ms5607", nullptr, true, false, kAddr_ms5607, 2, nullptr},
     {"ms5611", nullptr, true, false, kAddr_ms5611, 2, nullptr},
+    {"pca9685", nullptr, false, false, kAddr_pca9685, 55, nullptr},
+    {"spl06", nullptr, false, false, kAddr_spl06, 2, &kProbe_spl06},
+    {"si1132", nullptr, false, false, kAddr_si1132, 1, &kProbe_si1132},
+    {"si1133", nullptr, false, false, kAddr_si1133, 2, &kProbe_si1133},
+    {"si1145", nullptr, false, false, kAddr_si1145, 1, &kProbe_si1145},
+    {"tsl2591", nullptr, true, false, kAddr_tsl2591, 1, &kProbe_tsl2591},
+    {"scd30", nullptr, true, false, kAddr_scd30, 1, nullptr},
+    {"rrh46410", nullptr, true, false, kAddr_rrh46410, 1, nullptr},
+    {"pn532", nullptr, true, false, kAddr_pn532, 1, nullptr},
+    {"st25dv", nullptr, false, false, kAddr_st25dv, 1, &kProbe_st25dv},
 };
-static constexpr size_t kChipCount = 162;
+static constexpr size_t kChipCount = 172;
 
 }  // namespace discovery
 }  // namespace periph

@@ -228,6 +228,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCA9536 | IO expander (4-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA9539 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA9541 | I²C master selector (2-to-1, dual-master failover) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCA9685 | 16-channel 12-bit PWM LED/servo controller (I²C, 24–1526 Hz, phase shift, all-call) | | | | | | | | |
 | PCF2116 | LCD controller/driver (character, 24x2 / 12x4, PCF2116/PCF2114 family) |  |  |  |  |  |  |  |  |
 | PCF85063A | Real-time clock (alarm, timer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -241,20 +242,28 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8578 | LCD dot-matrix row/column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8579 | LCD dot-matrix column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8591 | 8-bit ADC (4-ch) + DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PN532 | NFC/RFID reader/writer controller (ISO 14443 A/B, FeliCa, NFC P2P/card emulation; I²C frame protocol) | | | | | | | | |
 | QMI8658A | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| RRH46410 | Indoor air quality and TVOC sensor module (IAQ index, TVOC, eCO₂, I²C command protocol) | | | | | | | | |
 | SAA1064 | 4-digit LED driver (7-segment, multiplexed, 21 mA sinks) |  |  |  |  |  |  |  |  |
+| SCD30 | NDIR CO₂, humidity and temperature sensor module (I²C, ASC/FRC calibration) | | | | | | | | |
 | SD card (SPI mode) | SD / SDHC / microSD block storage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHTC3 | Humidity and temperature sensor (±2 %RH, ±0.2 °C, sleep mode) |  |  |  |  |  |  |  |  |
+| Si1132 | UV index and ambient light sensor (Si114x family, command interface, interrupt) | | | | | | | | |
+| Si1133 | UV index and ambient light sensor (six measurement channels, 24-bit results, interrupt, preliminary datasheet) | | | | | | | | |
+| Si1145 | Proximity, UV index and ambient light sensor (Si1145/46/47, IR LED driver, interrupt) | | | | | | | | |
 | Si7021 | Humidity + temperature sensor (±3 %RH, ±0.4 °C, heater, command protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SPL06-007 | Barometric pressure and temperature sensor (24-bit, 300–1100 hPa, FIFO, interrupt, I²C/SPI) | | | | | | | | |
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
+| ST25DV | Dynamic NFC/RFID Type 5 tag with 4/16/64 Kbit EEPROM, I²C, mailbox and GPO (ST25DV04K/16K/64K) | | | | | | | | |
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | STDS75 | Digital temperature sensor (9–12-bit, thermostat OS/INT, LM75-compatible) |  |  |  |  |  |  |  |  |
 | TCA9554 | IO expander (8-bit, internal pull-ups) |  |  |  |  |  |  |  |  |
@@ -267,6 +276,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TSL2561 | Ambient light sensor (two photodiodes, lux, interrupt) |  |  |  |  |  |  |  |  |
+| TSL2591 | High-dynamic-range ambient light sensor (600 M:1, 16-bit dual-channel, interrupt) | | | | | | | | |
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

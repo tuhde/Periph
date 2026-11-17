@@ -2471,6 +2471,185 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/pressure/ms5611.pdf"
+    },
+    {
+      "id": "pca9685",
+      "name": "PCA9685",
+      "category": "led",
+      "addresses": [
+        "0x40..0x6F",
+        "0x71..0x77"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/led/pca9685.pdf"
+    },
+    {
+      "id": "spl06",
+      "name": "SPL06-007",
+      "category": "pressure",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": {
+        "register": "0x0D",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x10"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/pressure/spl06.pdf"
+    },
+    {
+      "id": "si1132",
+      "name": "Si1132",
+      "category": "light",
+      "addresses": [
+        "0x60"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x32"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/si1132.pdf"
+    },
+    {
+      "id": "si1133",
+      "name": "Si1133",
+      "category": "light",
+      "addresses": [
+        "0x52",
+        "0x55"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x33"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/si1133.pdf"
+    },
+    {
+      "id": "si1145",
+      "name": "Si1145",
+      "category": "light",
+      "addresses": [
+        "0x60"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x45",
+          "0x46",
+          "0x47"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/si1145.pdf"
+    },
+    {
+      "id": "tsl2591",
+      "name": "TSL2591",
+      "category": "light",
+      "addresses": [
+        "0x29"
+      ],
+      "id_probe": {
+        "register": "0xB2",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x50"
+        ]
+      },
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/light/tsl2591.pdf"
+    },
+    {
+      "id": "scd30",
+      "name": "SCD30",
+      "category": "gas",
+      "addresses": [
+        "0x61"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/scd30.pdf"
+    },
+    {
+      "id": "rrh46410",
+      "name": "RRH46410",
+      "category": "gas",
+      "addresses": [
+        "0x38"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/rrh46410.pdf"
+    },
+    {
+      "id": "pn532",
+      "name": "PN532",
+      "category": "rfid",
+      "addresses": [
+        "0x24"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/rfid/pn532.pdf"
+    },
+    {
+      "id": "st25dv",
+      "name": "ST25DV",
+      "category": "rfid",
+      "addresses": [
+        "0x57"
+      ],
+      "id_probe": {
+        "register": "0x0017",
+        "reg_bytes": 2,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x24",
+          "0x26"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rfid/st25dv.pdf"
     }
   ]
 }
