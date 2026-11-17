@@ -14,7 +14,7 @@ fn main() {
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
 
-    let mut matrix = HT16K33Full::new(dev, ADDR).expect("init HT16K33"); // Create HT16K33 driver, (i2c, addr=0x70)
+    let mut matrix = HT16K33Full::new(dev, addr).expect("init HT16K33"); // Create HT16K33 driver, (i2c, addr=0x70)
 
     matrix.clear().expect("clear"); // Blank the display, () → ()
                                     // zeros the shadow RAM and writes it

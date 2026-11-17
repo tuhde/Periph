@@ -22,7 +22,12 @@ static void check_true(bool cond, const char *label) {
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, TEST_ADDR);
     HT16K33Minimal matrix(connection);
     HT16K33Full full(connection);

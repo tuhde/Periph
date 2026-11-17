@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Conformance checker for HT16K33 (display category). See
+"""Conformance checker for HT16K33 (led category). See
 specs/testing_framework.md, "Conformance Implementation", and
 specs/led/ht16k33_timing.conf for the timing bound checked here.
 

@@ -14,7 +14,7 @@ fn main() {
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
 
-    let mut matrix = HT16K33Minimal::new(dev, ADDR).expect("init HT16K33"); // Create HT16K33 driver, (i2c, addr=0x70)
+    let mut matrix = HT16K33Minimal::new(dev, addr).expect("init HT16K33"); // Create HT16K33 driver, (i2c, addr=0x70)
 
     for row in 0..ROWS {
         matrix.set_pixel(0, row, true); // Set one LED in the shadow RAM, (com 0–7, row 0–15, on) → bool

@@ -18,7 +18,7 @@ fn main() {
     // A single lit pixel visits all 16 x 8 positions, the brightness is swept from
     // 0 to 15, the display blinks at 2, 1 and 0.5 Hz, then key presses are reported
     // for 20 s via the INT output before standby and wake.
-    let mut matrix = HT16K33Full::new(dev, ADDR).expect("init HT16K33"); // Create HT16K33 driver, (i2c, addr=0x70)
+    let mut matrix = HT16K33Full::new(dev, addr).expect("init HT16K33"); // Create HT16K33 driver, (i2c, addr=0x70)
 
     for com in 0..COMMONS {
         for row in 0..ROWS {
