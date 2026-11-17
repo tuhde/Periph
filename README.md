@@ -163,7 +163,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ES8311 | Audio codec (mono ADC + DAC, I²C control) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | FXAS21002C | 3-axis gyroscope (±250…±2000/±4000 dps, 800 Hz, FIFO, rate threshold) |  |  |  |  |  |  |  |  |
 | FXOS8700 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| HDC1008 | Humidity and temperature sensor (14-bit, heater, DRDYn) |  |  |  |  |  |  |  |  |
+| HDC1008 | Humidity and temperature sensor (14-bit, heater, DRDYn) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) |  |  |  |  |  |  |  |  |
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) |  |  |  |  |  |  |  |  |

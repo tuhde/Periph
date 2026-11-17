@@ -91,6 +91,7 @@ Each chip exposes two classes:
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
 | ES8311 | ADC/DAC | `chips/adc_dac/ES8311.h` |
 | FXOS8700 | Accelerometer | `chips/accelerometer/FXOS8700.h` |
+| HDC1008 | Humidity sensor | `chips/humidity/HDC1008.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
 | HTU21DF | Humidity sensor | `chips/humidity/HTU21DF.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |

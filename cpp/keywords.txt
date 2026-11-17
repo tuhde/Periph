@@ -143,6 +143,8 @@ FXOS8700Full	KEYWORD1
 FXOS8700Minimal	KEYWORD1
 Fault	KEYWORD1
 GlobalStatus	KEYWORD1
+HDC1008Full	KEYWORD1
+HDC1008Minimal	KEYWORD1
 HMC5883LFull	KEYWORD1
 HMC5883LMinimal	KEYWORD1
 HTU21DFFull	KEYWORD1
@@ -1126,6 +1128,7 @@ read_channel	KEYWORD2
 read_channel_voltage	KEYWORD2
 read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
+read_config	KEYWORD2
 read_counter	KEYWORD2
 read_customer	KEYWORD2
 read_data	KEYWORD2
@@ -1263,6 +1266,7 @@ sendUbx	KEYWORD2
 send_buffered	KEYWORD2
 send_command	KEYWORD2
 send_data	KEYWORD2
+serial_id	KEYWORD2
 serial_number	KEYWORD2
 service	KEYWORD2
 set	KEYWORD2

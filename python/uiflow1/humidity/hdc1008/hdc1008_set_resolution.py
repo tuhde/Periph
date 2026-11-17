@@ -1,0 +1,1 @@
+_periph_hdc1008.set_resolution(int(${_tbits}), int(${_hbits}))

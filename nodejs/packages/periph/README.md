@@ -81,6 +81,7 @@ Each chip exposes two classes:
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
 | ES8311 | ADC/DAC | `periph/src/chips/adc_dac/es8311` |
 | FXOS8700 | Accelerometer | `periph/src/chips/accelerometer/fxos8700` |
+| HDC1008 | Humidity sensor | `periph/src/chips/humidity/hdc1008` |
 | HMC5883L | Magnetometer | `periph/src/chips/magnetometer/hmc5883l` |
 | HTU21DF | Humidity sensor | `periph/src/chips/humidity/htu21df` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |

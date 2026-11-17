@@ -2195,7 +2195,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "hdc1008",
       "datasheet": "datasheets/humidity/hdc1008.pdf"
     },
     {

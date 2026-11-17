@@ -429,7 +429,7 @@ CHIPS = (
     {"id": "htu21df", "driver": "htu21df", "write_sensitive": False, "aliased": False,
      "addresses": (0x40,),
      "probe": None},
-    {"id": "hdc1008", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "hdc1008", "driver": "hdc1008", "write_sensitive": False, "aliased": False,
      "addresses": (0x40, 0x41, 0x42, 0x43,),
      "probe": None},
     {"id": "hdc1080", "driver": None, "write_sensitive": False, "aliased": False,
