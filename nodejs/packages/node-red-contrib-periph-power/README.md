@@ -31,6 +31,8 @@ npm install node-red-contrib-periph-power
 | `lc709203f` | input | Reads cell voltage, state of charge and temperature from an LC709203F 1-cell Li-ion fuel gauge over I²C. |
 | `periph-lm25066-device` | config | I²C bus and address for a LM25066 |
 | `periph-lm25066` | input | Reads input and output voltage, input current, input power and MOSFET temperature from an LM25066 hot-swap controller over I²C/PMBus. |
+| `periph-ltc4151-device` | config | I²C bus and address for a LTC4151 |
+| `periph-ltc4151` | input | Reads supply voltage, load current and power from an LTC4151 7&ndash;80&nbsp;V high-side power monitor over I²C. |
 
 ## Links
 
