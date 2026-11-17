@@ -1,0 +1,1 @@
+_periph_hdc1080.set_heater(bool(int(${_on})))
