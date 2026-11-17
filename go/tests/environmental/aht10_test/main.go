@@ -1,0 +1,101 @@
+//go:build linux && !tinygo
+
+// AHT10 hardware test — Linux host.
+//
+// Reads from /dev/i2c-N and runs the AHT10 check sequence. Prints
+// PASS/FAIL per check and ends with the standard ===DONE: ... === line.
+// Exits 0 on full pass, 1 on any failure.
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/tuhde/Periph/go/periph/chips/environmental"
+	"github.com/tuhde/Periph/go/periph/connection"
+)
+
+func main() {
+	bus, err := strconv.Atoi(envOr("I2C_BUS", "1"))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "I2C_BUS:", err)
+		os.Exit(2)
+	}
+	addr, err := strconv.ParseUint(envOr("I2C_ADDR", "0x38"), 0, 8)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "I2C_ADDR:", err)
+		os.Exit(2)
+	}
+
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "connection:", err)
+		os.Exit(2)
+	}
+	defer conn.Close()
+
+	chip, err := environmental.NewAHT10Full(conn)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "new:", err)
+		os.Exit(2)
+	}
+
+	passed, failed := 0, 0
+	check := func(label string, cond bool) {
+		if cond {
+			fmt.Println("PASS", label)
+			passed++
+		} else {
+			fmt.Println("FAIL", label)
+			failed++
+		}
+	}
+
+	cal, err := chip.IsCalibrated()
+	check("is_calibrated", err == nil && cal)
+
+	busy, err := chip.IsBusy()
+	check("not_busy_at_idle", err == nil && !busy)
+
+	t, h, err := chip.Read()
+	check("read_temperature_range", err == nil && t >= -40 && t <= 120)
+	check("read_humidity_range", err == nil && h >= 0 && h <= 100)
+
+	tt, err := chip.ReadTemperature()
+	check("read_temperature_only", err == nil && tt >= -40 && tt <= 120)
+
+	hh, err := chip.ReadHumidity()
+	check("read_humidity_only", err == nil && hh >= 0 && hh <= 100)
+
+	rh, rt, err := chip.ReadRaw()
+	check("read_raw_range", err == nil && rh < 1048576 && rt < 1048576)
+	st, err := chip.ReadStatus()
+	check("read_status_calibrated", err == nil && st&0x08 != 0)
+	dew, err := chip.DewPoint()
+	check("dew_point_range", err == nil && dew > -60 && dew < 120)
+
+	if err := chip.SoftReset(); err != nil {
+		fmt.Fprintln(os.Stderr, "soft_reset:", err)
+	}
+	time.Sleep(50 * time.Millisecond)
+	cal, err = chip.IsCalibrated()
+	check("calibrated_after_reset", err == nil && cal)
+
+	t2, h2, err := chip.Read()
+	check("read_after_reset_temperature", err == nil && t2 >= -40 && t2 <= 120)
+	check("read_after_reset_humidity", err == nil && h2 >= 0 && h2 <= 100)
+
+	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
+	if failed != 0 {
+		os.Exit(1)
+	}
+}
+
+func envOr(k, def string) string {
+	if v, ok := os.LookupEnv(k); ok {
+		return v
+	}
+	return def
+}

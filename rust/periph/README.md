@@ -59,6 +59,7 @@ Each chip exposes two structs:
 | ADS7828 | ADC/DAC | 12-bit, 8-channel sampling ADC with internal 2.5 V reference |
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
+| AHT10 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AM2315 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
 | APA102 | LED driver | Addressable RGB LED strip driver. |

@@ -1,0 +1,58 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.5.0
+//DEPS it.uhde:periph-groovy:1.5.0
+
+import groovy.transform.Field
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.environmental.Aht10Full
+
+@Field int passed = 0
+@Field int failed = 0
+
+def checkTrue(String label, boolean condition) {
+    if (condition) { println("PASS $label"); passed++ }
+    else           { println("FAIL $label"); failed++ }
+}
+
+int bus  = (System.getenv('I2C_BUS')  ?: '1').toInteger()
+int addr = Integer.parseInt((System.getenv('I2C_ADDR') ?: '0x38').replaceFirst(/^0[xX]/, ''), 16)
+
+def connection = new I2CConnection(bus, addr)
+try {
+    def aht = new Aht10Full(connection)
+
+    checkTrue('isCalibrated', aht.isCalibrated())
+    checkTrue('not busy at idle', !aht.isBusy())
+
+    double[] r = aht.read()
+    checkTrue('temperature range', r[0] >= -40.0d && r[0] <= 120.0d)
+    checkTrue('humidity range', r[1] >= 0.0d && r[1] <= 100.0d)
+
+    double tr = aht.readTemperature()
+    checkTrue('readTemperature range', tr >= -40.0d && tr <= 120.0d)
+
+    double hr = aht.readHumidity()
+    checkTrue('readHumidity range', hr >= 0.0d && hr <= 100.0d)
+
+    int[] raw = aht.readRaw()
+    checkTrue('readRaw range', raw[0] >= 0 && raw[0] < 1048576 && raw[1] >= 0 && raw[1] < 1048576)
+    checkTrue('readStatusByte calibrated', (aht.readStatusByte() & 0x08) != 0)
+    double dew = aht.dewPoint()
+    checkTrue('dewPoint range', dew > -60.0d && dew < 120.0d)
+
+    aht.softReset()
+    Thread.sleep(50)
+    checkTrue('calibrated after reset', aht.isCalibrated())
+
+    double[] r2 = aht.read()
+    checkTrue('read after reset: temperature range', r2[0] >= -40.0d && r2[0] <= 120.0d)
+    checkTrue('read after reset: humidity range', r2[1] >= 0.0d && r2[1] <= 100.0d)
+
+} finally {
+    connection.close()
+}
+
+println("===DONE: ${passed} passed, ${failed} failed===")
+System.exit(failed == 0 ? 0 : 1)
