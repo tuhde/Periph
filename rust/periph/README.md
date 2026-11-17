@@ -60,6 +60,7 @@ Each chip exposes two structs:
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | AHT10 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
+| AHT20 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AM2315 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
 | APA102 | LED driver | Addressable RGB LED strip driver. |
