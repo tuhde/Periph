@@ -465,6 +465,10 @@
       "github:tuhde/Periph/python/periph/chips/power/ina3221.py"
     ],
     [
+      "periph/chips/power/lc709203f.py",
+      "github:tuhde/Periph/python/periph/chips/power/lc709203f.py"
+    ],
+    [
       "periph/chips/pressure/bmp085.py",
       "github:tuhde/Periph/python/periph/chips/pressure/bmp085.py"
     ],

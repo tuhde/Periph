@@ -1,0 +1,96 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('lc709203f-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '0B', required: true },
+            capacity: { value: '1000', required: true, validate: RED.validators.number() },
+            profile:  { value: '1', required: true }
+        },
+        label: function() {
+            return this.name || ('LC709203F @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lc709203f-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LC709203F">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="0B" style="width:80px"> &nbsp;fixed: 0B (0x0B)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-capacity">Capacity (mAh)</label>
+        <input type="number" id="node-config-input-capacity" min="100" max="3000" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-profile">Battery profile</label>
+        <select id="node-config-input-profile" style="width:100px">
+            <option value="0">0</option>
+            <option value="1">1 (3.7 V / 4.2 V)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('lc709203f', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'lc709203f-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-battery-half',
+        label:   function() { return this.name || 'LC709203F'; },
+        paletteLabel: 'LC709203F'
+    });
+</script>
+
+<script type="text/html" data-template-name="lc709203f">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LC709203F">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="lc709203f">
+    <p>Reads cell voltage, state of charge and temperature from an LC709203F 1-cell Li-ion fuel gauge over I²C.</p>
+    <p>Any input message triggers one reading. The device is configured via an <b>lc709203f-device</b> config node.</p>
+
+    <h3>Input</h3>
+    <dl class="message-properties">
+        <dt class="optional">temperature <span class="property-type">number</span></dt>
+        <dd>Host-supplied cell temperature in °C (I²C temperature mode); written to the gauge before the reading.</dd>
+    </dl>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage_v <span class="property-type">number</span></dt>
+        <dd>Cell voltage in volts.</dd>
+        <dt>payload.percent <span class="property-type">number</span></dt>
+        <dd>State of charge in % (0.1 % resolution).</dd>
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Cell temperature in °C.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>The address is fixed at <code>0x0B</code>. The design capacity (100–3000&nbsp;mAh) selects the APA value and the
+    battery profile selects the data file (profile 1 = 3.7&nbsp;V / 4.2&nbsp;V on <code>-01</code>/<code>-03</code> parts).
+    Every transfer is protected by a CRC-8 that the driver checks. The chip stretches the I²C clock.</p>
+</script>
