@@ -213,6 +213,10 @@
       "github:tuhde/Periph/python/periph/chips/environmental/aht10.py"
     ],
     [
+      "periph/chips/environmental/aht20.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/aht20.py"
+    ],
+    [
       "periph/chips/environmental/aht21.py",
       "github:tuhde/Periph/python/periph/chips/environmental/aht21.py"
     ],
