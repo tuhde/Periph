@@ -436,7 +436,7 @@ static constexpr ChipEntry kChips[] = {
     {"lm25066", nullptr, false, false, kAddr_lm25066, 27, &kProbe_lm25066},
     {"ina219", "ina219", false, false, kAddr_ina219, 16, nullptr},
     {"ina226", "ina226", false, false, kAddr_ina226, 16, &kProbe_ina226},
-    {"ina260", nullptr, false, false, kAddr_ina260, 16, &kProbe_ina260},
+    {"ina260", "ina260", false, false, kAddr_ina260, 16, &kProbe_ina260},
     {"ina3221", "ina3221", false, false, kAddr_ina3221, 4, &kProbe_ina3221},
     {"bmp085", "bmp085", false, false, kAddr_bmp085, 1, &kProbe_bmp085},
     {"bmp180", "bmp180", false, false, kAddr_bmp180, 1, &kProbe_bmp180},

@@ -1,0 +1,330 @@
+import sigrokdecode as srd
+
+ADDRS = set(range(0x40, 0x50))
+
+REGS = {
+    0x00: 'Configuration',
+    0x01: 'Current',
+    0x02: 'Bus Voltage',
+    0x03: 'Power',
+    0x06: 'Mask/Enable',
+    0x07: 'Alert Limit',
+    0xFE: 'Manufacturer ID',
+    0xFF: 'Die ID',
+}
+
+AVG = {0: '1', 1: '4', 2: '16', 3: '64', 4: '128', 5: '256', 6: '512', 7: '1024'}
+
+CT = {
+    0: '140 µs', 1: '204 µs', 2: '332 µs', 3: '588 µs',
+    4: '1.1 ms', 5: '2.116 ms', 6: '4.156 ms', 7: '8.244 ms',
+}
+
+MODE = {
+    0: 'Power-down', 1: 'Shunt triggered', 2: 'Bus triggered',
+    3: 'Shunt+Bus triggered', 4: 'Power-down',
+    5: 'Shunt continuous', 6: 'Bus continuous', 7: 'Shunt+Bus continuous',
+}
+
+ANN_REG_WRITE = 0
+ANN_REG_READ  = 1
+ANN_PTR_WRITE = 2
+ANN_WARNING   = 3
+# Named start/end pair for the "conversion_ready" conformance check (see
+# specs/power/ina260.md, Timing Constraints, and specs/power/ina260_timing.conf):
+# a Configuration-register write clears CVRF (conversion_ready_start); the
+# next Mask/Enable read showing CVRF set marks the conversion as ready
+# (conversion_ready_done). Additive - does not replace the generic
+# reg-write/reg-read annotations emitted alongside these.
+ANN_CONVERSION_READY_START = 4
+ANN_CONVERSION_READY_DONE  = 5
+ANN_STATUS = 6
+
+
+def _decode_config(raw):
+    rst    = (raw >> 15) & 1
+    avg    = (raw >> 9) & 7
+    vbusct = (raw >> 6) & 7
+    ishct  = (raw >> 3) & 7
+    mode   = raw & 7
+    parts = [
+        'Config 0x%04X' % raw,
+        'RST=1' if rst else None,
+        'AVG=%s' % AVG.get(avg, str(avg)),
+        'VBUSCT=%s' % CT.get(vbusct, str(vbusct)),
+        'ISHCT=%s' % CT.get(ishct, str(ishct)),
+        'MODE=%s' % MODE.get(mode, str(mode)),
+    ]
+    return ', '.join(p for p in parts if p is not None)
+
+
+def _decode_mask_enable(raw):
+    alert_funcs = []
+    if raw & (1 << 15): alert_funcs.append('OCL')
+    if raw & (1 << 14): alert_funcs.append('UCL')
+    if raw & (1 << 13): alert_funcs.append('BOL')
+    if raw & (1 << 12): alert_funcs.append('BUL')
+    if raw & (1 << 11): alert_funcs.append('POL')
+    if raw & (1 << 10): alert_funcs.append('CNVR')
+    flags = []
+    if raw & (1 << 4): flags.append('AFF')
+    if raw & (1 << 3): flags.append('CVRF')
+    if raw & (1 << 2): flags.append('OVF')
+    apol = 'active-high' if (raw & 2) else 'active-low'
+    latch = 'latched' if (raw & 1) else 'transparent'
+    parts = ['Mask/Enable 0x%04X' % raw]
+    if alert_funcs:
+        parts.append('alert=%s' % '+'.join(alert_funcs))
+    if flags:
+        parts.append(' '.join(flags))
+    parts.extend([apol, latch])
+    return ', '.join(parts)
+
+
+def _decode_reg(reg, raw):
+    if reg == 0x00:
+        return _decode_config(raw)
+    elif reg == 0x01:
+        signed = raw if raw < 0x8000 else raw - 0x10000
+        return 'Current 0x%04X = %+.2f mA (%+.4f A)' % (raw, signed * 1.25, signed * 1.25e-3)
+    elif reg == 0x02:
+        mv = raw * 1.25
+        return 'Bus 0x%04X = %.2f mV (%.4f V)' % (raw, mv, mv / 1000.0)
+    elif reg == 0x03:
+        return 'Power 0x%04X = %d mW (%.2f W)' % (raw, raw * 10, raw * 10e-3)
+    elif reg == 0x06:
+        return _decode_mask_enable(raw)
+    elif reg == 0x07:
+        return 'Alert Limit 0x%04X' % raw
+    elif reg == 0xFE:
+        ok = ' (TI ✓)' if raw == 0x5449 else ' (expected 0x5449!)'
+        return 'Manufacturer ID 0x%04X%s' % (raw, ok)
+    elif reg == 0xFF:
+        ok = ' (INA260 ✓)' if (raw >> 4) == 0x227 else ' (expected DID 0x227!)'
+        return 'Die ID 0x%04X, DID=0x%03X rev=%d%s' % (raw, raw >> 4, raw & 0xF, ok)
+    return 'Reg[0x%02X] 0x%04X' % (reg, raw)
+
+
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
+class Decoder(srd.Decoder):
+    api_version = 3
+    id = 'ina260'
+    name = 'INA260'
+    longname = 'INA260 36V power monitor'
+    desc = 'Decode INA260 I2C current/voltage/power monitor register transactions.'
+    license = 'gplv2+'
+    inputs = ['i2c']
+    outputs = ['ina260']
+    tags = ['IC', 'Power']
+
+    annotations = (
+        ('reg-write', 'Register write'),
+        ('reg-read',  'Register read'),
+        ('ptr-write', 'Register pointer write'),
+        ('warning',   'Warning'),
+        ('conversion-ready-start', 'Conversion ready: start'),
+        ('conversion-ready-done',  'Conversion ready: done'),
+        ('status',    'Status flags'),
+    )
+    annotation_rows = (
+        ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
+        ('timing',   'Timing',   (ANN_CONVERSION_READY_START, ANN_CONVERSION_READY_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
+    )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.state    = 'IDLE'
+        self.addr     = None
+        self.is_read  = False
+        self.reg_ptr  = None
+        self.databuf  = []
+        self.ss_block = None
+
+    def start(self):
+        self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
+
+    def _warn(self, ss, es, msg):
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
+
+    def _emit_status(self, raw):
+        flags = []
+        if raw & (1 << 4): flags.append('AFF')
+        if raw & (1 << 3): flags.append('CVRF')
+        if raw & (1 << 2): flags.append('OVF')
+        text = ', '.join(flags) if flags else 'none'
+        self.put(self.ss_block, self.es, self.out_ann,
+                 [ANN_STATUS, ['%s flags: %s' % ('Mask/Enable', text), text, ' '.join(flags) or '-']])
+
+    def _finish_transaction(self):
+        if self.state not in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_REG_PTR'):
+            return
+
+        reg  = self.reg_ptr
+        name = REGS.get(reg, 'Reg[0x%02X]' % reg) if reg is not None else '?'
+
+        if self.is_read:
+            if len(self.databuf) == 2:
+                raw = (self.databuf[0] << 8) | self.databuf[1]
+                self.put(self.ss_block, self.es, self.out_ann,
+                         [ANN_REG_READ,
+                          ['Read %s: %s' % (name, _decode_reg(reg, raw)),
+                           'R %s 0x%04X' % (name, raw)]])
+                if reg == 0x06:
+                    self._emit_status(raw)
+                # conversion_ready_done: Mask/Enable read with CVRF (bit 3) set.
+                if reg == 0x06 and (raw & 0x0008):
+                    self.put(self.ss_block, self.es, self.out_ann,
+                             [ANN_CONVERSION_READY_DONE,
+                              ['conversion_ready_done: CVRF set (Mask/Enable=0x%04X)' % raw,
+                               'conversion_ready_done', 'CR\u2713']])
+            elif self.databuf:
+                self._warn(self.ss_block, self.es,
+                           'Unexpected read length %d for %s' % (len(self.databuf), name))
+        else:
+            if not self.databuf:
+                self.put(self.ss_block, self.es, self.out_ann,
+                         [ANN_PTR_WRITE,
+                          ['Pointer → %s (0x%02X)' % (name, reg),
+                           'PTR 0x%02X' % reg]])
+            elif len(self.databuf) == 2:
+                raw = (self.databuf[0] << 8) | self.databuf[1]
+                self.put(self.ss_block, self.es, self.out_ann,
+                         [ANN_REG_WRITE,
+                          ['Write %s: %s' % (name, _decode_reg(reg, raw)),
+                           'W %s 0x%04X' % (name, raw)]])
+                # conversion_ready_start: a Configuration-register write clears CVRF
+                # and (re)starts the shunt/bus conversion cycle.
+                if reg == 0x00:
+                    self.put(self.ss_block, self.es, self.out_ann,
+                             [ANN_CONVERSION_READY_START,
+                              ['conversion_ready_start: Configuration written (CVRF cleared)',
+                               'conversion_ready_start', 'CR\u25b6']])
+            else:
+                self._warn(self.ss_block, self.es,
+                           'Unexpected write length %d for %s' % (len(self.databuf), name))
+
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
+
+        if ptype in ('START', 'START REPEAT'):
+            if ptype == 'START REPEAT' and self.state == 'GET_REG_PTR':
+                pass  # pointer already set; don't reset databuf
+            else:
+                self._finish_transaction()
+                self.databuf  = []
+                self.is_read  = False
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
+
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr not in ADDRS:
+                self.state = 'IDLE'
+                return
+            self.addr    = addr
+            self.is_read = (ptype == 'ADDRESS READ')
+            if self.is_read:
+                self.databuf = []
+                self.state   = 'GET_DATA_READ'
+            else:
+                self.state = 'GET_REG_PTR'
+
+        elif ptype == 'DATA WRITE':
+            byte = pdata
+            if self.state == 'GET_REG_PTR':
+                self.reg_ptr = byte
+                self.databuf = []
+                self.state   = 'GET_DATA_WRITE'
+            elif self.state == 'GET_DATA_WRITE':
+                self.databuf.append(byte)
+
+        elif ptype == 'DATA READ':
+            if self.state == 'GET_DATA_READ':
+                self.databuf.append(pdata)
+
+        elif ptype == 'STOP':
+            self._finish_transaction()
+            self.state   = 'IDLE'
+            self.databuf = []
