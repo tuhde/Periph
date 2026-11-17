@@ -1,4 +1,4 @@
-package display
+package led
 
 import (
 	"bytes"
@@ -7,202 +7,145 @@ import (
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// mockConnection is an in-memory fake connection.Connection for unit tests —
-// no hardware, no bus. HT16K33 is write-only, so only Write matters here;
-// every call is logged to writes for assertions.
-type mockConnection struct {
-	writes [][]byte
+// ht16k33Mock is an in-memory fake connection.Connection for unit tests —
+// no hardware, no bus. Every Write is logged; reads pop from a FIFO queue.
+type ht16k33Mock struct {
+	connection.Connection // embedded nil: only the methods overridden below are used
+	writes                [][]byte
+	reads                 [][]byte
 }
 
-func newMockConnection() *mockConnection {
-	return &mockConnection{}
-}
-
-func (m *mockConnection) Write(data []byte) error {
+func (m *ht16k33Mock) Write(data []byte) error {
 	m.writes = append(m.writes, append([]byte(nil), data...))
 	return nil
 }
 
-func (m *mockConnection) Read(n int) ([]byte, error)             { return make([]byte, n), nil }
-func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) {
+func (m *ht16k33Mock) Read(n int) ([]byte, error) {
+	if len(m.reads) == 0 {
+		return make([]byte, n), nil
+	}
+	r := m.reads[0]
+	m.reads = m.reads[1:]
+	return r, nil
+}
+
+func (m *ht16k33Mock) WriteRead(data []byte, n int) ([]byte, error) {
 	m.writes = append(m.writes, append([]byte(nil), data...))
-	return make([]byte, n), nil
-}
-func (m *mockConnection) Close() error                { return nil }
-func (m *mockConnection) Enable()                     {}
-func (m *mockConnection) Disable()                    {}
-func (m *mockConnection) IsEnabled() bool             { return true }
-func (m *mockConnection) IntPin() connection.InputPin { return nil }
-func (m *mockConnection) EnPin() connection.OutputPin { return nil }
-
-func lastWrite(writes [][]byte) []byte {
-	if len(writes) == 0 {
-		return nil
-	}
-	return writes[len(writes)-1]
+	return m.Read(n)
 }
 
-func zeros21() []byte {
-	buf := make([]byte, 21)
-	buf[0] = 0x00
-	return buf
-}
+func (m *ht16k33Mock) Close() error                { return nil }
+func (m *ht16k33Mock) IntPin() connection.InputPin { return nil }
 
-func TestHT16K33Init(t *testing.T) {
-	conn := newMockConnection()
-	sensor, err := NewHT16K33Full(conn)
+func (m *ht16k33Mock) last() []byte { return m.writes[len(m.writes)-1] }
+
+func TestHT16K33(t *testing.T) {
+	m := &ht16k33Mock{}
+	d, err := NewHT16K33Full(m)
 	if err != nil {
-		t.Fatalf("NewHT16K33Full: %v", err)
+		t.Fatal(err)
 	}
-	if !bytes.Equal(conn.writes[0], []byte{0x48}) {
-		t.Errorf("init mode write = % X, want [48]", conn.writes[0])
-	}
-	if !bytes.Equal(conn.writes[1], zeros21()) {
-		t.Errorf("init clear write = % X, want %d zero bytes", conn.writes[1], 21)
-	}
-	_ = sensor
-}
-
-func TestHT16K33Clear(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
-	if err := sensor.Clear(); err != nil {
-		t.Fatalf("Clear: %v", err)
-	}
-	n := len(conn.writes)
-	if !bytes.Equal(conn.writes[n-2], []byte{0x48}) || !bytes.Equal(conn.writes[n-1], zeros21()) {
-		t.Errorf("Clear writes = %v, want [48] and 21 zero bytes", conn.writes[n-2:])
-	}
-}
-
-func TestHT16K33WriteRaw(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
-
-	if err := sensor.WriteRaw(5, []byte{0xAB, 0xCD}); err != nil {
-		t.Fatalf("WriteRaw: %v", err)
-	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x05, 0xAB, 0xCD}) {
-		t.Errorf("WriteRaw write = % X, want [05 AB CD]", lastWrite(conn.writes))
-	}
-
-	nBefore := len(conn.writes)
-	if err := sensor.WriteRaw(3, nil); err != nil {
-		t.Fatalf("WriteRaw (empty): %v", err)
-	}
-	if len(conn.writes) != nBefore {
-		t.Errorf("WriteRaw(empty) should be a no-op, got %d new writes", len(conn.writes)-nBefore)
-	}
-}
-
-func TestHT16K33SetDigit7seg(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
-
-	// digit '7' -> 0xE0, at RAM address 3*2=6.
-	if err := sensor.SetDigit7seg(3, HT16K33SevenSeg[7]); err != nil {
-		t.Fatalf("SetDigit7seg: %v", err)
-	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x06, 0xE0}) {
-		t.Errorf("SetDigit7seg write = % X, want [06 E0]", lastWrite(conn.writes))
-	}
-}
-
-func TestHT16K33EnableDisable(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
-
-	if err := sensor.Disable(); err != nil {
-		t.Fatalf("Disable: %v", err)
-	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x40}) {
-		t.Errorf("Disable write = % X, want [40]", lastWrite(conn.writes))
-	}
-
-	if err := sensor.Enable(); err != nil {
-		t.Fatalf("Enable: %v", err)
-	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x48}) {
-		t.Errorf("Enable write = % X, want [48]", lastWrite(conn.writes))
-	}
-}
-
-func TestHT16K33SetMode(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
-
-	cases := []struct {
-		backplanes, bias, want uint8
-	}{
-		{HT16K33Backplanes1, HT16K33Bias1_2, 0x4D}, // 0x40|8|4|1
-		{HT16K33Backplanes2, HT16K33Bias1_3, 0x4A}, // 0x40|8|0|2
-		{HT16K33Backplanes3, HT16K33Bias1_3, 0x4B}, // 0x40|8|0|3
-		{HT16K33Backplanes4, HT16K33Bias1_3, 0x48}, // 0x40|8|0|0
-	}
-	for _, c := range cases {
-		if err := sensor.SetMode(c.backplanes, c.bias); err != nil {
-			t.Fatalf("SetMode(%d, %d): %v", c.backplanes, c.bias, err)
-		}
-		if got := lastWrite(conn.writes); len(got) != 1 || got[0] != c.want {
-			t.Errorf("SetMode(%d, %d) write = % X, want [%02X]", c.backplanes, c.bias, got, c.want)
+	eq := func(label string, got []byte, want ...byte) {
+		t.Helper()
+		if !bytes.Equal(got, want) {
+			t.Errorf("%s: got % X, want % X", label, got, want)
 		}
 	}
-}
+	eq("init_osc", m.writes[0], 0x21)
+	eq("init_row", m.writes[1], 0xA0)
+	eq("init_dim", m.writes[2], 0xEF)
+	eq("init_ram", m.writes[3], make([]byte, 17)...)
+	eq("init_display", m.writes[4], 0x81)
 
-func TestHT16K33SetBlink(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
+	if err := d.SetPixel(1, 9, true); err != nil {
+		t.Fatal(err)
+	}
+	_ = d.Show()
+	want := make([]byte, 17)
+	want[1+3] = 0x02
+	eq("set_pixel_show", m.last(), want...)
+	if on, _ := d.GetPixel(1, 9); !on {
+		t.Error("get_pixel on")
+	}
+	if on, _ := d.GetPixel(1, 8); on {
+		t.Error("get_pixel off")
+	}
+	_ = d.SetPixel(7, 15, true)
+	if d.ram[15] != 0x80 {
+		t.Error("set_pixel last")
+	}
+	_ = d.SetPixel(1, 9, false)
+	if on, _ := d.GetPixel(1, 9); on {
+		t.Error("clear pixel")
+	}
+	if d.SetPixel(8, 0, true) == nil || d.SetPixel(0, 16, true) == nil {
+		t.Error("range")
+	}
 
-	if err := sensor.SetBlink(HT16K33Blink1Hz, false); err != nil {
-		t.Fatalf("SetBlink: %v", err)
-	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x72}) { // 0x70|0|2
-		t.Errorf("SetBlink write = % X, want [72]", lastWrite(conn.writes))
+	_ = d.Clear()
+	eq("clear", m.last(), make([]byte, 17)...)
+	_ = d.WriteRaw([]byte{0xAB, 0xCD}, 4)
+	eq("write_raw", m.last(), 0x04, 0xAB, 0xCD)
+	n := len(m.writes)
+	if d.WriteRaw([]byte{0, 0}, 15) == nil || d.WriteRaw(nil, 0) == nil || len(m.writes) != n {
+		t.Error("write_raw rejects")
 	}
 
-	if err := sensor.SetBlink(HT16K33Blink2Hz, true); err != nil {
-		t.Fatalf("SetBlink (alt bank): %v", err)
+	_ = d.SetBrightness(7)
+	eq("brightness", m.last(), 0xE7)
+	if d.SetBrightness(16) == nil {
+		t.Error("brightness range")
 	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x75}) { // 0x70|4|1
-		t.Errorf("SetBlink (alt bank) write = % X, want [75]", lastWrite(conn.writes))
-	}
-}
 
-func TestHT16K33SetBank(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
+	_ = d.SetBlink(1)
+	eq("blink_1hz", m.last(), 0x85)
+	_ = d.SetBlink(0.5)
+	eq("blink_0_5hz", m.last(), 0x87)
+	_ = d.SetBlink(2)
+	eq("blink_2hz", m.last(), 0x83)
+	if d.SetBlink(3) == nil {
+		t.Error("blink invalid")
+	}
+	_ = d.DisplayOff()
+	eq("display_off", m.last(), 0x82)
+	_ = d.DisplayOn()
+	eq("display_on", m.last(), 0x83)
+	_ = d.SetBlink(0)
 
-	if err := sensor.SetBank(1, 0); err != nil {
-		t.Fatalf("SetBank: %v", err)
-	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x7A}) { // 0x78|(1<<1)|0
-		t.Errorf("SetBank write = % X, want [7A]", lastWrite(conn.writes))
-	}
-}
+	_ = d.SetIntOutput(true, false)
+	eq("int_low", m.last(), 0xA1)
+	_ = d.SetIntOutput(true, true)
+	eq("int_high", m.last(), 0xA3)
 
-func TestHT16K33DeviceSelect(t *testing.T) {
-	conn := newMockConnection()
-	sensor, _ := NewHT16K33Full(conn)
+	_ = d.Standby()
+	eq("standby", m.last(), 0x20)
+	n = len(m.writes)
+	_ = d.Wake()
+	eq("wake_osc", m.writes[n], 0x21)
+	eq("wake_row", m.writes[n+1], 0xA3)
+	eq("wake_dim", m.writes[n+2], 0xE7)
+	if len(m.writes[n+3]) != 17 {
+		t.Error("wake ram")
+	}
+	eq("wake_display", m.writes[n+4], 0x81)
 
-	if err := sensor.DeviceSelect(5); err != nil {
-		t.Fatalf("DeviceSelect: %v", err)
+	m.reads = append(m.reads, []byte{0x01, 0x00, 0x00, 0x10, 0x00, 0x00})
+	keys, _ := d.ReadKeys()
+	eq("read_keys_ptr", m.last(), 0x40)
+	if keys != 1|(1<<25) {
+		t.Errorf("read_keys mask %x", keys)
 	}
-	if !bytes.Equal(lastWrite(conn.writes), []byte{0x65}) { // 0x60|5
-		t.Errorf("DeviceSelect write = % X, want [65]", lastWrite(conn.writes))
+	m.reads = append(m.reads, []byte{0x01})
+	if p, _ := d.KeyPressed(); !p {
+		t.Error("key_pressed")
 	}
-}
-
-func TestHT16K33MinimalDefaultBackplanes(t *testing.T) {
-	// Regression test for a bug where NewHT16K33Minimal() initialised
-	// `backplanes` to HT16K33Mode1_4 (0x00, a drive-mode bit pattern)
-	// instead of the backplane count 4 - harmless only by coincidence,
-	// since modeCode()'s default arm also happens to return HT16K33Mode1_4.
-	conn := newMockConnection()
-	sensor, err := NewHT16K33Minimal(conn)
-	if err != nil {
-		t.Fatalf("NewHT16K33Minimal: %v", err)
+	eq("key_pressed_ptr", m.last(), 0x60)
+	m.reads = append(m.reads, []byte{0x00})
+	if k, _ := d.PollInterrupt(); k != 0 {
+		t.Error("poll none")
 	}
-	if sensor.backplanes != HT16K33Backplanes4 {
-		t.Errorf("backplanes = %d, want %d (HT16K33Backplanes4)", sensor.backplanes, HT16K33Backplanes4)
+	m.reads = append(m.reads, []byte{0x01}, []byte{0, 0, 0, 0, 0x01, 0})
+	if k, _ := d.PollInterrupt(); k != 1<<26 {
+		t.Errorf("poll keys %x", k)
 	}
 }

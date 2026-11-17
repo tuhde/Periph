@@ -1,259 +1,343 @@
-// Package display contains drivers for Display controllers (LCD segment drivers, etc.).
-package display
+package led
 
 import (
+	"errors"
+	"sync"
+	"time"
+
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// HT16K33 command prefixes (the chip uses a command-stream protocol; the
-// continuation bit C is OR'd in for all but the last command byte).
+// HT16K33 command bytes.
 const (
-	ht16k33CmdModeSet      uint8 = 0x40
-	ht16k33CmdLoadPtr      uint8 = 0x00
-	ht16k33CmdDeviceSelect uint8 = 0x60
-	ht16k33CmdBankSelect   uint8 = 0x78
-	ht16k33CmdBlinkSelect  uint8 = 0x70
+	ht16k33CmdSystem  uint8 = 0x20
+	ht16k33CmdDisplay uint8 = 0x80
+	ht16k33CmdDimming uint8 = 0xE0
+	ht16k33CmdKeyPtr  uint8 = 0x40
+	ht16k33CmdIntPtr  uint8 = 0x60
 )
 
-// Drive mode constants.
+// Geometry of the 28-pin package.
 const (
-	HT16K33Mode1_4    uint8 = 0x00
-	HT16K33ModeStatic uint8 = 0x01
-	HT16K33Mode1_2    uint8 = 0x02
-	HT16K33Mode1_3    uint8 = 0x03
+	// HT16K33Commons is the number of COM lines.
+	HT16K33Commons = 8
+	// HT16K33Rows is the number of ROW lines.
+	HT16K33Rows = 16
 )
 
-// Bias constants.
-const (
-	HT16K33Bias1_3 uint8 = 0x00
-	HT16K33Bias1_2 uint8 = 0x04
-)
+// ErrHT16K33Range is returned when an argument is outside its documented range.
+var ErrHT16K33Range = errors.New("ht16k33: argument out of range")
 
-// Display enable bit.
-const (
-	HT16K33DisplayOff uint8 = 0x00
-	HT16K33DisplayOn  uint8 = 0x08
-)
-
-// Backplane count constants for setMode().
-const (
-	HT16K33Backplanes1 uint8 = 1
-	HT16K33Backplanes2 uint8 = 2
-	HT16K33Backplanes3 uint8 = 3
-	HT16K33Backplanes4 uint8 = 4
-)
-
-// Blink frequency constants.
-const (
-	HT16K33BlinkOff    uint8 = 0
-	HT16K33Blink2Hz    uint8 = 1
-	HT16K33Blink1Hz    uint8 = 2
-	HT16K33Blink0_5Hz  uint8 = 3
-)
-
-// RAM bank constants.
-const (
-	HT16K33Bank0 uint8 = 0
-	HT16K33Bank1 uint8 = 1
-)
-
-// HT16K33SevenSeg is the 7-segment lookup table for 1:4 multiplex mode.
-// Bit assignment (MSB first): a, c, b, DP, f, e, g, d.
-// Add 0x10 to set the decimal point.
-var HT16K33SevenSeg = [10]uint8{
-	0xED, 0x60, 0xA7, 0xE3, 0x6A,
-	0xCB, 0xCF, 0xE0, 0xEF, 0xEB,
-}
-
-// HT16K33Minimal is the 40x4 universal LCD segment driver — minimal interface.
+// HT16K33Minimal is the 16x8 LED matrix driver — minimal interface.
 //
-// Drives a single 7-segment LCD display (static or 1:4 multiplex) with no
-// configuration required beyond the connection. The chip is write-only — the
-// driver only ever calls connection.Write.
+// Drives up to 16 ROW x 8 COM = 128 LEDs through a 16-byte display RAM that is
+// shadowed in the driver. The I²C address is 0x70 (A0–A2 select 0x70–0x77).
 //
-// Default configuration: 1:4 multiplex drive mode, 1/3 bias, display enabled,
-// display RAM cleared to zero on init.
+// Defaults baked in at construction: oscillator on, ROW15 pin as a ROW output,
+// brightness 16/16, blink off, RAM cleared, display on.
 type HT16K33Minimal struct {
-	connection  connection.Connection
-	backplanes uint8
+	connection connection.Connection
+	ram        [16]byte
+	brightness uint8
+	blink      uint8
+	display    bool
+	rowInt     uint8
 }
 
-// NewHT16K33Minimal creates a new HT16K33Minimal and initialises the chip with
-// defaults (1:4 multiplex, 1/3 bias, display on, RAM cleared).
+// NewHT16K33Minimal creates the driver and runs the initialization sequence.
 //
-// connection must be a configured I²C connection bound to the chip's 7-bit
-// address (0x38 when SA0 = VSS, 0x39 when SA0 = VDD).
+// t must be a configured I²C connection bound to the chip's 7-bit address.
 func NewHT16K33Minimal(t connection.Connection) (*HT16K33Minimal, error) {
-	d := &HT16K33Minimal{connection: t, backplanes: HT16K33Backplanes4}
-	if err := d.doClear(); err != nil {
+	d := &HT16K33Minimal{connection: t, brightness: 15, display: true, rowInt: 0xA0}
+	if err := d.command(ht16k33CmdSystem | 0x01); err != nil {
+		return nil, err
+	}
+	if err := d.command(d.rowInt); err != nil {
+		return nil, err
+	}
+	if err := d.command(ht16k33CmdDimming | d.brightness); err != nil {
+		return nil, err
+	}
+	if err := d.Show(); err != nil {
+		return nil, err
+	}
+	if err := d.applyDisplay(); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// sendCommands sends one or more command bytes. The continuation bit (C=0x80)
-// is OR'd into all but the last byte.
-func (d *HT16K33Minimal) sendCommands(cmds ...uint8) error {
-	if len(cmds) == 0 {
-		return nil
-	}
-	buf := make([]byte, len(cmds))
-	for i, c := range cmds {
-		if i+1 < len(cmds) {
-			buf[i] = 0x80 | (c & 0x7F)
-		} else {
-			buf[i] = c & 0x7F
-		}
-	}
-	return d.connection.Write(buf)
+func (d *HT16K33Minimal) command(b uint8) error {
+	return d.connection.Write([]byte{b})
 }
 
-// sendCommandWithData sends a single command byte (C=0) followed by data bytes.
-func (d *HT16K33Minimal) sendCommandWithData(cmd uint8, data []byte) error {
-	if len(data) == 0 {
-		return d.sendCommands(cmd)
+func (d *HT16K33Minimal) applyDisplay() error {
+	b := ht16k33CmdDisplay | (d.blink << 1)
+	if d.display {
+		b |= 1
 	}
+	return d.command(b)
+}
+
+// Clear zeroes the shadow RAM and writes it to the chip.
+func (d *HT16K33Minimal) Clear() error {
+	d.ram = [16]byte{}
+	return d.Show()
+}
+
+// SetPixel sets or clears one LED in the shadow RAM (it does not write to the
+// chip). com is 0–7 and row is 0–15; otherwise ErrHT16K33Range is returned.
+func (d *HT16K33Minimal) SetPixel(com, row uint8, on bool) error {
+	if com > 7 || row > 15 {
+		return ErrHT16K33Range
+	}
+	idx := 2*com + (row >> 3)
+	mask := uint8(1) << (row & 7)
+	if on {
+		d.ram[idx] |= mask
+	} else {
+		d.ram[idx] &^= mask
+	}
+	return nil
+}
+
+// WriteRaw writes 1–16 raw RAM bytes at address (0–15) and updates the shadow
+// RAM. ErrHT16K33Range is returned if data is empty or address+len(data) > 16.
+func (d *HT16K33Minimal) WriteRaw(data []byte, address uint8) error {
+	if len(data) == 0 || int(address)+len(data) > 16 {
+		return ErrHT16K33Range
+	}
+	copy(d.ram[address:], data)
 	buf := make([]byte, 1+len(data))
-	buf[0] = cmd & 0x7F
+	buf[0] = address
 	copy(buf[1:], data)
 	return d.connection.Write(buf)
 }
 
-// cmdMode assembles the mode-set command byte from enable, bias, and mode fields.
-func (d *HT16K33Minimal) cmdMode(enable bool, bias, mode uint8) uint8 {
-	en := HT16K33DisplayOff
-	if enable {
-		en = HT16K33DisplayOn
+// Show writes the whole 16-byte shadow RAM to the chip.
+func (d *HT16K33Minimal) Show() error {
+	buf := make([]byte, 17)
+	copy(buf[1:], d.ram[:])
+	return d.connection.Write(buf)
+}
+
+// SetBrightness sets the dimming level, 0–15, giving (level+1)/16 duty.
+func (d *HT16K33Minimal) SetBrightness(level uint8) error {
+	if level > 15 {
+		return ErrHT16K33Range
 	}
-	return ht16k33CmdModeSet | en | (bias & 0x04) | (mode & 0x03)
+	d.brightness = level
+	return d.command(ht16k33CmdDimming | level)
 }
 
-// doClear issues a mode-set followed by a load-data-pointer + 20 zero bytes
-// (1:4 multiplex) to blank the display.
-func (d *HT16K33Minimal) doClear() error {
-	if err := d.sendCommands(d.cmdMode(true, HT16K33Bias1_3, HT16K33Mode1_4)); err != nil {
-		return err
-	}
-	zeros := make([]byte, 20)
-	return d.sendCommandWithData(ht16k33CmdLoadPtr, zeros)
-}
-
-// Clear zeros all 40 columns of display RAM; all segments off.
-func (d *HT16K33Minimal) Clear() error {
-	return d.doClear()
-}
-
-// WriteRaw sets the data pointer to address and writes raw data bytes.
+// HT16K33Full extends HT16K33Minimal with display control, standby, key scan
+// and the INT output.
 //
-// In 1:4 multiplex mode (the default), one byte covers two adjacent RAM
-// columns and the data pointer auto-increments by 2 after each byte. Maximum
-// 20 bytes covers all 40 columns.
-func (d *HT16K33Minimal) WriteRaw(address uint8, data []byte) error {
-	if len(data) == 0 {
-		return nil
-	}
-	return d.sendCommandWithData(ht16k33CmdLoadPtr|(address&0x3F), data)
-}
-
-// SetDigit7seg writes one 7-segment byte at column position * 2.
-//
-// Add 0x10 to segments to light the decimal point.
-func (d *HT16K33Minimal) SetDigit7seg(position uint8, segments uint8) error {
-	return d.WriteRaw(position*2, []byte{segments})
-}
-
-// HT16K33Full is the 40x4 universal LCD segment driver — full interface.
-// Extends HT16K33Minimal with drive mode, bias, blink, bank select, and
-// cascaded-device (subaddress) configuration.
-//
-// Embeds HT16K33Minimal so all minimal methods are promoted onto the full
-// driver automatically — no one-line delegate forwards.
+// Key-press delivery (OnInterrupt) uses the connection's InputPin if wired,
+// otherwise a 20 ms polling goroutine.
 type HT16K33Full struct {
 	*HT16K33Minimal
-	enabled bool
-	bias    uint8
+
+	mu          sync.Mutex
+	callback    func(keys uint64)
+	unsubscribe func()
+	stopPoll    chan struct{}
 }
 
-// NewHT16K33Full creates a new HT16K33Full and initialises the chip with
-// defaults (1:4 multiplex, 1/3 bias, display on, RAM cleared).
+// NewHT16K33Full creates the Full driver; the initialization sequence is the
+// same as for NewHT16K33Minimal.
 func NewHT16K33Full(t connection.Connection) (*HT16K33Full, error) {
 	m, err := NewHT16K33Minimal(t)
 	if err != nil {
 		return nil, err
 	}
-	return &HT16K33Full{HT16K33Minimal: m, enabled: true, bias: HT16K33Bias1_3}, nil
+	return &HT16K33Full{HT16K33Minimal: m}, nil
 }
 
-// modeCode maps the backplanes count to the corresponding mode field value.
-func modeCode(backplanes uint8) uint8 {
-	switch backplanes {
-	case HT16K33Backplanes1:
-		return HT16K33ModeStatic
-	case HT16K33Backplanes2:
-		return HT16K33Mode1_2
-	case HT16K33Backplanes3:
-		return HT16K33Mode1_3
+// DisplayOn turns the display output on (keeps the blink setting).
+func (d *HT16K33Full) DisplayOn() error {
+	d.display = true
+	return d.applyDisplay()
+}
+
+// DisplayOff turns the display output off (keeps the blink setting).
+func (d *HT16K33Full) DisplayOff() error {
+	d.display = false
+	return d.applyDisplay()
+}
+
+// SetBlink sets the blink frequency: 0 (off), 2, 1 or 0.5 Hz. Any other value
+// returns ErrHT16K33Range.
+func (d *HT16K33Full) SetBlink(frequency float32) error {
+	var code uint8
+	switch frequency {
+	case 0:
+		code = 0
+	case 2:
+		code = 1
+	case 1:
+		code = 2
+	case 0.5:
+		code = 3
 	default:
-		return HT16K33Mode1_4
+		return ErrHT16K33Range
 	}
+	d.blink = code
+	return d.applyDisplay()
 }
 
-// applyMode writes the current mode-set configuration.
-func (d *HT16K33Full) applyMode() error {
-	bias := HT16K33Bias1_3
-	if d.bias == HT16K33Bias1_2 {
-		bias = HT16K33Bias1_2
+// Standby stops the oscillator (display off, key scan stopped).
+func (d *HT16K33Full) Standby() error {
+	return d.command(ht16k33CmdSystem)
+}
+
+// Wake starts the oscillator and restores display, dimming, ROW/INT and RAM.
+func (d *HT16K33Full) Wake() error {
+	if err := d.command(ht16k33CmdSystem | 0x01); err != nil {
+		return err
 	}
-	return d.sendCommands(d.cmdMode(d.enabled, bias, modeCode(d.backplanes)))
-}
-
-// Enable turns the display on (E = 1). RAM contents are preserved.
-func (d *HT16K33Full) Enable() error {
-	d.enabled = true
-	return d.applyMode()
-}
-
-// Disable blanks the display output (E = 0). RAM contents are preserved.
-func (d *HT16K33Full) Disable() error {
-	d.enabled = false
-	return d.applyMode()
-}
-
-// SetMode reconfigures drive mode and bias at runtime.
-//
-// backplanes: 1 (static), 2 (1:2), 3 (1:3), 4 (1:4 multiplex).
-// bias: 0 = 1/3 bias, 1 = 1/2 bias.
-func (d *HT16K33Full) SetMode(backplanes uint8, bias uint8) error {
-	d.backplanes = backplanes
-	d.bias = bias
-	return d.applyMode()
-}
-
-// SetBlink sets the blink frequency.
-//
-// frequency: 0 = off, 1 = ~2 Hz, 2 = ~1 Hz, 3 = ~0.5 Hz.
-// alternateBank: true to enable alternate-RAM-bank blinking (static and 1:2
-// multiplex only).
-func (d *HT16K33Full) SetBlink(frequency uint8, alternateBank bool) error {
-	ab := uint8(0x00)
-	if alternateBank {
-		ab = 0x04
+	if err := d.command(d.rowInt); err != nil {
+		return err
 	}
-	return d.sendCommands(ht16k33CmdBlinkSelect | ab | (frequency & 0x03))
+	if err := d.command(ht16k33CmdDimming | d.brightness); err != nil {
+		return err
+	}
+	if err := d.Show(); err != nil {
+		return err
+	}
+	return d.applyDisplay()
 }
 
-// SetBank selects the active RAM bank.
-//
-// inputBank/outputBank: 0 (rows 0-1) or 1 (rows 2-3). Only meaningful in
-// static and 1:2 multiplex modes.
-func (d *HT16K33Full) SetBank(inputBank uint8, outputBank uint8) error {
-	return d.sendCommands(ht16k33CmdBankSelect | ((inputBank & 1) << 1) | (outputBank & 1))
+// SetIntOutput selects the function of the ROW15/INT pin. enable makes it an
+// interrupt output (ROW15 and K13 become unusable); activeHigh selects the
+// INT polarity (default active low).
+func (d *HT16K33Full) SetIntOutput(enable, activeHigh bool) error {
+	switch {
+	case !enable:
+		d.rowInt = 0xA0
+	case activeHigh:
+		d.rowInt = 0xA3
+	default:
+		d.rowInt = 0xA1
+	}
+	return d.command(d.rowInt)
 }
 
-// DeviceSelect changes the subaddress counter for cascaded displays.
-//
-// subaddress: 0-7; must match the A0/A1/A2 pin state of the target device
-// on the bus.
-func (d *HT16K33Full) DeviceSelect(subaddress uint8) error {
-	return d.sendCommands(ht16k33CmdDeviceSelect | (subaddress & 0x07))
+// ReadKeys reads and clears the key data RAM. The result is a bitmask: bit
+// k*13 + (K-1) for key input K (1–13) on key source KSk (0–2).
+func (d *HT16K33Full) ReadKeys() (uint64, error) {
+	if err := d.connection.Write([]byte{ht16k33CmdKeyPtr}); err != nil {
+		return 0, err
+	}
+	b, err := d.connection.Read(6)
+	if err != nil {
+		return 0, err
+	}
+	var mask uint64
+	for k := 0; k < 3; k++ {
+		word := (uint64(b[2*k]) | uint64(b[2*k+1])<<8) & 0x1FFF
+		mask |= word << (13 * uint(k))
+	}
+	return mask, nil
+}
+
+// KeyPressed reads the INT flag; true if a key press is pending.
+func (d *HT16K33Full) KeyPressed() (bool, error) {
+	if err := d.connection.Write([]byte{ht16k33CmdIntPtr}); err != nil {
+		return false, err
+	}
+	b, err := d.connection.Read(1)
+	if err != nil {
+		return false, err
+	}
+	return b[0]&0x01 != 0, nil
+}
+
+// GetPixel reads one LED state from the shadow RAM.
+func (d *HT16K33Full) GetPixel(com, row uint8) (bool, error) {
+	if com > 7 || row > 15 {
+		return false, ErrHT16K33Range
+	}
+	return (d.ram[2*com+(row>>3)]>>(row&7))&1 == 1, nil
+}
+
+// PollInterrupt checks the INT flag and, if set, reads (and clears) the key
+// data; it returns 0 when no key is pending.
+func (d *HT16K33Full) PollInterrupt() (uint64, error) {
+	pressed, err := d.KeyPressed()
+	if err != nil || !pressed {
+		return 0, err
+	}
+	return d.ReadKeys()
+}
+
+// OnInterrupt subscribes callback to key-press events. The connection's
+// InputPin is used if wired (edge per the configured INT polarity), otherwise
+// a 20 ms polling goroutine.
+func (d *HT16K33Full) OnInterrupt(callback func(keys uint64)) error {
+	if err := d.OffInterrupt(); err != nil {
+		return err
+	}
+	d.mu.Lock()
+	d.callback = callback
+	d.mu.Unlock()
+
+	if pin := d.connection.IntPin(); pin != nil {
+		trigger := connection.Falling
+		if d.rowInt == 0xA3 {
+			trigger = connection.Rising
+		}
+		unsub := pin.OnEdge(trigger, d.service)
+		d.mu.Lock()
+		d.unsubscribe = unsub
+		d.mu.Unlock()
+		return nil
+	}
+	stop := make(chan struct{})
+	d.mu.Lock()
+	d.stopPoll = stop
+	d.mu.Unlock()
+	go func() {
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+			}
+			d.service()
+			time.Sleep(20 * time.Millisecond)
+		}
+	}()
+	return nil
+}
+
+// OffInterrupt unsubscribes key-press delivery.
+func (d *HT16K33Full) OffInterrupt() error {
+	d.mu.Lock()
+	unsub := d.unsubscribe
+	stop := d.stopPoll
+	d.unsubscribe = nil
+	d.stopPoll = nil
+	d.callback = nil
+	d.mu.Unlock()
+	if unsub != nil {
+		unsub()
+	}
+	if stop != nil {
+		close(stop)
+	}
+	return nil
+}
+
+func (d *HT16K33Full) service() {
+	keys, err := d.PollInterrupt()
+	if err != nil || keys == 0 {
+		return
+	}
+	d.mu.Lock()
+	cb := d.callback
+	d.mu.Unlock()
+	if cb != nil {
+		cb(keys)
+	}
 }

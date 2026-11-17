@@ -40,8 +40,8 @@ func main() {
 	spi.Configure(machine.SPIConfig{
 		Frequency: 1_000_000, // 1 MHz for APA102
 		Mode:      0,
-		SDO:       machine.GPIO3,  // MOSI
-		SCK:       machine.GPIO2,  // SCK
+		SDO:       machine.GPIO3, // MOSI
+		SCK:       machine.GPIO2, // SCK
 	})
 
 	conn := connection.NewSPIConnectionTinyGo(spi, nil, nil)

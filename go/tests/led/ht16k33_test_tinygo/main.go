@@ -26,13 +26,7 @@ func main() {
 		return
 	}
 
-	conn := connection.NewI2CConnection(i2c, 0x38, nil, nil)
-	chip, err := display.NewHT16K33Minimal(conn)
-	if err != nil {
-		fmt.Printf("FAIL new: %v\n", err)
-		fmt.Println("===DONE: 0 passed, 1 failed===")
-		return
-	}
+	conn := connection.NewI2CConnection(i2c, 0x70, nil, nil)
 
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {
@@ -45,54 +39,41 @@ func main() {
 		}
 	}
 
-	if err := chip.Clear(); err != nil {
-		fmt.Printf("FAIL clear: %v\n", err)
-	}
-	check("clear", err == nil)
-
-	bytes := [4]byte{0xED, 0x60, 0xA7, 0xE3}
-	if err := chip.WriteRaw(0, bytes[:]); err != nil {
-		fmt.Printf("FAIL write_raw: %v\n", err)
-	}
-	check("write_raw", err == nil)
-
-	if err := chip.SetDigit7seg(0, 0xED); err != nil {
-		fmt.Printf("FAIL set_digit_7seg: %v\n", err)
-	}
-	check("set_digit_7seg", err == nil)
-
-	check("seven_seg_0", display.HT16K33SevenSeg[0] == 0xED)
-	check("seven_seg_9", display.HT16K33SevenSeg[9] == 0xEB)
-
-	conn2 := connection.NewI2CConnection(i2c, 0x38, nil, nil)
-	full, err := display.NewHT16K33Full(conn2)
+	matrix, err := led.NewHT16K33Minimal(conn)
 	if err != nil {
-		fmt.Printf("FAIL new full: %v\n", err)
+		fmt.Println("FAIL init:", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")
 		return
 	}
+	check("constants", led.HT16K33Commons == 8 && led.HT16K33Rows == 16)
+	check("set_pixel", matrix.SetPixel(0, 0, true) == nil && matrix.SetPixel(7, 15, true) == nil)
+	check("set_pixel_range", matrix.SetPixel(8, 0, true) != nil && matrix.SetPixel(0, 16, true) != nil)
+	check("show", matrix.Show() == nil)
+	check("write_raw", matrix.WriteRaw([]byte{0xFF, 0x00}, 0) == nil)
+	check("write_raw_overflow", matrix.WriteRaw([]byte{0, 0}, 15) != nil)
+	check("set_brightness", matrix.SetBrightness(0) == nil && matrix.SetBrightness(15) == nil)
+	check("clear", matrix.Clear() == nil)
 
-	if err := full.Enable(); err != nil {
-		fmt.Printf("FAIL enable: %v\n", err)
+	full, err := led.NewHT16K33Full(conn)
+	if err != nil {
+		fmt.Println("FAIL init full:", err)
+		fmt.Println("===DONE: 0 passed, 1 failed===")
+		return
 	}
-	if err := full.Disable(); err != nil {
-		fmt.Printf("FAIL disable: %v\n", err)
-	}
-	check("enable_disable", err == nil)
-
-	if err := full.SetMode(display.HT16K33Backplanes4, display.HT16K33Bias1_3); err != nil {
-		fmt.Printf("FAIL set_mode: %v\n", err)
-	}
-	if err := full.SetBlink(display.HT16K33Blink2Hz, false); err != nil {
-		fmt.Printf("FAIL set_blink: %v\n", err)
-	}
-	if err := full.SetBank(display.HT16K33Bank0, display.HT16K33Bank0); err != nil {
-		fmt.Printf("FAIL set_bank: %v\n", err)
-	}
-	if err := full.DeviceSelect(0); err != nil {
-		fmt.Printf("FAIL device_select: %v\n", err)
-	}
-	check("full_configure", err == nil)
+	_ = full.SetPixel(3, 4, true)
+	_ = full.Show()
+	on, _ := full.GetPixel(3, 4)
+	off, _ := full.GetPixel(3, 5)
+	check("get_pixel", on && !off)
+	check("set_blink", full.SetBlink(2) == nil && full.SetBlink(1) == nil && full.SetBlink(0.5) == nil && full.SetBlink(0) == nil)
+	check("display_off_on", full.DisplayOff() == nil && full.DisplayOn() == nil)
+	check("standby_wake", full.Standby() == nil && full.Wake() == nil)
+	check("set_int_output", full.SetIntOutput(true, false) == nil && full.SetIntOutput(true, true) == nil && full.SetIntOutput(false, false) == nil)
+	_, err = full.ReadKeys()
+	check("read_keys", err == nil)
+	_, err = full.KeyPressed()
+	check("key_pressed", err == nil)
+	_ = full.Clear()
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
 }

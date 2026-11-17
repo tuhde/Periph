@@ -2,8 +2,7 @@
 
 // HT16K33 demo example — TinyGo / Raspberry Pi Pico W.
 //
-// 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD,
-// stepping once per second.
+// Configures machine.I2C1 on the Pico W with GP4 = SDA and GP5 = SCL.
 package main
 
 import (
@@ -15,49 +14,66 @@ import (
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
+var _ = fmt.Sprint
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	i2c := machine.I2C1
-	if err := i2c.Configure(machine.I2CConfig{
+	must(i2c.Configure(machine.I2CConfig{
 		SDA:       machine.GP4,
 		SCL:       machine.GP5,
 		Frequency: 400_000,
-	}); err != nil {
-		panic(err)
-	}
+	}))
 
-	conn := connection.NewI2CConnection(i2c, 0x38, nil, nil) // Create I2C connection, (i2c, addr=0x38) → (*I2CConnection)
+	conn := connection.NewI2CConnection(i2c, 0x70, nil, nil) // Create I2C connection, (i2c, addr=0x70) → (*I2CConnection)
 
-	// --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
-	// The HT16K33 drives four 7-segment digits from a single I2C bus; the host
-	// encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
-	// and writes all four with one WriteRaw() call. The countdown runs once per
-	// second and the terminal mirrors the value sent to the display.
-	lcd, err := display.NewHT16K33Full(conn) // Create HT16K33 driver, (connection) → (*HT16K33Full, error)
+	// --- Scrolling pixel, brightness sweep, blink and key matrix on a 16x8 matrix ---
+	// A single lit pixel visits all 16 x 8 positions, the brightness is swept from
+	// 0 to 15, the display blinks at 2, 1 and 0.5 Hz, then key presses are reported
+	// for 20 s via the INT output before standby and wake.
+	matrix, err := led.NewHT16K33Full(conn) // Create HT16K33 driver, (connection) → (*HT16K33Full, error)
 	if err != nil {
 		panic(err)
 	}
 
-	for n := 9999; n >= 0; n-- {
-		out := [4]uint8{
-			display.HT16K33SevenSeg[(n/1000)%10], // Encode 7-segment digit, (digit 0–9) → uint8
-			display.HT16K33SevenSeg[(n/100)%10],  // Encode 7-segment digit, (digit 0–9) → uint8
-			display.HT16K33SevenSeg[(n/10)%10],   // Encode 7-segment digit, (digit 0–9) → uint8
-			display.HT16K33SevenSeg[n%10],        // Encode 7-segment digit, (digit 0–9) → uint8
+	for com := uint8(0); com < led.HT16K33Commons; com++ {
+		for row := uint8(0); row < led.HT16K33Rows; row++ {
+			must(matrix.Clear())                  // Blank the display, () → error
+			must(matrix.SetPixel(com, row, true)) // Set one LED, (com 0–7, row 0–15, on) → error
+			must(matrix.Show())                   // Write the shadow RAM, () → error
+			time.Sleep(50 * time.Millisecond)
 		}
-		if err := lcd.WriteRaw(0, out[:]); err != nil { // Write all four digits, (address 0, 4 bytes) → error
-			panic(err)
-		}
-		fmt.Printf("countdown: %04d\n", n)
-		time.Sleep(time.Second)
 	}
 
-	// --- Stop indicator: light only the middle segments (g) on every digit ---
-	// When the counter reaches zero we replace the "0000" pattern with "----" to
-	// signal that the demo has finished. Each digit's g segment is bit 1, so a
-	// 0x02 byte lights just the bar across the middle.
-	dash := [4]uint8{0x02, 0x02, 0x02, 0x02}
-	if err := lcd.WriteRaw(0, dash[:]); err != nil { // Write dash pattern, (address 0, 4 bytes) → error
-		panic(err)
+	must(matrix.WriteRaw([]byte{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 0)) // All LEDs on, (data, address) → error
+	for level := uint8(0); level < 16; level++ {
+		must(matrix.SetBrightness(level)) // Sweep dimming, (level 0–15) → error
+		time.Sleep(100 * time.Millisecond)
 	}
-	fmt.Println("countdown complete")
+
+	for _, f := range []float32{2, 1, 0.5, 0} {
+		must(matrix.SetBlink(f)) // Set blink frequency, (0, 0.5, 1, 2 Hz) → error
+		time.Sleep(3 * time.Second)
+	}
+
+	must(matrix.SetIntOutput(true, false)) // INT output, active low, (enable, activeHigh) → error
+	for i := 0; i < 1000; i++ {            // 1000 x 20 ms = 20 s
+		keys, err := matrix.PollInterrupt() // Read keys if pending, () → (uint64 bitmask, error)
+		must(err)
+		if keys != 0 {
+			fmt.Printf("keys: 0x%x\n", keys)
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+
+	must(matrix.Standby()) // Oscillator off, () → error
+	time.Sleep(time.Second)
+	must(matrix.Wake()) // Oscillator on, state restored, () → error
+	fmt.Println("===DONE: 0 passed, 0 failed===")
 }
