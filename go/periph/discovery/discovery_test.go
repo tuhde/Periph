@@ -231,12 +231,12 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		skip     ProbeSkipReason
 	}{
 		// 0x68 hosts the write-sensitive MCP3422, so passive scans skip probing there.
-		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"}, false, SkipWriteSensitive},
-		{0x40, []string{"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"}, false, SkipWriteSensitive},
+		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}, false, SkipWriteSensitive},
+		{0x40, []string{"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"}, false, SkipWriteSensitive},
 		// 0x36 is shared with MAX17048, which has an identity register, so probing happens here.
 		{0x36, []string{"as5600"}, false, SkipNone},
 		{0x0B, []string{"lc709203f"}, false, SkipNone},
-		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "saa1064", "uc1611s"}, true, SkipWriteSensitive},
+		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s"}, true, SkipWriteSensitive},
 	}
 	for _, tc := range cases {
 		b := newBus(single(tc.addr, map[uint32]byte{}))
@@ -337,7 +337,7 @@ func TestAliasedBlockMergedOnlyWhenComplete(t *testing.T) {
 		all[a] = map[uint32]byte{}
 	}
 	got, _ := DiscoverBus(newBus(all), registry, false)
-	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc"}) ||
+	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc", "pca9685"}) ||
 		!reflect.DeepEqual(got[0].Aliases, []uint8{0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}) {
 		t.Errorf("merged: %+v", got)
 	}
