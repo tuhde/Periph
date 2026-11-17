@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ina260_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init INA260", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "ina260_read_voltage",
+      "type": "value",
+      "params": [{ "name": "INA260 bus voltage (V)", "type": "label" }]
+    },
+    {
+      "name": "ina260_read_current",
+      "type": "value",
+      "params": [{ "name": "INA260 current (A)", "type": "label" }]
+    },
+    {
+      "name": "ina260_read_power",
+      "type": "value",
+      "params": [{ "name": "INA260 power (W)", "type": "label" }]
+    }
+  ]
+}

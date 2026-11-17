@@ -93,6 +93,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [MB85RC](memory/mb85rc/) | memory | `mb85rc_init`, `mb85rc_read_byte`, `mb85rc_write_byte`, `mb85rc_read`, `mb85rc_write`, `mb85rc_fill`, `mb85rc_size`, `mb85rc_read_device_id` |
 | [INA219](power/ina219/) | power | `ina219_init`, `ina219_voltage`, `ina219_shunt_voltage`, `ina219_current`, `ina219_power` |
 | [INA226](power/ina226/) | power | `ina226_init`, `ina226_read_voltage`, `ina226_read_current`, `ina226_read_power` |
+| [INA260](power/ina260/) | power | `ina260_init`, `ina260_read_voltage`, `ina260_read_current`, `ina260_read_power` |
 | [INA3221](power/ina3221/) | power | `ina3221_init`, `ina3221_read_voltage`, `ina3221_read_current`, `ina3221_read_power` (each takes a `_channel` param) |
 | [BMP180](pressure/bmp180/) | pressure | `bmp180_init`, `bmp180_read_temperature`, `bmp180_read_pressure`, `bmp180_read_altitude` |
 | [BMP280](pressure/bmp280/) | pressure | `bmp280_init`, `bmp280_read_temperature`, `bmp280_read_pressure`, `bmp280_read_altitude` |
