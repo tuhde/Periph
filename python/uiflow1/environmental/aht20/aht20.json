@@ -1,0 +1,27 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "aht20_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init AHT20", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "aht20_read_temperature",
+      "type": "value",
+      "params": [{ "name": "AHT20 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "aht20_read_humidity",
+      "type": "value",
+      "params": [{ "name": "AHT20 humidity (%)", "type": "label" }]
+    }
+  ]
+}

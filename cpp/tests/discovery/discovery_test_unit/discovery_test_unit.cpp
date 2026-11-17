@@ -159,16 +159,16 @@ int main() {
         DiscoveredDevice d = one(0x68);
         // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
         check_true(d.identified.empty() && d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate &&
-                   d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"}),
+                   d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}),
                    "0x68_candidates_unprobed");
-        check_true(one(0x40).candidates == Ids({"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"}), "x40_candidates_include_write_sensitive_si7021");
+        check_true(one(0x40).candidates == Ids({"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"}), "x40_candidates_include_write_sensitive_si7021");
         d = one(0x36);
         check_true(d.identified.empty() && d.candidates == Ids({"as5600"}), "as5600_sole_candidate_unconfirmed");
         d = one(0x0B);
         check_true(d.candidates == Ids({"lc709203f"}) && d.identified.empty(), "unknown_device");
         FakeBus bus; bus.with(0x38);
         d = only(bus);
-        check_true(d.candidates == Ids({"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "saa1064", "uc1611s"}), "aht21_cands");
+        check_true(d.candidates == Ids({"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s"}), "aht21_cands");
         check_true(d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate && bus.registerReads.empty(), "no_probe_when_write_sensitive_candidate");
     }
 
@@ -218,7 +218,7 @@ int main() {
         FakeBus bus;
         for (uint8_t a = 0x50; a <= 0x57; a++) bus.with(a);
         std::vector<DiscoveredDevice> devs = discover(bus);
-        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc"}) &&
+        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc", "pca9685"}) &&
                    devs[0].aliases == std::vector<uint8_t>({0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}), "alias_block_merged");
         FakeBus partial; partial.with(0x50).with(0x51);
         devs = discover(partial);

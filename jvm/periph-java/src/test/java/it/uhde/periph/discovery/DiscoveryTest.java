@@ -172,9 +172,9 @@ class DiscoveryTest {
     void fallsBackToIdLessCandidates() throws IOException {
         // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
         var d68 = one(0x68);
-        assertEquals(List.of("bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"), d68.candidates());
+        assertEquals(List.of("bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"), d68.candidates());
         assertEquals(ProbeSkipReason.WRITE_SENSITIVE_CANDIDATE, d68.probeSkippedReason());
-        assertEquals(List.of("bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"), one(0x40).candidates());
+        assertEquals(List.of("bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"), one(0x40).candidates());
         var d = one(0x36);
         assertNull(d.identified());
         assertEquals(List.of("as5600"), d.candidates());
@@ -183,7 +183,7 @@ class DiscoveryTest {
         assertNull(d.identified());
         var bus = new FakeBus().with(0x38);
         d = only(bus, false);
-        assertEquals(List.of("ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "saa1064", "uc1611s"), d.candidates());
+        assertEquals(List.of("ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s"), d.candidates());
         assertEquals(ProbeSkipReason.WRITE_SENSITIVE_CANDIDATE, d.probeSkippedReason());
         assertTrue(bus.registerReads.isEmpty());
     }
@@ -233,7 +233,7 @@ class DiscoveryTest {
         var devs = Discovery.discover(bus, DiscoveryRegistry.CHIPS, false);
         assertEquals(1, devs.size());
         assertEquals(0x50, devs.get(0).address());
-        assertEquals(List.of("24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc"), devs.get(0).candidates());
+        assertEquals(List.of("24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc", "pca9685"), devs.get(0).candidates());
         assertEquals(List.of(0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57), devs.get(0).aliases());
         devs = Discovery.discover(new FakeBus().with(0x50).with(0x51), DiscoveryRegistry.CHIPS, false);
         assertEquals(List.of(0x50, 0x51), devs.stream().map(DiscoveredDevice::address).toList());

@@ -146,9 +146,9 @@ async function main() {
     d = await only(new FakeBus({ 0x68: {} }));
     // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
     checkTrue('0x68_candidates_unprobed', d.identified === null && d.probeSkippedReason === 'write_sensitive_candidate'
-        && same(d.candidates, ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'itg3200', 'l3g4200d', 'ltc4151', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523', 'pcf8573']));
+        && same(d.candidates, ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'itg3200', 'l3g4200d', 'ltc4151', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pca9685', 'pcf8523', 'pcf8573']));
     d = await only(new FakeBus({ 0x40: {} }));
-    checkTrue('x40_candidates_include_write_sensitive_si7021', d.identified === null && same(d.candidates, ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'htu31d', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'si7021', 'tmp007']));
+    checkTrue('x40_candidates_include_write_sensitive_si7021', d.identified === null && same(d.candidates, ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'htu31d', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'pca9685', 'si7021', 'tmp007']));
     d = await only(new FakeBus({ 0x36: {} }));
     checkTrue('as5600_sole_candidate_unconfirmed', d.identified === null && same(d.candidates, ['as5600']));
     d = await only(new FakeBus({ 0x0b: {} }));
@@ -157,7 +157,7 @@ async function main() {
     // --- write-sensitive gating ---
     bus = new FakeBus({ 0x38: {} });
     d = await only(bus);
-    checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht10', 'aht20', 'aht21', 'bma150', 'pcf8574', 'pcf8576', 'saa1064', 'uc1611s']));
+    checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht10', 'aht20', 'aht21', 'bma150', 'pcf8574', 'pcf8576', 'rrh46410', 'saa1064', 'uc1611s']));
     checkTrue('no_probe_when_write_sensitive_candidate', d.probeSkippedReason === 'write_sensitive_candidate' && bus.writes.length === 0);
 
     const custom = [
@@ -187,7 +187,7 @@ async function main() {
 
     // --- aliased 24AA02UID ---
     let list = await discover(new FakeBus(addrs([0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57])));
-    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid', 'at24c02n', 'at24c64', 'cat24c512', 'lm25066', 'mb85rc'])
+    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid', 'at24c02n', 'at24c64', 'cat24c512', 'lm25066', 'mb85rc', 'pca9685'])
         && same(list[0].aliases, [0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57]));
     list = await discover(new FakeBus(addrs([0x50, 0x51])));
     checkTrue('partial_alias_reported_individually', same(list.map(x => x.address), [0x50, 0x51]) && list.every(x => x.aliases.length === 0));

@@ -58,6 +58,7 @@ Each chip exposes two classes:
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT10 | Environmental sensor | `chips/environmental/AHT10.h` |
+| AHT20 | Environmental sensor | `chips/environmental/AHT20.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | AM2315 | Environmental sensor | `chips/environmental/AM2315.h` |
 | APA102 | LED driver | `chips/led/APA102.h` |
