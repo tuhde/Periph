@@ -81,7 +81,7 @@ var registry = []Chip{
 	{ID: "uc1611s", Driver: "uc1611s", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F}, Probe: nil},
 	{ID: "am2315", Driver: "am2315", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x5C}, Probe: nil},
 	{ID: "am2320", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x5C}, Probe: nil},
-	{ID: "aht10", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},
+	{ID: "aht10", Driver: "aht10", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},
 	{ID: "aht20", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},
 	{ID: "aht21", Driver: "aht21", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38}, Probe: nil},
 	{ID: "bme280", Driver: "bme280", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: &IdProbe{Register: 0xD0, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x60}}},
