@@ -21,6 +21,10 @@
       "github:tuhde/Periph/python/periph/chips/led/apa102.py"
     ],
     [
+      "periph/chips/led/ht16k33.py",
+      "github:tuhde/Periph/python/periph/chips/led/ht16k33.py"
+    ],
+    [
       "periph/chips/led/sk6812rgbw.py",
       "github:tuhde/Periph/python/periph/chips/led/sk6812rgbw.py"
     ],
@@ -39,6 +43,14 @@
     [
       "periph/connection/base.py",
       "github:tuhde/Periph/python/periph/connection/base.py"
+    ],
+    [
+      "periph/connection/i2c_auto.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_auto.py"
+    ],
+    [
+      "periph/connection/i2c_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_micropython.py"
     ],
     [
       "periph/connection/input_pin.py",

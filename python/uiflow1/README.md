@@ -57,6 +57,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 
 | Chip | Category | Blocks |
 |------|----------|--------|
+| [HT16K33](led/ht16k33/) | led | `ht16k33_init`, `ht16k33_clear`, `ht16k33_set_pixel`, `ht16k33_show`, `ht16k33_set_brightness`, `ht16k33_display_on`, `ht16k33_display_off`, `ht16k33_set_blink`, `ht16k33_standby`, `ht16k33_wake`, `ht16k33_set_int_output`, `ht16k33_read_keys`, `ht16k33_key_pressed`, `ht16k33_get_pixel` |
 | [HX711](adc_dac/hx711/) | adc_dac | `hx711_init`, `hx711_tare`, `hx711_set_scale`, `hx711_read_weight`, `hx711_read_raw` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | `mcp4725_init`, `mcp4725_set_voltage`, `mcp4725_set_raw` |
 | [AD5248](adc_dac/ad5248/) | adc_dac | `ad5248_init`, `ad5248_set_wiper`, `ad5248_get_wiper`, `ad5248_set_resistance`, `ad5248_get_resistance`, `ad5248_set_both`, `ad5248_set_ratio`, `ad5248_get_ratio`, `ad5248_increment`, `ad5248_shutdown`, `ad5248_resume`, `ad5248_is_shutdown`, `ad5248_reset` |

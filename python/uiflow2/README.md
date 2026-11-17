@@ -42,6 +42,7 @@ uiflow2/
 
 | Chip | Category | Blocks |
 |------|----------|--------|
+| [HT16K33](led/ht16k33/) | led | init, `clear`, `set_pixel`, `show`, `set_brightness`, `display_on`, `display_off`, `set_blink`, `standby`, `wake`, `set_int_output`, `read_keys`, `key_pressed`, `get_pixel` |
 | [HX711](adc_dac/hx711/) | adc_dac | init, `tare`, `set_scale`, `read_weight`, `read_raw` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | init, `set_voltage`, `set_raw` |
 | [AD5248](adc_dac/ad5248/) | adc_dac | init, `set_wiper`, `get_wiper`, `set_resistance`, `get_resistance`, `set_both`, `set_ratio`, `get_ratio`, `increment`, `shutdown`, `resume`, `is_shutdown`, `reset` |
