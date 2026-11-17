@@ -121,6 +121,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |
 | LSM303 | Accelerometer | Acceleration and magnetic field. |
+| LTC4151 | Power monitor | 7–80 V high-side current and voltage monitor |
 | MAX44009 | Light sensor | Ambient light sensor |
 | MB85RC | Memory | MB85RC256V 256 Kbit (32 KiB) I2C FRAM |
 | MCP23008 | IO expander | 8-bit I/O port expander (I²C) |

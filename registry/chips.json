@@ -2354,7 +2354,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ltc4151",
       "datasheet": "datasheets/power/ltc4151.pdf"
     },
     {

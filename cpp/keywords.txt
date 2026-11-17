@@ -196,6 +196,8 @@ LPS33HWFull	KEYWORD1
 LPS33HWMinimal	KEYWORD1
 LSM303Full	KEYWORD1
 LSM303Minimal	KEYWORD1
+LTC4151Full	KEYWORD1
+LTC4151Minimal	KEYWORD1
 MAX44009Full	KEYWORD1
 MAX44009Minimal	KEYWORD1
 MB85RCFull	KEYWORD1
@@ -332,6 +334,7 @@ RFM98Minimal	KEYWORD1
 RamBlockDevice	KEYWORD1
 RampStatus	KEYWORD1
 ReadResult	KEYWORD1
+Readings	KEYWORD1
 RegisterConnection	KEYWORD1
 SDSPIFull	KEYWORD1
 SDSPIMinimal	KEYWORD1
@@ -434,6 +437,7 @@ activeEnergy	KEYWORD2
 activeEnergyB	KEYWORD2
 activePower	KEYWORD2
 activePowerB	KEYWORD2
+adin_voltage	KEYWORD2
 agc	KEYWORD2
 alertState	KEYWORD2
 alert_flags	KEYWORD2
@@ -821,6 +825,7 @@ get_resistance_step	KEYWORD2
 get_resistance_wa	KEYWORD2
 get_resolution	KEYWORD2
 get_scale	KEYWORD2
+get_sense_resistor	KEYWORD2
 get_tcon	KEYWORD2
 get_terminals	KEYWORD2
 get_volume	KEYWORD2
@@ -905,6 +910,7 @@ is_proximity_valid	KEYWORD2
 is_ready	KEYWORD2
 is_shutdown	KEYWORD2
 is_sleeping	KEYWORD2
+is_snapshot_mode	KEYWORD2
 is_station	KEYWORD2
 is_stereo	KEYWORD2
 is_thermistor_mode	KEYWORD2
@@ -1129,6 +1135,7 @@ read_channel_voltage	KEYWORD2
 read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
 read_config	KEYWORD2
+read_control	KEYWORD2
 read_counter	KEYWORD2
 read_customer	KEYWORD2
 read_data	KEYWORD2
@@ -1266,6 +1273,7 @@ sendUbx	KEYWORD2
 send_buffered	KEYWORD2
 send_command	KEYWORD2
 send_data	KEYWORD2
+sense_voltage	KEYWORD2
 serial_id	KEYWORD2
 serial_number	KEYWORD2
 service	KEYWORD2
@@ -1533,6 +1541,7 @@ set_clock	KEYWORD2
 set_clock_stretching	KEYWORD2
 set_com_config	KEYWORD2
 set_compensation	KEYWORD2
+set_continuous	KEYWORD2
 set_contrast	KEYWORD2
 set_crc	KEYWORD2
 set_critical_alert	KEYWORD2
@@ -1644,6 +1653,7 @@ set_ot_fault	KEYWORD2
 set_ot_warn	KEYWORD2
 set_output_enable	KEYWORD2
 set_oversampling	KEYWORD2
+set_page_rw	KEYWORD2
 set_panel_loading	KEYWORD2
 set_partial_display	KEYWORD2
 set_persistence	KEYWORD2
@@ -1691,6 +1701,7 @@ set_scroll_line	KEYWORD2
 set_scroll_vertical	KEYWORD2
 set_sdo_pullup	KEYWORD2
 set_sdp_mute	KEYWORD2
+set_sense_resistor	KEYWORD2
 set_sensors	KEYWORD2
 set_sequential	KEYWORD2
 set_shadow	KEYWORD2
@@ -1702,6 +1713,7 @@ set_speed	KEYWORD2
 set_standby	KEYWORD2
 set_start_bank	KEYWORD2
 set_start_line	KEYWORD2
+set_stuck_bus_timer	KEYWORD2
 set_summation_channels	KEYWORD2
 set_sync_sample	KEYWORD2
 set_tap	KEYWORD2
@@ -1749,6 +1761,7 @@ single_measurement	KEYWORD2
 size	KEYWORD2
 sleep	KEYWORD2
 sleep_after_interrupt	KEYWORD2
+snapshot	KEYWORD2
 soft_reset	KEYWORD2
 softreset	KEYWORD2
 softwareReset	KEYWORD2
@@ -1796,6 +1809,7 @@ system_status	KEYWORD2
 tap_status	KEYWORD2
 tare	KEYWORD2
 temperature	KEYWORD2
+temperature_from_adin	KEYWORD2
 testInterrupt	KEYWORD2
 timestamp	KEYWORD2
 timingBudget	KEYWORD2
@@ -1865,6 +1879,7 @@ write_char	KEYWORD2
 write_columns	KEYWORD2
 write_command	KEYWORD2
 write_commands	KEYWORD2
+write_control	KEYWORD2
 write_customer	KEYWORD2
 write_data	KEYWORD2
 write_icon	KEYWORD2
@@ -2552,6 +2567,7 @@ RX_GAIN_38_DB	LITERAL1
 RX_GAIN_43_DB	LITERAL1
 RX_GAIN_48_DB	LITERAL1
 SECTOR_SIZE	LITERAL1
+SENSE	LITERAL1
 SENSOR_ID	LITERAL1
 SEVEN_SEG	LITERAL1
 SF	LITERAL1
