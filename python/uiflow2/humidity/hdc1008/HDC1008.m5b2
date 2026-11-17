@@ -1,0 +1,227 @@
+{
+  "category": "HDC1008",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HDC1008_LANGUAGES = {\n  \"CUSTOM_HDC1008_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_HDC1008_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_HDC1008_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%RH)\"\n  },\n  \"CUSTOM_HDC1008_SET_RESOLUTION\": {\n    \"en\": \"%1 resolution T bits (14/11) %2 RH bits (14/11/8) %3\"\n  },\n  \"CUSTOM_HDC1008_SET_HEATER\": {\n    \"en\": \"%1 heater (1=on 0=off) %2\"\n  },\n  \"CUSTOM_HDC1008_HEATER_ON\": {\n    \"en\": \"%1 heater on (1=yes 0=no)\"\n  },\n  \"CUSTOM_HDC1008_BATTERY_LOW\": {\n    \"en\": \"%1 battery low (1=yes 0=no)\"\n  },\n  \"CUSTOM_HDC1008_SERIAL_ID\": {\n    \"en\": \"%1 serial ID\"\n  },\n  \"CUSTOM_HDC1008_SOFT_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_hdc1008_init';\nBlockly.BlockRegExpList['custom_hdc1008'] = {\n  regexp: new RegExp(/^custom_hdc1008_/),\n  code: \"from HDC1008 import HDC1008\",\n  initBlockType: initType,\n  categoryId: 'custom_hdc1008',\n}\nBlockly.utils.registerLanguages(CUSTOM_HDC1008_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HDC1008_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HDC1008 = 'HDC1008'\n\nBlockly.utils.getcustom_hdc1008Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hdc1008_0', 'hdc1008_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hdc1008_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hdc1008Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hdc1008_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HDC1008(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_hdc1008_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hdc1008_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hdc1008_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'temperature_bits'\n        },\n        {\n          'type': 'input_value',\n          'name': 'humidity_bits'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var temperature_bits = Blockly.Python.valueToCode(block, 'temperature_bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  var humidity_bits = Blockly.Python.valueToCode(block, 'humidity_bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(${temperature_bits}, ${humidity_bits})\\n`\n}\n\nBlockly.Blocks[\"custom_hdc1008_set_heater\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_SET_HEATER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_set_heater\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_heater(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_hdc1008_heater_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_HEATER_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_heater_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.heater_on()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hdc1008_battery_low\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_BATTERY_LOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_battery_low\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.battery_low()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hdc1008_serial_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_SERIAL_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_serial_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.serial_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hdc1008_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HDC1008_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hdc1008Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hdc1008_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"HDC1008\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hdc1008\">\n<title text=\"HDC1008\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hdc1008_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hdc1008_temperature\"/><block type=\"custom_hdc1008_humidity\"/><block type=\"custom_hdc1008_set_resolution\">\n  <value name=\"temperature_bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">14</field>\n    </shadow>\n  </value>\n  <value name=\"humidity_bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">14</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hdc1008_set_heater\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hdc1008_heater_on\"/><block type=\"custom_hdc1008_battery_low\"/><block type=\"custom_hdc1008_serial_id\"/><block type=\"custom_hdc1008_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_hdc1008",
+    "block_type": [
+      "custom_hdc1008___init__",
+      "custom_hdc1008_temperature",
+      "custom_hdc1008_humidity",
+      "custom_hdc1008_set_resolution",
+      "custom_hdc1008_set_heater",
+      "custom_hdc1008_heater_on",
+      "custom_hdc1008_battery_low",
+      "custom_hdc1008_serial_id",
+      "custom_hdc1008_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "HDC1008",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HDC1008",
+      "time": "2026-11-17",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.hdc1008 import HDC1008Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = HDC1008Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 resolution T bits (14/11) %2 RH bits (14/11/8) %3"
+        },
+        "params": [
+          {
+            "name": "temperature_bits",
+            "type": "int",
+            "default": "14",
+            "note": {},
+            "field": "number",
+            "max": "14",
+            "min": "11"
+          },
+          {
+            "name": "humidity_bits",
+            "type": "int",
+            "default": "14",
+            "note": {},
+            "field": "number",
+            "max": "14",
+            "min": "8"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(temperature_bits, humidity_bits)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_heater",
+        "note": {},
+        "label": {
+          "en": "%1 heater (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_heater(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "heater_on",
+        "note": {},
+        "label": {
+          "en": "%1 heater on (1=yes 0=no)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.is_heater_on())",
+        "ast_return": {
+          "code": "int(self._driver.is_heater_on())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "battery_low",
+        "note": {},
+        "label": {
+          "en": "%1 battery low (1=yes 0=no)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.battery_low())",
+        "ast_return": {
+          "code": "int(self._driver.battery_low())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "serial_id",
+        "note": {},
+        "label": {
+          "en": "%1 serial ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.serial_id()",
+        "ast_return": {
+          "code": "self._driver.serial_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.software_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hdc1008"
+  },
+  "pyCode": "\"\"\"\nfile     HDC1008\ntime     2026-11-17\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.hdc1008 import HDC1008Full\n\n\nclass HDC1008:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 64):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '64'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = HDC1008Full(connection)\n        self._driver.init()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def set_resolution(self, temperature_bits: int = 14, humidity_bits: int = 14):\n        \"\"\"\n        label:\n            en: '%1 resolution T bits (14/11) %2 RH bits (14/11/8) %3'\n        params:\n            temperature_bits:\n                name: temperature_bits\n                type: int\n                default: '14'\n                field: number\n                max: '14'\n                min: '11'\n            humidity_bits:\n                name: humidity_bits\n                type: int\n                default: '14'\n                field: number\n                max: '14'\n                min: '8'\n        \"\"\"\n        self._driver.set_resolution(temperature_bits, humidity_bits)\n\n    def set_heater(self, enabled: int = 0):\n        \"\"\"\n        label:\n            en: '%1 heater (1=on 0=off) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_heater(bool(enabled))\n\n    def heater_on(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 heater on (1=yes 0=no)'\n        \"\"\"\n        return int(self._driver.is_heater_on())\n\n    def battery_low(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 battery low (1=yes 0=no)'\n        \"\"\"\n        return int(self._driver.battery_low())\n\n    def serial_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 serial ID'\n        \"\"\"\n        return self._driver.serial_id()\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.software_reset()\n",
+  "version": "alpha2"
+}

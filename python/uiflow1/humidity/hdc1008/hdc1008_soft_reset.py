@@ -1,0 +1,1 @@
+_periph_hdc1008.software_reset()

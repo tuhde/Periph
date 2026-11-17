@@ -90,6 +90,7 @@
 #include "chips/gyroscope/L3G4200D.h"
 #include "chips/gyroscope/L3gd20h.h"
 #include "chips/humidity/DHT11.h"
+#include "chips/humidity/HDC1008.h"
 #include "chips/humidity/HTU21DF.h"
 #include "chips/humidity/SHT31.h"
 #include "chips/humidity/Si7021.h"

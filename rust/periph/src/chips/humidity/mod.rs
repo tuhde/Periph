@@ -3,6 +3,9 @@ pub mod dht11;
 pub use dht11::{Dht11Minimal, Dht11Full};
 pub use dht11::{Dht11MinimalEsp32s3, Dht11Error};
 
+pub mod hdc1008;
+pub use hdc1008::{HDC1008Minimal, HDC1008Full, Error as HDC1008Error};
+
 pub mod htu21df;
 pub use htu21df::{HTU21DFMinimal, HTU21DFFull, Error as HTU21DFError};
 

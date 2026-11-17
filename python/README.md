@@ -99,6 +99,7 @@ Each chip exposes two classes:
 | ENS160 | Gas sensor | Digital multi-gas sensor |
 | ES8311 | ADC/DAC | Bring-up for voice playback and recording. |
 | FXOS8700 | Accelerometer | Acceleration and magnetic field. |
+| HDC1008 | Humidity sensor | Minimal interface: one call reads temperature and humidity. |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
 | HTU21DF | Humidity sensor | HTU21D-F humidity and temperature sensor |
 | HX710A | ADC/DAC | 24-bit ADC |
