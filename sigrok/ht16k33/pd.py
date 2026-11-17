@@ -1,0 +1,234 @@
+import sigrokdecode as srd
+
+ADDRS = {0x38, 0x39}
+
+CMD_MODE_SET       = 0x40
+CMD_LOAD_PTR       = 0x00
+CMD_DEVICE_SELECT  = 0x60
+CMD_BANK_SELECT    = 0x78
+CMD_BLINK_SELECT   = 0x70
+
+MODE_NAMES = {0: '1:4', 1: 'static', 2: '1:2', 3: '1:3'}
+BIAS_NAMES = {0: '1/3 bias', 1: '1/2 bias'}
+BLINK_FREQ = {0: 'off', 1: '~2 Hz', 2: '~1 Hz', 3: '~0.5 Hz'}
+
+ANN_CMD = 0
+ANN_DATA = 1
+ANN_WARNING = 2
+
+
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
+class Decoder(srd.Decoder):
+    api_version = 3
+    id = 'ht16k33'
+    name = 'HT16K33'
+    longname = 'HT16K33 40x4 universal LCD segment driver'
+    desc = 'Decode HT16K33 I2C command-stream transactions.'
+    license = 'gplv2+'
+    inputs = ['i2c']
+    outputs = ['ht16k33']
+    tags = ['IC', 'Display', 'LCD']
+
+    annotations = (
+        ('cmd',     'Command'),
+        ('data',    'Display data'),
+        ('warning', 'Warning'),
+    )
+    annotation_rows = (
+        ('data',     'Data',     (ANN_CMD, ANN_DATA)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
+    )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.state    = 'IDLE'
+        self.addr     = None
+        self.cmds     = []
+        self.databuf  = []
+        self.ss_block = None
+        self.ss       = None
+        self.es       = None
+
+    def start(self):
+        self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
+
+    def _warn(self, ss, es, msg):
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
+
+    def _decode_mode_set(self, raw):
+        e = (raw >> 3) & 1
+        b = (raw >> 2) & 1
+        m = raw & 3
+        e_s = 'on' if e else 'off'
+        return 'mode-set 0x%02X: E=%s bias=%s mode=%s' % (
+            raw, e_s, BIAS_NAMES[b], MODE_NAMES[m])
+
+    def _decode_load_ptr(self, raw):
+        return 'load-data-pointer 0x%02X: addr=%d' % (raw, raw & 0x3F)
+
+    def _decode_device_select(self, raw):
+        return 'device-select 0x%02X: subaddress=%d' % (raw, raw & 0x07)
+
+    def _decode_bank_select(self, raw):
+        i = (raw >> 1) & 1
+        o = raw & 1
+        return 'bank-select 0x%02X: input=%d output=%d' % (raw, i, o)
+
+    def _decode_blink_select(self, raw):
+        ab = (raw >> 2) & 1
+        bf = raw & 3
+        ab_s = ' (alt bank)' if ab else ''
+        return 'blink-select 0x%02X: freq=%s%s' % (raw, BLINK_FREQ[bf], ab_s)
+
+    def _decode_command(self, raw):
+        if raw & 0xF0 == CMD_MODE_SET:
+            return self._decode_mode_set(raw)
+        if raw & 0xC0 == CMD_LOAD_PTR:
+            return self._decode_load_ptr(raw)
+        if raw & 0xF8 == CMD_DEVICE_SELECT:
+            return self._decode_device_select(raw)
+        if raw & 0xFC == CMD_BANK_SELECT:
+            return self._decode_bank_select(raw)
+        if raw & 0xFC == CMD_BLINK_SELECT:
+            return self._decode_blink_select(raw)
+        return 'unknown command 0x%02X' % raw
+
+    def _finish_transaction(self):
+        if self.state not in ('GET_CMD', 'GET_DATA'):
+            return
+        ss, es = self.ss_block, self.es
+        if self.cmds:
+            labels = [self._decode_command(c) for c in self.cmds]
+            label = 'Cmd: ' + ' → '.join(labels)
+            short = 'C' if len(self.cmds) == 1 else 'C(%d)' % len(self.cmds)
+            self.put(ss, es, self.out_ann, [ANN_CMD, [label, short]])
+        if self.databuf:
+            if len(self.databuf) == 1:
+                dshort = '0x%02X' % self.databuf[0]
+            else:
+                dshort = 'data[%d]' % len(self.databuf)
+            dlong = 'Display data: ' + ' '.join('0x%02X' % b for b in self.databuf)
+            self.put(ss, es, self.out_ann, [ANN_DATA, [dlong, dshort]])
+
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
+
+        if ptype in ('START', 'START REPEAT'):
+            self._finish_transaction()
+            self.cmds    = []
+            self.databuf = []
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
+
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr not in ADDRS:
+                self._warn(ss, es, 'Unexpected address 0x%02X' % addr)
+                self.state = 'IDLE'
+                return
+            self.addr = addr
+            if ptype == 'ADDRESS READ':
+                self._warn(ss, es, 'HT16K33 is write-only; saw ADDRESS READ')
+                self.state = 'IDLE'
+            else:
+                self.state = 'GET_CMD'
+
+        elif ptype == 'DATA WRITE':
+            byte = pdata
+            if self.state == 'GET_CMD':
+                if byte & 0x80:
+                    self.cmds.append(byte & 0x7F)
+                else:
+                    self.cmds.append(byte & 0x7F)
+                    self.state = 'GET_DATA'
+            elif self.state == 'GET_DATA':
+                self.databuf.append(byte)
+
+        elif ptype == 'DATA READ':
+            self._warn(ss, es, 'HT16K33 is write-only; saw DATA READ')
+
+        elif ptype == 'STOP':
+            self._finish_transaction()
+            self.state   = 'IDLE'
+            self.cmds    = []
+            self.databuf = []
