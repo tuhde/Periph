@@ -114,7 +114,7 @@ const CHIPS = [
     {"id":"lm25066","driver":null,"writeSensitive":false,"aliased":false,"addresses":[16,17,18,19,20,21,22,23,64,65,66,67,68,69,70,71,80,81,82,83,84,85,86,87,88,89,90],"probe":{"register":153,"regBytes":1,"length":4,"order":"big","mask":4294967295,"expected":[55464771]}},
     {"id":"ina219","driver":"ina219","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79],"probe":null},
     {"id":"ina226","driver":"ina226","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65535,"expected":[8800]}},
-    {"id":"ina260","driver":null,"writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65520,"expected":[8816]}},
+    {"id":"ina260","driver":"ina260","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65520,"expected":[8816]}},
     {"id":"ina3221","driver":"ina3221","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65535,"expected":[12832]}},
     {"id":"bmp085","driver":"bmp085","writeSensitive":false,"aliased":false,"addresses":[119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[85]}},
     {"id":"bmp180","driver":"bmp180","writeSensitive":false,"aliased":false,"addresses":[119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[85]}},
