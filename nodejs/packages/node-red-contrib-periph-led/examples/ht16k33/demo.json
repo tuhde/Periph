@@ -1,0 +1,119 @@
+[
+    {
+        "id": "tab-ht16k33-demo",
+        "type": "tab",
+        "label": "HT16K33 Scrolling Pixel",
+        "disabled": false,
+        "info": "Moves a single lit pixel across all 16 x 8 positions of an LED matrix driven by an HT16K33 over I2C. An inject node fires every 100 ms, a function node advances the pixel position (COM 0-7, ROW 0-15) and the periph-ht16k33 node clears the previous pixel and writes the new one. A second inject node sweeps the brightness from 0 to 15."
+    },
+    {
+        "id": "cfg-ht16k33",
+        "type": "ht16k33-device",
+        "name": "HT16K33",
+        "bus": "1",
+        "address": "70"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-ht16k33-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "fn-time"
+            ]
+        ]
+    },
+    {
+        "id": "fn-time",
+        "type": "function",
+        "name": "next pixel",
+        "func": "let i = context.get('i') || 0;\nconst com = Math.floor(i / 16);\nconst row = i % 16;\nconst prev = context.get('prev');\nconst pixels = [];\nif (prev) pixels.push([prev[0], prev[1], 0]);\npixels.push([com, row, 1]);\ncontext.set('prev', [com, row]);\ncontext.set('i', (i + 1) % 128);\nmsg.payload = { pixels: pixels };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-ht16k33-demo",
+        "x": 290,
+        "y": 160,
+        "wires": [
+            [
+                "write-lcd",
+                "dbg-lcd"
+            ]
+        ]
+    },
+    {
+        "id": "write-lcd",
+        "type": "periph-ht16k33",
+        "name": "Display",
+        "device": "cfg-ht16k33",
+        "z": "tab-ht16k33-demo",
+        "x": 470,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "dbg-lcd",
+        "type": "debug",
+        "name": "pixels",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "inj-bright",
+        "type": "inject",
+        "name": "brightness sweep",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-ht16k33-demo",
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "fn-bright"
+            ]
+        ]
+    },
+    {
+        "id": "fn-bright",
+        "type": "function",
+        "name": "next level",
+        "func": "let l = context.get('l') || 0;\nmsg.payload = { brightness: l };\ncontext.set('l', (l + 1) % 16);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-ht16k33-demo",
+        "x": 300,
+        "y": 280,
+        "wires": [
+            [
+                "write-lcd"
+            ]
+        ]
+    }
+]

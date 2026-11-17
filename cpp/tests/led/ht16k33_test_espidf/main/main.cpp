@@ -1,0 +1,93 @@
+// Auto-generated ESP-IDF test for HT16K33.
+// Mirrors the Zephyr test for HT16K33; prints PASS/FAIL and exits.
+
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/i2c_master.h"
+#include "I2CConnectionESPIDF.h"
+#include "HT16K33.h"
+
+static int passed = 0;
+static int failed = 0;
+
+static void check_true(bool cond, const char *label) {
+    if (cond) { printf("PASS %s\n", label); passed++; }
+    else       { printf("FAIL %s\n", label); failed++; }
+}
+
+static void check_near(float val, float lo, float hi, const char *label) {
+    if (val >= lo && val <= hi) { printf("PASS %s\n", label); passed++; }
+    else { printf("FAIL %s: %.4f not in [%.4f, %.4f]\n",
+                  label, (double)val, (double)lo, (double)hi); failed++; }
+}
+
+static void check_eq_u8(uint8_t val, uint8_t expected, const char *label) {
+    if (val == expected) { printf("PASS %s\n", label); passed++; }
+    else { printf("FAIL %s: 0x%02X != 0x%02X\n", label, val, expected); failed++; }
+}
+
+
+extern "C" void app_main(void) {
+    i2c_master_bus_config_t bus_cfg = {};
+    bus_cfg.i2c_port = I2C_NUM_0;
+    bus_cfg.sda_io_num = static_cast<gpio_num_t>(21);
+    bus_cfg.scl_io_num = static_cast<gpio_num_t>(22);
+    bus_cfg.clk_source = I2C_CLK_SRC_DEFAULT;
+    bus_cfg.glitch_ignore_cnt = 7;
+    bus_cfg.flags.enable_internal_pullup = true;
+    i2c_master_bus_handle_t bus;
+    i2c_new_master_bus(&bus_cfg, &bus);
+
+    i2c_device_config_t dev_cfg = {};
+    dev_cfg.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    dev_cfg.device_address = 0x70;
+    dev_cfg.scl_speed_hz = 400000;
+    i2c_master_dev_handle_t dev;
+    i2c_master_bus_add_device(bus, &dev_cfg, &dev);
+
+    I2CConnectionESPIDF connection(dev);
+    HT16K33Minimal matrix(connection);
+    HT16K33Full full(connection);
+
+    check_true(HT16K33Minimal::COMMONS == 8 && HT16K33Minimal::ROWS == 16, "constants");
+
+    check_true(matrix.set_pixel(0, 0) && matrix.set_pixel(7, 15), "set_pixel");
+    check_true(!matrix.set_pixel(8, 0) && !matrix.set_pixel(0, 16), "set_pixel_range");
+    matrix.show();
+    check_true(true, "show");
+
+    uint8_t raw[2] = {0xFF, 0x00};
+    check_true(matrix.write_raw(raw, 2, 0), "write_raw");
+    check_true(!matrix.write_raw(raw, 2, 15), "write_raw_overflow");
+
+    matrix.set_brightness(0);
+    matrix.set_brightness(15);
+    check_true(true, "set_brightness");
+    matrix.clear();
+    check_true(true, "clear");
+
+    full.set_pixel(3, 4);
+    full.show();
+    check_true(full.get_pixel(3, 4) && !full.get_pixel(3, 5), "get_pixel");
+
+    check_true(full.set_blink(2.0f) && full.set_blink(1.0f) && full.set_blink(0.5f) && full.set_blink(0.0f), "set_blink");
+    check_true(!full.set_blink(3.0f), "set_blink_invalid");
+    full.display_off();
+    full.display_on();
+    check_true(true, "display_off_on");
+    full.standby();
+    full.wake();
+    check_true(true, "standby_wake");
+    full.set_int_output(true);
+    full.set_int_output(true, true);
+    full.set_int_output(false);
+    check_true(true, "set_int_output");
+    (void)full.read_keys();
+    check_true(true, "read_keys");
+    (void)full.key_pressed();
+    check_true(true, "key_pressed");
+    full.clear();
+
+    printf("===DONE: %d passed, %d failed===\n", passed, failed);
+}

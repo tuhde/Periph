@@ -1,0 +1,337 @@
+{
+  "category": "HT16K33",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HT16K33_LANGUAGES = {\n  \"CUSTOM_HT16K33_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_HT16K33_CLEAR\": {\n    \"en\": \"%1 clear\"\n  },\n  \"CUSTOM_HT16K33_SET_PIXEL\": {\n    \"en\": \"%1 set pixel com %2 row %3 state %4\"\n  },\n  \"CUSTOM_HT16K33_SHOW\": {\n    \"en\": \"%1 show\"\n  },\n  \"CUSTOM_HT16K33_SET_BRIGHTNESS\": {\n    \"en\": \"%1 set brightness %2\"\n  },\n  \"CUSTOM_HT16K33_DISPLAY_ON\": {\n    \"en\": \"%1 display on\"\n  },\n  \"CUSTOM_HT16K33_DISPLAY_OFF\": {\n    \"en\": \"%1 display off\"\n  },\n  \"CUSTOM_HT16K33_SET_BLINK\": {\n    \"en\": \"%1 set blink frequency (Hz) %2\"\n  },\n  \"CUSTOM_HT16K33_STANDBY\": {\n    \"en\": \"%1 standby\"\n  },\n  \"CUSTOM_HT16K33_WAKE\": {\n    \"en\": \"%1 wake\"\n  },\n  \"CUSTOM_HT16K33_SET_INT_OUTPUT\": {\n    \"en\": \"%1 set INT output enable %2 active high %3\"\n  },\n  \"CUSTOM_HT16K33_READ_KEYS\": {\n    \"en\": \"%1 read keys\"\n  },\n  \"CUSTOM_HT16K33_KEY_PRESSED\": {\n    \"en\": \"%1 key pressed\"\n  },\n  \"CUSTOM_HT16K33_GET_PIXEL\": {\n    \"en\": \"%1 get pixel com %2 row %3\"\n  }\n};\n\nconst initType = 'custom_ht16k33_init';\nBlockly.BlockRegExpList['custom_ht16k33'] = {\n  regexp: new RegExp(/^custom_ht16k33_/),\n  code: \"from HT16K33 import HT16K33\",\n  initBlockType: initType,\n  categoryId: 'custom_ht16k33',\n}\nBlockly.utils.registerLanguages(CUSTOM_HT16K33_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HT16K33_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HT16K33 = 'HT16K33'\n\nBlockly.utils.getcustom_ht16k33Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ht16k33_0', 'ht16k33_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ht16k33_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ht16k33Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ht16k33_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HT16K33(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'com'\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var com = Blockly.Python.valueToCode(block, 'com', Blockly.Python.ORDER_FUNCTION_CALL);\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${com}, ${row}, ${state})\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_show\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_SHOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_show\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.show()\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_set_brightness\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_SET_BRIGHTNESS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'level'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_set_brightness\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var level = Blockly.Python.valueToCode(block, 'level', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_brightness(${level})\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_display_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_DISPLAY_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_display_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.display_on()\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_display_off\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_DISPLAY_OFF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_display_off\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.display_off()\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_set_blink\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_SET_BLINK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'frequency'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_set_blink\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frequency = Blockly.Python.valueToCode(block, 'frequency', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_blink(${frequency})\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_standby\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_STANDBY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_standby\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.standby()\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_set_int_output\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_SET_INT_OUTPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n        {\n          'type': 'input_value',\n          'name': 'active_high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_set_int_output\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  var active_high = Blockly.Python.valueToCode(block, 'active_high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_int_output(${enable}, ${active_high})\\n`\n}\n\nBlockly.Blocks[\"custom_ht16k33_read_keys\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_READ_KEYS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_read_keys\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_keys()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ht16k33_key_pressed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_KEY_PRESSED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_key_pressed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.key_pressed()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ht16k33_get_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HT16K33_GET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ht16k33Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'com'\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ht16k33_get_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var com = Blockly.Python.valueToCode(block, 'com', Blockly.Python.ORDER_FUNCTION_CALL);\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_pixel(${com}, ${row})`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"HT16K33\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ht16k33\"><title text=\"HT16K33\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ht16k33_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">112</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ht16k33_clear\"/><block type=\"custom_ht16k33_set_pixel\">\n  <value name=\"com\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ht16k33_show\"/><block type=\"custom_ht16k33_set_brightness\">\n  <value name=\"level\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ht16k33_display_on\"/><block type=\"custom_ht16k33_display_off\"/><block type=\"custom_ht16k33_set_blink\">\n  <value name=\"frequency\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ht16k33_standby\"/><block type=\"custom_ht16k33_wake\"/><block type=\"custom_ht16k33_set_int_output\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"active_high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ht16k33_read_keys\"/><block type=\"custom_ht16k33_key_pressed\"/><block type=\"custom_ht16k33_get_pixel\">\n  <value name=\"com\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_ht16k33",
+    "block_type": [
+      "custom_ht16k33___init__",
+      "custom_ht16k33_clear",
+      "custom_ht16k33_set_pixel",
+      "custom_ht16k33_show",
+      "custom_ht16k33_set_brightness",
+      "custom_ht16k33_display_on",
+      "custom_ht16k33_display_off",
+      "custom_ht16k33_set_blink",
+      "custom_ht16k33_standby",
+      "custom_ht16k33_wake",
+      "custom_ht16k33_set_int_output",
+      "custom_ht16k33_read_keys",
+      "custom_ht16k33_key_pressed",
+      "custom_ht16k33_get_pixel"
+    ]
+  },
+  "data": {
+    "name": "HT16K33",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HT16K33",
+      "time": "2026-11-17",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.ht16k33 import HT16K33Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "112",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = HT16K33Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel com %2 row %3 state %4"
+        },
+        "params": [
+          {
+            "name": "com",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "row",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(com, row, bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show",
+        "note": {},
+        "label": {
+          "en": "%1 show"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.show()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_brightness",
+        "note": {},
+        "label": {
+          "en": "%1 set brightness %2"
+        },
+        "params": [
+          {
+            "name": "level",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_brightness(level)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "display_on",
+        "note": {},
+        "label": {
+          "en": "%1 display on"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.display_on()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "display_off",
+        "note": {},
+        "label": {
+          "en": "%1 display off"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.display_off()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_blink",
+        "note": {},
+        "label": {
+          "en": "%1 set blink frequency (Hz) %2"
+        },
+        "params": [
+          {
+            "name": "frequency",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_blink(frequency)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "standby",
+        "note": {},
+        "label": {
+          "en": "%1 standby"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.standby()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_int_output",
+        "note": {},
+        "label": {
+          "en": "%1 set INT output enable %2 active high %3"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "active_high",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_int_output(bool(enable), bool(active_high))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_keys",
+        "note": {},
+        "label": {
+          "en": "%1 read keys"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_keys()",
+        "ast_return": {
+          "code": "self._driver.read_keys()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "key_pressed",
+        "note": {},
+        "label": {
+          "en": "%1 key pressed"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.key_pressed()",
+        "ast_return": {
+          "code": "self._driver.key_pressed()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 get pixel com %2 row %3"
+        },
+        "params": [
+          {
+            "name": "com",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "row",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_pixel(com, row)",
+        "ast_return": {
+          "code": "self._driver.get_pixel(com, row)",
+          "id": "bool"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ht16k33"
+  },
+  "pyCode": "\"\"\"\nfile     HT16K33\ntime     2026-11-17\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.ht16k33 import HT16K33Full\n\n\nclass HT16K33:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 112):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '112'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = HT16K33Full(connection)\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear'\n        \"\"\"\n        self._driver.clear()\n\n    def set_pixel(self, com: int, row: int, state: int):\n        \"\"\"\n        label:\n            en: '%1 set pixel com %2 row %3 state %4'\n        params:\n            com:\n                name: com\n                type: int\n                field: number\n            row:\n                name: row\n                type: int\n                field: number\n            state:\n                name: state\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_pixel(com, row, bool(state))\n\n    def show(self):\n        \"\"\"\n        label:\n            en: '%1 show'\n        \"\"\"\n        self._driver.show()\n\n    def set_brightness(self, level: int):\n        \"\"\"\n        label:\n            en: '%1 set brightness %2'\n        params:\n            level:\n                name: level\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_brightness(level)\n\n    def display_on(self):\n        \"\"\"\n        label:\n            en: '%1 display on'\n        \"\"\"\n        self._driver.display_on()\n\n    def display_off(self):\n        \"\"\"\n        label:\n            en: '%1 display off'\n        \"\"\"\n        self._driver.display_off()\n\n    def set_blink(self, frequency: float):\n        \"\"\"\n        label:\n            en: '%1 set blink frequency (Hz) %2'\n        params:\n            frequency:\n                name: frequency\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_blink(frequency)\n\n    def standby(self):\n        \"\"\"\n        label:\n            en: '%1 standby'\n        \"\"\"\n        self._driver.standby()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n\n    def set_int_output(self, enable: int, active_high: int):\n        \"\"\"\n        label:\n            en: '%1 set INT output enable %2 active high %3'\n        params:\n            enable:\n                name: enable\n                type: int\n                field: number\n            active_high:\n                name: active_high\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_int_output(bool(enable), bool(active_high))\n\n    def read_keys(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read keys'\n        \"\"\"\n\n        return self._driver.read_keys()\n\n    def key_pressed(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 key pressed'\n        \"\"\"\n\n        return self._driver.key_pressed()\n\n    def get_pixel(self, com: int, row: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 get pixel com %2 row %3'\n        params:\n            com:\n                name: com\n                type: int\n                field: number\n            row:\n                name: row\n                type: int\n                field: number\n        \"\"\"\n\n        return self._driver.get_pixel(com, row)\n",
+  "version": "alpha2"
+}

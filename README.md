@@ -169,7 +169,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) |  |  |  |  |  |  |  |  |
 | HS40xx | Humidity and temperature sensor (CRC, periodic mode, alert pin) |  |  |  |  |  |  |  |  |
-| HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) |  |  |  |  |  |  |  |  |
+| HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | | | | | | | | |
 | HTU21D-F | Humidity + temperature sensor (±2 %RH, ±0.3 °C, heater, CRC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HTU31D | Digital humidity and temperature sensor (16-bit, OSR 0–3, CRC-8, heater, diagnostic) | | | | | | | | |

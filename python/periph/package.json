@@ -357,6 +357,10 @@
       "github:tuhde/Periph/python/periph/chips/led/apa102.py"
     ],
     [
+      "periph/chips/led/ht16k33.py",
+      "github:tuhde/Periph/python/periph/chips/led/ht16k33.py"
+    ],
+    [
       "periph/chips/led/sk6812rgbw.py",
       "github:tuhde/Periph/python/periph/chips/led/sk6812rgbw.py"
     ],

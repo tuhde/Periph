@@ -149,7 +149,7 @@ const CHIPS = [
     {"id":"htu21df","driver":"htu21df","writeSensitive":false,"aliased":false,"addresses":[64],"probe":null},
     {"id":"hdc1008","driver":"hdc1008","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67],"probe":null},
     {"id":"hdc1080","driver":"hdc1080","writeSensitive":false,"aliased":false,"addresses":[64],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65535,"expected":[4176]}},
-    {"id":"ht16k33","driver":null,"writeSensitive":true,"aliased":false,"addresses":[112,113,114,115,116,117,118,119],"probe":null},
+    {"id":"ht16k33","driver":"ht16k33","writeSensitive":true,"aliased":false,"addresses":[112,113,114,115,116,117,118,119],"probe":null},
     {"id":"hs30xx","driver":null,"writeSensitive":true,"aliased":false,"addresses":[68],"probe":null},
     {"id":"hs40xx","driver":null,"writeSensitive":true,"aliased":false,"addresses":[84],"probe":null},
     {"id":"si7021","driver":"si7021","writeSensitive":true,"aliased":false,"addresses":[64],"probe":{"register":64713,"regBytes":2,"length":4,"order":"big","mask":4278190080,"expected":[352321536]}},

@@ -13,7 +13,8 @@
   "node-red": {
     "nodes": {
       "ws2812b": "nodes/ws2812b/ws2812b.js",
-      "apa102": "nodes/apa102/apa102.js"
+      "apa102": "nodes/apa102/apa102.js",
+      "ht16k33": "nodes/ht16k33/ht16k33.js"
     }
   },
   "dependencies": {
