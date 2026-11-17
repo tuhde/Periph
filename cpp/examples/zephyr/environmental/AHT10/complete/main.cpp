@@ -31,14 +31,11 @@ int main(void) {
     uint32_t raw_rh, raw_t;
     aht.read_raw(raw_rh, raw_t);                                       // Read raw 20-bit values, (raw_humidity, raw_temperature) → bool
                                                                        // same measurement as read(), undecoded
-    printk("%u %u
-", (unsigned)raw_rh, (unsigned)raw_t);
+    printk("%u %u\n", (unsigned)raw_rh, (unsigned)raw_t);
 
-    printk("0x%02X
-", aht.read_status());                              // Read status byte, () → uint8_t
+    printk("0x%02X\n", aht.read_status());                              // Read status byte, () → uint8_t
                                                                        // bit 7 BUSY, bits 6:5 MODE, bit 3 CAL
-    printk("%.2f
-", (double)aht.dew_point());                          // Dew point, () → float °C
+    printk("%.2f\n", (double)aht.dew_point());                          // Dew point, () → float °C
                                                                        // one fresh measurement, Magnus formula
 
     aht.soft_reset();                                                  // Send soft reset command, () → void
