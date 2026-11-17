@@ -1,0 +1,136 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hdc1080_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HDC1080",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HDC1080 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HDC1080 relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HDC1080 resolution (T 14/11 bit, RH 14/11/8 bit)",
+          "type": "label"
+        },
+        {
+          "name": "temperature bits",
+          "type": "label"
+        },
+        {
+          "name": "_tbits",
+          "type": "number"
+        },
+        {
+          "name": "humidity bits",
+          "type": "label"
+        },
+        {
+          "name": "_hbits",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_set_heater",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HDC1080 heater (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_heater_on",
+      "type": "value",
+      "params": [
+        {
+          "name": "HDC1080 heater on (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_battery_low",
+      "type": "value",
+      "params": [
+        {
+          "name": "HDC1080 battery low (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_serial_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "HDC1080 serial ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hdc1080_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HDC1080 soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

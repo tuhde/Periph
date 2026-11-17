@@ -2216,7 +2216,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "hdc1080",
       "datasheet": "datasheets/humidity/hdc1080.pdf"
     },
     {

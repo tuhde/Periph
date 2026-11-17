@@ -13,6 +13,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/hdc1008.py"
     ],
     [
+      "periph/chips/humidity/hdc1080.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hdc1080.py"
+    ],
+    [
       "periph/chips/humidity/htu21df.py",
       "github:tuhde/Periph/python/periph/chips/humidity/htu21df.py"
     ],
