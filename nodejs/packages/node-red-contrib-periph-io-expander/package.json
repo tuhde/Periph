@@ -21,6 +21,7 @@
       "periph-pca9539": "nodes/pca9539/pca9539.js",
       "periph-pcf8574": "nodes/pcf8574/pcf8574.js",
       "periph-pcf8575": "nodes/pcf8575/pcf8575.js",
+      "periph-tca9554": "nodes/tca9554/tca9554.js",
       "periph-tpic6b595": "nodes/tpic6b595/tpic6b595.js"
     }
   },

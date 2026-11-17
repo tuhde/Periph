@@ -159,6 +159,7 @@ Each chip exposes two classes:
 | SSD1306 | Display driver | 128 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | ST7036 | Display driver | Character LCD controller |
+| TCA9554 | IO expander | 8-bit I/O expander (I²C / SMBus) |
 | TMC2130 | Motor driver | Trinamic TMC2130 stepper driver over SPI. |
 | TMC2208 | Motor driver | Trinamic TMC2202 / TMC2208 / TMC2224 stepper driver over single-wire UART. |
 | TMC2209 | Motor driver | Trinamic TMC2209 stepper driver over single-wire UART. |

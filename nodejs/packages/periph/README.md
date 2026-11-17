@@ -143,6 +143,7 @@ Each chip exposes two classes:
 | SSD1306 | Display driver | `periph/src/chips/display/ssd1306` |
 | SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
 | ST7036 | Display driver | `periph/src/chips/display/st7036` |
+| TCA9554 | IO expander | `periph/src/chips/io_expander/tca9554` |
 | TMC2130 | Motor driver | `periph/src/chips/motor/tmc2130` |
 | TMC2208 | Motor driver | `periph/src/chips/motor/tmc2208` |
 | TMC2209 | Motor driver | `periph/src/chips/motor/tmc2209` |

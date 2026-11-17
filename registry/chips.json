@@ -1139,7 +1139,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "tca9554",
       "datasheet": "datasheets/io_expander/tca9554.pdf"
     },
     {
