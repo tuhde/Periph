@@ -1,0 +1,87 @@
+//go:build linux && !tinygo
+
+// AHT20 demo example — Linux host.
+//
+// Weather-station style logger. Initializes the sensor, prints the
+// calibration status, then logs temperature, humidity, and computed
+// dew point every 5 seconds.
+package main
+
+import (
+	"fmt"
+	"math"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/tuhde/Periph/go/periph/chips/environmental"
+	"github.com/tuhde/Periph/go/periph/connection"
+)
+
+func main() {
+	bus, err := strconv.Atoi(envOr("I2C_BUS", "1"))
+	if err != nil {
+		panic(err)
+	}
+	addr, err := strconv.ParseUint(envOr("I2C_ADDR", "0x38"), 0, 8)
+	if err != nil {
+		panic(err)
+	}
+
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x38) → (*I2CConnection, error)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	chip, err := environmental.NewAHT20Full(conn) // Create AHT20 driver, (connection) → (*AHT20Full, error)
+	if err != nil {
+		panic(err)
+	}
+
+	// --- Verify calibration before starting the logging session ---
+	// Most AHT20 modules ship pre-calibrated; if the CAL bit is not set
+	// the driver already sent the calibration init sequence during New.
+	cal, err := chip.IsCalibrated()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Calibrated: %v\n", cal) // Check calibration status, () → (bool, error)
+
+	fmt.Printf("%-8s %-10s %-10s %-10s\n", "Time", "T (C)", "RH (%)", "Dew (C)")
+	for n := 0; n < 60; n++ {
+		// --- Each reading requires an 80 ms measurement cycle ---
+		// The sensor cannot output data faster than this; the driver
+		// handles the trigger + wait internally.
+		t, h, err := chip.Read()
+		if err != nil {
+			panic(err)
+		}
+		// --- Magnus formula dew-point approximation ---
+		// gamma = ln(RH/100) + (17.625 * T) / (243.04 + T)
+		// dew_point = (243.04 * gamma) / (17.625 - gamma)
+		// Accurate to ±0.5 °C for 0 < T < 60 °C and 1 < RH < 100 %RH.
+		tF, hF := float64(t), float64(h)
+		gamma := math.Log(hF/100.0) + (17.625*tF)/(243.04+tF)
+		dew := (243.04 * gamma) / (17.625 - gamma)
+
+		fmt.Printf("%-8d %-10.2f %-10.2f %-10.2f\n", n, t, h, dew) // Trigger measurement, () → (float32 °C, float32 %RH, error)
+		// --- Every 10th sample, verify the transfer with the CRC-8 ---
+		// The 7th byte protects bytes 0-5; a bad CRC means the I²C line is noisy.
+		if n%10 == 9 {
+			_, _, crcOK, err := chip.ReadWithCRC() // Read with CRC check, () → (float32 °C, float32 %RH, bool, error)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("CRC ok: %v\n", crcOK)
+		}
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func envOr(k, def string) string {
+	if v, ok := os.LookupEnv(k); ok {
+		return v
+	}
+	return def
+}
