@@ -209,6 +209,10 @@
       "github:tuhde/Periph/python/periph/chips/display/uc8276c.py"
     ],
     [
+      "periph/chips/environmental/aht10.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/aht10.py"
+    ],
+    [
       "periph/chips/environmental/aht21.py",
       "github:tuhde/Periph/python/periph/chips/environmental/aht21.py"
     ],

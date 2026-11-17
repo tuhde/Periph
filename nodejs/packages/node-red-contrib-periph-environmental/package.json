@@ -13,6 +13,7 @@
   "main": "index.js",
   "node-red": {
     "nodes": {
+      "aht10": "nodes/aht10/aht10.js",
       "aht21": "nodes/aht21/aht21.js",
       "am2315": "nodes/am2315/am2315.js",
       "bme280": "nodes/bme280/bme280.js",

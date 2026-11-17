@@ -122,7 +122,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ADS7828 | 12-bit ADC (8-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADXL345 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADXL362 | Accelerometer (3-axis, ultra-low power) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AHT10 | Temperature/humidity |  |  |  |  |  |  |  |  |
+| AHT10 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AHT20 | Temperature/humidity |  |  |  |  |  |  |  |  |
 | AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AK8975 | 3-axis electronic compass (Hall, 13-bit, ±1229 µT, self-test, DRDY) |  |  |  |  |  |  |  |  |

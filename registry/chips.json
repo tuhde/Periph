@@ -781,7 +781,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "aht10",
       "datasheet": "datasheets/environmental/aht10.pdf"
     },
     {

@@ -1,0 +1,27 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "aht10_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init AHT10", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "aht10_read_temperature",
+      "type": "value",
+      "params": [{ "name": "AHT10 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "aht10_read_humidity",
+      "type": "value",
+      "params": [{ "name": "AHT10 humidity (%)", "type": "label" }]
+    }
+  ]
+}
