@@ -79,6 +79,7 @@
 #include "chips/display/UC8159.h"
 #include "chips/display/UC8276C.h"
 #include "chips/environmental/AHT10.h"
+#include "chips/environmental/AHT20.h"
 #include "chips/environmental/AHT21.h"
 #include "chips/environmental/AM2315.h"
 #include "chips/environmental/BME280.h"
