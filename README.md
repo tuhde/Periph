@@ -187,7 +187,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ITG3200 | Gyroscope (3-axis, ±2000 °/s, 16-bit, DLPF, temperature, data-ready interrupt) |  |  |  |  |  |  |  |  |
 | L3G4200D | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | L3GD20H (L3GD20) | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| LC709203F | Battery fuel gauge (1-cell Li-ion, no sense resistor) |  |  |  |  |  |  |  |  |
+| LC709203F | Battery fuel gauge (1-cell Li-ion, no sense resistor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LIS3DH | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LM25066 | Hot-swap controller / power monitor (PMBus, VIN/VOUT/IIN/PIN/temperature) |  |  |  |  |  |  |  |  |
 | LM75B | Temperature sensor with thermal watchdog (11-bit, 0.125 °C) |  |  |  |  |  |  |  |  |

@@ -112,6 +112,7 @@ Each chip exposes two classes:
 | INA3221 | Power monitor | Three-channel 26V current/voltage/power monitor |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope |
 | L3GD20H | Gyroscope | (and L3GD20) three-axis MEMS gyroscope |
+| LC709203F | Power monitor | 1-cell Li-ion fuel gauge |
 | LIS3DH | Accelerometer | 3-axis accelerometer |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
