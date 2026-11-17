@@ -1,0 +1,59 @@
+import sys
+import time
+
+from periph.connection.i2c_auto import I2CConnection
+from periph.chips.environmental.aht10 import AHT10Full
+
+passed = 0
+failed = 0
+
+
+def check_true(label, condition):
+    global passed, failed
+    if condition:
+        print('PASS', label)
+        passed += 1
+    else:
+        print('FAIL', label)
+        failed += 1
+
+
+connection = I2CConnection(0x38)
+aht = AHT10Full(connection)
+
+check_true('is_calibrated', aht.is_calibrated())
+check_true('not busy at idle', not aht.is_busy())
+
+r = aht.read()
+check_true('temperature range', r['temperature_c'] >= -40.0 and r['temperature_c'] <= 120.0)
+check_true('humidity range', r['humidity_pct'] >= 0.0 and r['humidity_pct'] <= 100.0)
+
+t = aht.read_temperature()
+check_true('read_temperature range', t >= -40.0 and t <= 120.0)
+
+h = aht.read_humidity()
+check_true('read_humidity range', h >= 0.0 and h <= 100.0)
+
+raw_rh, raw_t = aht.read_raw()
+check_true('read_raw range', 0 <= raw_rh < 1048576 and 0 <= raw_t < 1048576)
+
+check_true('read_status calibrated', bool(aht.read_status() & 0x08))
+
+d = aht.dew_point()
+check_true('dew_point <= temperature', d <= aht.read_temperature() + 1.0)
+
+aht.soft_reset()
+time.sleep(0.05)
+check_true('calibrated after reset', aht.is_calibrated())
+
+r2 = aht.read()
+check_true('read after reset: temperature range', r2['temperature_c'] >= -40.0 and r2['temperature_c'] <= 120.0)
+check_true('read after reset: humidity range', r2['humidity_pct'] >= 0.0 and r2['humidity_pct'] <= 100.0)
+
+connection.close()
+
+print('===DONE: {} passed, {} failed==='.format(passed, failed))
+try:
+    sys.exit(0 if failed == 0 else 1)
+except AttributeError:
+    pass  # MicroPython has no sys.exit
