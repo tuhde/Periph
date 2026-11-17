@@ -290,6 +290,19 @@ static constexpr uint8_t kAddr_saa1064[] = {0x38, 0x39, 0x3A, 0x3B};
 static constexpr uint8_t kAddr_pcf8563[] = {0x51};
 static constexpr uint8_t kAddr_mcp7940n[] = {0x6F};
 static constexpr uint8_t kAddr_pcf8573[] = {0x68, 0x69, 0x6A, 0x6B};
+static constexpr uint8_t kAddr_ltc4151[] = {0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F};
+static constexpr uint8_t kAddr_max17048[] = {0x36};
+static constexpr uint32_t kExp_max17048[] = {0x0010};
+static constexpr IdProbe kProbe_max17048 = {0x08, 1, 2, false, 0xFFF0, kExp_max17048, 1};
+static constexpr uint8_t kAddr_is31fl3731[] = {0x74, 0x75, 0x76, 0x77};
+static constexpr uint8_t kAddr_as7262[] = {0x49};
+static constexpr uint8_t kAddr_hts221[] = {0x5F};
+static constexpr uint32_t kExp_hts221[] = {0xBC};
+static constexpr IdProbe kProbe_hts221 = {0x0F, 1, 1, false, 0xFF, kExp_hts221, 1};
+static constexpr uint8_t kAddr_htu31d[] = {0x40, 0x41};
+static constexpr uint8_t kAddr_bh1750[] = {0x23, 0x5C};
+static constexpr uint8_t kAddr_ms5607[] = {0x76, 0x77};
+static constexpr uint8_t kAddr_ms5611[] = {0x76, 0x77};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -445,8 +458,17 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8563", nullptr, false, false, kAddr_pcf8563, 1, nullptr},
     {"mcp7940n", nullptr, false, false, kAddr_mcp7940n, 1, nullptr},
     {"pcf8573", nullptr, true, false, kAddr_pcf8573, 4, nullptr},
+    {"ltc4151", nullptr, false, false, kAddr_ltc4151, 9, nullptr},
+    {"max17048", nullptr, false, false, kAddr_max17048, 1, &kProbe_max17048},
+    {"is31fl3731", nullptr, false, false, kAddr_is31fl3731, 4, nullptr},
+    {"as7262", nullptr, true, false, kAddr_as7262, 1, nullptr},
+    {"hts221", nullptr, false, false, kAddr_hts221, 1, &kProbe_hts221},
+    {"htu31d", nullptr, true, false, kAddr_htu31d, 2, nullptr},
+    {"bh1750", nullptr, true, false, kAddr_bh1750, 2, nullptr},
+    {"ms5607", nullptr, true, false, kAddr_ms5607, 2, nullptr},
+    {"ms5611", nullptr, true, false, kAddr_ms5611, 2, nullptr},
 };
-static constexpr size_t kChipCount = 153;
+static constexpr size_t kChipCount = 162;
 
 }  // namespace discovery
 }  // namespace periph
