@@ -1,0 +1,77 @@
+//go:build tinygo
+
+// LM25066 hardware test — TinyGo / Raspberry Pi Pico W.
+//
+// Flashed to a Pico W connected to an LM25066 on I2C1 (GP4 = SDA,
+// GP5 = SCL). Prints PASS/FAIL per check and ends with the standard
+// ===DONE: ... === line. The test runner (go/test_tinygo.sh) reads
+// the serial output and reports exit code 0/1/2 based on the
+// ===DONE=== line.
+package main
+
+import (
+	"fmt"
+	"machine"
+
+	"github.com/tuhde/Periph/go/periph/chips/power"
+	"github.com/tuhde/Periph/go/periph/connection"
+)
+
+func main() {
+	i2c := machine.I2C1
+	if err := i2c.Configure(machine.I2CConfig{
+		SDA:       machine.GP4,
+		SCL:       machine.GP5,
+		Frequency: 100_000,
+	}); err != nil {
+		fmt.Printf("FAIL i2c_configure: %v\n", err)
+		fmt.Println("===DONE: 0 passed, 1 failed===")
+		return
+	}
+
+	conn := connection.NewI2CConnection(i2c, 0x40, nil, nil)
+	chip := power.NewLM25066Full(conn, 1.0, false)
+
+	passed, failed := 0, 0
+	check := func(label string, cond bool) {
+		if cond {
+			fmt.Printf("PASS %s\n", label)
+			passed++
+		} else {
+			fmt.Printf("FAIL %s\n", label)
+			failed++
+		}
+	}
+
+	fp := func(v float64) *float64 { return &v }
+
+	check("model_is_lm25066", func() bool { v, err := chip.Model(); return err == nil && v == "LM25066" }())
+	check("manufacturer_id", func() bool { v, err := chip.ManufacturerID(); return err == nil && v == "NSC" }())
+	check("vin_range", func() bool { v, err := chip.VoltageIn(); return err == nil && v >= 0 && v <= 24 }())
+	check("vout_range", func() bool { v, err := chip.VoltageOut(); return err == nil && v >= 0 && v <= 24 }())
+	check("current_readable", func() bool { v, err := chip.Current(); return err == nil && v > -1 }())
+	check("power_readable", func() bool { v, err := chip.Power(); return err == nil && v > -5 }())
+	check("temperature_plausible", func() bool { v, err := chip.Temperature(); return err == nil && v > -40 && v < 150 }())
+	check("vaux_range", func() bool { v, err := chip.VoltageAux(); return err == nil && v >= 0 && v <= 1.2 }())
+	check("block_readable", func() bool { _, err := chip.ReadBlock(); return err == nil }())
+	check("avg_block_readable", func() bool { _, err := chip.ReadAverage(); return err == nil }())
+	check("averaging", chip.SetAveraging(4) == nil && func() bool { v, err := chip.GetAveraging(); return err == nil && v == 4 }())
+	check("averaging_reset", chip.SetAveraging(0) == nil)
+	check("vin_uv_warn", chip.SetVinUVWarn(fp(8.0)) == nil && func() bool {
+		l, err := chip.GetLimits()
+		return err == nil && l.VinUVWarn != nil && *l.VinUVWarn > 7.95 && *l.VinUVWarn < 8.05
+	}())
+	check("vin_uv_warn_disabled", chip.SetVinUVWarn(nil) == nil && func() bool { l, err := chip.GetLimits(); return err == nil && l.VinUVWarn == nil }())
+	check("ot_warn", chip.SetOTWarn(fp(110.0)) == nil && func() bool {
+		l, err := chip.GetLimits()
+		return err == nil && l.OTWarn != nil && *l.OTWarn > 109.9 && *l.OTWarn < 110.1
+	}())
+	check("ot_warn_restore", chip.SetOTWarn(fp(125.0)) == nil)
+	check("peak_cleared", chip.ClearPowerPeak() == nil && func() bool { v, err := chip.PowerPeak(); return err == nil && v >= 0 }())
+	check("clear_faults", chip.ClearFaults() == nil)
+	check("status_word_readable", func() bool { _, err := chip.StatusWord(); return err == nil }())
+	check("diagnostic_readable", func() bool { _, err := chip.DiagnosticWord(); return err == nil }())
+	check("capability", func() bool { v, err := chip.Capability(); return err == nil && v == 0xB0 }())
+
+	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
+}

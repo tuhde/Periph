@@ -1,0 +1,53 @@
+use linux_embedded_hal::I2cdev;
+use periph::chips::power::Lm25066Full;
+
+macro_rules! check_true {
+    ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
+        if $cond {
+            println!("PASS {}", $label);
+            $passed += 1;
+        } else {
+            println!("FAIL {}", $label);
+            $failed += 1;
+        }
+    };
+}
+
+fn main() {
+    let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
+    let addr: u8 = std::env::var("I2C_ADDR")
+        .ok()
+        .and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok())
+        .unwrap_or(0x40);
+
+    let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
+    let mut chip = Lm25066Full::new(dev, addr, 1.0, false);
+
+    let mut passed = 0i32;
+    let mut failed = 0i32;
+
+    check_true!(chip.model().map(|m| &m == b"LM25066\0").unwrap_or(false), "model_is_lm25066", passed, failed);
+    check_true!(chip.manufacturer_id().map(|m| &m == b"NSC").unwrap_or(false), "manufacturer_id", passed, failed);
+    check_true!(chip.voltage_in().map(|v| v >= 0.0 && v <= 24.0).unwrap_or(false), "vin_range", passed, failed);
+    check_true!(chip.voltage_out().map(|v| v >= 0.0 && v <= 24.0).unwrap_or(false), "vout_range", passed, failed);
+    check_true!(chip.current().map(|v| v > -1.0).unwrap_or(false), "current_readable", passed, failed);
+    check_true!(chip.power().map(|v| v > -5.0).unwrap_or(false), "power_readable", passed, failed);
+    check_true!(chip.temperature().map(|v| v > -40.0 && v < 150.0).unwrap_or(false), "temperature_plausible", passed, failed);
+    check_true!(chip.voltage_aux().map(|v| v >= 0.0 && v <= 1.2).unwrap_or(false), "vaux_range", passed, failed);
+    check_true!(chip.read_block().is_ok(), "block_readable", passed, failed);
+    check_true!(chip.read_average().is_ok(), "avg_block_readable", passed, failed);
+    check_true!(chip.set_averaging(4).is_ok() && chip.get_averaging().map(|v| v == 4).unwrap_or(false), "averaging", passed, failed);
+    check_true!(chip.set_averaging(0).is_ok(), "averaging_reset", passed, failed);
+    check_true!(chip.set_vin_uv_warn(Some(8.0)).is_ok() && chip.get_limits().map(|l| (l.vin_uv_warn.unwrap_or(0.0) - 8.0).abs() < 0.05).unwrap_or(false), "vin_uv_warn", passed, failed);
+    check_true!(chip.set_vin_uv_warn(None).is_ok() && chip.get_limits().map(|l| l.vin_uv_warn.is_none()).unwrap_or(false), "vin_uv_warn_disabled", passed, failed);
+    check_true!(chip.set_ot_warn(Some(110.0)).is_ok() && chip.get_limits().map(|l| (l.ot_warn.unwrap_or(0.0) - 110.0).abs() < 0.1).unwrap_or(false), "ot_warn", passed, failed);
+    check_true!(chip.set_ot_warn(Some(125.0)).is_ok(), "ot_warn_restore", passed, failed);
+    check_true!(chip.clear_power_peak().is_ok() && chip.power_peak().map(|v| v >= 0.0).unwrap_or(false), "peak_cleared", passed, failed);
+    check_true!(chip.clear_faults().is_ok(), "clear_faults", passed, failed);
+    check_true!(chip.status_word().is_ok(), "status_word_readable", passed, failed);
+    check_true!(chip.diagnostic_word().is_ok(), "diagnostic_readable", passed, failed);
+    check_true!(chip.capability().map(|v| v == 0xB0).unwrap_or(false), "capability", passed, failed);
+
+    println!("===DONE: {} passed, {} failed===", passed, failed);
+    std::process::exit(if failed == 0 { 0 } else { 1 });
+}

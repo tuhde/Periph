@@ -29,6 +29,8 @@ npm install node-red-contrib-periph-power
 | `periph-ina3221` | input | Reads bus voltage, shunt voltage, current, and power from an INA3221 three-channel power monitor over I²C. |
 | `lc709203f-device` | config | I²C bus and address for a LC709203F |
 | `lc709203f` | input | Reads cell voltage, state of charge and temperature from an LC709203F 1-cell Li-ion fuel gauge over I²C. |
+| `periph-lm25066-device` | config | I²C bus and address for a LM25066 |
+| `periph-lm25066` | input | Reads input and output voltage, input current, input power and MOSFET temperature from an LM25066 hot-swap controller over I²C/PMBus. |
 
 ## Links
 

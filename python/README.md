@@ -115,6 +115,7 @@ Each chip exposes two classes:
 | L3GD20H | Gyroscope | (and L3GD20) three-axis MEMS gyroscope |
 | LC709203F | Power monitor | 1-cell Li-ion fuel gauge |
 | LIS3DH | Accelerometer | 3-axis accelerometer |
+| LM25066 | Power monitor | Hot-swap controller / PMBus power monitor |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |

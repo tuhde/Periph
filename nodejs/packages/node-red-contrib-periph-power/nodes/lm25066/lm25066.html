@@ -1,0 +1,97 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lm25066-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '40', required: true },
+            rsense:  { value: '1.0', required: true, validate: RED.validators.number() },
+            climit:  { value: '25', required: true }
+        },
+        label: function() {
+            return this.name || ('LM25066 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lm25066-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LM25066">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="40" style="width:80px"> &nbsp;10-17, 40-47 or 50-5A (ADR0/1/2 pins)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rsense">Sense resistor (mΩ)</label>
+        <input type="number" id="node-config-input-rsense" min="0.01" step="0.01" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-climit">Current-limit pin</label>
+        <select id="node-config-input-climit" style="width:140px">
+            <option value="25">GND (25 mV)</option>
+            <option value="46">VDD (46 mV)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lm25066', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'periph-lm25066-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-bolt',
+        label:   function() { return this.name || 'LM25066'; },
+        paletteLabel: 'LM25066'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lm25066">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LM25066">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-lm25066">
+    <p>Reads input and output voltage, input current, input power and MOSFET temperature from an LM25066 hot-swap controller over I²C/PMBus.</p>
+    <p>Any input message triggers one reading. The device is configured via a <b>periph-lm25066-device</b> config node. The node never writes the control registers (OPERATION, GATE_MASK, DEVICE_SETUP).</p>
+
+    <h3>Input</h3>
+    <p>Any message.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage_in_v <span class="property-type">number</span></dt>
+        <dd>Input voltage VIN in volts.</dd>
+        <dt>payload.voltage_out_v <span class="property-type">number</span></dt>
+        <dd>Output voltage VOUT in volts.</dd>
+        <dt>payload.current_a <span class="property-type">number</span></dt>
+        <dd>Input current in amperes.</dd>
+        <dt>payload.power_w <span class="property-type">number</span></dt>
+        <dd>Input power in watts.</dd>
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>External MOSFET temperature in °C.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>The address (<code>0x10</code>–<code>0x17</code>, <code>0x40</code>–<code>0x47</code>, <code>0x50</code>–<code>0x5A</code>) is selected by the
+    three-state ADR0/ADR1/ADR2 pins. The current and power conversion depends on the sense resistor value and the CL pin
+    (GND = 25&nbsp;mV, VDD = 46&nbsp;mV); a wrong setting scales the readings.</p>
+</script>

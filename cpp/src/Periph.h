@@ -144,6 +144,7 @@
 #include "chips/power/INA260.h"
 #include "chips/power/INA3221.h"
 #include "chips/power/LC709203F.h"
+#include "chips/power/LM25066.h"
 #include "chips/pressure/BMP085.h"
 #include "chips/pressure/BMP180.h"
 #include "chips/pressure/BMP280.h"
