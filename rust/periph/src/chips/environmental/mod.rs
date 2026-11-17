@@ -1,7 +1,9 @@
+pub mod aht10;
 pub mod aht21;
 pub mod am2315;
 pub mod bme280;
 pub mod bme680;
+pub use aht10::{Aht10Minimal, Aht10Full, Aht10Error};
 pub use aht21::{Aht21Minimal, Aht21Full};
 pub use am2315::{AM2315Minimal, AM2315Full, Error as AM2315Error};
 pub use bme280::{Bme280Minimal, Bme280Full, MODE_NORMAL, FILTER_OFF, FILTER_2, FILTER_4, FILTER_8, FILTER_16, T_SB_0_5_MS, T_SB_62_5_MS, T_SB_125_MS, T_SB_250_MS, T_SB_500_MS, T_SB_1000_MS, T_SB_10_MS, T_SB_20_MS, STATUS_IM_UPDATE};
