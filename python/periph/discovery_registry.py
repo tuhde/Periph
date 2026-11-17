@@ -180,7 +180,7 @@ CHIPS = (
     {"id": "aht10", "driver": "aht10", "write_sensitive": True, "aliased": False,
      "addresses": (0x38,),
      "probe": None},
-    {"id": "aht20", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "aht20", "driver": "aht20", "write_sensitive": True, "aliased": False,
      "addresses": (0x38,),
      "probe": None},
     {"id": "aht21", "driver": "aht21", "write_sensitive": True, "aliased": False,
