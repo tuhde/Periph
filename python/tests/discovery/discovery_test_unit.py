@@ -112,9 +112,9 @@ for chip_id, reg, value, addr in [('bmp280', 0xD0, 0x58, 0x76), ('bme680', 0xD0,
 # multi-byte identity registers
 d = discover(FakeBus({0x52: {0x00: 0x60, 0x01: 0x01}}))[0]
 check_true('identify_ens160_little_endian', d.identified == 'ens160')
-d = discover(FakeBus({0x41: {0xFF: 0x22, 0x100: 0x60}}))[0]
+d = discover(FakeBus({0x43: {0xFF: 0x22, 0x100: 0x60}}))[0]
 check_true('identify_ina226_die_id', d.identified == 'ina226')
-d = discover(FakeBus({0x41: {0xFF: 0x32, 0x100: 0x20}}))[0]
+d = discover(FakeBus({0x43: {0xFF: 0x32, 0x100: 0x20}}))[0]
 check_true('identify_ina3221_die_id', d.identified == 'ina3221')
 bus = FakeBus({0x48: {0x0F: 0x01, 0x10: 0x17}})
 d = discover(bus)[0]
@@ -153,9 +153,9 @@ check_true('bmp085_bmp180_ambiguous', d.identified is None and d.candidates == [
 d = discover(FakeBus({0x68: {}}))[0]
 # 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
 check_true('0x68_candidates_unprobed', d.identified is None and d.probe_skipped_reason == 'write_sensitive_candidate'
-           and d.candidates == ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'itg3200', 'l3g4200d', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523', 'pcf8573'])
+           and d.candidates == ['bq32000', 'drv8830', 'ds3231', 'icm20948', 'itg3200', 'l3g4200d', 'ltc4151', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pcf8523', 'pcf8573'])
 d = discover(FakeBus({0x40: {}}))[0]
-check_true('x40_candidates_include_write_sensitive_si7021', d.identified is None and d.candidates == ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'si7021', 'tmp007'])
+check_true('x40_candidates_include_write_sensitive_si7021', d.identified is None and d.candidates == ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'htu31d', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'si7021', 'tmp007'])
 d = discover(FakeBus({0x36: {}}))[0]
 check_true('as5600_sole_candidate_unconfirmed', d.identified is None and d.candidates == ['as5600'])
 d = discover(FakeBus({0x0B: {}}))[0]

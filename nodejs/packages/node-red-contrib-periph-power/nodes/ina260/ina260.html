@@ -1,0 +1,77 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ina260-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '40', required: true }
+        },
+        label: function() {
+            return this.name || ('INA260 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ina260-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="INA260">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="40" style="width:80px"> &nbsp;default: 40 (0x40)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('ina260', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ina260-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-bolt',
+        label:   function() { return this.name || 'INA260'; },
+        paletteLabel: 'INA260'
+    });
+</script>
+
+<script type="text/html" data-template-name="ina260">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="INA260">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ina260">
+    <p>Reads bus voltage, current, and power from an INA260 power monitor (integrated 2&nbsp;mΩ shunt) over I²C.</p>
+    <p>Any input message triggers one reading. The device is configured via an <b>ina260-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage_v <span class="property-type">number</span></dt>
+        <dd>Bus voltage in volts.</dd>
+        <dt>payload.current_a <span class="property-type">number</span></dt>
+        <dd>Current in amperes (signed; positive flows IN+ to IN−).</dd>
+        <dt>payload.power_w <span class="property-type">number</span></dt>
+        <dd>Power in watts.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure the I²C bus number and address (default <code>0x40</code>, range <code>0x40</code>–<code>0x4F</code>)
+    in the device config node. The INA260 needs no calibration: the shunt is integrated and the registers have
+    fixed LSBs.</p>
+</script>

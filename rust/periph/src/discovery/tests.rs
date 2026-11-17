@@ -165,8 +165,8 @@ fn identifies_chips_by_single_byte_register() {
 #[test]
 fn identifies_multi_byte_and_masked_identity_registers() {
     assert_eq!(one(0x52, &[(0x00, 0x60), (0x01, 0x01)]).identified, Some("ens160"));
-    assert_eq!(one(0x41, &[(0xFF, 0x22), (0x100, 0x60)]).identified, Some("ina226"));
-    assert_eq!(one(0x41, &[(0xFF, 0x32), (0x100, 0x20)]).identified, Some("ina3221"));
+    assert_eq!(one(0x43, &[(0xFF, 0x22), (0x100, 0x60)]).identified, Some("ina226"));
+    assert_eq!(one(0x43, &[(0xFF, 0x32), (0x100, 0x20)]).identified, Some("ina3221"));
     assert_eq!(one(0x18, &[(0x07, 0x04), (0x08, 0x01)]).identified, Some("mcp9808"));
     let mut bus = FakeI2c::with(&[(0x29, &[(0x010F, 0xEA), (0x0110, 0xCC)])]);
     assert_eq!(only(&mut bus, true).identified, Some("vl53l1x"));
@@ -222,9 +222,9 @@ fn ambiguity_is_a_final_answer() {
 fn falls_back_to_id_less_candidates() {
     // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
     let d = one(0x68, &[]);
-    assert_eq!(d.candidates, vec!["bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"]);
+    assert_eq!(d.candidates, vec!["bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pcf8523", "pcf8573"]);
     assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
-    assert_eq!(one(0x40, &[]).candidates, vec!["bma180", "hdc1008", "hdc1080", "htu21df", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"]);
+    assert_eq!(one(0x40, &[]).candidates, vec!["bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "si7021", "tmp007"]);
     let d = one(0x36, &[]);
     assert_eq!((d.identified, d.candidates), (None, vec!["as5600"]));
     let d = one(0x0B, &[]);

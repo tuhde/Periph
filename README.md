@@ -180,7 +180,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| INA260 | Power monitor (integrated shunt) |  |  |  |  |  |  |  |  |
+| INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IS31FL3731 | 144-LED matrix driver (9×16, per-LED 8-bit PWM, 8 frames, auto-play, breath, audio modulation) | | | | | | | | |
 | IST8310 | 3-axis AMR magnetometer (±1600/±2500 µT, 0.3 µT/LSB, DRDY, up to 200 Hz) |  |  |  |  |  |  |  |  |

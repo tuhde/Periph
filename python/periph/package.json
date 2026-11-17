@@ -449,6 +449,10 @@
       "github:tuhde/Periph/python/periph/chips/power/ina226.py"
     ],
     [
+      "periph/chips/power/ina260.py",
+      "github:tuhde/Periph/python/periph/chips/power/ina260.py"
+    ],
+    [
       "periph/chips/power/ina3221.py",
       "github:tuhde/Periph/python/periph/chips/power/ina3221.py"
     ],

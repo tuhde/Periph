@@ -77,6 +77,7 @@ uiflow2/
 | [MB85RC](memory/mb85rc/) | memory | init, `read_byte`, `write_byte`, `read`, `write`, `fill`, `size`, `read_device_id` |
 | [INA219](power/ina219/) | power | init, `voltage`, `shunt_voltage`, `current`, `power` |
 | [INA226](power/ina226/) | power | init, `read_voltage`, `read_current`, `read_power` |
+| [INA260](power/ina260/) | power | init, `read_voltage`, `read_current`, `read_power` |
 | [INA3221](power/ina3221/) | power | init, `read_voltage`, `read_current`, `read_power` (each takes a `channel` param) |
 | [BMP180](pressure/bmp180/) | pressure | init, `read_temperature`, `read_pressure`, `read_altitude` |
 | [BMP280](pressure/bmp280/) | pressure | init, `read_temperature`, `read_pressure`, `read_altitude` |
