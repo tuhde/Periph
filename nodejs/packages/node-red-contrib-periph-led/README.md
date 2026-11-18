@@ -20,6 +20,8 @@ npm install node-red-contrib-periph-led
 | `periph-apa102` | output | Controls an APA102 addressable RGB LED strip over SPI (synchronous two-wire protocol). |
 | `ht16k33-device` | config | I²C bus and address for a HT16K33 |
 | `periph-ht16k33` | input | Controls a HT16K33 16 × 8 LED matrix driver over I²C: set pixels, write the display RAM, change brightness and blink rate, and read the 13 × 3 key matrix. |
+| `is31fl3731-device` | config | I²C bus and address for an IS31FL3731 |
+| `periph-is31fl3731` | input | Controls an IS31FL3731 144-LED matrix driver (9 × 16, 8-bit PWM per LED) over I²C. The node draws into frame 1 in Picture mode. |
 | `sk6812rgbw-device` | config | SPI bus and device index for a SK6812RGBW |
 | `periph-sk6812rgbw` | output | Controls an SK6812RGBW addressable RGBW LED strip over SPI (NeoPixel protocol). |
 | `ws2812b-device` | config | SPI bus and device index for a WS2812B |

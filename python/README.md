@@ -114,6 +114,7 @@ Each chip exposes two classes:
 | INA226 | Power monitor | 36V, 16-bit current/voltage/power monitor |
 | INA260 | Power monitor | 36V, 16-bit current/voltage/power monitor with integrated shunt |
 | INA3221 | Power monitor | Three-channel 26V current/voltage/power monitor |
+| IS31FL3731 | LED driver | 144-LED matrix driver (CharliePlex) |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope |
 | L3GD20H | Gyroscope | (and L3GD20) three-axis MEMS gyroscope |
 | LC709203F | Power monitor | 1-cell Li-ion fuel gauge |

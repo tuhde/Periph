@@ -105,6 +105,7 @@ Each chip exposes two classes:
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA260 | Power monitor | `chips/power/INA260.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
+| Is31fl3731 | LED driver | `chips/led/Is31fl3731.h` |
 | L3G4200D | Gyroscope | `chips/gyroscope/L3G4200D.h` |
 | L3gd20h | Gyroscope | `chips/gyroscope/L3gd20h.h` |
 | LC709203F | Power monitor | `chips/power/LC709203F.h` |

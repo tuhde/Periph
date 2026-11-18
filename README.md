@@ -187,7 +187,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| IS31FL3731 | 144-LED matrix driver (9×16, per-LED 8-bit PWM, 8 frames, auto-play, breath, audio modulation) | | | | | | | | |
+| IS31FL3731 | 144-LED matrix driver (9×16, per-LED 8-bit PWM, 8 frames, auto-play, breath, audio modulation) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ISL29125 | RGB colour light sensor with IR blocking (12/16-bit, two ranges, interrupt window) | | | | | | | | |
 | IST8310 | 3-axis AMR magnetometer (±1600/±2500 µT, 0.3 µT/LSB, DRDY, up to 200 Hz) |  |  |  |  |  |  |  |  |
 | ITG3200 | Gyroscope (3-axis, ±2000 °/s, 16-bit, DLPF, temperature, data-ready interrupt) |  |  |  |  |  |  |  |  |

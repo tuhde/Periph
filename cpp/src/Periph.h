@@ -113,6 +113,7 @@
 #include "chips/io_expander/TPIC6B595.h"
 #include "chips/led/APA102.h"
 #include "chips/led/HT16K33.h"
+#include "chips/led/Is31fl3731.h"
 #include "chips/led/NeoPixelColor.h"
 #include "chips/led/NeoPixelRGBBase.h"
 #include "chips/led/NeoPixelRGBWBase.h"
