@@ -296,6 +296,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | TSL2591 | High-dynamic-range ambient light sensor (600 M:1, 16-bit dual-channel, interrupt) | | | | | | | | |
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| UC8179 | E-paper display controller (800×600, B/W/R) |  |  |  |  |  |  |  |  |
 | UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | VCNL4040 | Proximity (up to 200 mm) and ambient light sensor (16-bit, white channel, interrupt, I²C) | | | | | | | | |
 | VCNL4200 | Long-distance proximity (up to 1.5 m) and ambient light sensor (16-bit, interrupt, I²C) | | | | | | | | |
