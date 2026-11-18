@@ -570,4 +570,7 @@ CHIPS = (
     {"id": "mlx90632", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x3A, 0x3B,),
      "probe": None},
+    {"id": "mlx90640", "driver": None, "write_sensitive": False, "aliased": False,
+     "addresses": (0x33,),
+     "probe": None},
 )

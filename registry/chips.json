@@ -2917,6 +2917,18 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/temperature/mlx90632.pdf"
+    },
+    {
+      "id": "mlx90640",
+      "name": "MLX90640",
+      "category": "temperature",
+      "addresses": [
+        "0x33"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/temperature/mlx90640.pdf"
     }
   ]
 }

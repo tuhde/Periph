@@ -356,6 +356,7 @@ static constexpr uint8_t kAddr_veml6070[] = {0x38, 0x39};
 static constexpr uint8_t kAddr_sgp30[] = {0x58};
 static constexpr uint8_t kAddr_sps30[] = {0x69};
 static constexpr uint8_t kAddr_mlx90632[] = {0x3A, 0x3B};
+static constexpr uint8_t kAddr_mlx90640[] = {0x33};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -547,8 +548,9 @@ static constexpr ChipEntry kChips[] = {
     {"sgp30", nullptr, true, false, kAddr_sgp30, 1, nullptr},
     {"sps30", nullptr, true, false, kAddr_sps30, 1, nullptr},
     {"mlx90632", nullptr, false, false, kAddr_mlx90632, 2, nullptr},
+    {"mlx90640", nullptr, false, false, kAddr_mlx90640, 1, nullptr},
 };
-static constexpr size_t kChipCount = 189;
+static constexpr size_t kChipCount = 190;
 
 }  // namespace discovery
 }  // namespace periph

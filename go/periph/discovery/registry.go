@@ -212,4 +212,5 @@ var registry = []Chip{
 	{ID: "sgp30", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x58}, Probe: nil},
 	{ID: "sps30", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x69}, Probe: nil},
 	{ID: "mlx90632", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x3A, 0x3B}, Probe: nil},
+	{ID: "mlx90640", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x33}, Probe: nil},
 }
