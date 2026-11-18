@@ -180,6 +180,8 @@ InputPin	KEYWORD1
 InputPinArduino	KEYWORD1
 IntMode	KEYWORD1
 Ioin	KEYWORD1
+Is31fl3731Full	KEYWORD1
+Is31fl3731Minimal	KEYWORD1
 L3G4200DFull	KEYWORD1
 L3G4200DMinimal	KEYWORD1
 L3gd20hFull	KEYWORD1
@@ -517,6 +519,7 @@ clearOscillatorStop	KEYWORD2
 clearOscillatorStopped	KEYWORD2
 clearRampEvents	KEYWORD2
 clear_alert	KEYWORD2
+clear_all_frames	KEYWORD2
 clear_all_interrupts	KEYWORD2
 clear_als_interrupt	KEYWORD2
 clear_autorifp	KEYWORD2
@@ -524,6 +527,7 @@ clear_autozero	KEYWORD2
 clear_errors	KEYWORD2
 clear_fail_flags	KEYWORD2
 clear_faults	KEYWORD2
+clear_frame	KEYWORD2
 clear_gesture_fifo	KEYWORD2
 clear_interrupt	KEYWORD2
 clear_overcurrent	KEYWORD2
@@ -617,6 +621,7 @@ connect	KEYWORD2
 connection	KEYWORD2
 conversion_ready	KEYWORD2
 conversion_time	KEYWORD2
+copy_frame	KEYWORD2
 course	KEYWORD2
 crc8	KEYWORD2
 create_char	KEYWORD2
@@ -625,6 +630,7 @@ csd	KEYWORD2
 current	KEYWORD2
 currentB	KEYWORD2
 current_avg	KEYWORD2
+current_frame	KEYWORD2
 cursor	KEYWORD2
 data	KEYWORD2
 dataRateSps	KEYWORD2
@@ -701,6 +707,7 @@ enable_ad2	KEYWORD2
 enable_adc	KEYWORD2
 enable_als_interrupt	KEYWORD2
 enable_axes	KEYWORD2
+enable_blink	KEYWORD2
 enable_channel	KEYWORD2
 enable_drdy_interrupt	KEYWORD2
 enable_fifo	KEYWORD2
@@ -758,6 +765,7 @@ forceTemperatureConversion	KEYWORD2
 force_hibernate	KEYWORD2
 forced	KEYWORD2
 found	KEYWORD2
+frame_state	KEYWORD2
 freeze	KEYWORD2
 frequency	KEYWORD2
 fullScale	KEYWORD2
@@ -979,6 +987,7 @@ motion_detected	KEYWORD2
 move	KEYWORD2
 moveSteps	KEYWORD2
 moveTo	KEYWORD2
+movie_finished	KEYWORD2
 mute	KEYWORD2
 muteOutputs	KEYWORD2
 mutePassthrough	KEYWORD2
@@ -1173,6 +1182,7 @@ read_fifo_status	KEYWORD2
 read_flags	KEYWORD2
 read_forced	KEYWORD2
 read_fresh	KEYWORD2
+read_function_register	KEYWORD2
 read_gesture_fifo	KEYWORD2
 read_history	KEYWORD2
 read_humidity	KEYWORD2
@@ -1283,6 +1293,7 @@ sector_count	KEYWORD2
 seek	KEYWORD2
 select	KEYWORD2
 select_card	KEYWORD2
+select_frame	KEYWORD2
 select_heater_profile	KEYWORD2
 selfTest	KEYWORD2
 self_calibrate	KEYWORD2
@@ -1539,6 +1550,10 @@ set_any_motion	KEYWORD2
 set_apa	KEYWORD2
 set_apt	KEYWORD2
 set_area_color	KEYWORD2
+set_audio_gain	KEYWORD2
+set_audio_mode	KEYWORD2
+set_audio_rate	KEYWORD2
+set_audio_sync	KEYWORD2
 set_auto_sleep	KEYWORD2
 set_autorifp	KEYWORD2
 set_autosleep	KEYWORD2
@@ -1555,8 +1570,10 @@ set_bass_boost	KEYWORD2
 set_bias	KEYWORD2
 set_bias_ratio	KEYWORD2
 set_blink	KEYWORD2
+set_blink_all	KEYWORD2
 set_booster	KEYWORD2
 set_both	KEYWORD2
+set_breath	KEYWORD2
 set_brightness	KEYWORD2
 set_calibration	KEYWORD2
 set_charge_pump	KEYWORD2
@@ -1636,6 +1653,7 @@ set_inactivity_threshold	KEYWORD2
 set_inactivity_time	KEYWORD2
 set_input	KEYWORD2
 set_int_output	KEYWORD2
+set_intensity_control	KEYWORD2
 set_interleaved	KEYWORD2
 set_interrupt	KEYWORD2
 set_interrupt_pin	KEYWORD2
@@ -1646,6 +1664,7 @@ set_invert	KEYWORD2
 set_isolation_clock	KEYWORD2
 set_latch	KEYWORD2
 set_led_boost	KEYWORD2
+set_led_enabled	KEYWORD2
 set_line_rate	KEYWORD2
 set_link_loop_mode	KEYWORD2
 set_link_mode	KEYWORD2
@@ -1684,6 +1703,7 @@ set_page_rw	KEYWORD2
 set_panel_loading	KEYWORD2
 set_partial_display	KEYWORD2
 set_persistence	KEYWORD2
+set_picture_mode	KEYWORD2
 set_pin_warn	KEYWORD2
 set_pixel	KEYWORD2
 set_pixels	KEYWORD2
@@ -1781,6 +1801,7 @@ shift_cursor	KEYWORD2
 shift_display	KEYWORD2
 show	KEYWORD2
 show_bitmap	KEYWORD2
+show_frame	KEYWORD2
 show_page	KEYWORD2
 show_region	KEYWORD2
 shunt_voltage	KEYWORD2
@@ -1803,6 +1824,7 @@ standby	KEYWORD2
 start	KEYWORD2
 startClock	KEYWORD2
 startContinuous	KEYWORD2
+start_auto_play	KEYWORD2
 start_continuous_als	KEYWORD2
 start_continuous_range	KEYWORD2
 start_counter	KEYWORD2
@@ -1823,6 +1845,7 @@ stop	KEYWORD2
 stopBeep	KEYWORD2
 stopClock	KEYWORD2
 stopContinuous	KEYWORD2
+stop_auto_play	KEYWORD2
 stop_continuous_als	KEYWORD2
 stop_continuous_range	KEYWORD2
 stop_crypto	KEYWORD2
@@ -1914,6 +1937,7 @@ write_config	KEYWORD2
 write_control	KEYWORD2
 write_customer	KEYWORD2
 write_data	KEYWORD2
+write_function_register	KEYWORD2
 write_icon	KEYWORD2
 write_lut	KEYWORD2
 write_page	KEYWORD2
@@ -2192,6 +2216,7 @@ CMD_VCOMH	LITERAL1
 CMD_VDCS	LITERAL1
 CMD_VV	LITERAL1
 CNVR	LITERAL1
+COLS	LITERAL1
 COLUMNS	LITERAL1
 COMMONS	LITERAL1
 COMP_TRADITIONAL	LITERAL1
@@ -2335,6 +2360,8 @@ GAIN_64	LITERAL1
 GAIN_8	LITERAL1
 GAIN_X1	LITERAL1
 GAIN_X2	LITERAL1
+GAMMA_32	LITERAL1
+GAMMA_64	LITERAL1
 GENERATOR_1	LITERAL1
 GENERATOR_2	LITERAL1
 GREEN	LITERAL1

@@ -222,7 +222,7 @@ fn ambiguity_is_a_final_answer() {
 fn falls_back_to_id_less_candidates() {
     // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
     let d = one(0x68, &[]);
-    assert_eq!(d.candidates, vec!["bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"]);
+    assert_eq!(d.candidates, vec!["bq32000", "drv8830", "ds1307", "ds1371", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"]);
     assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
     assert_eq!(one(0x40, &[]).candidates, vec!["bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"]);
     let d = one(0x36, &[]);
@@ -231,7 +231,7 @@ fn falls_back_to_id_less_candidates() {
     assert!(d.candidates == vec!["lc709203f"] && d.identified.is_none());
     let mut bus = FakeI2c::with(&[(0x38, &[])]);
     let d = only(&mut bus, false);
-    assert_eq!(d.candidates, vec!["ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s"]);
+    assert_eq!(d.candidates, vec!["ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s", "veml6070"]);
     assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
     assert!(bus.writes.is_empty());
 }

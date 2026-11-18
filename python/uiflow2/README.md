@@ -44,6 +44,7 @@ uiflow2/
 |------|----------|--------|
 | [HT16K33](led/ht16k33/) | led | init, `clear`, `set_pixel`, `show`, `set_brightness`, `display_on`, `display_off`, `set_blink`, `standby`, `wake`, `set_int_output`, `read_keys`, `key_pressed`, `get_pixel` |
 | [HX711](adc_dac/hx711/) | adc_dac | init, `tare`, `set_scale`, `read_weight`, `read_raw` |
+| [IS31FL3731](led/is31fl3731/) | led | init, `set_pixel`, `clear`, `fill`, `get_pixel`, `set_led_enabled`, `set_blink`, `set_blink_all`, `enable_blink`, `select_frame`, `show_frame`, `clear_frame`, `clear_all_frames`, `copy_frame`, `set_picture_mode`, `start_auto_play`, `stop_auto_play`, `set_audio_mode`, `set_audio_sync`, `set_audio_gain`, `set_audio_rate`, `set_breath`, `set_intensity_control`, `shutdown`, `frame_state`, `current_frame`, `movie_finished`, `read_function_register`, `write_function_register`, `poll_interrupt` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | init, `set_voltage`, `set_raw` |
 | [AD5248](adc_dac/ad5248/) | adc_dac | init, `set_wiper`, `get_wiper`, `set_resistance`, `get_resistance`, `set_both`, `set_ratio`, `get_ratio`, `increment`, `shutdown`, `resume`, `is_shutdown`, `reset` |
 | [MCP3422](adc_dac/mcp3422/) | adc_dac | init, `read_raw`, `read_voltage`, `set_resolution`, `set_gain`, `start_continuous`, `read_continuous`, `general_call_reset` |

@@ -468,7 +468,7 @@ CHIPS = (
     {"id": "max17048", "driver": "max17048", "write_sensitive": False, "aliased": False,
      "addresses": (0x36,),
      "probe": {"register": 0x08, "reg_bytes": 1, "length": 2, "byte_order": "big", "mask": 0xFFF0, "expected": (0x0010,)}},
-    {"id": "is31fl3731", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "is31fl3731", "driver": "is31fl3731", "write_sensitive": False, "aliased": False,
      "addresses": (0x74, 0x75, 0x76, 0x77,),
      "probe": None},
     {"id": "as7262", "driver": None, "write_sensitive": True, "aliased": False,

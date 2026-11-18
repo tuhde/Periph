@@ -2387,7 +2387,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "is31fl3731",
       "datasheet": "datasheets/led/is31fl3731.pdf"
     },
     {

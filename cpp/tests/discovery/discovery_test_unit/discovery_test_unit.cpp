@@ -159,7 +159,7 @@ int main() {
         DiscoveredDevice d = one(0x68);
         // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
         check_true(d.identified.empty() && d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate &&
-                   d.candidates == Ids({"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}),
+                   d.candidates == Ids({"bq32000", "drv8830", "ds1307", "ds1371", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}),
                    "0x68_candidates_unprobed");
         check_true(one(0x40).candidates == Ids({"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"}), "x40_candidates_include_write_sensitive_si7021");
         d = one(0x36);
@@ -168,7 +168,7 @@ int main() {
         check_true(d.candidates == Ids({"lc709203f"}) && d.identified.empty(), "unknown_device");
         FakeBus bus; bus.with(0x38);
         d = only(bus);
-        check_true(d.candidates == Ids({"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s"}), "aht21_cands");
+        check_true(d.candidates == Ids({"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s", "veml6070"}), "aht21_cands");
         check_true(d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate && bus.registerReads.empty(), "no_probe_when_write_sensitive_candidate");
     }
 

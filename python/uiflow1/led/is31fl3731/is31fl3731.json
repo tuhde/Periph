@@ -1,0 +1,634 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "is31fl3731_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init IS31FL3731",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_pixel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set pixel",
+          "type": "label"
+        },
+        {
+          "name": "row (0-8)",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        },
+        {
+          "name": "col (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_col",
+          "type": "number"
+        },
+        {
+          "name": "brightness (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_brightness",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_clear",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 clear",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_fill",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 fill",
+          "type": "label"
+        },
+        {
+          "name": "brightness (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_brightness",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_get_pixel",
+      "type": "value",
+      "params": [
+        {
+          "name": "IS31FL3731 get pixel",
+          "type": "label"
+        },
+        {
+          "name": "row (0-8)",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        },
+        {
+          "name": "col (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_col",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_led_enabled",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set LED enabled",
+          "type": "label"
+        },
+        {
+          "name": "row (0-8)",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        },
+        {
+          "name": "col (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_col",
+          "type": "number"
+        },
+        {
+          "name": "on (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_blink",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set blink",
+          "type": "label"
+        },
+        {
+          "name": "row (0-8)",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        },
+        {
+          "name": "col (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_col",
+          "type": "number"
+        },
+        {
+          "name": "on (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_blink_all",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set blink all",
+          "type": "label"
+        },
+        {
+          "name": "on (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_enable_blink",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 enable blink",
+          "type": "label"
+        },
+        {
+          "name": "enabled (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "period (0-7 x 0.27 s)",
+          "type": "label"
+        },
+        {
+          "name": "_period",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_select_frame",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 select frame",
+          "type": "label"
+        },
+        {
+          "name": "frame (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_frame",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_show_frame",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 show frame",
+          "type": "label"
+        },
+        {
+          "name": "frame (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_frame",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_clear_frame",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 clear frame",
+          "type": "label"
+        },
+        {
+          "name": "frame (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_frame",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_clear_all_frames",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 clear all frames",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_copy_frame",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 copy frame",
+          "type": "label"
+        },
+        {
+          "name": "source (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_src",
+          "type": "number"
+        },
+        {
+          "name": "destination (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_dst",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_picture_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set picture mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_start_auto_play",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 start auto play",
+          "type": "label"
+        },
+        {
+          "name": "frames (0 = all)",
+          "type": "label"
+        },
+        {
+          "name": "_frames",
+          "type": "number"
+        },
+        {
+          "name": "loops (0 = endless)",
+          "type": "label"
+        },
+        {
+          "name": "_loops",
+          "type": "number"
+        },
+        {
+          "name": "delay ms",
+          "type": "label"
+        },
+        {
+          "name": "_delay_ms",
+          "type": "number"
+        },
+        {
+          "name": "start frame (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_start_frame",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_stop_auto_play",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 stop auto play",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_audio_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set audio mode",
+          "type": "label"
+        },
+        {
+          "name": "enabled (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_audio_sync",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set audio sync",
+          "type": "label"
+        },
+        {
+          "name": "enabled (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_audio_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set audio gain",
+          "type": "label"
+        },
+        {
+          "name": "gain dB (0-21, step 3)",
+          "type": "label"
+        },
+        {
+          "name": "_gain_db",
+          "type": "number"
+        },
+        {
+          "name": "AGC (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_agc",
+          "type": "number"
+        },
+        {
+          "name": "fast AGC (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_fast",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_audio_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set audio rate",
+          "type": "label"
+        },
+        {
+          "name": "rate (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_a",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_breath",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set breath",
+          "type": "label"
+        },
+        {
+          "name": "enabled (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "fade in (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_fade_in",
+          "type": "number"
+        },
+        {
+          "name": "fade out (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_fade_out",
+          "type": "number"
+        },
+        {
+          "name": "extinguish (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_extinguish",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_set_intensity_control",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 set intensity control",
+          "type": "label"
+        },
+        {
+          "name": "use frame 1 (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_use_frame1",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 shutdown",
+          "type": "label"
+        },
+        {
+          "name": "on (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_frame_state",
+      "type": "value",
+      "params": [
+        {
+          "name": "IS31FL3731 frame state",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_current_frame",
+      "type": "value",
+      "params": [
+        {
+          "name": "IS31FL3731 current frame",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_movie_finished",
+      "type": "value",
+      "params": [
+        {
+          "name": "IS31FL3731 movie finished",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_read_function_register",
+      "type": "value",
+      "params": [
+        {
+          "name": "IS31FL3731 read function register",
+          "type": "label"
+        },
+        {
+          "name": "register (0-12)",
+          "type": "label"
+        },
+        {
+          "name": "_reg",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_write_function_register",
+      "type": "execute",
+      "params": [
+        {
+          "name": "IS31FL3731 write function register",
+          "type": "label"
+        },
+        {
+          "name": "register (0-12)",
+          "type": "label"
+        },
+        {
+          "name": "_reg",
+          "type": "number"
+        },
+        {
+          "name": "value (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "is31fl3731_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "IS31FL3731 poll interrupt",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
