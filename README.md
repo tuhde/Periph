@@ -282,6 +282,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1309 | OLED display (128×64, monochrome, external VCC; SSD1306 alias) |  |  |  |  |  |  |  |  |
+| SSD1312 | OLED display (128×64, monochrome; SSD1306 alias) |  |  |  |  |  |  |  |  |
 | SSD1315 | OLED display (128×64, monochrome; SSD1306 alias) |  |  |  |  |  |  |  |  |
 | SSD1327 | OLED display (128×128, 16 gray levels) |  |  |  |  |  |  |  |  |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
