@@ -184,6 +184,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ICM-20948 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IL0398 | E-paper display controller (400×300, B/W) |  |  |  |  |  |  |  |  |
+| IL3820 | E-paper display controller (240×320, B/W) |  |  |  |  |  |  |  |  |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
