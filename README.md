@@ -153,6 +153,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
 | CAT24C512 | I²C EEPROM 512 Kbit (64 KiB, 128-byte page, 1 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | CAT5171 | Digital potentiometer (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| CCS811 | Indoor air quality gas sensor (eCO₂, TVOC, MOx, 4 drive modes, I²C, nINT) | | | | | | | | |
 | CS43L22 | Stereo audio DAC with HP/speaker amps | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -187,6 +188,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IS31FL3731 | 144-LED matrix driver (9×16, per-LED 8-bit PWM, 8 frames, auto-play, breath, audio modulation) | | | | | | | | |
+| ISL29125 | RGB colour light sensor with IR blocking (12/16-bit, two ranges, interrupt window) | | | | | | | | |
 | IST8310 | 3-axis AMR magnetometer (±1600/±2500 µT, 0.3 µT/LSB, DRDY, up to 200 Hz) |  |  |  |  |  |  |  |  |
 | ITG3200 | Gyroscope (3-axis, ±2000 °/s, 16-bit, DLPF, temperature, data-ready interrupt) |  |  |  |  |  |  |  |  |
 | L3G4200D | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -217,6 +219,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MCP9808 | Temperature sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MLX90614 | IR thermometer (object −70…380 °C + ambient, 0.02 °C, SMBus + PEC, emissivity) |  |  |  |  |  |  |  |  |
+| MLX90632 | Contactless FIR thermometer (object and ambient temperature, medical/extended range, I²C) | | | | | | | | |
 | MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPL115A2 | Barometer (50–115 kPa, 10-bit, calibration coefficients) |  |  |  |  |  |  |  |  |
 | MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) |  |  |  |  |  |  |  |  |
@@ -258,6 +261,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SCD40 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–2000 ppm, I²C) | | | | | | | | |
 | SCD41 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–5000 ppm, single-shot mode, I²C) | | | | | | | | |
 | SD card (SPI mode) | SD / SDHC / microSD block storage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SGP30 | MOx gas sensor (TVOC, CO₂eq, baseline, humidity compensation, 1.8 V, I²C) | | | | | | | | |
 | SGP40 | MOx VOC sensor (raw signal + VOC Index via Gas Index Algorithm, humidity compensation, I²C) | | | | | | | | |
 | SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -268,6 +272,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | Si7021 | Humidity + temperature sensor (±3 %RH, ±0.4 °C, heater, command protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SPL06-007 | Barometric pressure and temperature sensor (24-bit, 300–1100 hPa, FIFO, interrupt, I²C/SPI) | | | | | | | | |
+| SPS30 | Laser particulate matter sensor (PM1/2.5/4/10, number concentration, fan cleaning, I²C) | | | | | | | | |
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -289,7 +294,9 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| VCNL4040 | Proximity (up to 200 mm) and ambient light sensor (16-bit, white channel, interrupt, I²C) | | | | | | | | |
 | VCNL4200 | Long-distance proximity (up to 1.5 m) and ambient light sensor (16-bit, interrupt, I²C) | | | | | | | | |
+| VEML6070 | UVA light sensor (16-bit, ACK alert output, two-address command/data protocol) | | | | | | | | |
 | VEML6075 | UVA/UVB light sensor (16-bit, UV index compensation channels, I²C) | | | | | | | | |
 | VEML7700 | Ambient light sensor (16-bit, 0.0042 lx/step, white channel) |  |  |  |  |  |  |  |  |
 | VL53L0X | Time-of-flight distance sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

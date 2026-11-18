@@ -187,6 +187,13 @@ const CHIPS = [
     {"id":"max31341","driver":null,"writeSensitive":false,"aliased":false,"addresses":[105],"probe":{"register":89,"regBytes":1,"length":1,"order":"big","mask":240,"expected":[16]}},
     {"id":"veml6075","driver":null,"writeSensitive":false,"aliased":false,"addresses":[16],"probe":{"register":12,"regBytes":1,"length":2,"order":"little","mask":4095,"expected":[38]}},
     {"id":"sgp40","driver":null,"writeSensitive":true,"aliased":false,"addresses":[89],"probe":null},
+    {"id":"isl29125","driver":null,"writeSensitive":false,"aliased":false,"addresses":[68],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[125]}},
+    {"id":"ccs811","driver":null,"writeSensitive":false,"aliased":false,"addresses":[90,91],"probe":{"register":32,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[129]}},
+    {"id":"vcnl4040","driver":null,"writeSensitive":false,"aliased":false,"addresses":[96],"probe":{"register":12,"regBytes":1,"length":2,"order":"little","mask":65535,"expected":[390]}},
+    {"id":"veml6070","driver":null,"writeSensitive":true,"aliased":false,"addresses":[56,57],"probe":null},
+    {"id":"sgp30","driver":null,"writeSensitive":true,"aliased":false,"addresses":[88],"probe":null},
+    {"id":"sps30","driver":null,"writeSensitive":true,"aliased":false,"addresses":[105],"probe":null},
+    {"id":"mlx90632","driver":null,"writeSensitive":false,"aliased":false,"addresses":[58,59],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };
