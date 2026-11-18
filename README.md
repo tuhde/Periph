@@ -278,6 +278,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1675A | E-paper display controller (160×296, B/W/R; IL3897) |  |  |  |  |  |  |  |  |
 | SSD1677 | E-paper display controller (960×680, B/W/R) |  |  |  |  |  |  |  |  |
 | SSD1680 | E-paper display controller (176×296, B/W/R) |  |  |  |  |  |  |  |  |
 | SSD1681 | E-paper display controller (200×200, B/W/R) |  |  |  |  |  |  |  |  |
