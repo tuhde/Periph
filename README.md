@@ -280,6 +280,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SPS30 | Laser particulate matter sensor (PM1/2.5/4/10, number concentration, fan cleaning, I²C) | | | | | | | | |
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1327 | OLED display (128×128, 16 gray levels) |  |  |  |  |  |  |  |  |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1675A | E-paper display controller (160×296, B/W/R; IL3897) |  |  |  |  |  |  |  |  |
 | SSD1677 | E-paper display controller (960×680, B/W/R) |  |  |  |  |  |  |  |  |
