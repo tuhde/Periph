@@ -1,0 +1,80 @@
+[
+    {
+        "id": "tab-is31fl3731-demo",
+        "type": "tab",
+        "label": "IS31FL3731 Moving Dot",
+        "disabled": false,
+        "info": "Moves a single dot across the 9 x 16 LED matrix of an IS31FL3731 over I2C. An inject node fires every 100 ms, a function node advances the dot position (row 0-8, column 0-15) and the periph-is31fl3731 node switches the previous LED off and the new one on at full PWM brightness."
+    },
+    {
+        "id": "cfg-is31fl3731",
+        "type": "is31fl3731-device",
+        "name": "IS31FL3731",
+        "bus": "1",
+        "address": "74"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-is31fl3731-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "fn-time"
+            ]
+        ]
+    },
+    {
+        "id": "fn-time",
+        "type": "function",
+        "name": "next pixel",
+        "func": "let i = context.get('i') || 0;\nconst row = Math.floor(i / 16);\nconst col = i % 16;\nconst prev = context.get('prev');\nconst pixels = [];\nif (prev) pixels.push([prev[0], prev[1], 0]);\npixels.push([row, col, 255]);\ncontext.set('prev', [row, col]);\ncontext.set('i', (i + 1) % 144);\nmsg.payload = { pixels: pixels };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-is31fl3731-demo",
+        "x": 290,
+        "y": 160,
+        "wires": [
+            [
+                "write-lcd",
+                "dbg-lcd"
+            ]
+        ]
+    },
+    {
+        "id": "write-lcd",
+        "type": "periph-is31fl3731",
+        "name": "Display",
+        "device": "cfg-is31fl3731",
+        "z": "tab-is31fl3731-demo",
+        "x": 470,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "dbg-lcd",
+        "type": "debug",
+        "name": "result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 220,
+        "wires": []
+    }
+]
