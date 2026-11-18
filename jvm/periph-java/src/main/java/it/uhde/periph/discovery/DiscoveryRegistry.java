@@ -184,5 +184,15 @@ public final class DiscoveryRegistry {
         new Chip("rrh46410", null, true, false, new int[] {0x38}, null),
         new Chip("pn532", null, true, false, new int[] {0x24}, null),
         new Chip("st25dv", null, false, false, new int[] {0x57}, new IdProbe(0x17, 2, 1, false, 0xFFL, new long[] {0x24L, 0x26L})),
+        new Chip("apds9250", null, false, false, new int[] {0x52}, new IdProbe(0x06, 1, 1, false, 0xF0L, new long[] {0xB0L})),
+        new Chip("rrh62000", null, true, false, new int[] {0x69}, null),
+        new Chip("ds1307", null, false, false, new int[] {0x68}, null),
+        new Chip("scd40", null, true, false, new int[] {0x62}, null),
+        new Chip("vcnl4200", null, false, false, new int[] {0x51}, new IdProbe(0x0E, 1, 2, true, 0xF0FFL, new long[] {0x1058L})),
+        new Chip("ds1371", null, false, false, new int[] {0x68}, null),
+        new Chip("scd41", null, true, false, new int[] {0x62}, null),
+        new Chip("max31341", null, false, false, new int[] {0x69}, new IdProbe(0x59, 1, 1, false, 0xF0L, new long[] {0x10L})),
+        new Chip("veml6075", null, false, false, new int[] {0x10}, new IdProbe(0x0C, 1, 2, true, 0x0FFFL, new long[] {0x0026L})),
+        new Chip("sgp40", null, true, false, new int[] {0x59}, null),
     };
 }

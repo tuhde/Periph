@@ -129,6 +129,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AM2320 | Temperature/humidity sensor (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APA102 | LED (addressable RGB, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| APDS-9250 | Digital RGB, IR and ambient light sensor (20-bit, five gains, threshold/variation interrupt) | | | | | | | | |
 | APDS-9930 | Proximity/ALS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -156,6 +157,8 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV8830 | DC motor driver (H-bridge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| DS1307 | Real-time clock (I²C, 56-byte battery-backed RAM, square-wave output) | | | | | | | | |
+| DS1371 | 32-bit binary counter clock with alarm/watchdog counter (I²C) | | | | | | | | |
 | DS1881 | Digital potentiometer (dual audio taper) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DS3231 | Real-time clock (TCXO) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DS3502 | Digital potentiometer (7-bit, nonvolatile, high-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -200,6 +203,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | LTC4151 | High-voltage (7–80 V) high-side current/voltage/power monitor (12-bit, snapshot mode, ADIN) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MAG3110 | 3-axis digital magnetometer (±1000 µT, 80 Hz, INT1) |  |  |  |  |  |  |  |  |
 | MAX17048 | 1-cell/2-cell (MAX17049) lithium fuel gauge, ModelGauge, no sense resistor (alerts, hibernate/sleep) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MAX31341 | Low-current real-time clock (180 nA, two alarms, countdown timer, trickle charger, I²C) | | | | | | | | |
 | MAX44009 | Ambient light sensor (ultra-low power, lux output) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -248,9 +252,13 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RRH46410 | Indoor air quality and TVOC sensor module (IAQ index, TVOC, eCO₂, I²C command protocol) | | | | | | | | |
+| RRH62000 | All-in-one air quality module (PM1/PM2.5/PM10, TVOC, IAQ, eCO₂, temperature, humidity, I²C) | | | | | | | | |
 | SAA1064 | 4-digit LED driver (7-segment, multiplexed, 21 mA sinks) |  |  |  |  |  |  |  |  |
 | SCD30 | NDIR CO₂, humidity and temperature sensor module (I²C, ASC/FRC calibration) | | | | | | | | |
+| SCD40 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–2000 ppm, I²C) | | | | | | | | |
+| SCD41 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–5000 ppm, single-shot mode, I²C) | | | | | | | | |
 | SD card (SPI mode) | SD / SDHC / microSD block storage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SGP40 | MOx VOC sensor (raw signal + VOC Index via Gas Index Algorithm, humidity compensation, I²C) | | | | | | | | |
 | SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHTC3 | Humidity and temperature sensor (±2 %RH, ±0.2 °C, sleep mode) |  |  |  |  |  |  |  |  |
@@ -281,6 +289,8 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| VCNL4200 | Long-distance proximity (up to 1.5 m) and ambient light sensor (16-bit, interrupt, I²C) | | | | | | | | |
+| VEML6075 | UVA/UVB light sensor (16-bit, UV index compensation channels, I²C) | | | | | | | | |
 | VEML7700 | Ambient light sensor (16-bit, 0.0042 lx/step, white channel) |  |  |  |  |  |  |  |  |
 | VL53L0X | Time-of-flight distance sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | VL53L1X | Time-of-flight distance sensor (long range) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

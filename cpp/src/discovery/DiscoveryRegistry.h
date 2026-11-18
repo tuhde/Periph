@@ -325,6 +325,24 @@ static constexpr uint8_t kAddr_pn532[] = {0x24};
 static constexpr uint8_t kAddr_st25dv[] = {0x57};
 static constexpr uint32_t kExp_st25dv[] = {0x24, 0x26};
 static constexpr IdProbe kProbe_st25dv = {0x17, 2, 1, false, 0xFF, kExp_st25dv, 2};
+static constexpr uint8_t kAddr_apds9250[] = {0x52};
+static constexpr uint32_t kExp_apds9250[] = {0xB0};
+static constexpr IdProbe kProbe_apds9250 = {0x06, 1, 1, false, 0xF0, kExp_apds9250, 1};
+static constexpr uint8_t kAddr_rrh62000[] = {0x69};
+static constexpr uint8_t kAddr_ds1307[] = {0x68};
+static constexpr uint8_t kAddr_scd40[] = {0x62};
+static constexpr uint8_t kAddr_vcnl4200[] = {0x51};
+static constexpr uint32_t kExp_vcnl4200[] = {0x1058};
+static constexpr IdProbe kProbe_vcnl4200 = {0x0E, 1, 2, true, 0xF0FF, kExp_vcnl4200, 1};
+static constexpr uint8_t kAddr_ds1371[] = {0x68};
+static constexpr uint8_t kAddr_scd41[] = {0x62};
+static constexpr uint8_t kAddr_max31341[] = {0x69};
+static constexpr uint32_t kExp_max31341[] = {0x10};
+static constexpr IdProbe kProbe_max31341 = {0x59, 1, 1, false, 0xF0, kExp_max31341, 1};
+static constexpr uint8_t kAddr_veml6075[] = {0x10};
+static constexpr uint32_t kExp_veml6075[] = {0x0026};
+static constexpr IdProbe kProbe_veml6075 = {0x0C, 1, 2, true, 0x0FFF, kExp_veml6075, 1};
+static constexpr uint8_t kAddr_sgp40[] = {0x59};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -499,8 +517,18 @@ static constexpr ChipEntry kChips[] = {
     {"rrh46410", nullptr, true, false, kAddr_rrh46410, 1, nullptr},
     {"pn532", nullptr, true, false, kAddr_pn532, 1, nullptr},
     {"st25dv", nullptr, false, false, kAddr_st25dv, 1, &kProbe_st25dv},
+    {"apds9250", nullptr, false, false, kAddr_apds9250, 1, &kProbe_apds9250},
+    {"rrh62000", nullptr, true, false, kAddr_rrh62000, 1, nullptr},
+    {"ds1307", nullptr, false, false, kAddr_ds1307, 1, nullptr},
+    {"scd40", nullptr, true, false, kAddr_scd40, 1, nullptr},
+    {"vcnl4200", nullptr, false, false, kAddr_vcnl4200, 1, &kProbe_vcnl4200},
+    {"ds1371", nullptr, false, false, kAddr_ds1371, 1, nullptr},
+    {"scd41", nullptr, true, false, kAddr_scd41, 1, nullptr},
+    {"max31341", nullptr, false, false, kAddr_max31341, 1, &kProbe_max31341},
+    {"veml6075", nullptr, false, false, kAddr_veml6075, 1, &kProbe_veml6075},
+    {"sgp40", nullptr, true, false, kAddr_sgp40, 1, nullptr},
 };
-static constexpr size_t kChipCount = 172;
+static constexpr size_t kChipCount = 182;
 
 }  // namespace discovery
 }  // namespace periph
