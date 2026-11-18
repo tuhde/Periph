@@ -58,6 +58,7 @@ const CHIPS = [
     {"id":"pcf8578","driver":"pcf8578","writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
     {"id":"pcf8579","driver":"pcf8579","writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
     {"id":"sh1106","driver":"sh1106","writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
+    {"id":"sh1107","driver":null,"writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
     {"id":"ssd1305","driver":"ssd1305","writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
     {"id":"ssd1306","driver":"ssd1306","writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
     {"id":"ssd1327","driver":null,"writeSensitive":true,"aliased":false,"addresses":[60,61],"probe":null},
