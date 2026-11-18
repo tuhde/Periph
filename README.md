@@ -269,6 +269,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SGP30 | MOx gas sensor (TVOC, CO₂eq, baseline, humidity compensation, 1.8 V, I²C) | | | | | | | | |
 | SGP40 | MOx VOC sensor (raw signal + VOC Index via Gas Index Algorithm, humidity compensation, I²C) | | | | | | | | |
 | SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SH1107 | OLED display (128×128, monochrome) |  |  |  |  |  |  |  |  |
 | SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHTC3 | Humidity and temperature sensor (±2 %RH, ±0.2 °C, sleep mode) |  |  |  |  |  |  |  |  |
 | Si1132 | UV index and ambient light sensor (Si114x family, command interface, interrupt) | | | | | | | | |
