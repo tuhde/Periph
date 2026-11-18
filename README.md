@@ -185,6 +185,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IL0398 | E-paper display controller (400×300, B/W) |  |  |  |  |  |  |  |  |
 | IL3820 | E-paper display controller (240×320, B/W) |  |  |  |  |  |  |  |  |
+| IL91874 | E-paper display controller (320×300, B/W/R) |  |  |  |  |  |  |  |  |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
