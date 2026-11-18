@@ -278,6 +278,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1680 | E-paper display controller (176×296, B/W/R) |  |  |  |  |  |  |  |  |
+| SSD1681 | E-paper display controller (200×200, B/W/R) |  |  |  |  |  |  |  |  |
 | SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
 | ST25DV | Dynamic NFC/RFID Type 5 tag with 4/16/64 Kbit EEPROM, I²C, mailbox and GPO (ST25DV04K/16K/64K) | | | | | | | | |
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
