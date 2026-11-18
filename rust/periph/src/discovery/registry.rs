@@ -212,4 +212,5 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "sgp30", driver: None, write_sensitive: true, aliased: false, addresses: &[0x58], probe: None },
     ChipEntry { id: "sps30", driver: None, write_sensitive: true, aliased: false, addresses: &[0x69], probe: None },
     ChipEntry { id: "mlx90632", driver: None, write_sensitive: false, aliased: false, addresses: &[0x3A, 0x3B], probe: None },
+    ChipEntry { id: "mlx90640", driver: None, write_sensitive: false, aliased: false, addresses: &[0x33], probe: None },
 ];

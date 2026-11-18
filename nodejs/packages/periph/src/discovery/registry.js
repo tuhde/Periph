@@ -194,6 +194,7 @@ const CHIPS = [
     {"id":"sgp30","driver":null,"writeSensitive":true,"aliased":false,"addresses":[88],"probe":null},
     {"id":"sps30","driver":null,"writeSensitive":true,"aliased":false,"addresses":[105],"probe":null},
     {"id":"mlx90632","driver":null,"writeSensitive":false,"aliased":false,"addresses":[58,59],"probe":null},
+    {"id":"mlx90640","driver":null,"writeSensitive":false,"aliased":false,"addresses":[51],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };

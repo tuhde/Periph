@@ -201,5 +201,6 @@ public final class DiscoveryRegistry {
         new Chip("sgp30", null, true, false, new int[] {0x58}, null),
         new Chip("sps30", null, true, false, new int[] {0x69}, null),
         new Chip("mlx90632", null, false, false, new int[] {0x3A, 0x3B}, null),
+        new Chip("mlx90640", null, false, false, new int[] {0x33}, null),
     };
 }

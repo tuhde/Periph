@@ -220,6 +220,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MLX90614 | IR thermometer (object −70…380 °C + ambient, 0.02 °C, SMBus + PEC, emissivity) |  |  |  |  |  |  |  |  |
 | MLX90632 | Contactless FIR thermometer (object and ambient temperature, medical/extended range, I²C) | | | | | | | | |
+| MLX90640 | 32×24 thermal IR array (768 pixels, 55°/110° FOV, 0.5–64 Hz, I²C) | | | | | | | | |
 | MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPL115A2 | Barometer (50–115 kPa, 10-bit, calibration coefficients) |  |  |  |  |  |  |  |  |
 | MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) |  |  |  |  |  |  |  |  |
