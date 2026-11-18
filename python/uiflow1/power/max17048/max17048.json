@@ -1,0 +1,408 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "max17048_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MAX17048",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "cells (1 = MAX17048, 2 = MAX17049)",
+          "type": "label"
+        },
+        {
+          "name": "_cells",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 cell voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_percent",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 state of charge (%)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_raw_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 raw VCELL register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_raw_soc",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 raw SOC register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_charge_rate",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 charge/discharge rate (%/h)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_version",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 version register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_chip_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 chip ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_rcomp",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 set RCOMP",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_get_rcomp",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 RCOMP value",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_compensate_temperature",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 compensate RCOMP for temperature",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_alert_soc",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 set empty alert threshold",
+          "type": "label"
+        },
+        {
+          "name": "_percent",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_get_alert_soc",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 empty alert threshold (%)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_soc_change_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 SOC change alert",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_voltage_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 set voltage alert window",
+          "type": "label"
+        },
+        {
+          "name": "min (V)",
+          "type": "label"
+        },
+        {
+          "name": "_min_v",
+          "type": "number"
+        },
+        {
+          "name": "max (V)",
+          "type": "label"
+        },
+        {
+          "name": "_max_v",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_reset_voltage",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 set reset voltage",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_get_reset_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 reset voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_enable_voltage_reset_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 voltage reset alert",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_comparator_disabled",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 hibernate comparator disabled",
+          "type": "label"
+        },
+        {
+          "name": "_disabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_set_hibernate_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 set hibernate thresholds",
+          "type": "label"
+        },
+        {
+          "name": "hibernate (%/h)",
+          "type": "label"
+        },
+        {
+          "name": "_hib_thr_pct_per_h",
+          "type": "number"
+        },
+        {
+          "name": "active (V)",
+          "type": "label"
+        },
+        {
+          "name": "_act_thr_v",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_disable_hibernate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 disable hibernate",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_force_hibernate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 force hibernate",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_is_hibernating",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 is hibernating",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_enable_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 enable sleep mode",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 sleep",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 wake",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_read_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 STATUS register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_clear_status",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 clear STATUS flags",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max17048_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX17048 alert sources (bitmask)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_quick_start",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 quick start",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max17048_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX17048 power-on reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
