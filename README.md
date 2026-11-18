@@ -183,6 +183,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HY3131 | DMM analog front end (24-bit ADC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ICM-20948 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IL0376F | E-paper display controller (200×300, B/W/R, 4 gray) |  |  |  |  |  |  |  |  |
 | IL0398 | E-paper display controller (400×300, B/W) |  |  |  |  |  |  |  |  |
 | IL3820 | E-paper display controller (240×320, B/W) |  |  |  |  |  |  |  |  |
 | IL91874 | E-paper display controller (320×300, B/W/R) |  |  |  |  |  |  |  |  |
