@@ -2650,6 +2650,162 @@
       "probe_safety": "register_pointer",
       "driver": null,
       "datasheet": "datasheets/rfid/st25dv.pdf"
+    },
+    {
+      "id": "apds9250",
+      "name": "APDS-9250",
+      "category": "light",
+      "addresses": [
+        "0x52"
+      ],
+      "id_probe": {
+        "register": "0x06",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xF0",
+        "expected": [
+          "0xB0"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/apds9250.pdf"
+    },
+    {
+      "id": "rrh62000",
+      "name": "RRH62000",
+      "category": "gas",
+      "addresses": [
+        "0x69"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/rrh62000.pdf"
+    },
+    {
+      "id": "ds1307",
+      "name": "DS1307",
+      "category": "rtc",
+      "addresses": [
+        "0x68"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rtc/ds1307.pdf"
+    },
+    {
+      "id": "scd40",
+      "name": "SCD40",
+      "category": "gas",
+      "addresses": [
+        "0x62"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/scd4x.pdf"
+    },
+    {
+      "id": "vcnl4200",
+      "name": "VCNL4200",
+      "category": "light",
+      "addresses": [
+        "0x51"
+      ],
+      "id_probe": {
+        "register": "0x0E",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "little",
+        "mask": "0xF0FF",
+        "expected": [
+          "0x1058"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/vcnl4200.pdf"
+    },
+    {
+      "id": "ds1371",
+      "name": "DS1371",
+      "category": "rtc",
+      "addresses": [
+        "0x68"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rtc/ds1371.pdf"
+    },
+    {
+      "id": "scd41",
+      "name": "SCD41",
+      "category": "gas",
+      "addresses": [
+        "0x62"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/scd4x.pdf"
+    },
+    {
+      "id": "max31341",
+      "name": "MAX31341",
+      "category": "rtc",
+      "addresses": [
+        "0x69"
+      ],
+      "id_probe": {
+        "register": "0x59",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xF0",
+        "expected": [
+          "0x10"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/rtc/max31341.pdf"
+    },
+    {
+      "id": "veml6075",
+      "name": "VEML6075",
+      "category": "light",
+      "addresses": [
+        "0x10"
+      ],
+      "id_probe": {
+        "register": "0x0C",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "little",
+        "mask": "0x0FFF",
+        "expected": [
+          "0x0026"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/veml6075.pdf"
+    },
+    {
+      "id": "sgp40",
+      "name": "SGP40",
+      "category": "gas",
+      "addresses": [
+        "0x59"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/sgp40.pdf"
     }
   ]
 }

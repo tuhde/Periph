@@ -177,6 +177,16 @@ const CHIPS = [
     {"id":"rrh46410","driver":null,"writeSensitive":true,"aliased":false,"addresses":[56],"probe":null},
     {"id":"pn532","driver":null,"writeSensitive":true,"aliased":false,"addresses":[36],"probe":null},
     {"id":"st25dv","driver":null,"writeSensitive":false,"aliased":false,"addresses":[87],"probe":{"register":23,"regBytes":2,"length":1,"order":"big","mask":255,"expected":[36,38]}},
+    {"id":"apds9250","driver":null,"writeSensitive":false,"aliased":false,"addresses":[82],"probe":{"register":6,"regBytes":1,"length":1,"order":"big","mask":240,"expected":[176]}},
+    {"id":"rrh62000","driver":null,"writeSensitive":true,"aliased":false,"addresses":[105],"probe":null},
+    {"id":"ds1307","driver":null,"writeSensitive":false,"aliased":false,"addresses":[104],"probe":null},
+    {"id":"scd40","driver":null,"writeSensitive":true,"aliased":false,"addresses":[98],"probe":null},
+    {"id":"vcnl4200","driver":null,"writeSensitive":false,"aliased":false,"addresses":[81],"probe":{"register":14,"regBytes":1,"length":2,"order":"little","mask":61695,"expected":[4184]}},
+    {"id":"ds1371","driver":null,"writeSensitive":false,"aliased":false,"addresses":[104],"probe":null},
+    {"id":"scd41","driver":null,"writeSensitive":true,"aliased":false,"addresses":[98],"probe":null},
+    {"id":"max31341","driver":null,"writeSensitive":false,"aliased":false,"addresses":[105],"probe":{"register":89,"regBytes":1,"length":1,"order":"big","mask":240,"expected":[16]}},
+    {"id":"veml6075","driver":null,"writeSensitive":false,"aliased":false,"addresses":[16],"probe":{"register":12,"regBytes":1,"length":2,"order":"little","mask":4095,"expected":[38]}},
+    {"id":"sgp40","driver":null,"writeSensitive":true,"aliased":false,"addresses":[89],"probe":null},
 ];
 
 module.exports = { SCHEMA_VERSION, CHIPS };
