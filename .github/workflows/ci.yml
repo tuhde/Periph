@@ -41,6 +41,18 @@ env:
   PERIPH_CI_BASE: ${{ inputs.base || github.event.pull_request.base.sha || github.event.before }}
 
 jobs:
+  esp-idf:
+    name: ESP-IDF compile
+    runs-on: [self-hosted, linux, periph]
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1,2,3,4,5]
+    steps:
+      - uses: actions/checkout@v6
+      - run: scripts/ci/run.sh esp-idf --shard ${{ matrix.shard }}/5
+
   arduino-avr:
     name: Arduino compile AVR
     runs-on: [self-hosted, linux, periph]
@@ -116,18 +128,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: scripts/ci/run.sh java
-
-  esp-idf:
-    name: ESP-IDF compile
-    runs-on: [self-hosted, linux, periph]
-    timeout-minutes: 120
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1,2,3,4,5]
-    steps:
-      - uses: actions/checkout@v6
-      - run: scripts/ci/run.sh esp-idf --shard ${{ matrix.shard }}/5
 
   zephyr:
     name: Zephyr compile
