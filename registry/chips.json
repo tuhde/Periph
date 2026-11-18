@@ -2806,6 +2806,117 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/gas/sgp40.pdf"
+    },
+    {
+      "id": "isl29125",
+      "name": "ISL29125",
+      "category": "color",
+      "addresses": [
+        "0x44"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x7D"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/color/isl29125.pdf"
+    },
+    {
+      "id": "ccs811",
+      "name": "CCS811",
+      "category": "gas",
+      "addresses": [
+        "0x5A..0x5B"
+      ],
+      "id_probe": {
+        "register": "0x20",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x81"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/gas/ccs811.pdf"
+    },
+    {
+      "id": "vcnl4040",
+      "name": "VCNL4040",
+      "category": "light",
+      "addresses": [
+        "0x60"
+      ],
+      "id_probe": {
+        "register": "0x0C",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "little",
+        "mask": "0xFFFF",
+        "expected": [
+          "0x0186"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/light/vcnl4040.pdf"
+    },
+    {
+      "id": "veml6070",
+      "name": "VEML6070",
+      "category": "light",
+      "addresses": [
+        "0x38..0x39"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/light/veml6070.pdf"
+    },
+    {
+      "id": "sgp30",
+      "name": "SGP30",
+      "category": "gas",
+      "addresses": [
+        "0x58"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/sgp30.pdf"
+    },
+    {
+      "id": "sps30",
+      "name": "SPS30",
+      "category": "gas",
+      "addresses": [
+        "0x69"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/gas/sps30.pdf"
+    },
+    {
+      "id": "mlx90632",
+      "name": "MLX90632",
+      "category": "temperature",
+      "addresses": [
+        "0x3A..0x3B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/temperature/mlx90632.pdf"
     }
   ]
 }

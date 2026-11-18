@@ -343,6 +343,19 @@ static constexpr uint8_t kAddr_veml6075[] = {0x10};
 static constexpr uint32_t kExp_veml6075[] = {0x0026};
 static constexpr IdProbe kProbe_veml6075 = {0x0C, 1, 2, true, 0x0FFF, kExp_veml6075, 1};
 static constexpr uint8_t kAddr_sgp40[] = {0x59};
+static constexpr uint8_t kAddr_isl29125[] = {0x44};
+static constexpr uint32_t kExp_isl29125[] = {0x7D};
+static constexpr IdProbe kProbe_isl29125 = {0x00, 1, 1, false, 0xFF, kExp_isl29125, 1};
+static constexpr uint8_t kAddr_ccs811[] = {0x5A, 0x5B};
+static constexpr uint32_t kExp_ccs811[] = {0x81};
+static constexpr IdProbe kProbe_ccs811 = {0x20, 1, 1, false, 0xFF, kExp_ccs811, 1};
+static constexpr uint8_t kAddr_vcnl4040[] = {0x60};
+static constexpr uint32_t kExp_vcnl4040[] = {0x0186};
+static constexpr IdProbe kProbe_vcnl4040 = {0x0C, 1, 2, true, 0xFFFF, kExp_vcnl4040, 1};
+static constexpr uint8_t kAddr_veml6070[] = {0x38, 0x39};
+static constexpr uint8_t kAddr_sgp30[] = {0x58};
+static constexpr uint8_t kAddr_sps30[] = {0x69};
+static constexpr uint8_t kAddr_mlx90632[] = {0x3A, 0x3B};
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
@@ -527,8 +540,15 @@ static constexpr ChipEntry kChips[] = {
     {"max31341", nullptr, false, false, kAddr_max31341, 1, &kProbe_max31341},
     {"veml6075", nullptr, false, false, kAddr_veml6075, 1, &kProbe_veml6075},
     {"sgp40", nullptr, true, false, kAddr_sgp40, 1, nullptr},
+    {"isl29125", nullptr, false, false, kAddr_isl29125, 1, &kProbe_isl29125},
+    {"ccs811", nullptr, false, false, kAddr_ccs811, 2, &kProbe_ccs811},
+    {"vcnl4040", nullptr, false, false, kAddr_vcnl4040, 1, &kProbe_vcnl4040},
+    {"veml6070", nullptr, true, false, kAddr_veml6070, 2, nullptr},
+    {"sgp30", nullptr, true, false, kAddr_sgp30, 1, nullptr},
+    {"sps30", nullptr, true, false, kAddr_sps30, 1, nullptr},
+    {"mlx90632", nullptr, false, false, kAddr_mlx90632, 2, nullptr},
 };
-static constexpr size_t kChipCount = 182;
+static constexpr size_t kChipCount = 189;
 
 }  // namespace discovery
 }  // namespace periph
