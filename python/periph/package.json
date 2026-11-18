@@ -493,6 +493,10 @@
       "github:tuhde/Periph/python/periph/chips/power/ltc4151.py"
     ],
     [
+      "periph/chips/power/max17048.py",
+      "github:tuhde/Periph/python/periph/chips/power/max17048.py"
+    ],
+    [
       "periph/chips/pressure/bmp085.py",
       "github:tuhde/Periph/python/periph/chips/pressure/bmp085.py"
     ],

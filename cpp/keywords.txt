@@ -276,6 +276,8 @@ MPU9255Minimal	KEYWORD1
 MX25L12845EFull	KEYWORD1
 MX25L12845EMinimal	KEYWORD1
 MX25L12845EOptions	KEYWORD1
+Max17048Full	KEYWORD1
+Max17048Minimal	KEYWORD1
 Measurement	KEYWORD1
 MinuteInterrupt	KEYWORD1
 Mode	KEYWORD1
@@ -499,6 +501,7 @@ ch1	KEYWORD2
 channel_enabled	KEYWORD2
 channels	KEYWORD2
 chargeState	KEYWORD2
+charge_rate	KEYWORD2
 checksum	KEYWORD2
 chip_erase	KEYWORD2
 chip_id	KEYWORD2
@@ -537,6 +540,7 @@ color_clear	KEYWORD2
 color_green	KEYWORD2
 color_red	KEYWORD2
 columns	KEYWORD2
+compensate_temperature	KEYWORD2
 configure	KEYWORD2
 configureAlert	KEYWORD2
 configureBatteryBackup	KEYWORD2
@@ -660,6 +664,7 @@ disableTimerA	KEYWORD2
 disableTimerB	KEYWORD2
 disable_dac	KEYWORD2
 disable_fifo	KEYWORD2
+disable_hibernate	KEYWORD2
 disable_highpass	KEYWORD2
 disable_interrupt	KEYWORD2
 disable_wait	KEYWORD2
@@ -718,7 +723,9 @@ enable_proximity	KEYWORD2
 enable_proximity_interrupt	KEYWORD2
 enable_rds	KEYWORD2
 enable_rms	KEYWORD2
+enable_sleep	KEYWORD2
 enable_tap	KEYWORD2
+enable_voltage_reset_alert	KEYWORD2
 enable_wait	KEYWORD2
 erase	KEYWORD2
 erase_block_32k	KEYWORD2
@@ -748,6 +755,7 @@ filtered	KEYWORD2
 firmware_revision	KEYWORD2
 fix	KEYWORD2
 forceTemperatureConversion	KEYWORD2
+force_hibernate	KEYWORD2
 forced	KEYWORD2
 found	KEYWORD2
 freeze	KEYWORD2
@@ -802,6 +810,7 @@ getWiper	KEYWORD2
 get_accel_offset	KEYWORD2
 get_alarm_rsoc	KEYWORD2
 get_alarm_voltage	KEYWORD2
+get_alert_soc	KEYWORD2
 get_apa	KEYWORD2
 get_apt	KEYWORD2
 get_averaging	KEYWORD2
@@ -814,6 +823,7 @@ get_firmware_version	KEYWORD2
 get_gain_calibration	KEYWORD2
 get_gate_mask	KEYWORD2
 get_gyro_gains	KEYWORD2
+get_hibernate_thresholds	KEYWORD2
 get_limits	KEYWORD2
 get_mic_gain	KEYWORD2
 get_mode	KEYWORD2
@@ -824,6 +834,8 @@ get_pixel	KEYWORD2
 get_profile	KEYWORD2
 get_range_offset	KEYWORD2
 get_ratio	KEYWORD2
+get_rcomp	KEYWORD2
+get_reset_voltage	KEYWORD2
 get_resistance	KEYWORD2
 get_resistance_step	KEYWORD2
 get_resistance_wa	KEYWORD2
@@ -832,6 +844,7 @@ get_scale	KEYWORD2
 get_sense_resistor	KEYWORD2
 get_tcon	KEYWORD2
 get_terminals	KEYWORD2
+get_voltage_alert	KEYWORD2
 get_volume	KEYWORD2
 get_wiper	KEYWORD2
 gravity	KEYWORD2
@@ -902,6 +915,7 @@ is_card_present	KEYWORD2
 is_data_ready	KEYWORD2
 is_eeprom_ready	KEYWORD2
 is_heater_on	KEYWORD2
+is_hibernating	KEYWORD2
 is_magnet_detected	KEYWORD2
 is_magnet_too_strong	KEYWORD2
 is_magnet_too_weak	KEYWORD2
@@ -1037,11 +1051,14 @@ proximity	KEYWORD2
 proximity_threshold	KEYWORD2
 proximity_touched	KEYWORD2
 quaternion	KEYWORD2
+quick_start	KEYWORD2
 rabActual	KEYWORD2
 rangeStatus	KEYWORD2
 rangeValid	KEYWORD2
 raw_angle	KEYWORD2
 raw_angle_degrees	KEYWORD2
+raw_soc	KEYWORD2
+raw_voltage	KEYWORD2
 rds_ready	KEYWORD2
 reactiveEnergy	KEYWORD2
 reactiveEnergyB	KEYWORD2
@@ -1508,6 +1525,7 @@ set_addressing_mode	KEYWORD2
 set_alarm_rsoc	KEYWORD2
 set_alarm_voltage	KEYWORD2
 set_alert	KEYWORD2
+set_alert_soc	KEYWORD2
 set_all	KEYWORD2
 set_all_eeprom	KEYWORD2
 set_all_on	KEYWORD2
@@ -1546,6 +1564,7 @@ set_click	KEYWORD2
 set_clock	KEYWORD2
 set_clock_stretching	KEYWORD2
 set_com_config	KEYWORD2
+set_comparator_disabled	KEYWORD2
 set_compensation	KEYWORD2
 set_continuous	KEYWORD2
 set_contrast	KEYWORD2
@@ -1605,6 +1624,7 @@ set_half_bandwidth	KEYWORD2
 set_heater	KEYWORD2
 set_heater_off	KEYWORD2
 set_heater_profile	KEYWORD2
+set_hibernate_thresholds	KEYWORD2
 set_high_g	KEYWORD2
 set_high_pass	KEYWORD2
 set_high_pass_output	KEYWORD2
@@ -1692,9 +1712,11 @@ set_rate	KEYWORD2
 set_ratio	KEYWORD2
 set_raw	KEYWORD2
 set_raw_eeprom	KEYWORD2
+set_rcomp	KEYWORD2
 set_reference	KEYWORD2
 set_remap	KEYWORD2
 set_repeatability	KEYWORD2
+set_reset_voltage	KEYWORD2
 set_resistance	KEYWORD2
 set_resistance_wa	KEYWORD2
 set_resolution	KEYWORD2
@@ -1714,6 +1736,7 @@ set_sequential	KEYWORD2
 set_shadow	KEYWORD2
 set_sleep	KEYWORD2
 set_slope	KEYWORD2
+set_soc_change_alert	KEYWORD2
 set_soft_start	KEYWORD2
 set_softmute	KEYWORD2
 set_speed	KEYWORD2
@@ -1740,6 +1763,7 @@ set_vcomh	KEYWORD2
 set_vin_ov_warn	KEYWORD2
 set_vin_uv_warn	KEYWORD2
 set_voltage	KEYWORD2
+set_voltage_alert	KEYWORD2
 set_voltage_eeprom	KEYWORD2
 set_volume	KEYWORD2
 set_vout_uv_warn	KEYWORD2
@@ -1886,6 +1910,7 @@ write_char	KEYWORD2
 write_columns	KEYWORD2
 write_command	KEYWORD2
 write_commands	KEYWORD2
+write_config	KEYWORD2
 write_control	KEYWORD2
 write_customer	KEYWORD2
 write_data	KEYWORD2
@@ -2659,6 +2684,7 @@ SOURCE_LEVEL_LOW	LITERAL1
 SOURCE_LOW	LITERAL1
 SOURCE_LOWER	LITERAL1
 SOURCE_LOW_G	LITERAL1
+SOURCE_LOW_SOC	LITERAL1
 SOURCE_MAG_DATA_READY	LITERAL1
 SOURCE_MAG_DRDY	LITERAL1
 SOURCE_MINUTE	LITERAL1
@@ -2673,6 +2699,7 @@ SOURCE_OT_FAULT	LITERAL1
 SOURCE_OT_WARN	LITERAL1
 SOURCE_OUT_OF_WINDOW	LITERAL1
 SOURCE_OVERRUN	LITERAL1
+SOURCE_OVERVOLTAGE	LITERAL1
 SOURCE_PIN_OP_WARN	LITERAL1
 SOURCE_PLL_READY	LITERAL1
 SOURCE_POWER_GOOD	LITERAL1
@@ -2682,9 +2709,11 @@ SOURCE_PWRON_NEG_EDGE	LITERAL1
 SOURCE_PWRON_POS_EDGE	LITERAL1
 SOURCE_PWRON_SHORT	LITERAL1
 SOURCE_RANGE	LITERAL1
+SOURCE_RESET	LITERAL1
 SOURCE_SECOND	LITERAL1
 SOURCE_SIGNIFICANT_MOTION	LITERAL1
 SOURCE_SLOPE	LITERAL1
+SOURCE_SOC_CHANGE	LITERAL1
 SOURCE_SOC_WARN_L1	LITERAL1
 SOURCE_SOC_WARN_L2	LITERAL1
 SOURCE_STEP	LITERAL1
@@ -2695,6 +2724,7 @@ SOURCE_TIMER	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
 SOURCE_TRANSIENT	LITERAL1
+SOURCE_UNDERVOLTAGE	LITERAL1
 SOURCE_UPPER	LITERAL1
 SOURCE_VBUS_INSERT	LITERAL1
 SOURCE_VBUS_REMOVE	LITERAL1
@@ -2703,6 +2733,7 @@ SOURCE_VIN_OV_WARN	LITERAL1
 SOURCE_VIN_UV_FAULT	LITERAL1
 SOURCE_VIN_UV_WARN	LITERAL1
 SOURCE_VOUT_UV_WARN	LITERAL1
+SOURCE_VRESET	LITERAL1
 SOURCE_WAKE_ON_MOTION	LITERAL1
 SOURCE_WATCHDOG_EXPIRE	LITERAL1
 SOURCE_WATERMARK	LITERAL1

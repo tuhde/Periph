@@ -1,0 +1,89 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-max17048-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '36', required: true },
+            cells:   { value: '1', required: true }
+        },
+        label: function() {
+            return this.name || ('MAX17048 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-max17048-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MAX17048">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="36" style="width:80px"> &nbsp;fixed: 36 (0x36)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-cells">Cells</label>
+        <select id="node-config-input-cells" style="width:160px">
+            <option value="1">1 (MAX17048)</option>
+            <option value="2">2 (MAX17049)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-max17048', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'periph-max17048-device', required: true },
+            rate:   { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-battery-half',
+        label:   function() { return this.name || 'MAX17048'; },
+        paletteLabel: 'MAX17048'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-max17048">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MAX17048">
+    </div>
+    <div class="form-row">
+        <label for="node-input-rate"><i class="fa fa-line-chart"></i> Rate</label>
+        <input type="checkbox" id="node-input-rate" style="width:auto"> &nbsp;also output the charge/discharge rate
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-max17048">
+    <p>Reads cell voltage and state of charge from a MAX17048 (1-cell) or MAX17049 (2-cell) lithium fuel gauge over I²C.</p>
+    <p>Any input message triggers one reading. The device is configured via a <b>periph-max17048-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Cell voltage in volts (pack voltage for the 2-cell part).</dd>
+        <dt>payload.percent <span class="property-type">number</span></dt>
+        <dd>State of charge in % (0&ndash;100).</dd>
+        <dt>payload.charge_rate <span class="property-type">number</span></dt>
+        <dd>Approximate charge (positive) or discharge rate in %/h (only when the <b>Rate</b> option is enabled).</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>The address is fixed at <code>0x36</code> (shared with the AS5600). The first state-of-charge value is valid
+    about 1&nbsp;s after power-up. The node only reads; it never writes the chip.</p>
+</script>

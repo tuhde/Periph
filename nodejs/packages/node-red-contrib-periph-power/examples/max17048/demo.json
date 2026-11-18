@@ -1,0 +1,88 @@
+[
+    {
+        "id": "tab-max17048-demo",
+        "type": "tab",
+        "label": "MAX17048 Battery Fuel Gauge",
+        "disabled": false,
+        "info": "Battery fuel gauge: every 5 s reads the cell voltage and state of charge from a MAX17048 on a single Li-ion/LiPo cell and shows a formatted string such as \"3.87 V / 74.3 %\" in the debug panel. The node only reads and never writes the chip."
+    },
+    {
+        "id": "cfg-max17048",
+        "type": "periph-max17048-device",
+        "name": "MAX17048",
+        "bus": "1",
+        "address": "36",
+        "cells": "1"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-max17048-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "read-max17048"
+            ]
+        ]
+    },
+    {
+        "id": "read-max17048",
+        "type": "periph-max17048",
+        "name": "MAX17048",
+        "device": "cfg-max17048",
+        "z": "tab-max17048-demo",
+        "x": 320,
+        "y": 160,
+        "wires": [
+            [
+                "fmt-readings"
+            ]
+        ],
+        "rate": false
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format",
+        "func": "const p = msg.payload;\nmsg.payload = p.voltage.toFixed(2) + ' V / ' + p.percent.toFixed(1) + ' %';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-max17048-demo",
+        "x": 520,
+        "y": 160,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "battery",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-max17048-demo",
+        "x": 700,
+        "y": 160,
+        "wires": []
+    }
+]

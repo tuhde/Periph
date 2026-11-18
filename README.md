@@ -199,7 +199,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | LSM303 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LTC4151 | High-voltage (7–80 V) high-side current/voltage/power monitor (12-bit, snapshot mode, ADIN) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MAG3110 | 3-axis digital magnetometer (±1000 µT, 80 Hz, INT1) |  |  |  |  |  |  |  |  |
-| MAX17048 | 1-cell/2-cell (MAX17049) lithium fuel gauge, ModelGauge, no sense resistor (alerts, hibernate/sleep) | | | | | | | | |
+| MAX17048 | 1-cell/2-cell (MAX17049) lithium fuel gauge, ModelGauge, no sense resistor (alerts, hibernate/sleep) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MAX44009 | Ambient light sensor (ultra-low power, lux output) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
