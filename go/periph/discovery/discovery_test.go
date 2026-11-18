@@ -231,12 +231,12 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		skip     ProbeSkipReason
 	}{
 		// 0x68 hosts the write-sensitive MCP3422, so passive scans skip probing there.
-		{0x68, []string{"bq32000", "drv8830", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}, false, SkipWriteSensitive},
+		{0x68, []string{"bq32000", "drv8830", "ds1307", "ds1371", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}, false, SkipWriteSensitive},
 		{0x40, []string{"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"}, false, SkipWriteSensitive},
 		// 0x36 is shared with MAX17048, which has an identity register, so probing happens here.
 		{0x36, []string{"as5600"}, false, SkipNone},
 		{0x0B, []string{"lc709203f"}, false, SkipNone},
-		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s"}, true, SkipWriteSensitive},
+		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s", "veml6070"}, true, SkipWriteSensitive},
 	}
 	for _, tc := range cases {
 		b := newBus(single(tc.addr, map[uint32]byte{}))
