@@ -118,6 +118,7 @@ Each chip exposes two structs:
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
 | LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |
 | LTC4151 | Power monitor | 7–80 V high-side current and voltage monitor (Linear Technology / Analog Devices). |
+| MAX17048 | Power monitor | Lithium fuel gauge with ModelGauge (Maxim Integrated / Analog Devices). |
 | MAX44009 | Light sensor | Ultra-low-power ambient light sensor with ADC (Maxim / Analog Devices). |
 | MB85RC | Memory | 256 Kbit (32 KiB) I²C FRAM (ferroelectric RAM). |
 | MCP23008 | IO expander | / MCP23S08 8-bit bidirectional I/O port expander (Microchip). |

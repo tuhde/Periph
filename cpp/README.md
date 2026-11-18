@@ -115,6 +115,7 @@ Each chip exposes two classes:
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | LSM303 | Accelerometer | `chips/accelerometer/LSM303.h` |
 | LTC4151 | Power monitor | `chips/power/LTC4151.h` |
+| Max17048 | Power monitor | `chips/power/Max17048.h` |
 | MAX44009 | Light sensor | `chips/light/MAX44009.h` |
 | MB85RC | Memory | `chips/memory/MB85RC.h` |
 | MCP23008 | IO expander | `chips/io_expander/MCP23008.h` |
