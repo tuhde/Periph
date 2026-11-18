@@ -1,5 +1,5 @@
 """
-file     MAX17048
+file     Max17048
 time     2026-11-18
 author
 email
@@ -10,7 +10,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.power.max17048 import MAX17048Full
 
 
-class MAX17048:
+class Max17048:
     """
     note:
         en: ''
