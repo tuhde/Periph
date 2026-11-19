@@ -277,6 +277,8 @@ MFRC522Full	KEYWORD1
 MFRC522Minimal	KEYWORD1
 MMA8451QFull	KEYWORD1
 MMA8451QMinimal	KEYWORD1
+MPL115A2Full	KEYWORD1
+MPL115A2Minimal	KEYWORD1
 MPR121Full	KEYWORD1
 MPR121Minimal	KEYWORD1
 MPU6050Full	KEYWORD1
@@ -549,6 +551,7 @@ clear_proximity_interrupt	KEYWORD2
 clear_status	KEYWORD2
 clockingFor	KEYWORD2
 close	KEYWORD2
+coefficients	KEYWORD2
 coldStart	KEYWORD2
 color	KEYWORD2
 color_blue	KEYWORD2
@@ -556,6 +559,7 @@ color_clear	KEYWORD2
 color_green	KEYWORD2
 color_red	KEYWORD2
 columns	KEYWORD2
+compensate	KEYWORD2
 compensate_temperature	KEYWORD2
 configure	KEYWORD2
 configureAlert	KEYWORD2
@@ -1072,6 +1076,7 @@ power_up	KEYWORD2
 power_valid	KEYWORD2
 present	KEYWORD2
 pressure	KEYWORD2
+pressure_hpa	KEYWORD2
 print_at	KEYWORD2
 profile_id	KEYWORD2
 programOtp	KEYWORD2
@@ -1282,6 +1287,7 @@ reference_pressure	KEYWORD2
 refresh_auto	KEYWORD2
 release	KEYWORD2
 release_deep_power_down	KEYWORD2
+reload_coefficients	KEYWORD2
 reset	KEYWORD2
 resetGauge	KEYWORD2
 resetHighPass	KEYWORD2

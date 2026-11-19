@@ -164,6 +164,7 @@
 #include "chips/pressure/LPS28DFW.h"
 #include "chips/pressure/Lps22hb.h"
 #include "chips/pressure/Lps33hw.h"
+#include "chips/pressure/MPL115A2.h"
 #include "chips/rfid/MFRC522.h"
 #include "chips/rtc/DS3231.h"
 #include "chips/rtc/PCF85063A.h"
