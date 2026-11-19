@@ -453,7 +453,7 @@ CHIPS = (
     {"id": "ht16k33", "driver": "ht16k33", "write_sensitive": True, "aliased": False,
      "addresses": (0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,),
      "probe": None},
-    {"id": "hs30xx", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "hs30xx", "driver": "hs30xx", "write_sensitive": True, "aliased": False,
      "addresses": (0x44,),
      "probe": None},
     {"id": "hs40xx", "driver": None, "write_sensitive": True, "aliased": False,

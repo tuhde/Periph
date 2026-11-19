@@ -2300,7 +2300,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "hs30xx",
       "datasheet": "datasheets/humidity/hs30xx.pdf"
     },
     {

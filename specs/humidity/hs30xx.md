@@ -166,114 +166,114 @@ Decoder id `hs30xx`, input `['i2c']`. Matches I²C address `0x44`. Decodes the m
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/humidity/hs30xx.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/humidity/hs30xx/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/humidity/hs30xx/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/humidity/hs30xx/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/humidity/hs30xx_test.py` (MicroPython)
-- [ ] Tests `python/tests/humidity/hs30xx_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/humidity/hs30xx_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/humidity/hs30xx_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `python/periph/chips/humidity/hs30xx.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/humidity/hs30xx/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/humidity/hs30xx/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/humidity/hs30xx/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/humidity/hs30xx_test.py` (MicroPython)
+- [x] Tests `python/tests/humidity/hs30xx_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/humidity/hs30xx_test_linux.py` (Linux)
+- [x] Unit test `python/tests/humidity/hs30xx_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/humidity/hs30xx/hs30xx.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/humidity/hs30xx/hs30xx_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/humidity/hs30xx/hs30xx.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/humidity/hs30xx/hs30xx.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/humidity/hs30xx/hs30xx_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [x] Generated `python/uiflow1/humidity/hs30xx/hs30xx.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/humidity/hs30xx/HS30xx.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
-- [ ] Exported `python/uiflow2/humidity/hs30xx/HS30xx.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
+- [x] Wrapper class `python/uiflow2/humidity/hs30xx/HS30xx.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [x] Exported `python/uiflow2/humidity/hs30xx/HS30xx.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/humidity/HS30xx.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/humidity/HS30xx.cpp`
-- [ ] Examples `cpp/examples/arduino/humidity/HS30xx/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/humidity/HS30xx/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/humidity/HS30xx/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/humidity/HS30xx/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/humidity/HS30xx/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/humidity/HS30xx/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/humidity/HS30xx/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/humidity/HS30xx/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/humidity/HS30xx/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/humidity/HS30xx/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/humidity/HS30xx/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/humidity/HS30xx/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/humidity/HS30xx/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/stm32cube/humidity/HS30xx/minimal/Core/Src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/humidity/HS30xx/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/stm32cube/humidity/HS30xx/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/humidity/HS30xx/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/stm32cube/humidity/HS30xx/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/humidity/hs30xx_test/hs30xx_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/humidity/hs30xx_test_linux/hs30xx_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/humidity/hs30xx_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/humidity/hs30xx_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/humidity/hs30xx_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Tests `cpp/tests/humidity/hs30xx_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
-- [ ] Unit test `cpp/tests/humidity/hs30xx_test_unit/hs30xx_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/humidity/HS30xx.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/humidity/HS30xx.cpp`
+- [x] Examples `cpp/examples/arduino/humidity/HS30xx/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/humidity/HS30xx/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/humidity/HS30xx/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
+- [x] Examples `cpp/examples/linux/humidity/HS30xx/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/humidity/HS30xx/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/humidity/HS30xx/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/humidity/HS30xx/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/humidity/HS30xx/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/humidity/HS30xx/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/humidity/HS30xx/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/humidity/HS30xx/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/humidity/HS30xx/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/humidity/HS30xx/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/humidity/HS30xx/minimal/Core/Src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/humidity/HS30xx/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/humidity/HS30xx/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/humidity/HS30xx/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/humidity/HS30xx/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/humidity/hs30xx_test/hs30xx_test.ino` (Arduino)
+- [x] Tests `cpp/tests/humidity/hs30xx_test_linux/hs30xx_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/humidity/hs30xx_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/humidity/hs30xx_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/humidity/hs30xx_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/humidity/hs30xx_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
+- [x] Unit test `cpp/tests/humidity/hs30xx_test_unit/hs30xx_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/humidity/hs30xx.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/humidity/hs30xx/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/humidity/hs30xx/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/humidity/hs30xx/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/humidity/hs30xx_test.js`
-- [ ] Unit test `nodejs/tests/humidity/hs30xx_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/humidity/hs30xx.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/humidity/hs30xx/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/humidity/hs30xx/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/humidity/hs30xx/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/humidity/hs30xx_test.js`
+- [x] Unit test `nodejs/tests/humidity/hs30xx_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-humidity/nodes/hs30xx/hs30xx.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-humidity/nodes/hs30xx/hs30xx.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-humidity/examples/hs30xx/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-humidity/nodes/hs30xx/hs30xx.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-humidity/nodes/hs30xx/hs30xx.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-humidity/examples/hs30xx/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/humidity/hs30xx.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/humidity/hs30xx/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/humidity/hs30xx/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/humidity/hs30xx/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/humidity/hs30xx_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/humidity/hs30xx_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/humidity/hs30xx.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `rust/periph/src/chips/humidity/hs30xx.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/linux/humidity/hs30xx/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/humidity/hs30xx/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/humidity/hs30xx/demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/humidity/hs30xx_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/humidity/hs30xx_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/humidity/hs30xx.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Go
-- [ ] Driver `go/periph/chips/humidity/hs30xx.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/humidity/hs30xx/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/humidity/hs30xx/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/humidity/hs30xx/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/humidity/hs30xx/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/humidity/hs30xx/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/humidity/hs30xx/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/humidity/hs30xx_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/humidity/hs30xx_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/humidity/hs30xx_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/humidity/hs30xx.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/linux/humidity/hs30xx/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/humidity/hs30xx/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/humidity/hs30xx/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/humidity/hs30xx/minimal/minimal.go` — Tier-1 (TinyGo)
+- [x] Examples `go/examples/tinygo/humidity/hs30xx/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [x] Examples `go/examples/tinygo/humidity/hs30xx/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [x] Tests `go/tests/humidity/hs30xx_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [x] Tests `go/tests/humidity/hs30xx_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [x] Unit test `go/periph/chips/humidity/hs30xx_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HS30xxMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HS30xxFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HS30xxMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HS30xxFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HS30xxMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HS30xxFull.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/humidity/hs30xx/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/humidity/hs30xx/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/humidity/hs30xx/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/humidity/hs30xx/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/humidity/hs30xx/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/humidity/hs30xx/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/humidity/hs30xx/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/humidity/hs30xx/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/humidity/hs30xx/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/humidity/hs30xx/HS30xxTest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/humidity/HS30xxTest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/humidity/HS30xxTest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/humidity/HS30xxSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HS30xxMinimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/HS30xxFull.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HS30xxMinimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/HS30xxFull.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HS30xxMinimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/HS30xxFull.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/humidity/hs30xx/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/humidity/hs30xx/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/humidity/hs30xx/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/humidity/hs30xx/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/humidity/hs30xx/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/humidity/hs30xx/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/humidity/hs30xx/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/humidity/hs30xx/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/humidity/hs30xx/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/humidity/hs30xx/HS30xxTest.java` (Pi hardware, JBang)
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/humidity/HS30xxTest.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/humidity/HS30xxTest.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/humidity/HS30xxSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
-- [ ] Decoder `sigrok/hs30xx/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/hs30xx/pd.py` — annotates every measurement request, data fetch and NVM access per the Sigrok Decoder section (no timing annotation pair: no conformance-checked constraints)
+- [x] Decoder `sigrok/hs30xx/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/hs30xx/pd.py` — annotates every measurement request, data fetch and NVM access per the Sigrok Decoder section (no timing annotation pair: no conformance-checked constraints)
 
 ### Conformance
-- [ ] Checker `conformance/humidity/hs30xx_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
-- [ ] Timing config `specs/humidity/hs30xx_timing.conf` — already committed; defines no checks (see its header)
-- [ ] Decoder `sigrok/hs30xx/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
+- [x] Checker `conformance/humidity/hs30xx_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [x] Timing config `specs/humidity/hs30xx_timing.conf` — already committed; defines no checks (see its header)
+- [x] Decoder `sigrok/hs30xx/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

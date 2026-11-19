@@ -1,0 +1,100 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hs30xx_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HS30xx",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hs30xx_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS30xx temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs30xx_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS30xx relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs30xx_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS30xx dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs30xx_raw_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS30xx raw humidity (14 bit)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs30xx_raw_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS30xx raw temperature (14 bit)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs30xx_set_wait",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HS30xx measurement wait (ms)",
+          "type": "label"
+        },
+        {
+          "name": "ms",
+          "type": "label"
+        },
+        {
+          "name": "_ms",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

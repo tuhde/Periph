@@ -171,7 +171,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) |  |  |  |  |  |  |  |  |
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) |  |  |  |  |  |  |  |  |
+| HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HS40xx | Humidity and temperature sensor (CRC, periodic mode, alert pin) |  |  |  |  |  |  |  |  |
 | HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | | | | | | | | |
