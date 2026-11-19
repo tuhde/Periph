@@ -1,0 +1,53 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-hs30xx', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x44' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label: function() {
+            return this.name || ('HS30xx @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-hs30xx">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HS30xx">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-input-address" style="width:80px" placeholder="0x44"> &nbsp;(fixed, 0x44)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-hs30xx">
+    <p>Reads temperature and relative humidity from a Renesas HS3001, HS3002 or HS3003 (the HS30xx family, one
+    protocol) over I²C (fixed address 0x44) with one measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement (request, 40 ms wait, data fetch).</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH (0 to 100).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number and I²C address (0x44). The node reads at the factory resolution (14 bit) and does not touch the
+    sensor's NVM; send no more than one message per second to keep self-heating low. A reading whose status bits
+    still report stale data after one retry raises an error.</p>
+</script>

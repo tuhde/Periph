@@ -1,0 +1,1 @@
+_periph_hs30xx.set_measurement_wait(float(${_ms}))

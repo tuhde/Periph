@@ -1,0 +1,1 @@
+_periph_hs30xx.read_raw()[1]

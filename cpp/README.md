@@ -94,6 +94,7 @@ Each chip exposes two classes:
 | HDC1008 | Humidity sensor | `chips/humidity/HDC1008.h` |
 | HDC1080 | Humidity sensor | `chips/humidity/HDC1080.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
+| HS30xx | Humidity sensor | `chips/humidity/HS30xx.h` |
 | HT16K33 | LED driver | `chips/led/HT16K33.h` |
 | HTU21DF | Humidity sensor | `chips/humidity/HTU21DF.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
