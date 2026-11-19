@@ -56,6 +56,10 @@ APDS9960Full	KEYWORD1
 APDS9960Minimal	KEYWORD1
 AS5600Full	KEYWORD1
 AS5600Minimal	KEYWORD1
+AS7262Channels	KEYWORD1
+AS7262Full	KEYWORD1
+AS7262Minimal	KEYWORD1
+AS7262RawChannels	KEYWORD1
 AT24C02NFull	KEYWORD1
 AT24C02NMinimal	KEYWORD1
 AT24C64Full	KEYWORD1
@@ -768,6 +772,7 @@ fill	KEYWORD2
 fill_hsv	KEYWORD2
 filtered	KEYWORD2
 firmware_revision	KEYWORD2
+firmware_version	KEYWORD2
 fix	KEYWORD2
 forceTemperatureConversion	KEYWORD2
 force_hibernate	KEYWORD2
@@ -836,10 +841,12 @@ get_calibration	KEYWORD2
 get_current_direction	KEYWORD2
 get_direction	KEYWORD2
 get_firmware_version	KEYWORD2
+get_gain	KEYWORD2
 get_gain_calibration	KEYWORD2
 get_gate_mask	KEYWORD2
 get_gyro_gains	KEYWORD2
 get_hibernate_thresholds	KEYWORD2
+get_integration_time	KEYWORD2
 get_limits	KEYWORD2
 get_mic_gain	KEYWORD2
 get_mode	KEYWORD2
@@ -870,6 +877,7 @@ gyro_raw	KEYWORD2
 halt_card	KEYWORD2
 halve	KEYWORD2
 hardware_reset	KEYWORD2
+hardware_version	KEYWORD2
 hasControl	KEYWORD2
 has_red	KEYWORD2
 hdop	KEYWORD2
@@ -983,6 +991,7 @@ maxPosition	KEYWORD2
 max_angle	KEYWORD2
 max_chunk	KEYWORD2
 max_position	KEYWORD2
+measure	KEYWORD2
 measureMagOnce	KEYWORD2
 microstepPosition	KEYWORD2
 midscale	KEYWORD2
@@ -1168,8 +1177,10 @@ read_average	KEYWORD2
 read_block	KEYWORD2
 read_byte	KEYWORD2
 read_bytes	KEYWORD2
+read_calibrated	KEYWORD2
 read_capture	KEYWORD2
 read_channel	KEYWORD2
+read_channel_raw	KEYWORD2
 read_channel_voltage	KEYWORD2
 read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
@@ -1222,6 +1233,7 @@ read_range_continuous	KEYWORD2
 read_range_status	KEYWORD2
 read_raw	KEYWORD2
 read_raw_humidity	KEYWORD2
+read_raw_last	KEYWORD2
 read_raw_resistance	KEYWORD2
 read_raw_temperature	KEYWORD2
 read_raw_with_retry	KEYWORD2
@@ -1250,6 +1262,7 @@ read_user_register	KEYWORD2
 read_user_registers	KEYWORD2
 read_vcom	KEYWORD2
 read_version	KEYWORD2
+read_virtual	KEYWORD2
 read_voltage	KEYWORD2
 read_weight	KEYWORD2
 read_with_crc	KEYWORD2
@@ -1665,8 +1678,10 @@ set_iir_filter	KEYWORD2
 set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2
 set_inactivity_time	KEYWORD2
+set_indicator_led	KEYWORD2
 set_input	KEYWORD2
 set_int_output	KEYWORD2
+set_integration_time	KEYWORD2
 set_intensity_control	KEYWORD2
 set_interleaved	KEYWORD2
 set_interrupt	KEYWORD2
@@ -1677,6 +1692,7 @@ set_interval	KEYWORD2
 set_invert	KEYWORD2
 set_isolation_clock	KEYWORD2
 set_latch	KEYWORD2
+set_led	KEYWORD2
 set_led_boost	KEYWORD2
 set_led_enabled	KEYWORD2
 set_line_rate	KEYWORD2
@@ -1967,6 +1983,7 @@ write_status	KEYWORD2
 write_ultralight_page	KEYWORD2
 write_user_register	KEYWORD2
 write_user_registers	KEYWORD2
+write_virtual	KEYWORD2
 zero_position	KEYWORD2
 
 #######################################
