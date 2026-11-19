@@ -137,6 +137,7 @@ Each chip exposes two classes:
 | PCA9536 | IO expander | `periph/src/chips/io_expander/pca9536` |
 | PCA9539 | IO expander | `periph/src/chips/io_expander/pca9539` |
 | PCA9541 | Other | `periph/src/chips/other/pca9541` |
+| PCA9685 | LED driver | `periph/src/chips/led/pca9685` |
 | PCF85063A | RTC | `periph/src/chips/rtc/pcf85063a` |
 | PCF8523 | RTC | `periph/src/chips/rtc/pcf8523` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |

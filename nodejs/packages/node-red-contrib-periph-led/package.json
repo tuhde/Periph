@@ -15,7 +15,8 @@
       "ws2812b": "nodes/ws2812b/ws2812b.js",
       "apa102": "nodes/apa102/apa102.js",
       "ht16k33": "nodes/ht16k33/ht16k33.js",
-      "is31fl3731": "nodes/is31fl3731/is31fl3731.js"
+      "is31fl3731": "nodes/is31fl3731/is31fl3731.js",
+      "pca9685": "nodes/pca9685/pca9685.js"
     }
   },
   "dependencies": {

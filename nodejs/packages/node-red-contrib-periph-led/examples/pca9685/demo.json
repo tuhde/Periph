@@ -1,0 +1,139 @@
+[
+  {
+    "id": "tab-pca9685-demo",
+    "type": "tab",
+    "label": "PCA9685 LED Fader and Servo",
+    "disabled": false,
+    "info": "Fades an LED on channel 0 of a PCA9685 with a sine-shaped duty cycle (inject every 100 ms, function node computes the duty) and sweeps a hobby servo on channel 1 with a pulse width between 1 ms and 2 ms. The device runs at 50 Hz so the servo works; the LED fade is therefore at 50 Hz as well. Both feed one periph-pca9685 node; debug nodes show the applied values."
+  },
+  {
+    "id": "cfg-pca9685",
+    "type": "pca9685-device",
+    "name": "PCA9685",
+    "bus": "1",
+    "address": "40",
+    "frequency": "50"
+  },
+  {
+    "id": "inj-led",
+    "type": "inject",
+    "name": "every 100 ms",
+    "repeat": "0.1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "z": "tab-pca9685-demo",
+    "x": 120,
+    "y": 120,
+    "wires": [
+      [
+        "fn-led"
+      ]
+    ]
+  },
+  {
+    "id": "fn-led",
+    "type": "function",
+    "name": "sine duty",
+    "func": "let i = context.get('i') || 0;\ncontext.set('i', (i + 1) % 100);\nmsg.payload = { channel: 0, duty: 0.5 - 0.5 * Math.cos(2 * Math.PI * i / 100) };\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "z": "tab-pca9685-demo",
+    "x": 290,
+    "y": 120,
+    "wires": [
+      [
+        "pwm-out",
+        "dbg"
+      ]
+    ]
+  },
+  {
+    "id": "inj-servo",
+    "type": "inject",
+    "name": "every 100 ms",
+    "repeat": "0.1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "z": "tab-pca9685-demo",
+    "x": 120,
+    "y": 200,
+    "wires": [
+      [
+        "fn-servo"
+      ]
+    ]
+  },
+  {
+    "id": "fn-servo",
+    "type": "function",
+    "name": "servo sweep 1-2 ms",
+    "func": "let i = context.get('i') || 0;\ncontext.set('i', (i + 1) % 40);\nconst t = i < 20 ? i / 20 : (40 - i) / 20;\nmsg.payload = { channel: 1, pulse_width: 0.001 + 0.001 * t };\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "z": "tab-pca9685-demo",
+    "x": 310,
+    "y": 200,
+    "wires": [
+      [
+        "pwm-out",
+        "dbg"
+      ]
+    ]
+  },
+  {
+    "id": "pwm-out",
+    "type": "periph-pca9685",
+    "name": "PCA9685",
+    "device": "cfg-pca9685",
+    "z": "tab-pca9685-demo",
+    "x": 520,
+    "y": 160,
+    "wires": [
+      [
+        "dbg-out"
+      ]
+    ]
+  },
+  {
+    "id": "dbg",
+    "type": "debug",
+    "name": "request",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 520,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "dbg-out",
+    "type": "debug",
+    "name": "applied",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 700,
+    "y": 160,
+    "wires": []
+  }
+]

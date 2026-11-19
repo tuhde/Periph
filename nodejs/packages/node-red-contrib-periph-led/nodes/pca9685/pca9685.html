@@ -1,0 +1,84 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('pca9685-device', {
+        category: 'config',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            address:   { value: '40', required: true },
+            frequency: { value: '1000', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('PCA9685 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pca9685-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCA9685">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">I²C address (hex)</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="40"> &nbsp;(40–6F, 71–77)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-frequency">PWM frequency (Hz)</label>
+        <input type="number" id="node-config-input-frequency" min="24" max="1526" style="width:100px">
+    </div>
+</script>
+
+<!-- Node: duty / pulse width / frequency -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pca9685', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'pca9685-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sliders',
+        label:   function() { return this.name || 'PCA9685'; },
+        paletteLabel: 'PCA9685'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pca9685">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pca9685">
+    <p>Controls the 16 PWM channels of a PCA9685 (12-bit, 24–1526 Hz) over I²C.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel <span class="property-type">number | "all"</span></dt>
+        <dd>Channel 0–15, or <code>"all"</code> for every channel.</dd>
+        <dt>payload.duty <span class="property-type">number</span></dt>
+        <dd>Duty cycle 0.0–1.0 (with <code>channel</code>).</dd>
+        <dt>payload.pulse_width <span class="property-type">number</span></dt>
+        <dd>Pulse width in seconds for servos/ESCs (with <code>channel</code>), based on the programmed frequency.</dd>
+        <dt>payload.frequency <span class="property-type">number</span></dt>
+        <dd>PWM frequency in Hz (24–1526 with the internal 25 MHz oscillator).</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>The applied fields: <code>{ channel, duty }</code>, <code>{ channel, pulse_width }</code> and/or <code>{ frequency }</code>.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, address in hex (default 40) and the initial PWM frequency in Hz.</p>
+</script>
