@@ -113,6 +113,7 @@ Each chip exposes two classes:
 | LIS3DH | Accelerometer | `chips/accelerometer/LIS3DH.h` |
 | LM25066 | Power monitor | `chips/power/LM25066.h` |
 | LPS22DF | Pressure sensor | `chips/pressure/LPS22DF.h` |
+| Lps22hb | Pressure sensor | `chips/pressure/Lps22hb.h` |
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | LSM303 | Accelerometer | `chips/accelerometer/LSM303.h` |

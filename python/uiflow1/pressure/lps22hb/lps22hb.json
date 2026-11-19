@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lps22hb_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LPS22HB", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "lps22hb_read_pressure",
+      "type": "value",
+      "params": [{ "name": "LPS22HB pressure (Pa)", "type": "label" }]
+    },
+    {
+      "name": "lps22hb_read_temperature",
+      "type": "value",
+      "params": [{ "name": "LPS22HB temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "lps22hb_one_shot",
+      "type": "execute",
+      "params": [{ "name": "Trigger LPS22HB one-shot read", "type": "label" }]
+    }
+  ]
+}

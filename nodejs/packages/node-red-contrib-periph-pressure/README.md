@@ -28,6 +28,8 @@ npm install node-red-contrib-periph-pressure
 | `periph-bmp581` | input | Reads pressure, temperature, and altitude from a BMP581 barometric pressure sensor. |
 | `lps22df-device` | config | Bus configuration for a LPS22DF |
 | `periph-lps22df` | input | Reads pressure, temperature, and altitude from an LPS22DF absolute pressure sensor. |
+| `lps22hb-device` | config | Bus configuration for a LPS22HB |
+| `periph-lps22hb` | input | Reads pressure and temperature from an LPS22HB MEMS nano absolute pressure sensor. |
 | `lps28dfw-device` | config | Bus configuration for a LPS28DFW |
 | `periph-lps28dfw` | input | Reads pressure, temperature, and altitude from an LPS28DFW dual full-scale digital barometer. |
 | `lps33hw-device` | config | Bus configuration for a LPS33HW |

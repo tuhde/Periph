@@ -19,6 +19,7 @@
       "bmp581": "nodes/bmp581/bmp581.js",
       "lps28dfw": "nodes/lps28dfw/lps28dfw.js",
       "lps33hw": "nodes/lps33hw/lps33hw.js",
+      "lps22hb": "nodes/lps22hb/lps22hb.js",
       "lps22df": "nodes/lps22df/lps22df.js"
     }
   },
