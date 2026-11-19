@@ -34,6 +34,8 @@ npm install node-red-contrib-periph-pressure
 | `periph-lps28dfw` | input | Reads pressure, temperature, and altitude from an LPS28DFW dual full-scale digital barometer. |
 | `lps33hw-device` | config | Bus configuration for a LPS33HW |
 | `periph-lps33hw` | input | Reads pressure and temperature from an LPS33HW water-resistant MEMS absolute pressure sensor. |
+| `mpl115a2-device` | config | Bus configuration for a MPL115A2 |
+| `periph-mpl115a2` | input | Reads the barometric pressure (50–115 kPa) and an approximate temperature from an NXP MPL115A2 over I²C (address 0x60). |
 
 ## Links
 

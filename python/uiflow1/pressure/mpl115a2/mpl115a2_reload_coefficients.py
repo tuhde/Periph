@@ -1,0 +1,1 @@
+_periph_mpl115a2.reload_coefficients()

@@ -134,6 +134,7 @@ Each chip exposes two classes:
 | MCP9808 | Temperature sensor | `chips/temperature/MCP9808.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
 | MMA8451Q | Accelerometer | `chips/accelerometer/MMA8451Q.h` |
+| MPL115A2 | Pressure sensor | `chips/pressure/MPL115A2.h` |
 | Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | MPU9250 | IMU | `chips/imu/MPU9250.h` |

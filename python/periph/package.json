@@ -553,6 +553,10 @@
       "github:tuhde/Periph/python/periph/chips/pressure/lps33hw.py"
     ],
     [
+      "periph/chips/pressure/mpl115a2.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/mpl115a2.py"
+    ],
+    [
       "periph/chips/rfid/mfrc522.py",
       "github:tuhde/Periph/python/periph/chips/rfid/mfrc522.py"
     ],

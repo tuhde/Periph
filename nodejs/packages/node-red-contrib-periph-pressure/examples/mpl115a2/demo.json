@@ -1,0 +1,66 @@
+[
+    {
+        "id": "mpl115a2-tab",
+        "type": "tab",
+        "label": "MPL115A2 demo",
+        "disabled": false,
+        "info": "Barometer: an inject node triggers a conversion every 5 s; the periph-mpl115a2 node outputs { pressure_pa, temperature_c }; a function node converts the pressure to hPa for the debug sidebar."
+    },
+    {
+        "id": "mpl115a2-device-1",
+        "type": "mpl115a2-device",
+        "name": "MPL115A2 @ i2c-1",
+        "bus": "1"
+    },
+    {
+        "id": "mpl115a2-read-1",
+        "type": "periph-mpl115a2",
+        "z": "mpl115a2-tab",
+        "name": "MPL115A2",
+        "device": "mpl115a2-device-1",
+        "x": 330,
+        "y": 120,
+        "wires": [["mpl115a2-hpa-1"]]
+    },
+    {
+        "id": "mpl115a2-inject-1",
+        "type": "inject",
+        "z": "mpl115a2-tab",
+        "name": "Every 5 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.1",
+        "x": 130,
+        "y": 120,
+        "wires": [["mpl115a2-read-1"]]
+    },
+    {
+        "id": "mpl115a2-hpa-1",
+        "type": "function",
+        "z": "mpl115a2-tab",
+        "name": "Pa to hPa",
+        "func": "msg.payload.pressure_hpa = msg.payload.pressure_pa / 100;\nnode.status({text: msg.payload.pressure_hpa.toFixed(1) + ' hPa'});\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 520,
+        "y": 120,
+        "wires": [["mpl115a2-debug-1"]]
+    },
+    {
+        "id": "mpl115a2-debug-1",
+        "type": "debug",
+        "z": "mpl115a2-tab",
+        "name": "Debug output",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 710,
+        "y": 120,
+        "wires": []
+    }
+]

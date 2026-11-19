@@ -1,0 +1,74 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpl115a2-device', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            bus:  { value: '1', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('MPL115A2 @ 0x60 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mpl115a2-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MPL115A2">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mpl115a2', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mpl115a2-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'MPL115A2'; },
+        paletteLabel: 'MPL115A2'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mpl115a2">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MPL115A2">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mpl115a2">
+    <p>Reads the barometric pressure (50–115 kPa) and an approximate temperature from an NXP MPL115A2 over I²C (address 0x60).</p>
+    <p>Any input message triggers one conversion (about 5 ms). The device is configured via an <b>mpl115a2-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pressure_pa <span class="property-type">number</span></dt>
+        <dd>Compensated pressure in pascals.</dd>
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Approximate temperature in degrees Celsius (uncalibrated, accurate to a few degrees — use for trends only).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number in the device config node. The per-device compensation coefficients are read once at start-up.</p>
+</script>

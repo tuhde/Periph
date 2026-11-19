@@ -41,6 +41,10 @@
       "github:tuhde/Periph/python/periph/chips/pressure/lps33hw.py"
     ],
     [
+      "periph/chips/pressure/mpl115a2.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/mpl115a2.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
