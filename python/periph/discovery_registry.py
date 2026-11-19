@@ -366,7 +366,7 @@ CHIPS = (
     {"id": "bmp581", "driver": "bmp581", "write_sensitive": False, "aliased": False,
      "addresses": (0x46, 0x47,),
      "probe": {"register": 0x01, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x50,)}},
-    {"id": "mpl115a2", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "mpl115a2", "driver": "mpl115a2", "write_sensitive": False, "aliased": False,
      "addresses": (0x60,),
      "probe": None},
     {"id": "lps22df", "driver": "lps22df", "write_sensitive": False, "aliased": False,

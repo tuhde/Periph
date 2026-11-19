@@ -142,6 +142,7 @@ Each chip exposes two classes:
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor |
 | MFRC522 | RFID/NFC | 13.56 MHz RFID/NFC reader |
 | MMA8451Q | Accelerometer | 3-axis accelerometer |
+| MPL115A2 | Pressure sensor | Miniature I2C digital barometer (50-115 kPa) |
 | MPR121 | Other | Capacitive touch controller |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
