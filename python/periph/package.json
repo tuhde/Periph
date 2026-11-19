@@ -145,6 +145,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/pcf8591.py"
     ],
     [
+      "periph/chips/color/as7262.py",
+      "github:tuhde/Periph/python/periph/chips/color/as7262.py"
+    ],
+    [
       "periph/chips/comms/mcp2515.py",
       "github:tuhde/Periph/python/periph/chips/comms/mcp2515.py"
     ],

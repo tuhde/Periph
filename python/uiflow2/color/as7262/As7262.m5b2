@@ -1,0 +1,316 @@
+{
+  "category": "As7262",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_AS7262_LANGUAGES = {\n  \"CUSTOM_AS7262_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_AS7262_MEASURE\": {\n    \"en\": \"%1 measure (one-shot, wait for result)\"\n  },\n  \"CUSTOM_AS7262_CHANNEL\": {\n    \"en\": \"%1 channel %2 calibrated value (0=V 1=B 2=G 3=Y 4=O 5=R)\"\n  },\n  \"CUSTOM_AS7262_RAW_CHANNEL\": {\n    \"en\": \"%1 channel %2 raw count (0=V 1=B 2=G 3=Y 4=O 5=R)\"\n  },\n  \"CUSTOM_AS7262_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_AS7262_DATA_READY\": {\n    \"en\": \"%1 data ready\"\n  },\n  \"CUSTOM_AS7262_SET_GAIN\": {\n    \"en\": \"%1 gain %2 (0=1x, 1=3.7x, 2=16x, 3=64x)\"\n  },\n  \"CUSTOM_AS7262_SET_INTEGRATION_TIME\": {\n    \"en\": \"%1 integration time %2 ms (2.8 to 714)\"\n  },\n  \"CUSTOM_AS7262_SET_MODE\": {\n    \"en\": \"%1 bank mode %2 (0-2 continuous, 3 one-shot)\"\n  },\n  \"CUSTOM_AS7262_SET_LED\": {\n    \"en\": \"%1 driver LED current %2 mA (12.5/25/50/100, 0=off)\"\n  },\n  \"CUSTOM_AS7262_SET_INDICATOR_LED\": {\n    \"en\": \"%1 indicator LED current %2 mA (1/2/4/8, 0=off)\"\n  },\n  \"CUSTOM_AS7262_SOFT_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_as7262_init';\nBlockly.BlockRegExpList['custom_as7262'] = {\n  regexp: new RegExp(/^custom_as7262_/),\n  code: \"from As7262 import As7262\",\n  initBlockType: initType,\n  categoryId: 'custom_as7262',\n}\nBlockly.utils.registerLanguages(CUSTOM_AS7262_LANGUAGES)\n\nBlockly.Msg.CUSTOM_AS7262_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_AS7262 = 'As7262'\n\nBlockly.utils.getcustom_as7262Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['as7262_0', 'as7262_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_as7262_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_as7262Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'as7262_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = As7262(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_measure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_MEASURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_measure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.measure()\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.channel(${index})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_as7262_raw_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_RAW_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_raw_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.raw_channel(${index})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_as7262_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_as7262_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_as7262_set_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_SET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_set_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gain = Blockly.Python.valueToCode(block, 'gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain(${gain})\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_set_integration_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_SET_INTEGRATION_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_set_integration_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ms = Blockly.Python.valueToCode(block, 'ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_integration_time(${ms})\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_set_led\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_SET_LED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'current_ma'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_set_led\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var current_ma = Blockly.Python.valueToCode(block, 'current_ma', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_led(${current_ma})\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_set_indicator_led\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_SET_INDICATOR_LED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'current_ma'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_set_indicator_led\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var current_ma = Blockly.Python.valueToCode(block, 'current_ma', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_indicator_led(${current_ma})\\n`\n}\n\nBlockly.Blocks[\"custom_as7262_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AS7262_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_as7262Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_as7262_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"As7262\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_as7262\">\n<title text=\"As7262\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_as7262_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">73</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_measure\"/><block type=\"custom_as7262_channel\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_raw_channel\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_temperature\"/><block type=\"custom_as7262_data_ready\"/><block type=\"custom_as7262_set_gain\">\n  <value name=\"gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_set_integration_time\">\n  <value name=\"ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">165</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_set_led\">\n  <value name=\"current_ma\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_set_indicator_led\">\n  <value name=\"current_ma\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_as7262_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_as7262",
+    "block_type": [
+      "custom_as7262___init__",
+      "custom_as7262_measure",
+      "custom_as7262_channel",
+      "custom_as7262_raw_channel",
+      "custom_as7262_temperature",
+      "custom_as7262_data_ready",
+      "custom_as7262_set_gain",
+      "custom_as7262_set_integration_time",
+      "custom_as7262_set_mode",
+      "custom_as7262_set_led",
+      "custom_as7262_set_indicator_led",
+      "custom_as7262_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "As7262",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "As7262",
+      "time": "2026-11-19",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.color.as7262 import AS7262Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "73",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = AS7262Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "measure",
+        "note": {},
+        "label": {
+          "en": "%1 measure (one-shot, wait for result)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "channel",
+        "note": {},
+        "label": {
+          "en": "%1 channel %2 calibrated value (0=V 1=B 2=G 3=Y 4=O 5=R)"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "5",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_channel(index, True)",
+        "ast_return": {
+          "code": "self._driver.read_channel(index, True)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "raw_channel",
+        "note": {},
+        "label": {
+          "en": "%1 channel %2 raw count (0=V 1=B 2=G 3=Y 4=O 5=R)"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "5",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_channel(index, False)",
+        "ast_return": {
+          "code": "self._driver.read_channel(index, False)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain",
+        "note": {},
+        "label": {
+          "en": "%1 gain %2 (0=1x, 1=3.7x, 2=16x, 3=64x)"
+        },
+        "params": [
+          {
+            "name": "gain",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain((0, 3.7, 16, 64)[gain])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_integration_time",
+        "note": {},
+        "label": {
+          "en": "%1 integration time %2 ms (2.8 to 714)"
+        },
+        "params": [
+          {
+            "name": "ms",
+            "type": "int",
+            "default": "165",
+            "note": {},
+            "field": "number",
+            "max": "714",
+            "min": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_integration_time(ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 bank mode %2 (0-2 continuous, 3 one-shot)"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_led",
+        "note": {},
+        "label": {
+          "en": "%1 driver LED current %2 mA (12.5/25/50/100, 0=off)"
+        },
+        "params": [
+          {
+            "name": "current_ma",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "100",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_led(current_ma > 0, current_ma or 12.5)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_indicator_led",
+        "note": {},
+        "label": {
+          "en": "%1 indicator LED current %2 mA (1/2/4/8, 0=off)"
+        },
+        "params": [
+          {
+            "name": "current_ma",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "8",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_indicator_led(current_ma > 0, current_ma or 1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "as7262"
+  },
+  "pyCode": "\"\"\"\nfile     As7262\ntime     2026-11-19\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.color.as7262 import AS7262Full\n\n\nclass As7262:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 73):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '73'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = AS7262Full(connection)\n\n    def measure(self):\n        \"\"\"\n        label:\n            en: '%1 measure (one-shot, wait for result)'\n        \"\"\"\n        self._driver.read()\n\n    def channel(self, index: int = 0) -> float:\n        \"\"\"\n        label:\n            en: '%1 channel %2 calibrated value (0=V 1=B 2=G 3=Y 4=O 5=R)'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n                max: '5'\n                min: '0'\n        \"\"\"\n        return self._driver.read_channel(index, True)\n\n    def raw_channel(self, index: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '%1 channel %2 raw count (0=V 1=B 2=G 3=Y 4=O 5=R)'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n                max: '5'\n                min: '0'\n        \"\"\"\n        return self._driver.read_channel(index, False)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def set_gain(self, gain: int = 2):\n        \"\"\"\n        label:\n            en: '%1 gain %2 (0=1x, 1=3.7x, 2=16x, 3=64x)'\n        params:\n            gain:\n                name: gain\n                type: int\n                default: '2'\n                field: number\n                max: '3'\n                min: '0'\n        \"\"\"\n        self._driver.set_gain((0, 3.7, 16, 64)[gain])\n\n    def set_integration_time(self, ms: int = 165):\n        \"\"\"\n        label:\n            en: '%1 integration time %2 ms (2.8 to 714)'\n        params:\n            ms:\n                name: ms\n                type: int\n                default: '165'\n                field: number\n                max: '714'\n                min: '3'\n        \"\"\"\n        self._driver.set_integration_time(ms)\n\n    def set_mode(self, mode: int = 3):\n        \"\"\"\n        label:\n            en: '%1 bank mode %2 (0-2 continuous, 3 one-shot)'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '3'\n                field: number\n                max: '3'\n                min: '0'\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def set_led(self, current_ma: int = 0):\n        \"\"\"\n        label:\n            en: '%1 driver LED current %2 mA (12.5/25/50/100, 0=off)'\n        params:\n            current_ma:\n                name: current_ma\n                type: int\n                default: '0'\n                field: number\n                max: '100'\n                min: '0'\n        \"\"\"\n        self._driver.set_led(current_ma > 0, current_ma or 12.5)\n\n    def set_indicator_led(self, current_ma: int = 0):\n        \"\"\"\n        label:\n            en: '%1 indicator LED current %2 mA (1/2/4/8, 0=off)'\n        params:\n            current_ma:\n                name: current_ma\n                type: int\n                default: '0'\n                field: number\n                max: '8'\n                min: '0'\n        \"\"\"\n        self._driver.set_indicator_led(current_ma > 0, current_ma or 1)\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.soft_reset()\n",
+  "version": "alpha2"
+}
