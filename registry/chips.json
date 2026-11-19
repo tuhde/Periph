@@ -2459,7 +2459,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "as7262",
       "datasheet": "datasheets/color/as7262.pdf"
     },
     {

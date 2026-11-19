@@ -1,0 +1,1 @@
+_periph_as7262.set_indicator_led(float(${_current}) > 0, float(${_current}) or 1)

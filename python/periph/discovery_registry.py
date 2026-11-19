@@ -486,7 +486,7 @@ CHIPS = (
     {"id": "is31fl3731", "driver": "is31fl3731", "write_sensitive": False, "aliased": False,
      "addresses": (0x74, 0x75, 0x76, 0x77,),
      "probe": None},
-    {"id": "as7262", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "as7262", "driver": "as7262", "write_sensitive": True, "aliased": False,
      "addresses": (0x49,),
      "probe": None},
     {"id": "hts221", "driver": None, "write_sensitive": False, "aliased": False,

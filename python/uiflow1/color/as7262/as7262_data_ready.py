@@ -1,0 +1,1 @@
+_periph_as7262.data_ready()

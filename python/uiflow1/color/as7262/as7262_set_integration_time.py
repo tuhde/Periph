@@ -1,0 +1,1 @@
+_periph_as7262.set_integration_time(float(${_ms}))

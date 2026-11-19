@@ -62,6 +62,7 @@
 #include "chips/adc_dac/MCP4XXX.h"
 #include "chips/adc_dac/MCP4XXXParts.h"
 #include "chips/adc_dac/PCF8591.h"
+#include "chips/color/As7262.h"
 #include "chips/comms/MCP2515.h"
 #include "chips/comms/RDA5807M.h"
 #include "chips/comms/RFM9x.h"
