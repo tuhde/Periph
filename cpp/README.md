@@ -147,6 +147,7 @@ Each chip exposes two classes:
 | PCA9536 | IO expander | `chips/io_expander/PCA9536.h` |
 | PCA9539 | IO expander | `chips/io_expander/PCA9539.h` |
 | PCA9541 | Other | `chips/other/PCA9541.h` |
+| Pca9685 | LED driver | `chips/led/Pca9685.h` |
 | PCF85063A | RTC | `chips/rtc/PCF85063A.h` |
 | PCF8523 | RTC | `chips/rtc/PCF8523.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |
