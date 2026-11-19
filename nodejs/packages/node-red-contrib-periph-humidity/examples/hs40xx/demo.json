@@ -1,0 +1,84 @@
+[
+  {
+    "id": "hs40xx-tab",
+    "type": "tab",
+    "label": "HS40xx humidity logger",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HS40xx (HS4001/HS4003) every 2 s and formats them. Each message sends one no-hold measurement (0xF5), waits 3 ms, reads five bytes and checks the CRC."
+  },
+  {
+    "id": "hs40xx-inject",
+    "type": "inject",
+    "z": "hs40xx-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "hs40xx-node"
+      ]
+    ]
+  },
+  {
+    "id": "hs40xx-node",
+    "type": "periph-hs40xx",
+    "z": "hs40xx-tab",
+    "name": "HS40xx",
+    "bus": "1",
+    "address": "0x54",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "hs40xx-format"
+      ]
+    ]
+  },
+  {
+    "id": "hs40xx-format",
+    "type": "function",
+    "z": "hs40xx-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(2) + ' °C, ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "hs40xx-debug"
+      ]
+    ]
+  },
+  {
+    "id": "hs40xx-debug",
+    "type": "debug",
+    "z": "hs40xx-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

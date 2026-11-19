@@ -1,0 +1,42 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.5.0
+//DEPS it.uhde:periph-java:1.5.0
+
+import it.uhde.periph.connection.I2CConnection;
+import it.uhde.periph.chips.humidity.HS40xxFull;
+
+public class Demo {
+
+    public static void main(String[] args) throws Exception {
+        int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
+        int addr = Integer.parseInt(
+                System.getenv().getOrDefault("I2C_ADDR", "0x54").replaceFirst("^0[xX]", ""), 16);
+
+        try (var connection = new I2CConnection(bus, addr)) {
+            var sensor = new HS40xxFull(connection);                                                // Create HS40xx driver, (connection) → void
+
+            // --- Humidity watchdog ---
+            // Single readings for 10 s, then periodic mode with an RH-high alert (breathe on the sensor).
+            long id = sensor.readId();                                                              // Read the 32-bit sensor ID, () → long
+            System.out.printf("ID 0x%08X%n", id);
+            for (int n = 0; n < 5; n++) {
+                double[] v = sensor.read();                                                         // Read temperature and humidity, () → double[] {°C, %RH}
+                System.out.printf("%.2f C, %.1f %%RH%n", v[0], v[1]);
+                Thread.sleep(2000);
+            }
+            sensor.setAlertThresholds(60.0, 55.0, null, null, null, null, null, null);              // Set alert thresholds, (rhHigh, rhHighReset, ...) → void
+            sensor.enableInterrupt(HS40xxFull.SOURCE_RH_HIGH);                                      // Enable alert sources, (source) → void
+            sensor.startPeriodic(1.0);                                                              // Start periodic mode, (periodS) → void
+            for (int n = 0; n < 15; n++) {
+                Thread.sleep(1000);
+                double[] p = sensor.readPeriodic();                                                 // Fetch the latest periodic result, () → double[] {°C, %RH, status}
+                String alert = ((int) p[2] & HS40xxFull.SOURCE_RH_HIGH) != 0 ? "ALERT" : "ok";
+                System.out.printf("%.2f C, %.1f %%RH  %s%n", p[0], p[1], alert);
+            }
+            sensor.stopPeriodic();                                                                  // Stop periodic mode, () → void
+            sensor.softReset();                                                                     // Soft reset, () → void
+        }
+    }
+}

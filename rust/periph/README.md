@@ -97,6 +97,7 @@ Each chip exposes two structs:
 | HDC1080 | Humidity sensor | Low-power digital humidity and temperature sensor (Texas Instruments). |
 | HMC5883L | Magnetometer | 3-axis anisotropic magnetoresistive magnetometer (Honeywell). |
 | HS30XX | Humidity sensor | Relative humidity and temperature sensors (Renesas HS3001, HS3002, HS3003). |
+| HS40XX | Humidity sensor | Relative humidity and temperature sensors (Renesas HS4001, HS4003). |
 | HT16K33 | LED driver | 16 × 8 LED matrix driver with key scan (Holtek). |
 | HTU21DF | Humidity sensor | Relative humidity and temperature sensor (Measurement Specialties). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |

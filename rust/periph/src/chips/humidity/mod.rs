@@ -12,6 +12,9 @@ pub use hdc1080::{HDC1080Minimal, HDC1080Full, Error as HDC1080Error};
 pub mod hs30xx;
 pub use hs30xx::{HS30xxMinimal, HS30xxFull, HS3001Minimal, HS3001Full, HS3002Minimal, HS3002Full, HS3003Minimal, HS3003Full, Error as HS30xxError};
 
+pub mod hs40xx;
+pub use hs40xx::{HS40xxMinimal, HS40xxFull, HS4001Minimal, HS4001Full, HS4003Minimal, HS4003Full, Error as HS40xxError};
+
 pub mod htu21df;
 pub use htu21df::{HTU21DFMinimal, HTU21DFFull, Error as HTU21DFError};
 

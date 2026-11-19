@@ -103,6 +103,7 @@ Each chip exposes two classes:
 | HDC1080 | Humidity sensor | Minimal interface: one call reads temperature and humidity. |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
 | HS30XX | Humidity sensor | Humidity and temperature sensor |
+| HS40XX | Humidity sensor | Humidity and temperature sensor |
 | HT16K33 | LED driver | 16x8 LED matrix driver |
 | HTU21DF | Humidity sensor | HTU21D-F humidity and temperature sensor |
 | HX710A | ADC/DAC | 24-bit ADC |

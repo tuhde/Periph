@@ -456,7 +456,7 @@ CHIPS = (
     {"id": "hs30xx", "driver": "hs30xx", "write_sensitive": True, "aliased": False,
      "addresses": (0x44,),
      "probe": None},
-    {"id": "hs40xx", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "hs40xx", "driver": "hs40xx", "write_sensitive": True, "aliased": False,
      "addresses": (0x54,),
      "probe": None},
     {"id": "si7021", "driver": "si7021", "write_sensitive": True, "aliased": False,
