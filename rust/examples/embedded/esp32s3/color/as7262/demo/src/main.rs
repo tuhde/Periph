@@ -26,8 +26,8 @@ fn main() -> ! {
     #[allow(unused_macros)]
     macro_rules! sleep_ms { ($n:expr) => { delay.delay_ms($n) }; }
 
-    // Create AS7262 driver, (i2c, addr=0x49) → AS7262
-    let mut chip = AS7262Full::new(dev, addr);
+    // Create AS7262 driver, (i2c, ADDR=0x49) → AS7262
+    let mut chip = AS7262Full::new(i2c, ADDR);
     // --- Spectrometer ---
     // Versions, gain sweep, integration time comparison, LED reflectance difference, continuous mode.
     // Reset and configure defaults, (delay) → Result<()>
