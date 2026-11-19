@@ -159,6 +159,7 @@
 #include "chips/pressure/BMP581.h"
 #include "chips/pressure/LPS22DF.h"
 #include "chips/pressure/LPS28DFW.h"
+#include "chips/pressure/Lps22hb.h"
 #include "chips/pressure/Lps33hw.h"
 #include "chips/rfid/MFRC522.h"
 #include "chips/rtc/DS3231.h"

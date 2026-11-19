@@ -29,6 +29,10 @@
       "github:tuhde/Periph/python/periph/chips/pressure/lps22df.py"
     ],
     [
+      "periph/chips/pressure/lps22hb.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/lps22hb.py"
+    ],
+    [
       "periph/chips/pressure/lps28dfw.py",
       "github:tuhde/Periph/python/periph/chips/pressure/lps28dfw.py"
     ],

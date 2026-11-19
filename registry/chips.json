@@ -2354,7 +2354,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "lps22hb",
       "datasheet": "datasheets/pressure/lps22hb.pdf"
     },
     {

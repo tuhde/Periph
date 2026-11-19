@@ -116,6 +116,7 @@ Each chip exposes two structs:
 | LIS3DH | Accelerometer | 3-axis ultra-low-power MEMS accelerometer (STMicroelectronics). |
 | LM25066 | Power monitor | Hot-swap controller / PMBus power monitor (Texas Instruments). |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor (STMicroelectronics). |
+| LPS22HB | Pressure sensor | MEMS nano absolute pressure sensor (STMicroelectronics). |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
 | LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |

@@ -122,6 +122,7 @@ Each chip exposes two classes:
 | LIS3DH | Accelerometer | 3-axis accelerometer |
 | LM25066 | Power monitor | Hot-swap controller / PMBus power monitor |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor |
+| LPS22HB | Pressure sensor | MEMS nano absolute pressure sensor |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |
 | LSM303 | Accelerometer | Acceleration and magnetic field. |

@@ -202,7 +202,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | LM25066 | Hot-swap controller / power monitor (PMBus, VIN/VOUT/IIN/PIN/temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LM75B | Temperature sensor with thermal watchdog (11-bit, 0.125 °C) |  |  |  |  |  |  |  |  |
 | LPS22DF | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| LPS22HB | Pressure sensor (MEMS nano, 24-bit, FIFO) |  |  |  |  |  |  |  |  |
+| LPS22HB | Pressure sensor (MEMS nano, 24-bit, FIFO) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS28DFW | Pressure sensor (water-resistant, dual FS) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS33HW | Pressure sensor (water-resistant) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LSM303 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
