@@ -335,6 +335,8 @@ PCF8579Full	KEYWORD1
 PCF8579Minimal	KEYWORD1
 PCF8591Full	KEYWORD1
 PCF8591Minimal	KEYWORD1
+Pca9685Full	KEYWORD1
+Pca9685Minimal	KEYWORD1
 Profile	KEYWORD1
 PwmAuto	KEYWORD1
 QMI8658AFull	KEYWORD1
@@ -841,6 +843,7 @@ get_calibration	KEYWORD2
 get_current_direction	KEYWORD2
 get_direction	KEYWORD2
 get_firmware_version	KEYWORD2
+get_frequency	KEYWORD2
 get_gain	KEYWORD2
 get_gain_calibration	KEYWORD2
 get_gate_mask	KEYWORD2
@@ -855,6 +858,7 @@ get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
 get_pixel	KEYWORD2
 get_profile	KEYWORD2
+get_pwm	KEYWORD2
 get_range_offset	KEYWORD2
 get_ratio	KEYWORD2
 get_rcomp	KEYWORD2
@@ -1215,6 +1219,7 @@ read_low_power	KEYWORD2
 read_lpf_raw	KEYWORD2
 read_lux	KEYWORD2
 read_manufacturer_code	KEYWORD2
+read_mode	KEYWORD2
 read_motion_source	KEYWORD2
 read_nvm	KEYWORD2
 read_oneshot	KEYWORD2
@@ -1565,8 +1570,11 @@ set_alert_polarity	KEYWORD2
 set_alert_soc	KEYWORD2
 set_alert_thresholds	KEYWORD2
 set_all	KEYWORD2
+set_all_duty	KEYWORD2
 set_all_eeprom	KEYWORD2
 set_all_on	KEYWORD2
+set_all_pwm	KEYWORD2
+set_allcall	KEYWORD2
 set_als_gain	KEYWORD2
 set_als_integration_time	KEYWORD2
 set_als_scaler	KEYWORD2
@@ -1639,6 +1647,7 @@ set_display_pattern	KEYWORD2
 set_double_height	KEYWORD2
 set_double_tap	KEYWORD2
 set_duration	KEYWORD2
+set_duty	KEYWORD2
 set_entry_mode	KEYWORD2
 set_external_clock	KEYWORD2
 set_external_sample_trigger	KEYWORD2
@@ -1656,6 +1665,8 @@ set_frame_rate	KEYWORD2
 set_free_fall	KEYWORD2
 set_freefall_motion	KEYWORD2
 set_frequency	KEYWORD2
+set_full_off	KEYWORD2
+set_full_on	KEYWORD2
 set_full_scale	KEYWORD2
 set_gain	KEYWORD2
 set_gain_calibration	KEYWORD2
@@ -1729,6 +1740,7 @@ set_orientation	KEYWORD2
 set_ot_fault	KEYWORD2
 set_ot_warn	KEYWORD2
 set_output_enable	KEYWORD2
+set_output_mode	KEYWORD2
 set_oversampling	KEYWORD2
 set_page_rw	KEYWORD2
 set_panel_loading	KEYWORD2
@@ -1753,8 +1765,10 @@ set_proximity_offset	KEYWORD2
 set_proximity_thresholds	KEYWORD2
 set_pullups	KEYWORD2
 set_pulse	KEYWORD2
+set_pulse_width	KEYWORD2
 set_pump	KEYWORD2
 set_pump_voltage	KEYWORD2
+set_pwm	KEYWORD2
 set_rab	KEYWORD2
 set_range	KEYWORD2
 set_range_offset	KEYWORD2
@@ -1795,6 +1809,7 @@ set_standby	KEYWORD2
 set_start_bank	KEYWORD2
 set_start_line	KEYWORD2
 set_stuck_bus_timer	KEYWORD2
+set_subaddress	KEYWORD2
 set_summation_channels	KEYWORD2
 set_sync_sample	KEYWORD2
 set_tap	KEYWORD2
@@ -1808,6 +1823,7 @@ set_threshold	KEYWORD2
 set_transient	KEYWORD2
 set_tristate	KEYWORD2
 set_tx_power	KEYWORD2
+set_update_on_ack	KEYWORD2
 set_vcom_dc	KEYWORD2
 set_vcom_deselect	KEYWORD2
 set_vcomh	KEYWORD2
@@ -1912,6 +1928,7 @@ unlockEeprom	KEYWORD2
 unwatch	KEYWORD2
 unwatchChanges	KEYWORD2
 update	KEYWORD2
+use_external_clock	KEYWORD2
 use_external_crystal	KEYWORD2
 use_i2c_temperature	KEYWORD2
 use_thermistor	KEYWORD2
@@ -2087,6 +2104,7 @@ CANSTAT_OPMOD_SLEEP	LITERAL1
 CF1	LITERAL1
 CF2	LITERAL1
 CF3	LITERAL1
+CHANNELS	LITERAL1
 CHARGE_CC	LITERAL1
 CHARGE_CV	LITERAL1
 CHARGE_DONE	LITERAL1
@@ -2563,6 +2581,9 @@ ODR_760_HZ	LITERAL1
 ODR_800_HZ	LITERAL1
 ODR_95_HZ	LITERAL1
 ODR_POWER_DOWN	LITERAL1
+OFF_HIGHZ	LITERAL1
+OFF_HIGH_OR_HIGHZ	LITERAL1
+OFF_LOW	LITERAL1
 OLSB1_RANGE_MASK	LITERAL1
 OLSB1_SMP_SKIP	LITERAL1
 ORANGE	LITERAL1

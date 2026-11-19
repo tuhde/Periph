@@ -241,7 +241,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCA9536 | IO expander (4-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA9539 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA9541 | I²C master selector (2-to-1, dual-master failover) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCA9685 | 16-channel 12-bit PWM LED/servo controller (I²C, 24–1526 Hz, phase shift, all-call) | | | | | | | | |
+| PCA9685 | 16-channel 12-bit PWM LED/servo controller (I²C, 24–1526 Hz, phase shift, all-call) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF2116 | LCD controller/driver (character, 24x2 / 12x4, PCF2116/PCF2114 family) |  |  |  |  |  |  |  |  |
 | PCF85063A | Real-time clock (alarm, timer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

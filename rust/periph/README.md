@@ -147,6 +147,7 @@ Each chip exposes two structs:
 | PCA9536 | IO expander | 4-bit I/O expander (TI), I²C / SMBus. |
 | PCA9539 | IO expander | 16-bit I/O expander (NXP), I²C / SMBus. |
 | PCA9541 | Other | 2-to-1 I²C-bus master selector (NXP). |
+| PCA9685 | LED driver | 16-channel, 12-bit PWM LED/servo controller (NXP Semiconductors). |
 | PCF85063A | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |

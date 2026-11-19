@@ -2542,7 +2542,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "pca9685",
       "datasheet": "datasheets/led/pca9685.pdf"
     },
     {
