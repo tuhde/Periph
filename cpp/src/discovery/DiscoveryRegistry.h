@@ -515,7 +515,7 @@ static constexpr ChipEntry kChips[] = {
     {"hdc1080", "hdc1080", false, false, kAddr_hdc1080, 1, &kProbe_hdc1080},
     {"ht16k33", "ht16k33", true, false, kAddr_ht16k33, 8, nullptr},
     {"hs30xx", "hs30xx", true, false, kAddr_hs30xx, 1, nullptr},
-    {"hs40xx", nullptr, true, false, kAddr_hs40xx, 1, nullptr},
+    {"hs40xx", "hs40xx", true, false, kAddr_hs40xx, 1, nullptr},
     {"si7021", "si7021", true, false, kAddr_si7021, 1, &kProbe_si7021},
     {"lps22hb", "lps22hb", false, false, kAddr_lps22hb, 2, &kProbe_lps22hb},
     {"saa1064", nullptr, true, false, kAddr_saa1064, 4, nullptr},

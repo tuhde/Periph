@@ -85,6 +85,7 @@ Each chip exposes two classes:
 | HDC1080 | Humidity sensor | `periph/src/chips/humidity/hdc1080` |
 | HMC5883L | Magnetometer | `periph/src/chips/magnetometer/hmc5883l` |
 | HS30XX | Humidity sensor | `periph/src/chips/humidity/hs30xx` |
+| HS40XX | Humidity sensor | `periph/src/chips/humidity/hs40xx` |
 | HT16K33 | LED driver | `periph/src/chips/led/ht16k33` |
 | HTU21DF | Humidity sensor | `periph/src/chips/humidity/htu21df` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |

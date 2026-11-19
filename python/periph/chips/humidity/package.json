@@ -21,6 +21,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/hs30xx.py"
     ],
     [
+      "periph/chips/humidity/hs40xx.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hs40xx.py"
+    ],
+    [
       "periph/chips/humidity/htu21df.py",
       "github:tuhde/Periph/python/periph/chips/humidity/htu21df.py"
     ],

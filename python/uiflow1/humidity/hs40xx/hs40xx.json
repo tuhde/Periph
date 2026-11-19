@@ -1,0 +1,176 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hs40xx_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HS40xx",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_raw_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx raw humidity (14 bit)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_raw_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx raw temperature (14 bit)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_sensor_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx sensor ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HS40xx resolution (bits, 8/10/12/14)",
+          "type": "label"
+        },
+        {
+          "name": "humidity",
+          "type": "label"
+        },
+        {
+          "name": "_humidity_bits",
+          "type": "number"
+        },
+        {
+          "name": "temperature",
+          "type": "label"
+        },
+        {
+          "name": "_temperature_bits",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_start_periodic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HS40xx start periodic mode (period s: 0.5, 1 or 2.5)",
+          "type": "label"
+        },
+        {
+          "name": "period",
+          "type": "label"
+        },
+        {
+          "name": "_period",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_stop_periodic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HS40xx stop periodic mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_periodic_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx periodic relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_periodic_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HS40xx periodic temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hs40xx_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HS40xx soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

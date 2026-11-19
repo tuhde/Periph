@@ -1,0 +1,1 @@
+_periph_hs40xx.stop_periodic()

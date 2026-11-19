@@ -1,0 +1,1 @@
+_periph_hs40xx.read_periodic()['temperature_c']
