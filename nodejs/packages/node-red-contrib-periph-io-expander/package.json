@@ -9,7 +9,6 @@
     "spi",
     "peripheral"
   ],
-  "main": "index.js",
   "node-red": {
     "nodes": {
       "mcp23008": "nodes/mcp23008/mcp23008.js",

@@ -10,7 +10,6 @@
     "sensor",
     "peripheral"
   ],
-  "main": "index.js",
   "node-red": {
     "nodes": {
       "ina226": "nodes/ina226/ina226.js",
