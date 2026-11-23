@@ -39,5 +39,17 @@
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-pressure#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-pressure"
+  }
 }

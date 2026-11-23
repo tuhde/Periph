@@ -155,7 +155,17 @@ function withSearchMetadata(pkg, chips) {
     }
     // Declare the minimum Node-RED version so the catalog shows compatibility.
     const nodeRed = { version: '>=3.0.0', ...pkg['node-red'] };
-    return { ...pkg, description: `${noun}: ${chips.map((c) => c.toUpperCase()).join(', ')}`, keywords, 'node-red': nodeRed };
+    // Catalog scoreboard items: bugs URL, Node.js version, repository/homepage.
+    return {
+        ...pkg,
+        description: `${noun}: ${chips.map((c) => c.toUpperCase()).join(', ')}`,
+        keywords,
+        'node-red': nodeRed,
+        engines: { node: '>=18', ...pkg.engines },
+        bugs: { url: `${REPO_URL}/issues` },
+        homepage: `${REPO_URL}/tree/main/nodejs/packages/${pkg.name}#readme`,
+        repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: `nodejs/packages/${pkg.name}` },
+    };
 }
 
 function buildReadme(pkg, rows) {
