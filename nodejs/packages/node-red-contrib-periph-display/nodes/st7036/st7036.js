@@ -6,10 +6,9 @@ module.exports = function(RED) {
     const { GpioOutputPin }     = require('periph/src/connection/output_pin');
     const S = require('periph/src/chips/display/st7036');
 
-    function ST7036Node(config) {
+    function ST7036DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const chip = parseInt(config.gpioChip || 0, 10);
             const dc = new GpioOutputPin(Default.output({ chip, line: parseInt(config.rsPin, 10) }));
@@ -27,6 +26,17 @@ module.exports = function(RED) {
             node.error('ST7036 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('st7036-device', ST7036DeviceNode);
+
+    function ST7036ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         // Messages are handled one at a time: two overlapping command streams would corrupt each other.
         let queue = Promise.resolve();
         node.on('input', function(msg, send, done) {
@@ -34,8 +44,8 @@ module.exports = function(RED) {
         });
 
         async function handle(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            const d = node.driver;
+            if (!deviceNode.driver) { done(); return; }
+            const d = deviceNode.driver;
             let p = msg.payload;
             try {
                 if (typeof p === 'string') p = { text: p };
@@ -66,10 +76,6 @@ module.exports = function(RED) {
                 done(e);
             }
         }
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-st7036', ST7036Node);
+    RED.nodes.registerType('st7036', ST7036ReadNode);
 };

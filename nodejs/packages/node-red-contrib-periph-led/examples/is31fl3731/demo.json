@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "IS31FL3731 Moving Dot",
         "disabled": false,
-        "info": "Moves a single dot across the 9 x 16 LED matrix of an IS31FL3731 over I2C. An inject node fires every 100 ms, a function node advances the dot position (row 0-8, column 0-15) and the periph-is31fl3731 node switches the previous LED off and the new one on at full PWM brightness."
+        "info": "Moves a single dot across the 9 x 16 LED matrix of an IS31FL3731 over I2C. An inject node fires every 100 ms, a function node advances the dot position (row 0-8, column 0-15) and the is31fl3731 node switches the previous LED off and the new one on at full PWM brightness."
     },
     {
         "id": "cfg-is31fl3731",
@@ -55,7 +55,7 @@
     },
     {
         "id": "write-lcd",
-        "type": "periph-is31fl3731",
+        "type": "is31fl3731",
         "name": "Display",
         "device": "cfg-is31fl3731",
         "z": "tab-is31fl3731-demo",

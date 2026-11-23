@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { CAT5171Full } = require('periph/src/chips/adc_dac/cat5171');
 
-    function CAT5171Node(config) {
+    function CAT5171DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const rAb = parseFloat(config.rab) || 100000.0;
             const rWiper = config.rwiper === '' || config.rwiper === undefined ? 50.0 : parseFloat(config.rwiper);
@@ -19,34 +18,6 @@ module.exports = function(RED) {
             node.error('CAT5171 init failed: ' + e.message);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                const p = msg.payload;
-                if (p && typeof p === 'object' && typeof p.shutdown === 'boolean') {
-                    if (p.shutdown) await node.driver.shutdown();
-                    else await node.driver.resume();
-                    done();
-                    return;
-                }
-                if (p && typeof p === 'object' && (typeof p.code === 'number' || typeof p.ohms === 'number')) {
-                    if (typeof p.code === 'number') await node.driver.setWiper(p.code);
-                    else await node.driver.setResistance(p.ohms);
-                    const code = await node.driver.getWiper();
-                    const resistance = await node.driver.getResistance();
-                    msg.payload = { code, resistance };
-                } else {
-                    const wiper = await node.driver.getWiper();
-                    const resistance = await node.driver.getResistance();
-                    msg.payload = { wiper, resistance };
-                }
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.connection) await node.connection.close();
@@ -57,5 +28,40 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-cat5171', CAT5171Node);
+    RED.nodes.registerType('cat5171-device', CAT5171DeviceNode);
+
+    function CAT5171ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                const p = msg.payload;
+                if (p && typeof p === 'object' && typeof p.shutdown === 'boolean') {
+                    if (p.shutdown) await deviceNode.driver.shutdown();
+                    else await deviceNode.driver.resume();
+                    done();
+                    return;
+                }
+                if (p && typeof p === 'object' && (typeof p.code === 'number' || typeof p.ohms === 'number')) {
+                    if (typeof p.code === 'number') await deviceNode.driver.setWiper(p.code);
+                    else await deviceNode.driver.setResistance(p.ohms);
+                    const code = await deviceNode.driver.getWiper();
+                    const resistance = await deviceNode.driver.getResistance();
+                    msg.payload = { code, resistance };
+                } else {
+                    const wiper = await deviceNode.driver.getWiper();
+                    const resistance = await deviceNode.driver.getResistance();
+                    msg.payload = { wiper, resistance };
+                }
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('cat5171', CAT5171ReadNode);
 };

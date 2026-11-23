@@ -8,7 +8,7 @@
     },
     {
         "id": "cfg-max17048",
-        "type": "periph-max17048-device",
+        "type": "max17048-device",
         "name": "MAX17048",
         "bus": "1",
         "address": "36",
@@ -36,7 +36,7 @@
     },
     {
         "id": "read-max17048",
-        "type": "periph-max17048",
+        "type": "max17048",
         "name": "MAX17048",
         "device": "cfg-max17048",
         "z": "tab-max17048-demo",

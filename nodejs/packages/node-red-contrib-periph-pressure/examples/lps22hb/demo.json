@@ -14,7 +14,7 @@
     },
     {
         "id": "lps22hb-read-1",
-        "type": "periph-lps22hb",
+        "type": "lps22hb",
         "name": "LPS22HB Altimeter",
         "device": "lps22hb-device-1",
         "wires": [["function-alt-1", "debug-1", "chart-pres-1", "chart-alt-1", "chart-temp-1"]]

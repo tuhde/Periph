@@ -45,28 +45,34 @@
     ]
   },
   {
+    "id": "uc8276c-device-1",
+    "type": "uc8276c-device",
+    "name": "UC8276C",
+    "busyTimeout": "30000",
+    "gpioChip": "0",
+    "spiBus": "0",
+    "height": "300",
+    "resPin": "17",
+    "width": "400",
+    "busyPin": "24",
+    "autoShow": false,
+    "dcPin": "25",
+    "wireMode": "simplex",
+    "spiDevice": "0"
+  },
+  {
     "id": "uc8276c_node",
-    "type": "periph-uc8276c",
+    "type": "uc8276c",
     "z": "uc8276c_tab",
     "name": "",
-    "spiBus": "0",
-    "spiDevice": "0",
-    "gpioChip": "0",
-    "dcPin": "25",
-    "resPin": "17",
-    "busyPin": "24",
-    "wireMode": "simplex",
-    "width": "400",
-    "height": "300",
-    "busyTimeout": "30000",
-    "autoShow": false,
     "x": 590,
     "y": 100,
     "wires": [
       [
         "uc8276c_updated"
       ]
-    ]
+    ],
+    "device": "uc8276c-device-1"
   },
   {
     "id": "uc8276c_updated",

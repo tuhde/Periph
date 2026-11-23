@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { ADS1014Full } = require('periph/src/chips/adc_dac/ads1014');
 
-    function ADS1014Node(config) {
+    function ADS1014DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address, 16) || ADS1014Full.I2C_ADDRESS;
             const connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -22,19 +21,6 @@ module.exports = function(RED) {
             node.error('ADS1014 init failed: ' + e.message);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                await node.ready;
-                const raw = await node.driver.readRaw();
-                msg.payload = { raw, voltage: raw * node.driver.lsb() };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.connection) await node.connection.close();
@@ -45,5 +31,25 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ads1014', ADS1014Node);
+    RED.nodes.registerType('ads1014-device', ADS1014DeviceNode);
+
+    function ADS1014ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                await deviceNode.ready;
+                const raw = await deviceNode.driver.readRaw();
+                msg.payload = { raw, voltage: raw * deviceNode.driver.lsb() };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('ads1014', ADS1014ReadNode);
 };

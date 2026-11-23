@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "CAT5171 Wiper Sweep Demo",
         "disabled": false,
-        "info": "Two scenarios on one CAT5171 digital potentiometer. An Inject node ticks every 500 ms into a Function node that steps the wiper through 16 evenly spaced codes (0, 16, ... 240), producing the staircase; the periph-cat5171 node returns {code, resistance} which a Debug node shows. A second Inject node sets a 22 kOhm W-B resistance once, a third reads back the wiper, and a fourth and fifth toggle shutdown on and off."
+        "info": "Two scenarios on one CAT5171 digital potentiometer. An Inject node ticks every 500 ms into a Function node that steps the wiper through 16 evenly spaced codes (0, 16, ... 240), producing the staircase; the cat5171 node returns {code, resistance} which a Debug node shows. A second Inject node sets a 22 kOhm W-B resistance once, a third reads back the wiper, and a fourth and fifth toggle shutdown on and off."
     },
     {
         "id": "inj-sweep",
@@ -123,12 +123,18 @@
         ]
     },
     {
-        "id": "cat5171-node",
-        "type": "periph-cat5171",
+        "id": "cat5171-device-1",
+        "type": "cat5171-device",
         "name": "CAT5171",
         "bus": "1",
         "rab": "100000",
         "rwiper": "50",
+        "address": "0x2C"
+    },
+    {
+        "id": "cat5171-node",
+        "type": "cat5171",
+        "name": "CAT5171",
         "z": "tab-cat5171-demo",
         "x": 560,
         "y": 140,
@@ -137,7 +143,7 @@
                 "dbg-cat5171"
             ]
         ],
-        "address": "0x2C"
+        "device": "cat5171-device-1"
     },
     {
         "id": "dbg-cat5171",

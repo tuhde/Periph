@@ -67,13 +67,18 @@
         ]
     },
     {
-        "id": "pca9541-node",
-        "type": "periph-pca9541",
+        "id": "pca9541-device-1",
+        "type": "pca9541-device",
         "name": "PCA9541",
-        "bus": "1",
         "address": "0x70",
-        "gpioChip": "0",
+        "bus": "1",
         "intPin": "",
+        "gpioChip": "0"
+    },
+    {
+        "id": "pca9541-node",
+        "type": "pca9541",
+        "name": "PCA9541",
         "z": "tab-pca9541-demo",
         "x": 400,
         "y": 140,
@@ -81,7 +86,8 @@
             [
                 "dbg-pca9541"
             ]
-        ]
+        ],
+        "device": "pca9541-device-1"
     },
     {
         "id": "dbg-pca9541",

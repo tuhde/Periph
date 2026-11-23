@@ -31,20 +31,26 @@
     ]
   },
   {
-    "id": "sht31-node",
-    "type": "periph-sht31",
-    "z": "sht31-tab",
+    "id": "sht31-device-1",
+    "type": "sht31-device",
     "name": "SHT31",
     "bus": "1",
     "address": "0x44",
-    "repeatability": "high",
+    "repeatability": "high"
+  },
+  {
+    "id": "sht31-node",
+    "type": "sht31",
+    "z": "sht31-tab",
+    "name": "SHT31",
     "x": 380,
     "y": 160,
     "wires": [
       [
         "sht31-format"
       ]
-    ]
+    ],
+    "device": "sht31-device-1"
   },
   {
     "id": "sht31-format",

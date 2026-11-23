@@ -1,38 +1,62 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pca9536', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('pca9536-device', {
+        category: 'config',
         defaults: {
             name:      { value: '' },
             bus:       { value: '1',  required: true, validate: RED.validators.number() },
             pollInterval: { value: '' }
         },
+        label: function() {
+            return this.name || 'PCA9536';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pca9536-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCA9536">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(/dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pollInterval">Poll interval</label>
+        <input type="number" id="node-config-input-pollInterval" min="0" style="width:80px" placeholder="off"> &nbsp;ms (the chip has no INT pin; address is fixed at 0x41)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('pca9536', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            device: { value: '', type: 'pca9536-device', required: true }
+        },
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-microchip',
-        label:   function() {
-            return this.name || ('PCA9536 (bus ' + this.bus + ')');
-        },
+        label:   function() { return this.name || 'PCA9536'; },
         paletteLabel: 'PCA9536'
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pca9536">
+<script type="text/html" data-template-name="pca9536">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="PCA9536">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(/dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-pollInterval">Poll interval</label>
-        <input type="number" id="node-input-pollInterval" min="0" style="width:80px" placeholder="off"> &nbsp;ms (the chip has no INT pin; address is fixed at 0x41)
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pca9536">
+<script type="text/html" data-help-name="pca9536">
     <p>Controls and reads a 4-bit PCA9536 I/O expander (I²C / SMBus, TI). The chip has the fixed address <code>0x41</code>, no interrupt pin, and a weak (about 100 kΩ) pull-up that is always on each pin, so an open input reads 1.</p>
 
     <h3>Inputs</h3>

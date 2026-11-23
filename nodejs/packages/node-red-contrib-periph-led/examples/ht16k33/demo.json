@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "HT16K33 Scrolling Pixel",
         "disabled": false,
-        "info": "Moves a single lit pixel across all 16 x 8 positions of an LED matrix driven by an HT16K33 over I2C. An inject node fires every 100 ms, a function node advances the pixel position (COM 0-7, ROW 0-15) and the periph-ht16k33 node clears the previous pixel and writes the new one. A second inject node sweeps the brightness from 0 to 15."
+        "info": "Moves a single lit pixel across all 16 x 8 positions of an LED matrix driven by an HT16K33 over I2C. An inject node fires every 100 ms, a function node advances the pixel position (COM 0-7, ROW 0-15) and the ht16k33 node clears the previous pixel and writes the new one. A second inject node sweeps the brightness from 0 to 15."
     },
     {
         "id": "cfg-ht16k33",
@@ -55,7 +55,7 @@
     },
     {
         "id": "write-lcd",
-        "type": "periph-ht16k33",
+        "type": "ht16k33",
         "name": "Display",
         "device": "cfg-ht16k33",
         "z": "tab-ht16k33-demo",

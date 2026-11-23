@@ -17,10 +17,9 @@ module.exports = function(RED) {
         return enabled ? parseInt(value, 10) || 0 : null;
     }
 
-    function PCF8523Node(config) {
+    function PCF8523DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const connection = new I2CConnection(parseInt(config.bus, 10), 0x68);
             node.driver = new PCF8523Full(connection);
@@ -55,7 +54,7 @@ module.exports = function(RED) {
                     await node.driver.enableInterrupt(sources);
                     await node.driver.onInterrupt((status) => {
                         for (const [bit, name] of SOURCE_NAMES) {
-                            if (status & bit) node.send({ payload: { source: name } });
+                            if (status & bit) node.emit('periph-data', { payload: { source: name } });
                         }
                     });
                 }
@@ -63,33 +62,6 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('PCF8523 init failed: ' + e.message);
         }
-
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                if (msg.payload && msg.payload.datetime) {
-                    const d = msg.payload.datetime;
-                    await node.driver.setDatetime(d.year, d.month, d.day, d.weekday, d.hour, d.minute, d.second);
-                    done();
-                    return;
-                }
-                if (msg.payload && msg.payload.alarm) {
-                    await node.driver.setAlarm(msg.payload.alarm);
-                    done();
-                    return;
-                }
-                const dt = await node.driver.getDatetime();
-                msg.payload = {
-                    ...dt,
-                    battery_low: await node.driver.isBatteryLow(),
-                    battery_switched_over: await node.driver.isBatterySwitchedOver(),
-                };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
 
         node.on('close', async function(removed, done) {
             try {
@@ -100,5 +72,44 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-pcf8523', PCF8523Node);
+    RED.nodes.registerType('pcf8523-device', PCF8523DeviceNode);
+
+    function PCF8523ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                if (msg.payload && msg.payload.datetime) {
+                    const d = msg.payload.datetime;
+                    await deviceNode.driver.setDatetime(d.year, d.month, d.day, d.weekday, d.hour, d.minute, d.second);
+                    done();
+                    return;
+                }
+                if (msg.payload && msg.payload.alarm) {
+                    await deviceNode.driver.setAlarm(msg.payload.alarm);
+                    done();
+                    return;
+                }
+                const dt = await deviceNode.driver.getDatetime();
+                msg.payload = {
+                    ...dt,
+                    battery_low: await deviceNode.driver.isBatteryLow(),
+                    battery_switched_over: await deviceNode.driver.isBatterySwitchedOver(),
+                };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('pcf8523', PCF8523ReadNode);
 };

@@ -58,5 +58,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-cat24c512', CAT24C512Node);
+    RED.nodes.registerType('cat24c512', CAT24C512Node);
 };

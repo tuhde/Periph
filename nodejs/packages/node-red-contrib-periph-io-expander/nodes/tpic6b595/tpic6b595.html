@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-tpic6b595', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('tpic6b595-device', {
+        category: 'config',
         defaults: {
             name:       { value: '' },
             rckPin:     { value: '17', required: true, validate: RED.validators.number() },
@@ -11,52 +11,78 @@
             srckPin:    { value: '', required: false, validate: RED.validators.number() },
             numDevices: { value: '1', required: true, validate: RED.validators.number() }
         },
+        label: function() {
+            return this.name || 'TPIC6B595';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tpic6b595-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="TPIC6B595">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rckPin"><i class="fa fa-microchip"></i> RCK pin</label>
+        <input type="number" id="node-config-input-rckPin" min="0" style="width:80px">
+        &nbsp;(register clock GPIO line)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-srclrPin">SRCLR pin</label>
+        <input type="number" id="node-config-input-srclrPin" min="-1" style="width:80px">
+        &nbsp;(shift-register clear; -1 to disable)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gPin">G pin</label>
+        <input type="number" id="node-config-input-gPin" min="-1" style="width:80px">
+        &nbsp;(output enable; -1 to disable)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-serInPin">SER IN pin (software SPI)</label>
+        <input type="number" id="node-config-input-serInPin" min="0" style="width:80px">
+        &nbsp;(leave blank for hardware SPI)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-srckPin">SRCK pin (software SPI)</label>
+        <input type="number" id="node-config-input-srckPin" min="0" style="width:80px">
+        &nbsp;(leave blank for hardware SPI)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-numDevices">Cascaded devices</label>
+        <input type="number" id="node-config-input-numDevices" min="1" max="8" style="width:60px">
+        &nbsp;(1–8; pin index range = numDevices × 8)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('tpic6b595', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device: { value: '', type: 'tpic6b595-device', required: true }
+        },
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-microchip',
-        label:   function() { return this.name || ('TPIC6B595 × ' + (this.numDevices || 1)); },
+        label:   function() { return this.name || 'TPIC6B595'; },
         paletteLabel: 'TPIC6B595'
     });
 </script>
 
-<script type="text/html" data-template-name="periph-tpic6b595">
+<script type="text/html" data-template-name="tpic6b595">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="TPIC6B595">
     </div>
     <div class="form-row">
-        <label for="node-input-rckPin"><i class="fa fa-microchip"></i> RCK pin</label>
-        <input type="number" id="node-input-rckPin" min="0" style="width:80px">
-        &nbsp;(register clock GPIO line)
-    </div>
-    <div class="form-row">
-        <label for="node-input-srclrPin">SRCLR pin</label>
-        <input type="number" id="node-input-srclrPin" min="-1" style="width:80px">
-        &nbsp;(shift-register clear; -1 to disable)
-    </div>
-    <div class="form-row">
-        <label for="node-input-gPin">G pin</label>
-        <input type="number" id="node-input-gPin" min="-1" style="width:80px">
-        &nbsp;(output enable; -1 to disable)
-    </div>
-    <div class="form-row">
-        <label for="node-input-serInPin">SER IN pin (software SPI)</label>
-        <input type="number" id="node-input-serInPin" min="0" style="width:80px">
-        &nbsp;(leave blank for hardware SPI)
-    </div>
-    <div class="form-row">
-        <label for="node-input-srckPin">SRCK pin (software SPI)</label>
-        <input type="number" id="node-input-srckPin" min="0" style="width:80px">
-        &nbsp;(leave blank for hardware SPI)
-    </div>
-    <div class="form-row">
-        <label for="node-input-numDevices">Cascaded devices</label>
-        <input type="number" id="node-input-numDevices" min="1" max="8" style="width:60px">
-        &nbsp;(1–8; pin index range = numDevices × 8)
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-tpic6b595">
+<script type="text/html" data-help-name="tpic6b595">
     <p>Drives a Texas Instruments TPIC6B595 8-bit power SIPO shift register (or
     multiple cascaded devices) through a SiPo (serial-in/parallel-out)
     connection. SER IN / SRCK may be either an SPI bus (hardware mode) or two

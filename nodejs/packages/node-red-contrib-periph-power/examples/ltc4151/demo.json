@@ -8,7 +8,7 @@
     },
     {
         "id": "cfg-ltc4151",
-        "type": "periph-ltc4151-device",
+        "type": "ltc4151-device",
         "name": "LTC4151",
         "bus": "1",
         "address": "6A",
@@ -36,7 +36,7 @@
     },
     {
         "id": "read-ltc4151",
-        "type": "periph-ltc4151",
+        "type": "ltc4151",
         "name": "LTC4151",
         "device": "cfg-ltc4151",
         "z": "tab-ltc4151-demo",

@@ -58,5 +58,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-mb85rc', MB85RCNode);
+    RED.nodes.registerType('mb85rc', MB85RCNode);
 };

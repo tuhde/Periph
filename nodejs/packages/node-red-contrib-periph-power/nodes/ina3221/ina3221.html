@@ -35,7 +35,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ina3221', {
+    RED.nodes.registerType('ina3221', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -50,7 +50,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ina3221">
+<script type="text/html" data-template-name="ina3221">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -61,7 +61,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ina3221">
+<script type="text/html" data-help-name="ina3221">
     <p>Reads bus voltage, shunt voltage, current, and power from an INA3221 three-channel power monitor over I²C.</p>
     <p>Any input message triggers a measurement. The device is configured via an <b>ina3221-device</b> config node.</p>
 

@@ -45,5 +45,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-as5600', AS5600ReadNode);
+    RED.nodes.registerType('as5600', AS5600ReadNode);
 };

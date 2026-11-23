@@ -18,7 +18,7 @@ module.exports = function(RED) {
         return new GpioOutputPin(Default.output({ chip, line }));
     }
 
-    function TMC5160Node(config) {
+    function TMC5160DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.ready = false;
@@ -74,50 +74,6 @@ module.exports = function(RED) {
             };
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver || !node.ready) { done(); return; }
-            try {
-                const p = msg.payload;
-                let handled = false;
-                if (p && typeof p === 'object') {
-                    if (typeof p.current === 'number') { await node.driver.setCurrent(p.current); handled = true; }
-                    if (typeof p.acceleration === 'number') { await node.driver.setAcceleration(p.acceleration); handled = true; }
-                    if (typeof p.stall_threshold === 'number') { await node.driver.setStallThreshold(p.stall_threshold); handled = true; }
-                    if (p.zero === true) { await node.driver.setPosition(0); handled = true; }
-                    if (typeof p.enable === 'boolean') {
-                        if (p.enable) await node.driver.enable(); else await node.driver.disable();
-                        handled = true;
-                    }
-                    if (typeof p.speed === 'number' && typeof p.move !== 'number') {
-                        if (p.speed === 0) await node.driver.stop(); else await node.driver.run(p.speed);
-                        handled = true;
-                    }
-                    if (p.stop === true) { await node.driver.stop(); handled = true; }
-                    if (typeof p.move_to === 'number') { await node.driver.moveTo(p.move_to); handled = true; }
-                    if (typeof p.move === 'number') {
-                        await node.driver.move(p.move, typeof p.speed === 'number' ? p.speed : node.speed);
-                        handled = true;
-                    }
-                }
-                if (handled) {
-                    msg.payload = await snapshot();
-                } else {
-                    const snap = await snapshot();
-                    const status = await node.driver.readStatus();
-                    msg.payload = Object.assign(snap, {
-                        tstep: await node.driver.readTstep(),
-                        stallguard: status.stallguard,
-                        otpw: status.otpw,
-                        ot: status.ot,
-                    });
-                }
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.driver && node.ready) {
@@ -132,5 +88,56 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-tmc5160', TMC5160Node);
+    RED.nodes.registerType('tmc5160-device', TMC5160DeviceNode);
+
+    function TMC5160ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver || !deviceNode.ready) { done(); return; }
+            try {
+                const p = msg.payload;
+                let handled = false;
+                if (p && typeof p === 'object') {
+                    if (typeof p.current === 'number') { await deviceNode.driver.setCurrent(p.current); handled = true; }
+                    if (typeof p.acceleration === 'number') { await deviceNode.driver.setAcceleration(p.acceleration); handled = true; }
+                    if (typeof p.stall_threshold === 'number') { await deviceNode.driver.setStallThreshold(p.stall_threshold); handled = true; }
+                    if (p.zero === true) { await deviceNode.driver.setPosition(0); handled = true; }
+                    if (typeof p.enable === 'boolean') {
+                        if (p.enable) await deviceNode.driver.enable(); else await deviceNode.driver.disable();
+                        handled = true;
+                    }
+                    if (typeof p.speed === 'number' && typeof p.move !== 'number') {
+                        if (p.speed === 0) await deviceNode.driver.stop(); else await deviceNode.driver.run(p.speed);
+                        handled = true;
+                    }
+                    if (p.stop === true) { await deviceNode.driver.stop(); handled = true; }
+                    if (typeof p.move_to === 'number') { await deviceNode.driver.moveTo(p.move_to); handled = true; }
+                    if (typeof p.move === 'number') {
+                        await deviceNode.driver.move(p.move, typeof p.speed === 'number' ? p.speed : deviceNode.speed);
+                        handled = true;
+                    }
+                }
+                if (handled) {
+                    msg.payload = await snapshot();
+                } else {
+                    const snap = await snapshot();
+                    const status = await deviceNode.driver.readStatus();
+                    msg.payload = Object.assign(snap, {
+                        tstep: await deviceNode.driver.readTstep(),
+                        stallguard: status.stallguard,
+                        otpw: status.otpw,
+                        ot: status.ot,
+                    });
+                }
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('tmc5160', TMC5160ReadNode);
 };

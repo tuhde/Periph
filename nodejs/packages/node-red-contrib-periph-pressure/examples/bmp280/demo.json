@@ -13,7 +13,7 @@
     },
     {
         "id": "bmp280-read-1",
-        "type": "periph-bmp280",
+        "type": "bmp280",
         "name": "BMP280 Weather",
         "device": "bmp280-device-1",
         "seaLevelHpa": "1013.25",

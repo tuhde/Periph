@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "PCA9685 LED Fader and Servo",
     "disabled": false,
-    "info": "Fades an LED on channel 0 of a PCA9685 with a sine-shaped duty cycle (inject every 100 ms, function node computes the duty) and sweeps a hobby servo on channel 1 with a pulse width between 1 ms and 2 ms. The device runs at 50 Hz so the servo works; the LED fade is therefore at 50 Hz as well. Both feed one periph-pca9685 node; debug nodes show the applied values."
+    "info": "Fades an LED on channel 0 of a PCA9685 with a sine-shaped duty cycle (inject every 100 ms, function node computes the duty) and sweeps a hobby servo on channel 1 with a pulse width between 1 ms and 2 ms. The device runs at 50 Hz so the servo works; the LED fade is therefore at 50 Hz as well. Both feed one pca9685 node; debug nodes show the applied values."
   },
   {
     "id": "cfg-pca9685",
@@ -96,7 +96,7 @@
   },
   {
     "id": "pwm-out",
-    "type": "periph-pca9685",
+    "type": "pca9685",
     "name": "PCA9685",
     "device": "cfg-pca9685",
     "z": "tab-pca9685-demo",

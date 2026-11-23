@@ -1,37 +1,63 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pcf8574', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('pcf8574-device', {
+        category: 'config',
         defaults: {
             name:    { value: '' },
             bus:     { value: '1',  required: true, validate: RED.validators.number() },
             address: { value: '20', required: true }
         },
+        label: function() {
+            return this.name || ('PCF8574 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pcf8574-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCF8574">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="20" style="width:80px">
+        &nbsp;PCF8574: 20–27 &nbsp;PCF8574A: 38–3F
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('pcf8574', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'pcf8574-device', required: true }
+        },
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-microchip',
-        label:   function() { return this.name || ('PCF8574 @ 0x' + this.address + ' (bus ' + this.bus + ')'); },
+        label:   function() { return this.name || 'PCF8574'; },
         paletteLabel: 'PCF8574'
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pcf8574">
+<script type="text/html" data-template-name="pcf8574">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="PCF8574">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address">Address (hex)</label>
-        <input type="text" id="node-input-address" placeholder="20" style="width:80px">
-        &nbsp;PCF8574: 20–27 &nbsp;PCF8574A: 38–3F
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pcf8574">
+<script type="text/html" data-help-name="pcf8574">
     <p>Controls and reads an 8-bit PCF8574 I/O expander over I²C.</p>
 
     <h3>Inputs</h3>

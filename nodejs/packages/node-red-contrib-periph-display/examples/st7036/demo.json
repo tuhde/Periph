@@ -98,19 +98,25 @@
         ]
     },
     {
+        "id": "st7036-device-1",
+        "type": "st7036-device",
+        "name": "ST7036",
+        "resPin": "17",
+        "supply": "3v3",
+        "spiDevice": "0",
+        "lines": "2",
+        "rsPin": "25",
+        "spiBus": "0",
+        "gpioChip": "0"
+    },
+    {
         "id": "st7036_node",
-        "type": "periph-st7036",
+        "type": "st7036",
         "z": "st7036_tab",
         "name": "DOGM162W",
-        "spiBus": "0",
-        "spiDevice": "0",
-        "gpioChip": "0",
-        "rsPin": "25",
-        "resPin": "17",
-        "lines": "2",
-        "supply": "3v3",
         "x": 700,
         "y": 120,
-        "wires": []
+        "wires": [],
+        "device": "st7036-device-1"
     }
 ]

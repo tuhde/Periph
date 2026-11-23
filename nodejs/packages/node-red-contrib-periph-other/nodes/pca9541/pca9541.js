@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { PCA9541Full } = require('periph/src/chips/other/pca9541');
 
-    function PCA9541Node(config) {
+    function PCA9541DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address || '0x70', 16);
             node.connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -29,7 +28,7 @@ module.exports = function(RED) {
                     const intPin = new PollingInputPin(() => (line.value ? 1 : 0), 20);
                     await node.ready;
                     await node.driver.onInterrupt((status) => {
-                        node.send({ payload: {
+                        node.emit('periph-data', { payload: {
                             interrupt: status,
                             int_in: Boolean(status & 0x01),
                             bus_init: Boolean(status & 0x02),
@@ -45,25 +44,6 @@ module.exports = function(RED) {
             })();
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(new Error('PCA9541 not initialised')); return; }
-            try {
-                await node.ready;
-                const p = msg.payload;
-                const command = p && typeof p === 'object' ? p.command : undefined;
-                if (command === 'acquire') await node.driver.acquire(p.busInit === true);
-                else if (command === 'release') await node.driver.release();
-                else if (command === 'recover') await node.driver.recoverBus();
-                else if (command === 'disconnect') await node.driver.disconnect();
-                const st = await node.driver.status();
-                msg.payload = { control: st.hasControl && st.connected, connected: st.connected };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.driver) await node.driver.offInterrupt();
@@ -75,5 +55,36 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-pca9541', PCA9541Node);
+    RED.nodes.registerType('pca9541-device', PCA9541DeviceNode);
+
+    function PCA9541ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(new Error('PCA9541 not initialised')); return; }
+            try {
+                await deviceNode.ready;
+                const p = msg.payload;
+                const command = p && typeof p === 'object' ? p.command : undefined;
+                if (command === 'acquire') await deviceNode.driver.acquire(p.busInit === true);
+                else if (command === 'release') await deviceNode.driver.release();
+                else if (command === 'recover') await deviceNode.driver.recoverBus();
+                else if (command === 'disconnect') await deviceNode.driver.disconnect();
+                const st = await deviceNode.driver.status();
+                msg.payload = { control: st.hasControl && st.connected, connected: st.connected };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('pca9541', PCA9541ReadNode);
 };

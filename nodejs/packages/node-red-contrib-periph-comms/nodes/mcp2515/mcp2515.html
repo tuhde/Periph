@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mcp2515', {
-        category: 'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('mcp2515-device', {
+        category: 'config',
         defaults: {
             name:         { value: '' },
             bus:          { value: '0', required: true, validate: RED.validators.number() },
@@ -10,30 +10,28 @@
             mode:         { value: 'both' },
             pollInterval: { value: '10', validate: RED.validators.number() }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'font-awesome/fa-exchange',
-        label: function() { return this.name || 'MCP2515'; },
-        paletteLabel: 'MCP2515'
+        label: function() {
+            return this.name || 'MCP2515';
+        }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mcp2515">
+<script type="text/html" data-template-name="mcp2515-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="MCP2515">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MCP2515">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.DEVICE)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.DEVICE)
     </div>
     <div class="form-row">
-        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
-        <input type="number" id="node-input-device" min="0" style="width:80px">
+        <label for="node-config-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px">
     </div>
     <div class="form-row">
-        <label for="node-input-bitrate">CAN bitrate (kbit/s)</label>
-        <select id="node-input-bitrate" style="width:120px">
+        <label for="node-config-input-bitrate">CAN bitrate (kbit/s)</label>
+        <select id="node-config-input-bitrate" style="width:120px">
             <option value="125">125</option>
             <option value="250">250</option>
             <option value="500">500</option>
@@ -41,20 +39,48 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-mode">Mode</label>
-        <select id="node-input-mode" style="width:140px">
+        <label for="node-config-input-mode">Mode</label>
+        <select id="node-config-input-mode" style="width:140px">
             <option value="send">send only</option>
             <option value="receive">receive only</option>
             <option value="both">send and receive</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-pollInterval">RX poll interval (ms)</label>
-        <input type="number" id="node-input-pollInterval" min="1" style="width:80px">
+        <label for="node-config-input-pollInterval">RX poll interval (ms)</label>
+        <input type="number" id="node-config-input-pollInterval" min="1" style="width:80px">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mcp2515">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('mcp2515', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            device: { value: '', type: 'mcp2515-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-exchange',
+        label:   function() { return this.name || 'MCP2515'; },
+        paletteLabel: 'MCP2515'
+    });
+</script>
+
+<script type="text/html" data-template-name="mcp2515">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP2515">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="mcp2515">
     <p>Sends and receives CAN 2.0B frames with the Microchip MCP2515 stand-alone CAN controller over SPI. Supports standard (11-bit) and extended (29-bit) identifiers and 0–8 byte payloads.</p>
 
     <h3>Inputs</h3>

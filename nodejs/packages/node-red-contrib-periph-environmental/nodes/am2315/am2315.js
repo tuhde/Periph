@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { AM2315Full } = require('periph/src/chips/environmental/am2315');
 
-    function AM2315Node(config) {
+    function AM2315DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -16,17 +16,28 @@ module.exports = function(RED) {
             node.error('AM2315 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('am2315-device', AM2315DeviceNode);
+
+    function AM2315ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         // Messages are handled one at a time; the driver itself waits the >= 2 s between transactions.
         let queue = Promise.resolve();
         node.on('input', function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('AM2315 not initialised', msg);
                 done();
                 return;
             }
             queue = queue.then(async () => {
                 try {
-                    msg.payload = await node.driver.read();
+                    msg.payload = await deviceNode.driver.read();
                     send(msg);
                     done();
                 } catch (e) {
@@ -34,10 +45,6 @@ module.exports = function(RED) {
                 }
             });
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-am2315', AM2315Node);
+    RED.nodes.registerType('am2315', AM2315ReadNode);
 };

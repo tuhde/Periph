@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-vl53l0x', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('vl53l0x-device', {
+        category: 'config',
         defaults: {
             name:      { value: '' },
             bus:       { value: '1', required: true, validate: RED.validators.number() },
@@ -9,11 +9,81 @@
             profile:   { value: 'default' },
             mode:      { value: 'single' },
             periodMs:  { value: '100', validate: RED.validators.number() },
-
             threshold: { value: 'none' },
             lowMm:     { value: '100', validate: RED.validators.number() },
             highMm:    { value: '800', validate: RED.validators.number() },
             gpioLine:  { value: '' }
+        },
+        label: function() {
+            return this.name || ('VL53L0X @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="vl53l0x-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="VL53L0X">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px"> &nbsp;(power-on default 0x29)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-profile"><i class="fa fa-sliders"></i> Profile</label>
+        <select id="node-config-input-profile" style="width:240px">
+            <option value="default">Default (33 ms, 1.2 m)</option>
+            <option value="long_range">Long range (33 ms, 2 m, dark only)</option>
+            <option value="high_speed">High speed (20 ms)</option>
+            <option value="high_accuracy">High accuracy (200 ms)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mode"><i class="fa fa-repeat"></i> Mode</label>
+        <select id="node-config-input-mode" style="width:240px">
+            <option value="single">Single shot on each input</option>
+            <option value="continuous">Continuous (latest result on input)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-periodMs">&nbsp; Period ms</label>
+        <input type="text" id="node-config-input-periodMs" style="width:80px"> &nbsp;(continuous only; 0 = back-to-back)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-threshold"><i class="fa fa-bell"></i> Threshold</label>
+        <select id="node-config-input-threshold" style="width:240px">
+            <option value="none">None</option>
+            <option value="level_low">Below low</option>
+            <option value="level_high">Above high</option>
+            <option value="out_of_window">Outside low…high window</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lowMm">&nbsp; Low mm</label>
+        <input type="text" id="node-config-input-lowMm" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-highMm">&nbsp; High mm</label>
+        <input type="text" id="node-config-input-highMm" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gpioLine">&nbsp; GPIO1 line</label>
+        <input type="text" id="node-config-input-gpioLine" style="width:80px" placeholder="e.g. 17"> &nbsp;(gpiochip0 offset; empty = poll over I²C)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('vl53l0x', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            device: { value: '', type: 'vl53l0x-device', required: true }
         },
         inputs:  1,
         outputs: 1,
@@ -23,65 +93,18 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-vl53l0x">
+<script type="text/html" data-template-name="vl53l0x">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="VL53L0X">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
-        <input type="text" id="node-input-address" style="width:80px"> &nbsp;(power-on default 0x29)
-    </div>
-    <div class="form-row">
-        <label for="node-input-profile"><i class="fa fa-sliders"></i> Profile</label>
-        <select id="node-input-profile" style="width:240px">
-            <option value="default">Default (33 ms, 1.2 m)</option>
-            <option value="long_range">Long range (33 ms, 2 m, dark only)</option>
-            <option value="high_speed">High speed (20 ms)</option>
-            <option value="high_accuracy">High accuracy (200 ms)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-mode"><i class="fa fa-repeat"></i> Mode</label>
-        <select id="node-input-mode" style="width:240px">
-            <option value="single">Single shot on each input</option>
-            <option value="continuous">Continuous (latest result on input)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-periodMs">&nbsp; Period ms</label>
-        <input type="text" id="node-input-periodMs" style="width:80px"> &nbsp;(continuous only; 0 = back-to-back)
-    </div>
-
-    <hr>
-    <div class="form-row">
-        <label for="node-input-threshold"><i class="fa fa-bell"></i> Threshold</label>
-        <select id="node-input-threshold" style="width:240px">
-            <option value="none">None</option>
-            <option value="level_low">Below low</option>
-            <option value="level_high">Above high</option>
-            <option value="out_of_window">Outside low…high window</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-lowMm">&nbsp; Low mm</label>
-        <input type="text" id="node-input-lowMm" style="width:80px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-highMm">&nbsp; High mm</label>
-        <input type="text" id="node-input-highMm" style="width:80px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-gpioLine">&nbsp; GPIO1 line</label>
-        <input type="text" id="node-input-gpioLine" style="width:80px" placeholder="e.g. 17"> &nbsp;(gpiochip0 offset; empty = poll over I²C)
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-vl53l0x">
+<script type="text/html" data-help-name="vl53l0x">
     <p>Measures distance with a VL53L0X time-of-flight laser-ranging sensor over I²C (up to ~2 m), and optionally reports distance-threshold events.</p>
 
     <h3>Inputs</h3>

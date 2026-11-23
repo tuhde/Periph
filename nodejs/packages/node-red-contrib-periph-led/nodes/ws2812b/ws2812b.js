@@ -67,5 +67,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ws2812b', WS2812BWriteNode);
+    RED.nodes.registerType('ws2812b', WS2812BWriteNode);
 };

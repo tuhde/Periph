@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { ICM20948Full } = require('periph/src/chips/imu/icm20948');
 
-    function ICM20948Node(config) {
+    function ICM20948DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -26,22 +26,33 @@ module.exports = function(RED) {
             node.error('ICM20948 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('icm20948-device', ICM20948DeviceNode);
+
+    function ICM20948ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('ICM20948 not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [accel, gyro, temperature] = await node.driver.readAll();
+                await deviceNode.ready;
+                const [accel, gyro, temperature] = await deviceNode.driver.readAll();
                 const payload = {
                     accel: { x: accel[0], y: accel[1], z: accel[2] },
                     gyro: { x: gyro[0], y: gyro[1], z: gyro[2] },
                     temperature,
                 };
                 if (config.mag) {
-                    const [x, y, z] = await node.driver.mag();
+                    const [x, y, z] = await deviceNode.driver.mag();
                     payload.mag = { x, y, z };
                 }
                 msg.payload = payload;
@@ -51,10 +62,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-icm20948', ICM20948Node);
+    RED.nodes.registerType('icm20948', ICM20948ReadNode);
 };

@@ -38,7 +38,7 @@
     },
     {
         "id": "read-fxos8700",
-        "type": "periph-fxos8700",
+        "type": "fxos8700",
         "name": "FXOS8700 read",
         "device": "cfg-fxos8700",
         "z": "tab-fxos8700-demo",

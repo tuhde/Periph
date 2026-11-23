@@ -39,7 +39,7 @@
     },
     {
         "id": "hy3131",
-        "type": "periph-hy3131",
+        "type": "hy3131",
         "name": "HY3131",
         "device": "cfg-hy3131",
         "z": "tab-hy3131-demo",

@@ -10,7 +10,11 @@
         "type": "inject",
         "z": "tab.rfid.mfrc522",
         "name": "poll every 500 ms",
-        "props": [{ "p": "payload" }],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "repeat": "0.5",
         "crontab": "",
         "once": false,
@@ -20,20 +24,35 @@
         "payloadType": "date",
         "x": 180,
         "y": 120,
-        "wires": [["node.mfrc522"]]
+        "wires": [
+            [
+                "node.mfrc522"
+            ]
+        ]
+    },
+    {
+        "id": "mfrc522-device-1",
+        "type": "mfrc522-device",
+        "name": "MFRC522",
+        "device": "0",
+        "speed": "1000000",
+        "bus": "0",
+        "pollInterval": "500"
     },
     {
         "id": "node.mfrc522",
-        "type": "periph-mfrc522",
+        "type": "mfrc522",
         "z": "tab.rfid.mfrc522",
         "name": "MFRC522 reader",
-        "bus": "0",
-        "device": "0",
-        "speed": "1000000",
-        "pollInterval": "500",
+        "device": "mfrc522-device-1",
         "x": 420,
         "y": 120,
-        "wires": [["switch.mfrc522", "debug.mfrc522.raw"]]
+        "wires": [
+            [
+                "switch.mfrc522",
+                "debug.mfrc522.raw"
+            ]
+        ]
     },
     {
         "id": "switch.mfrc522",
@@ -43,14 +62,20 @@
         "property": "payload.present",
         "propertyType": "msg",
         "rules": [
-            { "t": "true" }
+            {
+                "t": "true"
+            }
         ],
         "checkall": "true",
         "repair": false,
         "outputs": 1,
         "x": 680,
         "y": 120,
-        "wires": [["change.mfrc522.label"]]
+        "wires": [
+            [
+                "change.mfrc522.label"
+            ]
+        ]
     },
     {
         "id": "change.mfrc522.label",
@@ -58,7 +83,13 @@
         "z": "tab.rfid.mfrc522",
         "name": "format label",
         "rules": [
-            { "t": "set", "p": "payload", "pt": "msg", "to": "(\"Card detected: \" & msg.payload.uid)", "tot": "jsonata" }
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "(\"Card detected: \" & msg.payload.uid)",
+                "tot": "jsonata"
+            }
         ],
         "action": "",
         "property": "",
@@ -67,7 +98,11 @@
         "reg": false,
         "x": 880,
         "y": 120,
-        "wires": [["debug.mfrc522.detected"]]
+        "wires": [
+            [
+                "debug.mfrc522.detected"
+            ]
+        ]
     },
     {
         "id": "debug.mfrc522.detected",

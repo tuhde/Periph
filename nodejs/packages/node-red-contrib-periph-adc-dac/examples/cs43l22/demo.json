@@ -123,22 +123,28 @@
         ]
     },
     {
-        "id": "cs43l22-node",
-        "type": "periph-cs43l22",
-        "z": "tab-cs43l22-demo",
+        "id": "cs43l22-device-1",
+        "type": "cs43l22-device",
         "name": "CS43L22",
-        "bus": "1",
-        "address": "0x4A",
         "gpioChip": "0",
         "resGpio": "",
-        "format": "i2s",
+        "bus": "1",
+        "address": "0x4A",
+        "format": "i2s"
+    },
+    {
+        "id": "cs43l22-node",
+        "type": "cs43l22",
+        "z": "tab-cs43l22-demo",
+        "name": "CS43L22",
         "x": 580,
         "y": 150,
         "wires": [
             [
                 "dbg-out"
             ]
-        ]
+        ],
+        "device": "cs43l22-device-1"
     },
     {
         "id": "dbg-out",

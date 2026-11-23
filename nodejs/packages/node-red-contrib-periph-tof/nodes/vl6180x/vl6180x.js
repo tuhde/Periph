@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { VL6180XFull } = require('periph/src/chips/tof/vl6180x');
 
-    function VL6180XNode(config) {
+    function VL6180XDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const gainCode = parseInt(config.gain, 10);
@@ -17,6 +17,7 @@ module.exports = function(RED) {
             queue = run.catch(() => {});
             return run;
         };
+        node.serial = serial;
 
         try {
             const address = parseInt(config.address, 16) || VL6180XFull.I2C_ADDRESS;
@@ -37,16 +38,6 @@ module.exports = function(RED) {
             node.error('VL6180X init failed: ' + e.message);
         }
 
-        node.on('input', function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            serial(async () => {
-                const { mm, error } = await node.driver.readRangeStatus();
-                const lux = await node.driver.readLux();
-                msg.payload = { range_mm: mm, range_error: error, valid: error === 0, lux };
-                send(msg);
-            }).then(() => done(), (e) => done(e));
-        });
-
         node.on('close', function(removed, done) {
             serial(async () => {
                 if (node.connection) await node.connection.close();
@@ -55,5 +46,22 @@ module.exports = function(RED) {
             }).finally(() => done());
         });
     }
-    RED.nodes.registerType('periph-vl6180x', VL6180XNode);
+    RED.nodes.registerType('vl6180x-device', VL6180XDeviceNode);
+
+    function VL6180XReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            deviceNode.serial(async () => {
+                const { mm, error } = await deviceNode.driver.readRangeStatus();
+                const lux = await deviceNode.driver.readLux();
+                msg.payload = { range_mm: mm, range_error: error, valid: error === 0, lux };
+                send(msg);
+            }).then(() => done(), (e) => done(e));
+        });
+    }
+    RED.nodes.registerType('vl6180x', VL6180XReadNode);
 };

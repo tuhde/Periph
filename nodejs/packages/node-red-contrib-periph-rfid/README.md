@@ -16,7 +16,8 @@ npm install node-red-contrib-periph-rfid
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-mfrc522` | input | Detects ISO/IEC 14443 Type A cards in the field of an NXP MFRC522 13.56 MHz RFID/NFC reader and reads their UID. The node polls the chip on the configured interval and only emits a message when the card state changes (card inserted, removed, or a different card presented). |
+| `mfrc522-device` | config | Bus configuration for a MFRC522 |
+| `mfrc522` | input | Detects ISO/IEC 14443 Type A cards in the field of an NXP MFRC522 13.56 MHz RFID/NFC reader and reads their UID. The node polls the chip on the configured interval and only emits a message when the card state changes (card inserted, removed, or a different card presented). |
 
 ## Links
 

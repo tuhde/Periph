@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-cs43l22', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('cs43l22-device', {
+        category: 'config',
         defaults: {
             name:    { value: '' },
             bus:     { value: '1', required: true, validate: RED.validators.number() },
@@ -9,6 +9,55 @@
             gpioChip: { value: '0' },
             resGpio: { value: '' },
             format:  { value: 'i2s' }
+        },
+        label: function() {
+            return this.name || ('CS43L22 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="cs43l22-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="CS43L22">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:200px">
+            <option value="0x4A">0x4A (AD0 = DGND)</option>
+            <option value="0x4B">0x4B (AD0 = VL)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gpioChip"><i class="fa fa-plug"></i> GPIO chip</label>
+        <input type="number" id="node-config-input-gpioChip" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resGpio"><i class="fa fa-power-off"></i> RESET GPIO</label>
+        <input type="number" id="node-config-input-resGpio" min="0" style="width:80px" placeholder="optional"> &nbsp;line of the active-low RESET pin
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-format"><i class="fa fa-sliders"></i> Audio format</label>
+        <select id="node-config-input-format" style="width:200px">
+            <option value="i2s">I²S</option>
+            <option value="lj">Left-justified</option>
+            <option value="rj">Right-justified</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('cs43l22', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'cs43l22-device', required: true }
         },
         inputs:  1,
         outputs: 1,
@@ -18,41 +67,18 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-cs43l22">
+<script type="text/html" data-template-name="cs43l22">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="CS43L22">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
-        <select id="node-input-address" style="width:200px">
-            <option value="0x4A">0x4A (AD0 = DGND)</option>
-            <option value="0x4B">0x4B (AD0 = VL)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-gpioChip"><i class="fa fa-plug"></i> GPIO chip</label>
-        <input type="number" id="node-input-gpioChip" min="0" style="width:80px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-resGpio"><i class="fa fa-power-off"></i> RESET GPIO</label>
-        <input type="number" id="node-input-resGpio" min="0" style="width:80px" placeholder="optional"> &nbsp;line of the active-low RESET pin
-    </div>
-    <div class="form-row">
-        <label for="node-input-format"><i class="fa fa-sliders"></i> Audio format</label>
-        <select id="node-input-format" style="width:200px">
-            <option value="i2s">I²S</option>
-            <option value="lj">Left-justified</option>
-            <option value="rj">Right-justified</option>
-        </select>
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-cs43l22">
+<script type="text/html" data-help-name="cs43l22">
     <p>Controls a CS43L22 stereo DAC with headphone and speaker amplifiers over its I²C control port. The audio stream (I²S: MCLK, SCLK, LRCK, SDIN) comes from the board and is not handled by this node. Send <code>{ start: true }</code> only after MCLK is running.</p>
 
     <h3>Inputs</h3>

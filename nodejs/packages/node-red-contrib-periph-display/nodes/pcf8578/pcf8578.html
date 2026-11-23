@@ -43,7 +43,7 @@
 
 <!-- Input node: message → draw on the display -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pcf8578', {
+    RED.nodes.registerType('pcf8578', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -58,7 +58,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pcf8578">
+<script type="text/html" data-template-name="pcf8578">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -69,7 +69,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pcf8578">
+<script type="text/html" data-help-name="pcf8578">
     <p>Draws on a PCF8578 row/column LCD dot-matrix driver over I²C (stand-alone mixed mode). Any incoming message triggers the writes described below. The device is configured via a <b>pcf8578-device</b> config node.</p>
 
     <h3>Inputs</h3>

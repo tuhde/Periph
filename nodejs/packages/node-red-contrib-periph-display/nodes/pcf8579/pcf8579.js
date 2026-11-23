@@ -77,5 +77,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-pcf8579', PCF8579Node);
+    RED.nodes.registerType('pcf8579', PCF8579Node);
 };

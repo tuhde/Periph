@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "TMP102 Temperature Demo",
     "disabled": false,
-    "info": "An Inject node fires every second, triggering the periph-tmp102 node to read the temperature (12-bit, 0.0625 °C resolution, 4 Hz conversion rate). A Function node formats the reading as \"%.2f °C\" and a Debug node shows it in the sidebar. Change the conversion rate or the I²C address in the node's configuration panel (0x48-0x4B depending on the ADD0 strap)."
+    "info": "An Inject node fires every second, triggering the tmp102 node to read the temperature (12-bit, 0.0625 °C resolution, 4 Hz conversion rate). A Function node formats the reading as \"%.2f °C\" and a Debug node shows it in the sidebar. Change the conversion rate or the I²C address in the node's configuration panel (0x48-0x4B depending on the ADD0 strap)."
   },
   {
     "id": "inj-read",
@@ -20,19 +20,33 @@
     "z": "tab-tmp102-demo",
     "x": 160,
     "y": 100,
-    "wires": [["tmp102-node"]]
+    "wires": [
+      [
+        "tmp102-node"
+      ]
+    ]
   },
   {
-    "id": "tmp102-node",
-    "type": "periph-tmp102",
+    "id": "tmp102-device-1",
+    "type": "tmp102-device",
     "name": "TMP102",
     "bus": "1",
     "address": "0x48",
-    "conversionRate": "4",
+    "conversionRate": "4"
+  },
+  {
+    "id": "tmp102-node",
+    "type": "tmp102",
+    "name": "TMP102",
     "z": "tab-tmp102-demo",
     "x": 380,
     "y": 100,
-    "wires": [["fn-format"]]
+    "wires": [
+      [
+        "fn-format"
+      ]
+    ],
+    "device": "tmp102-device-1"
   },
   {
     "id": "fn-format",
@@ -44,7 +58,11 @@
     "z": "tab-tmp102-demo",
     "x": 600,
     "y": 100,
-    "wires": [["dbg-temp"]]
+    "wires": [
+      [
+        "dbg-temp"
+      ]
+    ]
   },
   {
     "id": "dbg-temp",

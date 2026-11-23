@@ -60,5 +60,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-is31fl3731', IS31FL3731Node);
+    RED.nodes.registerType('is31fl3731', IS31FL3731Node);
 };

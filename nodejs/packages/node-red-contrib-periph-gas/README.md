@@ -17,7 +17,7 @@ npm install node-red-contrib-periph-gas
 | Node | Kind | Description |
 |------|------|-------------|
 | `ens160-device` | config | Bus configuration for an ENS160 |
-| `periph-ens160` | input | Reads air quality (AQI, TVOC, eCO2) from an ENS160 digital multi-gas sensor. |
+| `ens160` | input | Reads air quality (AQI, TVOC, eCO2) from an ENS160 digital multi-gas sensor. |
 
 ## Links
 

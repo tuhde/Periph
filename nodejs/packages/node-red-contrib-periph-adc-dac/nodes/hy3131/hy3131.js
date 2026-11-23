@@ -53,5 +53,5 @@ module.exports = function(RED) {
             } catch (e) { done(e); }
         });
     }
-    RED.nodes.registerType('periph-hy3131', HY3131Node);
+    RED.nodes.registerType('hy3131', HY3131Node);
 };

@@ -31,12 +31,18 @@
     ]
   },
   {
-    "id": "hdc1008-node",
-    "type": "periph-hdc1008",
-    "z": "hdc1008-tab",
+    "id": "hdc1008-device-1",
+    "type": "hdc1008-device",
     "name": "HDC1008",
     "bus": "1",
     "address": "0x40",
+    "resolution": "14/14"
+  },
+  {
+    "id": "hdc1008-node",
+    "type": "hdc1008",
+    "z": "hdc1008-tab",
+    "name": "HDC1008",
     "x": 380,
     "y": 160,
     "wires": [
@@ -44,7 +50,7 @@
         "hdc1008-format"
       ]
     ],
-    "resolution": "14/14"
+    "device": "hdc1008-device-1"
   },
   {
     "id": "hdc1008-format",

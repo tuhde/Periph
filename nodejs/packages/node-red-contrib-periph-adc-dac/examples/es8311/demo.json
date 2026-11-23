@@ -141,7 +141,7 @@
     },
     {
         "id": "es8311",
-        "type": "periph-es8311",
+        "type": "es8311",
         "name": "ES8311",
         "device": "cfg-es8311",
         "z": "tab-es8311-demo",

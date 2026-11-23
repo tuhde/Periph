@@ -63,7 +63,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-fxos8700', {
+    RED.nodes.registerType('fxos8700', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -78,7 +78,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-fxos8700">
+<script type="text/html" data-template-name="fxos8700">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -89,7 +89,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-fxos8700">
+<script type="text/html" data-help-name="fxos8700">
     <p>Reads 3-axis acceleration, 3-axis magnetic flux density, the tilt-compensated compass heading
     and the die temperature from an NXP FXOS8700CQ 6-axis e-compass over I²C. The chip runs in
     hybrid mode, so both sensors are read with one 12-byte burst.</p>

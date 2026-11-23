@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { MAX44009Full } = require('periph/src/chips/light/max44009');
 
-    function MAX44009Node(config) {
+    function MAX44009DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address || '0x4A', 16);
             node.connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -38,34 +37,13 @@ module.exports = function(RED) {
                     await node.ready;
                     await node.driver.onInterrupt(async () => {
                         const lux = await node.driver.lux();
-                        node.send({ payload: { lux, interrupt: true } });
+                        node.emit('periph-data', { payload: { lux, interrupt: true } });
                     }, { intPin });
                 } catch (e) {
                     node.error('MAX44009 INT setup failed: ' + e.message);
                 }
             })();
         }
-
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(new Error('MAX44009 not initialised')); return; }
-            try {
-                await node.ready;
-                const p = msg.payload;
-                if (p && typeof p === 'object' && typeof p.low === 'number' && typeof p.high === 'number') {
-                    await node.driver.setThresholds(p.low, p.high);
-                    if (typeof p.delay === 'number') await node.driver.setThresholdDelay(p.delay);
-                    await node.driver.enableInterrupt();
-                    done();
-                    return;
-                }
-                const lux = await node.driver.lux();
-                msg.payload = { lux, overrange: node.driver.isOverrange() };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
 
         node.on('close', async function(removed, done) {
             try {
@@ -78,5 +56,38 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-max44009', MAX44009Node);
+    RED.nodes.registerType('max44009-device', MAX44009DeviceNode);
+
+    function MAX44009ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(new Error('MAX44009 not initialised')); return; }
+            try {
+                await deviceNode.ready;
+                const p = msg.payload;
+                if (p && typeof p === 'object' && typeof p.low === 'number' && typeof p.high === 'number') {
+                    await deviceNode.driver.setThresholds(p.low, p.high);
+                    if (typeof p.delay === 'number') await deviceNode.driver.setThresholdDelay(p.delay);
+                    await deviceNode.driver.enableInterrupt();
+                    done();
+                    return;
+                }
+                const lux = await deviceNode.driver.lux();
+                msg.payload = { lux, overrange: deviceNode.driver.isOverrange() };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('max44009', MAX44009ReadNode);
 };

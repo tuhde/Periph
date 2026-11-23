@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "DRV8830 Motor Ramp Demo",
         "disabled": false,
-        "info": "A battery-powered motor controller. An Inject node ticks once per second into a Function node that ramps msg.payload.voltage from 0 to 3.0 V in 0.5 V steps, holds 3.0 V for 5 s, then reverses to -3.0 V — the DRV8830 regulates that average voltage across the motor, so speed stays constant while the battery sags. A second, independent Inject node polls every 2 s (any message) so the periph-drv8830 node emits its fault status; a Function node checks msg.payload.fault and, if set, sends {stop: true} followed by {clear_fault: true} back into the driver to recover, while a Debug node shows every status reading."
+        "info": "A battery-powered motor controller. An Inject node ticks once per second into a Function node that ramps msg.payload.voltage from 0 to 3.0 V in 0.5 V steps, holds 3.0 V for 5 s, then reverses to -3.0 V — the DRV8830 regulates that average voltage across the motor, so speed stays constant while the battery sags. A second, independent Inject node polls every 2 s (any message) so the drv8830 node emits its fault status; a Function node checks msg.payload.fault and, if set, sends {stop: true} followed by {clear_fault: true} back into the driver to recover, while a Debug node shows every status reading."
     },
     {
         "id": "inj-ramp",
@@ -63,11 +63,16 @@
         ]
     },
     {
-        "id": "drv8830-node",
-        "type": "periph-drv8830",
+        "id": "drv8830-device-1",
+        "type": "drv8830-device",
         "name": "DRV8830",
         "bus": "1",
-        "address": "0x60",
+        "address": "0x60"
+    },
+    {
+        "id": "drv8830-node",
+        "type": "drv8830",
+        "name": "DRV8830",
         "z": "tab-drv8830-demo",
         "x": 540,
         "y": 140,
@@ -75,7 +80,8 @@
             [
                 "fn-guard"
             ]
-        ]
+        ],
+        "device": "drv8830-device-1"
     },
     {
         "id": "fn-guard",

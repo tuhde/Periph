@@ -8,7 +8,7 @@
     },
     {
         "id": "bmp085-read-1",
-        "type": "periph-bmp085",
+        "type": "bmp085",
         "name": "BMP085",
         "device": "bmp085-device-1",
         "seaLevelPa": "101325",

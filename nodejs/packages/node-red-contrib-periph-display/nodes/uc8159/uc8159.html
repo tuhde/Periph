@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-uc8159', {
-        category: 'Peripheral',
-        color:    '#C084FC',
+    RED.nodes.registerType('uc8159-device', {
+        category: 'config',
         defaults: {
             name:        { value: '' },
             spiBus:      { value: '0', required: true, validate: RED.validators.number() },
@@ -14,6 +14,64 @@
             busyTimeout: { value: '60000', required: true, validate: RED.validators.number() },
             autoShow:    { value: false }
         },
+        label: function() {
+            return this.name || 'UC8159';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="uc8159-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="UC8159">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-spiBus" min="0" style="width:70px">
+        &nbsp;chip select <input type="number" id="node-config-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-config-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-dcPin">D/C# line</label>
+        <input type="number" id="node-config-input-dcPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resPin">RES# line</label>
+        <input type="number" id="node-config-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-busyPin">BUSY line</label>
+        <input type="number" id="node-config-input-busyPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-wireMode">Wire mode</label>
+        <select id="node-config-input-wireMode" style="width:260px">
+            <option value="simplex">Simplex (MOSI to DIN, write only)</option>
+            <option value="pin">Half-duplex pin (MOSI-resistor-MISO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-busyTimeout">BUSY timeout (ms)</label>
+        <input type="number" id="node-config-input-busyTimeout" min="0" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-autoShow">Auto-show</label>
+        <input type="checkbox" id="node-config-input-autoShow" style="width:auto"> refresh after every drawing message
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('uc8159', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            device: { value: '', type: 'uc8159-device', required: true }
+        },
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-television',
@@ -22,50 +80,18 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-uc8159">
+<script type="text/html" data-template-name="uc8159">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="UC8159">
     </div>
     <div class="form-row">
-        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
-        <input type="number" id="node-input-spiBus" min="0" style="width:70px">
-        &nbsp;chip select <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-gpioChip">GPIO chip</label>
-        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-dcPin">D/C# line</label>
-        <input type="number" id="node-input-dcPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-resPin">RES# line</label>
-        <input type="number" id="node-input-resPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-busyPin">BUSY line</label>
-        <input type="number" id="node-input-busyPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-wireMode">Wire mode</label>
-        <select id="node-input-wireMode" style="width:260px">
-            <option value="simplex">Simplex (MOSI to DIN, write only)</option>
-            <option value="pin">Half-duplex pin (MOSI-resistor-MISO)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-busyTimeout">BUSY timeout (ms)</label>
-        <input type="number" id="node-input-busyTimeout" min="0" style="width:100px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-autoShow">Auto-show</label>
-        <input type="checkbox" id="node-input-autoShow" style="width:auto"> refresh after every drawing message
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-uc8159">
+<script type="text/html" data-help-name="uc8159">
     <p>Draws on a UC8159 seven-colour e-paper panel (600 x 448, e.g. Waveshare 5.65inch e-Paper (F)) over SPI. Drawing messages change the framebuffer only; <code>show</code> sends it and refreshes the panel, which blocks the node for about 30 seconds.</p>
 
     <h3>Inputs</h3>

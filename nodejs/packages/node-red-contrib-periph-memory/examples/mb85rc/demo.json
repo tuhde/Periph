@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "MB85RC Boot Counter",
         "disabled": false,
-        "info": "Demonstrates non-volatile FRAM state. Every 5 seconds a function node reads a 4-byte big-endian counter at address 0x0000 through periph-mb85rc, increments it and writes it back (no write delay needed). The Debug node shows the counter, which survives a Node-RED restart or power loss."
+        "info": "Demonstrates non-volatile FRAM state. Every 5 seconds a function node reads a 4-byte big-endian counter at address 0x0000 through mb85rc, increments it and writes it back (no write delay needed). The Debug node shows the counter, which survives a Node-RED restart or power loss."
     },
     {
         "id": "cfg-mb85rc",
@@ -31,7 +31,7 @@
     },
     {
         "id": "rd",
-        "type": "periph-mb85rc",
+        "type": "mb85rc",
         "name": "Read counter",
         "device": "cfg-mb85rc",
         "z": "tab-mb85rc-demo",
@@ -52,7 +52,7 @@
     },
     {
         "id": "wr",
-        "type": "periph-mb85rc",
+        "type": "mb85rc",
         "name": "Write counter",
         "device": "cfg-mb85rc",
         "z": "tab-mb85rc-demo",

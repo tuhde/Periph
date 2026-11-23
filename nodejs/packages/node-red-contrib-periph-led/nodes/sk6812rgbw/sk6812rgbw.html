@@ -39,7 +39,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('periph-sk6812rgbw', {
+    RED.nodes.registerType('sk6812rgbw', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -54,7 +54,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-sk6812rgbw">
+<script type="text/html" data-template-name="sk6812rgbw">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -65,7 +65,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-sk6812rgbw">
+<script type="text/html" data-help-name="sk6812rgbw">
     <p>Controls an SK6812RGBW addressable RGBW LED strip over SPI (NeoPixel protocol).</p>
     <p>Any input message triggers a strip update. Configure SPI bus, device, pixel count,
     and default brightness in the <b>sk6812rgbw-device</b> config node.</p>

@@ -74,7 +74,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mma8451q', {
+    RED.nodes.registerType('mma8451q', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -89,7 +89,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mma8451q">
+<script type="text/html" data-template-name="mma8451q">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -100,7 +100,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mma8451q">
+<script type="text/html" data-help-name="mma8451q">
     <p>Reads 3-axis acceleration and the hardware orientation detection from an MMA8451Q 3-axis accelerometer over I²C.</p>
     <p>Any input message triggers a measurement. The device is configured via an <b>mma8451q-device</b> config node.</p>
 

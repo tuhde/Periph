@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "MPL115A2 demo",
         "disabled": false,
-        "info": "Barometer: an inject node triggers a conversion every 5 s; the periph-mpl115a2 node outputs { pressure_pa, temperature_c }; a function node converts the pressure to hPa for the debug sidebar."
+        "info": "Barometer: an inject node triggers a conversion every 5 s; the mpl115a2 node outputs { pressure_pa, temperature_c }; a function node converts the pressure to hPa for the debug sidebar."
     },
     {
         "id": "mpl115a2-device-1",
@@ -14,7 +14,7 @@
     },
     {
         "id": "mpl115a2-read-1",
-        "type": "periph-mpl115a2",
+        "type": "mpl115a2",
         "z": "mpl115a2-tab",
         "name": "MPL115A2",
         "device": "mpl115a2-device-1",

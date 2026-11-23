@@ -7,19 +7,29 @@
         "info": "Seeks to the next FM station every 3 seconds and prints the resulting frequency, signal strength, and stereo/mono status to the debug panel — like pressing \"seek\" on a real radio, watched live."
     },
     {
-        "id": "cfg-rda5807m",
-        "type": "periph-rda5807m",
+        "id": "rda5807m-device-1",
+        "type": "rda5807m-device",
         "name": "RDA5807M",
-        "bus": "1",
-        "address": "10",
-        "band": "2",
-        "space": "0",
         "frequency": "87.5",
+        "band": "2",
+        "bus": "1",
         "volume": "10",
+        "space": "0",
+        "address": "10"
+    },
+    {
+        "id": "cfg-rda5807m",
+        "type": "rda5807m",
+        "name": "RDA5807M",
         "z": "tab-rda5807m-demo",
         "x": 320,
         "y": 160,
-        "wires": [["fmt-readings"]]
+        "wires": [
+            [
+                "fmt-readings"
+            ]
+        ],
+        "device": "rda5807m-device-1"
     },
     {
         "id": "inj-seek",
@@ -35,7 +45,11 @@
         "z": "tab-rda5807m-demo",
         "x": 130,
         "y": 160,
-        "wires": [["cfg-rda5807m"]]
+        "wires": [
+            [
+                "cfg-rda5807m"
+            ]
+        ]
     },
     {
         "id": "fmt-readings",
@@ -50,7 +64,11 @@
         "z": "tab-rda5807m-demo",
         "x": 500,
         "y": 160,
-        "wires": [["dbg-readings"]]
+        "wires": [
+            [
+                "dbg-readings"
+            ]
+        ]
     },
     {
         "id": "dbg-readings",

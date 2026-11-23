@@ -45,28 +45,34 @@
         ]
     },
     {
-        "id": "uc8159_node",
-        "type": "periph-uc8159",
-        "z": "uc8159_tab",
-        "name": "",
-        "spiBus": "0",
-        "spiDevice": "0",
+        "id": "uc8159-device-1",
+        "type": "uc8159-device",
+        "name": "UC8159",
+        "busyTimeout": "30000",
         "gpioChip": "0",
-        "dcPin": "25",
+        "spiBus": "0",
         "resPin": "17",
         "busyPin": "24",
+        "autoShow": false,
+        "dcPin": "25",
         "wireMode": "simplex",
+        "spiDevice": "0"
+    },
+    {
+        "id": "uc8159_node",
+        "type": "uc8159",
+        "z": "uc8159_tab",
+        "name": "",
         "width": "400",
         "height": "300",
-        "busyTimeout": "30000",
-        "autoShow": false,
         "x": 590,
         "y": 100,
         "wires": [
             [
                 "uc8159_updated"
             ]
-        ]
+        ],
+        "device": "uc8159-device-1"
     },
     {
         "id": "uc8159_updated",

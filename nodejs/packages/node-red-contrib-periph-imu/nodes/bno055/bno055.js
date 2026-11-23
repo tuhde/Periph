@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { BNO055Full } = require('periph/src/chips/imu/bno055');
 
-    function BNO055Node(config) {
+    function BNO055DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -25,16 +25,27 @@ module.exports = function(RED) {
             node.error('BNO055 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('bno055-device', BNO055DeviceNode);
+
+    function BNO055ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('BNO055 not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [heading, roll, pitch] = await node.driver.euler();
-                const [sys, gyr, acc, mag] = await node.driver.calibrationStatus();
+                await deviceNode.ready;
+                const [heading, roll, pitch] = await deviceNode.driver.euler();
+                const [sys, gyr, acc, mag] = await deviceNode.driver.calibrationStatus();
                 msg.payload = { heading, roll, pitch, calibration: { sys, gyr, acc, mag } };
                 send(msg);
                 done();
@@ -42,10 +53,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-bno055', BNO055Node);
+    RED.nodes.registerType('bno055', BNO055ReadNode);
 };

@@ -72,5 +72,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-pca9685', PCA9685Node);
+    RED.nodes.registerType('pca9685', PCA9685Node);
 };

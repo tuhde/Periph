@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "DS1881 Volume Demo",
         "disabled": false,
-        "info": "Stereo volume control with a DS1881 dual audio potentiometer. An Inject node ticks every 200 ms into a Function node that ramps the attenuation from 0 dB to 40 dB in 2 dB steps and back; the periph-ds1881 node sets both channels and returns {position0, position1, db0, db1}, which a Debug node shows. Two more Inject nodes send {mute: true} and {mute: false} (the last volume is restored on unmute), a third reads back both channels with the configuration, and a fourth sends {store: true} to persist the positions to EEPROM (the chip is rated for only 50 000 writes, so leave that one alone unless needed). The wipers are volatile by default, so after a power cycle both channels start muted until the ramp runs."
+        "info": "Stereo volume control with a DS1881 dual audio potentiometer. An Inject node ticks every 200 ms into a Function node that ramps the attenuation from 0 dB to 40 dB in 2 dB steps and back; the ds1881 node sets both channels and returns {position0, position1, db0, db1}, which a Debug node shows. Two more Inject nodes send {mute: true} and {mute: false} (the last volume is restored on unmute), a third reads back both channels with the configuration, and a fourth sends {store: true} to persist the positions to EEPROM (the chip is rated for only 50 000 writes, so leave that one alone unless needed). The wipers are volatile by default, so after a power cycle both channels start muted until the ramp runs."
     },
     {
         "id": "inj-ramp",
@@ -123,13 +123,19 @@
         ]
     },
     {
-        "id": "ds1881-node",
-        "type": "periph-ds1881",
+        "id": "ds1881-device-1",
+        "type": "ds1881-device",
         "name": "DS1881",
-        "bus": "1",
+        "address": "0x28",
         "option": "1",
-        "zerocrossing": true,
         "nonvolatile": false,
+        "zerocrossing": true,
+        "bus": "1"
+    },
+    {
+        "id": "ds1881-node",
+        "type": "ds1881",
+        "name": "DS1881",
         "z": "tab-ds1881-demo",
         "x": 560,
         "y": 140,
@@ -138,7 +144,7 @@
                 "dbg-ds1881"
             ]
         ],
-        "address": "0x28"
+        "device": "ds1881-device-1"
     },
     {
         "id": "dbg-ds1881",

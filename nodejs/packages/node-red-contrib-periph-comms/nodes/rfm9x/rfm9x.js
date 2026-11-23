@@ -11,10 +11,9 @@ module.exports = function(RED) {
     const { SPIConnection } = require('periph/src/connection/spi');
     const rfm9x             = require('periph/src/chips/comms/rfm9x');
 
-    function RFM9xNode(config) {
+    function RFM9xDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const variant = VARIANTS[config.variant] || VARIANTS['RFM95W'];
             const connection = new SPIConnection(
@@ -34,10 +33,21 @@ module.exports = function(RED) {
             node.error('RFM9x init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('rfm9x-device', RFM9xDeviceNode);
+
+    function RFM9xReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.radio) { done(new Error('RFM9x not initialised')); return; }
+            if (!deviceNode.radio) { done(new Error('RFM9x not initialised')); return; }
             try {
-                const d = node.radio;
+                const d = deviceNode.radio;
                 const p = msg.payload || {};
 
                 if (p.command === 'send') {
@@ -71,10 +81,6 @@ module.exports = function(RED) {
                 done(new Error('payload.command must be "send", "receive", or "frequency"'));
             } catch (e) { done(e); }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-rfm9x', RFM9xNode);
+    RED.nodes.registerType('rfm9x', RFM9xReadNode);
 };

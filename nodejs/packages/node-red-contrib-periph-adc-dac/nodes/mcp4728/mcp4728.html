@@ -28,7 +28,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mcp4728', {
+    RED.nodes.registerType('mcp4728', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -48,7 +48,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mcp4728">
+<script type="text/html" data-template-name="mcp4728">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -93,7 +93,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mcp4728">
+<script type="text/html" data-help-name="mcp4728">
     <p>Sets the output voltage of one channel (A–D) of an MCP4728 quad-channel 12-bit DAC over I²C.</p>
     <p>Any input message triggers a DAC write. The device is configured via an <b>mcp4728-device</b> config node. Pass a 4-element array as <code>msg.payload</code> to update all four channels simultaneously via Fast Write.</p>
 

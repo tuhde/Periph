@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "DS3231 Backup Clock Demo",
         "disabled": false,
-        "info": "An Inject node fires every 10 seconds, triggering the periph-ds3231 node to read the current date/time and temperature. A one-shot Inject node (firing shortly after deploy) sends msg.payload.datetime built from the host's Date.now(), synchronizing the RTC to the host clock. The node is configured with Alarm 1 enabled in \"once per minute\" mode (seconds match, at :00); each time it fires, the node emits a separate {source: \"alarm1\"} message. A single Function node formats either shape of message into a log line, and a Debug node prints it — showing the interrupt-driven alarm path alongside the polled read in one flow."
+        "info": "An Inject node fires every 10 seconds, triggering the ds3231 node to read the current date/time and temperature. A one-shot Inject node (firing shortly after deploy) sends msg.payload.datetime built from the host's Date.now(), synchronizing the RTC to the host clock. The node is configured with Alarm 1 enabled in \"once per minute\" mode (seconds match, at :00); each time it fires, the node emits a separate {source: \"alarm1\"} message. A single Function node formats either shape of message into a log line, and a Debug node prints it — showing the interrupt-driven alarm path alongside the polled read in one flow."
     },
     {
         "id": "inj-read",
@@ -20,7 +20,11 @@
         "z": "tab-ds3231-demo",
         "x": 160,
         "y": 100,
-        "wires": [["ds3231-node"]]
+        "wires": [
+            [
+                "ds3231-node"
+            ]
+        ]
     },
     {
         "id": "inj-sync",
@@ -36,7 +40,11 @@
         "z": "tab-ds3231-demo",
         "x": 170,
         "y": 220,
-        "wires": [["fn-build-datetime"]]
+        "wires": [
+            [
+                "fn-build-datetime"
+            ]
+        ]
     },
     {
         "id": "fn-build-datetime",
@@ -48,33 +56,47 @@
         "z": "tab-ds3231-demo",
         "x": 440,
         "y": 220,
-        "wires": [["ds3231-node"]]
+        "wires": [
+            [
+                "ds3231-node"
+            ]
+        ]
+    },
+    {
+        "id": "ds3231-device-1",
+        "type": "ds3231-device",
+        "name": "DS3231",
+        "bus": "1",
+        "alarm1Minute": "0",
+        "squareWaveEnabled": false,
+        "alarm2Enabled": false,
+        "alarm1MatchMode": "14",
+        "alarm2Minute": "0",
+        "alarm1Second": "0",
+        "alarm1Hour": "0",
+        "alarm2Hour": "0",
+        "alarm1DayOrDate": "1",
+        "alarm2MatchMode": "7",
+        "alarm2DayOrDate": "1",
+        "squareWaveBatteryBacked": false,
+        "alarm1IsDayOfWeek": false,
+        "alarm1Enabled": true,
+        "squareWaveRate": "8192",
+        "alarm2IsDayOfWeek": false
     },
     {
         "id": "ds3231-node",
-        "type": "periph-ds3231",
+        "type": "ds3231",
         "name": "DS3231",
-        "bus": "1",
-        "alarm1Enabled": true,
-        "alarm1MatchMode": "14",
-        "alarm1Second": "0",
-        "alarm1Minute": "0",
-        "alarm1Hour": "0",
-        "alarm1DayOrDate": "1",
-        "alarm1IsDayOfWeek": false,
-        "alarm2Enabled": false,
-        "alarm2MatchMode": "7",
-        "alarm2Minute": "0",
-        "alarm2Hour": "0",
-        "alarm2DayOrDate": "1",
-        "alarm2IsDayOfWeek": false,
-        "squareWaveEnabled": false,
-        "squareWaveRate": "8192",
-        "squareWaveBatteryBacked": false,
         "z": "tab-ds3231-demo",
         "x": 400,
         "y": 100,
-        "wires": [["fn-format"]]
+        "wires": [
+            [
+                "fn-format"
+            ]
+        ],
+        "device": "ds3231-device-1"
     },
     {
         "id": "fn-format",
@@ -86,7 +108,11 @@
         "z": "tab-ds3231-demo",
         "x": 630,
         "y": 100,
-        "wires": [["dbg-log"]]
+        "wires": [
+            [
+                "dbg-log"
+            ]
+        ]
     },
     {
         "id": "dbg-log",

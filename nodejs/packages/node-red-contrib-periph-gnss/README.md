@@ -16,7 +16,8 @@ npm install node-red-contrib-periph-gnss
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-neo6` | input | Reads NMEA position, altitude, and fix status from a u-blox NEO-6 GNSS receiver over UART, I&sup2;C (DDC), or SPI. |
+| `neo6-device` | config | Bus configuration for a NEO6 |
+| `neo6` | input | Reads NMEA position, altitude, and fix status from a u-blox NEO-6 GNSS receiver over UART, I&sup2;C (DDC), or SPI. |
 
 ## Links
 

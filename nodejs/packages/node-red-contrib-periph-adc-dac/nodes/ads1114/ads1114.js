@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { ADS1114Full }       = require('periph/src/chips/adc_dac/ads1114');
 
-    function ADS1114Node(config) {
+    function ADS1114DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -18,11 +18,23 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('ADS1114 init failed: ' + e.message);
         }
+
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('ads1114-device', ADS1114DeviceNode);
+
+    function ADS1114ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
+            if (!deviceNode.driver) { done(); return; }
             try {
-                await node.ready;
-                const driver = node.driver;
+                await deviceNode.ready;
+                const driver = deviceNode.driver;
                 const raw = await driver.readRaw();
                 msg.payload = { raw, voltage: raw * driver.lsb() };
                 send(msg);
@@ -31,9 +43,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-ads1114', ADS1114Node);
+    RED.nodes.registerType('ads1114', ADS1114ReadNode);
 };

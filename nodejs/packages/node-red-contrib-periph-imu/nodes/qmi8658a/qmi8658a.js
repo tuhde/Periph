@@ -5,7 +5,7 @@ module.exports = function(RED) {
     const { SPIConnection } = require('periph/src/connection/spi');
     const { QMI8658AFull } = require('periph/src/chips/imu/qmi8658a');
 
-    function QMI8658ANode(config) {
+    function QMI8658ADeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -36,15 +36,26 @@ module.exports = function(RED) {
             node.error('QMI8658A init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('qmi8658a-device', QMI8658ADeviceNode);
+
+    function QMI8658AReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('QMI8658A not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [accel, gyro, temperature] = await node.driver.readAll();
+                await deviceNode.ready;
+                const [accel, gyro, temperature] = await deviceNode.driver.readAll();
                 msg.payload = {
                     accel: { x: accel[0], y: accel[1], z: accel[2] },
                     gyro: { x: gyro[0], y: gyro[1], z: gyro[2] },
@@ -56,10 +67,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-qmi8658a', QMI8658ANode);
+    RED.nodes.registerType('qmi8658a', QMI8658AReadNode);
 };

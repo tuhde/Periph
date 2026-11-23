@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { Pca6416aFull } = require('periph/src/chips/io_expander/pca6416a');
 
-    function Pca6416aNode(config) {
+    function Pca6416aDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -27,7 +27,7 @@ module.exports = function(RED) {
                     await node.chip.ready;
                     await node.chip.onInterrupt(async (changed) => {
                         const value = await node.chip.readAll();
-                        node.send({ payload: { changed, value } });
+                        node.emit('periph-data', { payload: { changed, value } });
                     }, { intPin });
                 } catch (e) {
                     node.error('PCA6416A INT setup failed: ' + e.message);
@@ -35,25 +35,42 @@ module.exports = function(RED) {
             })();
         }
 
+        node.on('close', async function() {
+            if (node.chip) await node.chip.offInterrupt();
+            if (node.connection) await node.connection.close();
+        });
+    }
+    RED.nodes.registerType('pca6416a-device', Pca6416aDeviceNode);
+
+    function Pca6416aReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
         node.on('input', async function(msg, send, done) {
-            if (!node.chip) { done(new Error('PCA6416A not initialised')); return; }
+            if (!deviceNode.chip) { done(new Error('PCA6416A not initialised')); return; }
             try {
                 const p = msg.payload;
                 if (p && typeof p.pin === 'number' && typeof p.value === 'number') {
-                    const pin = node.chip.pin(p.pin);
-                    if ((node.chip._direction >> p.pin) & 1) await pin.setDirection('out');
+                    const pin = deviceNode.chip.pin(p.pin);
+                    if ((deviceNode.chip._direction >> p.pin) & 1) await pin.setDirection('out');
                     await pin.write(p.value ? 1 : 0);
                     done();
                 } else if (p && typeof p.pin === 'number') {
-                    msg.payload = { pin: p.pin, value: ((await node.chip.readAll()) >> p.pin) & 1 };
+                    msg.payload = { pin: p.pin, value: ((await deviceNode.chip.readAll()) >> p.pin) & 1 };
                     send(msg);
                     done();
                 } else if (p && typeof p.port === 'number') {
-                    msg.payload = { port: p.port, value: await node.chip.readPort(p.port) };
+                    msg.payload = { port: p.port, value: await deviceNode.chip.readPort(p.port) };
                     send(msg);
                     done();
                 } else if (p && typeof p === 'object') {
-                    msg.payload = { value: await node.chip.readAll() };
+                    msg.payload = { value: await deviceNode.chip.readAll() };
                     send(msg);
                     done();
                 } else {
@@ -61,12 +78,6 @@ module.exports = function(RED) {
                 }
             } catch (e) { done(e); }
         });
-
-        node.on('close', async function() {
-            if (node.chip) await node.chip.offInterrupt();
-            if (node.connection) await node.connection.close();
-        });
     }
-
-    RED.nodes.registerType('periph-pca6416a', Pca6416aNode);
+    RED.nodes.registerType('pca6416a', Pca6416aReadNode);
 };

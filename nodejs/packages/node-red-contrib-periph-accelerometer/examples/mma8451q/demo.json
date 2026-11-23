@@ -35,7 +35,7 @@
     },
     {
         "id": "read-mma8451q",
-        "type": "periph-mma8451q",
+        "type": "mma8451q",
         "name": "MMA8451Q read",
         "device": "cfg-mma8451q",
         "z": "tab-mma8451q-demo",

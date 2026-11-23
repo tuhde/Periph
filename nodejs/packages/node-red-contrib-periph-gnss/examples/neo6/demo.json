@@ -4,23 +4,34 @@
         "type": "tab",
         "label": "NEO-6 GPS Logger Demo",
         "disabled": false,
-        "info": "Injects a timestamp trigger every second into the periph-neo6 node, which reads the current NMEA fix over UART. A Function node formats the output as a '$lat,$lon' CSV string once a fix is available (and shows a waiting indicator with the satellite count while there is none), feeding a WorldMap node that plots the live position. A Debug node logs the full raw fix object (lat, lon, alt, fix, satellites, speed, course, time, date, hdop) to the sidebar.\n\nCold-start TTFF is ~26 s typical outdoors with a clear sky view; the fix quality field stays 0 until then, so expect the WorldMap marker to appear a little after the flow is deployed.",
+        "info": "Injects a timestamp trigger every second into the neo6 node, which reads the current NMEA fix over UART. A Function node formats the output as a '$lat,$lon' CSV string once a fix is available (and shows a waiting indicator with the satellite count while there is none), feeding a WorldMap node that plots the live position. A Debug node logs the full raw fix object (lat, lon, alt, fix, satellites, speed, course, time, date, hdop) to the sidebar.\n\nCold-start TTFF is ~26 s typical outdoors with a clear sky view; the fix quality field stays 0 until then, so expect the WorldMap marker to appear a little after the flow is deployed.",
         "locked": false
     },
     {
+        "id": "neo6-device-1",
+        "type": "neo6-device",
+        "name": "NEO6",
+        "bus": "1",
+        "port": "/dev/ttyS0",
+        "busType": "uart",
+        "baud": "9600",
+        "device": "0",
+        "addr": "0x42"
+    },
+    {
         "id": "neo6-read-1",
-        "type": "periph-neo6",
+        "type": "neo6",
         "z": "neo6-tab-1",
         "name": "NEO-6 GPS",
-        "busType": "uart",
-        "port": "/dev/ttyS0",
-        "baud": "9600",
-        "bus": "1",
-        "device": "0",
-        "addr": "0x42",
+        "device": "neo6-device-1",
         "x": 260,
         "y": 200,
-        "wires": [["neo6-format-1", "debug-1"]]
+        "wires": [
+            [
+                "neo6-format-1",
+                "debug-1"
+            ]
+        ]
     },
     {
         "id": "inject-timer-1",
@@ -35,7 +46,11 @@
         "onceDelay": "0.1",
         "x": 80,
         "y": 200,
-        "wires": [["neo6-read-1"]]
+        "wires": [
+            [
+                "neo6-read-1"
+            ]
+        ]
     },
     {
         "id": "neo6-format-1",
@@ -46,7 +61,11 @@
         "outputs": 1,
         "x": 480,
         "y": 240,
-        "wires": [["worldmap-1"]]
+        "wires": [
+            [
+                "worldmap-1"
+            ]
+        ]
     },
     {
         "id": "debug-1",

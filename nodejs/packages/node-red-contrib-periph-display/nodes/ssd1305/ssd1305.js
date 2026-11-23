@@ -6,10 +6,10 @@ module.exports = function(RED) {
     const { GpioOutputPin } = require('periph/src/connection/output_pin');
     const S = require('periph/src/chips/display/ssd1305');
 
-    function SSD1305Node(config) {
+    function SSD1305DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const autoShow = config.autoShow !== false && config.autoShow !== 'false';
+        node.transport = config.transport;
 
         try {
             const width = parseInt(config.width || 128, 10);
@@ -38,6 +38,20 @@ module.exports = function(RED) {
             node.error('SSD1305 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.i2c) node.i2c.close();
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('ssd1305-device', SSD1305DeviceNode);
+
+    function SSD1305ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        const autoShow = config.autoShow !== false && config.autoShow !== 'false';
+
         // Messages are handled one at a time: two overlapping transfers would corrupt each other.
         let queue = Promise.resolve();
         node.on('input', function(msg, send, done) {
@@ -45,8 +59,8 @@ module.exports = function(RED) {
         });
 
         async function handle(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            const d = node.driver;
+            if (!deviceNode.driver) { done(); return; }
+            const d = deviceNode.driver;
             let p = msg.payload;
             try {
                 await d.ready();
@@ -78,7 +92,7 @@ module.exports = function(RED) {
                 }
                 if (p.show || (draw && autoShow)) await d.show();
                 if (p.status) {
-                    if (config.transport === 'spi') throw new Error('status read is not available over SPI');
+                    if (deviceNode.transport === 'spi') throw new Error('status read is not available over SPI');
                     send({ payload: { status: await d.readStatus() } });
                 }
                 node.status({ fill: 'green', shape: 'dot', text: 'ready' });
@@ -88,11 +102,6 @@ module.exports = function(RED) {
                 done(e);
             }
         }
-
-        node.on('close', function() {
-            if (node.i2c) node.i2c.close();
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-ssd1305', SSD1305Node);
+    RED.nodes.registerType('ssd1305', SSD1305ReadNode);
 };

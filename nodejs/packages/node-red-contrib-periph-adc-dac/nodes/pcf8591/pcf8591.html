@@ -1,11 +1,41 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pcf8591', {
+    RED.nodes.registerType('pcf8591-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '48', required: true }
+        },
+        label: function() {
+            return this.name || ('PCF8591 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pcf8591-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCF8591">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="48" style="width:80px"> &nbsp;default: 48 (0x48)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('pcf8591', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
             name:    { value: '' },
-            bus:     { value: '1', required: true, validate: RED.validators.number() },
-            address: { value: '48', required: true },
+            device: { value: '', type: 'pcf8591-device', required: true },
             inputMode: { value: '4 single-ended' }
         },
         inputs:  1,
@@ -16,18 +46,14 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pcf8591">
+<script type="text/html" data-template-name="pcf8591">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="PCF8591">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address">Address (hex)</label>
-        <input type="text" id="node-input-address" placeholder="48" style="width:80px"> &nbsp;default: 48 (0x48)
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
     <div class="form-row">
         <label for="node-input-inputMode"><i class="fa fa-cog"></i> Input mode</label>
@@ -40,7 +66,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pcf8591">
+<script type="text/html" data-help-name="pcf8591">
     <p>Reads the four analog inputs of a PCF8591 8-bit ADC/DAC over I²C. Default address is <code>0x48</code>; any address in the range <code>0x48</code>–<code>0x4F</code> is valid depending on the A0/A1/A2 pin states.</p>
 
     <h3>Inputs</h3>

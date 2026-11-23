@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { DS3231Full } = require('periph/src/chips/rtc/ds3231');
 
-    function DS3231Node(config) {
+    function DS3231DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const connection = new I2CConnection(parseInt(config.bus, 10), 0x68);
             node.driver = new DS3231Full(connection);
@@ -43,8 +42,8 @@ module.exports = function(RED) {
                 }
                 if (alarmsEnabled) {
                     await node.driver.onInterrupt((status) => {
-                        if (status & DS3231Full.SOURCE_ALARM1) node.send({ payload: { source: 'alarm1' } });
-                        if (status & DS3231Full.SOURCE_ALARM2) node.send({ payload: { source: 'alarm2' } });
+                        if (status & DS3231Full.SOURCE_ALARM1) node.emit('periph-data', { payload: { source: 'alarm1' } });
+                        if (status & DS3231Full.SOURCE_ALARM2) node.emit('periph-data', { payload: { source: 'alarm2' } });
                     });
                 } else if (config.squareWaveEnabled) {
                     await node.driver.enableSquareWave(
@@ -56,25 +55,6 @@ module.exports = function(RED) {
             node.error('DS3231 init failed: ' + e.message);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                if (msg.payload && msg.payload.datetime) {
-                    const d = msg.payload.datetime;
-                    await node.driver.setDatetime(d.year, d.month, d.day, d.weekday, d.hour, d.minute, d.second);
-                    done();
-                    return;
-                }
-                const dt = await node.driver.getDatetime();
-                const temperatureC = await node.driver.readTemperature();
-                msg.payload = { ...dt, temperature_c: temperatureC };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.driver) await node.driver.offInterrupt();
@@ -84,5 +64,36 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ds3231', DS3231Node);
+    RED.nodes.registerType('ds3231-device', DS3231DeviceNode);
+
+    function DS3231ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                if (msg.payload && msg.payload.datetime) {
+                    const d = msg.payload.datetime;
+                    await deviceNode.driver.setDatetime(d.year, d.month, d.day, d.weekday, d.hour, d.minute, d.second);
+                    done();
+                    return;
+                }
+                const dt = await deviceNode.driver.getDatetime();
+                const temperatureC = await deviceNode.driver.readTemperature();
+                msg.payload = { ...dt, temperature_c: temperatureC };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('ds3231', DS3231ReadNode);
 };

@@ -66,5 +66,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-bme680', BME680ReadNode);
+    RED.nodes.registerType('bme680', BME680ReadNode);
 };

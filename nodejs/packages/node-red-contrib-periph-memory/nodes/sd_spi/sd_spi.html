@@ -11,7 +11,7 @@
             speed:    { value: '12000000', required: true, validate: RED.validators.number() }
         },
         label: function() {
-            return this.name || ('SD card @ spidev' + this.bus + '.' + this.device);
+            return this.name || ('SD-SPI @ spidev' + this.bus + '.' + this.device);
         }
     });
 </script>
@@ -55,8 +55,8 @@
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-hdd-o',
-        label:   function() { return this.name || 'SD card'; },
-        paletteLabel: 'SD card (SPI)'
+        label:   function() { return this.name || 'SD-SPI'; },
+        paletteLabel: 'SD-SPI'
     });
 </script>
 

@@ -30,7 +30,7 @@
 
 <!-- FRAM node: trigger → read / write / fill -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mb85rc', {
+    RED.nodes.registerType('mb85rc', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -45,7 +45,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mb85rc">
+<script type="text/html" data-template-name="mb85rc">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -56,7 +56,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mb85rc">
+<script type="text/html" data-help-name="mb85rc">
     <p>Reads, writes and fills the 32 KiB non-volatile FRAM of an MB85RC256V over I²C.
     FRAM writes complete at bus speed — no write delay, no page limit.</p>
     <p>The device is configured via an <b>mb85rc-device</b> config node.</p>

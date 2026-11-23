@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-vl6180x', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('vl6180x-device', {
+        category: 'config',
         defaults: {
             name:          { value: '' },
             bus:           { value: '1', required: true, validate: RED.validators.number() },
@@ -9,30 +9,28 @@
             gain:          { value: '6' },
             integrationMs: { value: '100', validate: RED.validators.number() }
         },
-        inputs:  1,
-        outputs: 1,
-        icon:    'font-awesome/fa-arrows-h',
-        label:   function() { return this.name || 'VL6180X'; },
-        paletteLabel: 'VL6180X'
+        label: function() {
+            return this.name || ('VL6180X @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-vl6180x">
+<script type="text/html" data-template-name="vl6180x-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="VL6180X">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="VL6180X">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
-        <input type="text" id="node-input-address" style="width:80px"> &nbsp;(default 0x29)
+        <label for="node-config-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px"> &nbsp;(default 0x29)
     </div>
     <div class="form-row">
-        <label for="node-input-gain"><i class="fa fa-adjust"></i> ALS gain</label>
-        <select id="node-input-gain" style="width:240px">
+        <label for="node-config-input-gain"><i class="fa fa-adjust"></i> ALS gain</label>
+        <select id="node-config-input-gain" style="width:240px">
             <option value="6">1 (code 6, up to about 20 klux)</option>
             <option value="5">1.25 (code 5)</option>
             <option value="4">1.67 (code 4)</option>
@@ -44,12 +42,40 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-integrationMs"><i class="fa fa-clock-o"></i> Integration ms</label>
-        <input type="text" id="node-input-integrationMs" style="width:80px"> &nbsp;(1–512 ms; 50–100 ms reduces flicker error)
+        <label for="node-config-input-integrationMs"><i class="fa fa-clock-o"></i> Integration ms</label>
+        <input type="text" id="node-config-input-integrationMs" style="width:80px"> &nbsp;(1–512 ms; 50–100 ms reduces flicker error)
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-vl6180x">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('vl6180x', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:          { value: '' },
+            device: { value: '', type: 'vl6180x-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-h',
+        label:   function() { return this.name || 'VL6180X'; },
+        paletteLabel: 'VL6180X'
+    });
+</script>
+
+<script type="text/html" data-template-name="vl6180x">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="VL6180X">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="vl6180x">
     <p>Measures distance (0–100 mm) and ambient light with a VL6180X proximity and ambient-light sensor over I²C.</p>
 
     <h3>Inputs</h3>

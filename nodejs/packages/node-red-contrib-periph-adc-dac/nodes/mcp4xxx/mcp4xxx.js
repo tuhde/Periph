@@ -92,5 +92,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-mcp4xxx', Mcp4xxxNode);
+    RED.nodes.registerType('mcp4xxx', Mcp4xxxNode);
 };

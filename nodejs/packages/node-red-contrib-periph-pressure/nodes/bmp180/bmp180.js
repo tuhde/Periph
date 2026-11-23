@@ -45,5 +45,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-bmp180', BMP180ReadNode);
+    RED.nodes.registerType('bmp180', BMP180ReadNode);
 };

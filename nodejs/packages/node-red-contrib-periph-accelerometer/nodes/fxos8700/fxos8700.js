@@ -68,5 +68,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-fxos8700', FXOS8700ReadNode);
+    RED.nodes.registerType('fxos8700', FXOS8700ReadNode);
 };

@@ -31,20 +31,26 @@
     ]
   },
   {
-    "id": "bno055-node",
-    "type": "periph-bno055",
-    "z": "bno055-tab",
+    "id": "bno055-device-1",
+    "type": "bno055-device",
     "name": "BNO055",
     "bus": "1",
     "address": "0x29",
-    "mode": "12",
+    "mode": "12"
+  },
+  {
+    "id": "bno055-node",
+    "type": "bno055",
+    "z": "bno055-tab",
+    "name": "BNO055",
     "x": 400,
     "y": 160,
     "wires": [
       [
         "bno055-format"
       ]
-    ]
+    ],
+    "device": "bno055-device-1"
   },
   {
     "id": "bno055-format",

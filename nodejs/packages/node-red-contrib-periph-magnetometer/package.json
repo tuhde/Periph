@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "as5600": "nodes/as5600/as5600.js"
+      "as5600": "nodes/as5600/as5600.js",
+      "hmc5883l": "nodes/hmc5883l/hmc5883l.js"
     }
   },
   "dependencies": {

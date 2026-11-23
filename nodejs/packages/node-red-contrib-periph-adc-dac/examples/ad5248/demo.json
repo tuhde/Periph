@@ -95,7 +95,7 @@
     },
     {
         "id": "ad5248",
-        "type": "periph-ad5248",
+        "type": "ad5248",
         "name": "AD5248",
         "device": "cfg-ad5248",
         "z": "tab-ad5248-demo",

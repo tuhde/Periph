@@ -920,30 +920,67 @@ module.exports = { INA226Minimal, INA226Full };
 
 ## Node-RED node structure
 
-Each chip has two files in `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/`:
+Every chip ships **two** Node-RED node types, both defined in the same pair of files in `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/`:
 
-**`<chip>.js`** — runtime node, registered as `periph-<chip>`:
+| Type id | Kind | Role |
+|---------|------|------|
+| `<chip>-device` | config node (`category: 'config'`) | One instance per physical chip. Owns the connection and driver, and everything that configures the chip itself (bus, address, ranges, calibration…). Closes the connection on `close`. |
+| `<chip>` | flow node (`category: 'Peripheral'`, color `#C084FC`) | Reads/writes through a device node chosen in its `device` property. Holds only per-message options (e.g. a default channel). |
+
+Naming rules:
+
+- Type ids are the lowercase chip name with **no `periph-` prefix**: `ina226` and `ina226-device`. They must match the directory and file name, and must equal the key in the package's `"node-red": { "nodes": {} }` map (`"ina226": "nodes/ina226/ina226.js"`).
+- The displayed name is the chip name in capital letters: `label` and `paletteLabel` of the flow node are `'INA226'`, and the device node's label starts with it (`INA226 @ 0x40 (bus 1)`). The name placeholder is also `INA226`.
+- Both `RED.nodes.registerType(...)` calls live in `<chip>.js`, and both editor registrations (plus `data-template-name` blocks for `<chip>` and `<chip>-device`, and the `data-help-name="<chip>"` block) live in `<chip>.html`.
+- The demo flow `examples/<chip>/demo.json` is a flat importable array holding the tab, **one `<chip>-device` node**, and the `<chip>` node referencing it by `device`.
+
+**`<chip>.js`** — device node plus read node:
 ```js
 'use strict';
 module.exports = function(RED) {
-    function INA226Node(config) {
+    const { I2CConnection } = require('periph/src/connection/i2c');
+    const { INA226Full } = require('periph/src/chips/power/ina226');
+
+    function INA226DeviceNode(config) {
         RED.nodes.createNode(this, config);
-        const connection = /* build from config */;
-        const sensor = new (require('periph/src/chips/<category>/<chip>')).INA226Minimal(connection);
-        this.on('input', function(msg) {
-            msg.payload = { voltage: sensor.voltage(), current: sensor.current(), power: sensor.power() };
-            this.send(msg);
+        const node = this;
+        try {
+            node.connection = new I2CConnection(parseInt(config.bus), parseInt(config.address, 16));
+            node.driver = new INA226Full(node.connection);
+        } catch (e) {
+            node.error('INA226 init failed: ' + e.message);
+        }
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
         });
     }
-    RED.nodes.registerType('periph-ina226', INA226Node);
+    RED.nodes.registerType('ina226-device', INA226DeviceNode);
+
+    function INA226ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(new Error('No INA226 device configured')); return; }
+            try {
+                const d = deviceNode.driver;
+                msg.payload = { voltage: await d.voltage(), current: await d.current(), power: await d.power() };
+                send(msg);
+                done();
+            } catch (e) { done(e); }
+        });
+    }
+    RED.nodes.registerType('ina226', INA226ReadNode);
 };
 ```
 
-**`<chip>.html`** — editor UI: defines the node's config panel, label, and color using `RED.nodes.registerType`.
+Always look up properties on `deviceNode` at message time (never copy `deviceNode.driver` at construction): config nodes are created first, but drivers set up asynchronously (`node.ready`) may not be assigned yet.
 
-The `index.js` at the package root auto-discovers nodes — never edit it manually.
+**Chips that emit without an input** (interrupt lines, poll timers, receive loops): a config node cannot send messages, so the device node does `node.emit('periph-data', msg)` and the flow node subscribes with `deviceNode.on('periph-data', (m) => node.send(m))`, removing the listener on `close`. Set `inputs: 0` on a flow node that only receives.
 
-When a new node is added, update the `"node-red": { "nodes": {} }` field in the package's `package.json` to register the node name and file path.
+**`<chip>.html`** — editor UI. Config fields go in the `<chip>-device` registration and its template (use `node-config-input-<field>` ids); the flow node registration has a `device: { value: '', type: '<chip>-device', required: true }` default and a template with a Device row (`node-input-device`). Any `oneditprepare` that toggles device fields (e.g. I²C/SPI transport switch) belongs to the `<chip>-device` registration and uses `#node-config-input-…` selectors.
+
+Node-RED loads nodes only through the `"node-red": { "nodes": {} }` map in the package's `package.json` — a new chip must be added there (`"<chip>": "nodes/<chip>/<chip>.js"`) or it never appears in the palette. Packages have no `index.js` or `"main"` entry; Node-RED never uses one. The package `README.md` is generated (`node nodejs/scripts/generate-readmes.js`).
 
 ## Rust conventions
 
@@ -1604,7 +1641,7 @@ impl<I2C: I2c> Ina219Minimal<I2C> {
 
 **Node-RED** — `<script type="text/html" data-help-name="…">` section in the `.html` file, following the [Node-RED help style guide](https://nodered.org/docs/creating-nodes/help-style-guide):
 ```html
-<script type="text/html" data-help-name="periph-ina219">
+<script type="text/html" data-help-name="ina219">
     <p>Reads bus voltage, load current, and power from an INA219 power monitor.</p>
     <h3>Inputs</h3>
     <dl class="message-properties">
@@ -1621,8 +1658,9 @@ impl<I2C: I2c> Ina219Minimal<I2C> {
         <dd>Power in W.</dd>
     </dl>
     <h3>Configuration</h3>
-    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x40</code>),
-    the shunt resistor value, and the maximum expected current.</p>
+    <p>The I²C bus number, the chip's 7-bit address (default <code>0x40</code>),
+    the shunt resistor value, and the maximum expected current are set in the
+    <b>ina219-device</b> config node.</p>
 </script>
 ```
 

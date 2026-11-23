@@ -52,5 +52,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-pcf8576', PCF8576DigitsNode);
+    RED.nodes.registerType('pcf8576', PCF8576DigitsNode);
 };

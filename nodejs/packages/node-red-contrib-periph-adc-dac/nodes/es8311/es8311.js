@@ -53,5 +53,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-es8311', ES8311Node);
+    RED.nodes.registerType('es8311', ES8311Node);
 };

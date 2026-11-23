@@ -70,5 +70,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-apa102', APA102WriteNode);
+    RED.nodes.registerType('apa102', APA102WriteNode);
 };

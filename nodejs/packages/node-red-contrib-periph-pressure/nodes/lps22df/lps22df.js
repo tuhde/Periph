@@ -53,5 +53,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-lps22df', LPS22DFReadNode);
+    RED.nodes.registerType('lps22df', LPS22DFReadNode);
 };

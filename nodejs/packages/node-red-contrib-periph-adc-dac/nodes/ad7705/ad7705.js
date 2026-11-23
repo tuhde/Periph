@@ -74,5 +74,5 @@ module.exports = function(RED) {
             } catch (e) { done(e); }
         });
     }
-    RED.nodes.registerType('periph-ad7705', AD7705Node);
+    RED.nodes.registerType('ad7705', AD7705Node);
 };

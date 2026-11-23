@@ -68,5 +68,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ht16k33', HT16K33Node);
+    RED.nodes.registerType('ht16k33', HT16K33Node);
 };

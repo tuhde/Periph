@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-icm20948', {
-        category:  'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('icm20948-device', {
+        category: 'config',
         defaults: {
             name:       { value: '' },
             bus:        { value: '1', required: true, validate: RED.validators.number() },
@@ -10,34 +10,31 @@
             gyroRange:  { value: '0', required: true, validate: RED.validators.number() },
             mag:        { value: true }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'bridge.svg',
         label: function() {
-            return this.name || ('ICM-20948 @ ' + this.address + ' (bus ' + this.bus + ')');
+            return this.name || ('ICM20948 @ ' + this.address + ' (bus ' + this.bus + ')');
         }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-icm20948">
+<script type="text/html" data-template-name="icm20948-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="ICM-20948">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ICM20948">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
-        <select id="node-input-address" style="width:160px">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:160px">
             <option value="0x68" selected>0x68 (AD0 = GND)</option>
             <option value="0x69">0x69 (AD0 = VDDIO)</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-accelRange"><i class="fa fa-cog"></i> Accelerometer range</label>
-        <select id="node-input-accelRange" style="width:120px">
+        <label for="node-config-input-accelRange"><i class="fa fa-cog"></i> Accelerometer range</label>
+        <select id="node-config-input-accelRange" style="width:120px">
             <option value="0" selected>±2 g</option>
             <option value="1">±4 g</option>
             <option value="2">±8 g</option>
@@ -45,8 +42,8 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-gyroRange"><i class="fa fa-cog"></i> Gyroscope range</label>
-        <select id="node-input-gyroRange" style="width:120px">
+        <label for="node-config-input-gyroRange"><i class="fa fa-cog"></i> Gyroscope range</label>
+        <select id="node-config-input-gyroRange" style="width:120px">
             <option value="0" selected>±250 dps</option>
             <option value="1">±500 dps</option>
             <option value="2">±1000 dps</option>
@@ -54,12 +51,45 @@
         </select>
     </div>
     <div class="form-row">
+        <label for="node-config-input-mag"><i class="fa fa-magnet"></i> Magnetometer</label>
+        <input type="checkbox" id="node-config-input-mag" style="width:auto">
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('icm20948', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device: { value: '', type: 'icm20948-device', required: true },
+            mag:        { value: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'ICM20948'; },
+        paletteLabel: 'ICM20948'
+    });
+</script>
+
+<script type="text/html" data-template-name="icm20948">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ICM20948">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
         <label for="node-input-mag"><i class="fa fa-magnet"></i> Magnetometer</label>
         <input type="checkbox" id="node-input-mag" style="width:auto">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-icm20948">
+<script type="text/html" data-help-name="icm20948">
     <p>Reads acceleration, angular rate, die temperature and (optionally) the magnetic field from a TDK InvenSense
     ICM-20948 9-axis MotionTracking device over I²C. The AK09916 magnetometer is read through the chip's own
     I²C master, so only one I²C address is needed. VDDIO must be 1.71–1.95 V.</p>

@@ -198,19 +198,26 @@
     ]
   },
   {
+    "id": "ssd1306-device-1",
+    "type": "ssd1306-device",
+    "name": "SSD1306",
+    "externalVcc": false,
+    "address": "0x3C",
+    "height": "64",
+    "autoShow": true,
+    "width": "128",
+    "i2cBus": "1",
+    "transport": "i2c"
+  },
+  {
     "id": "ssd1306_node",
-    "type": "periph-ssd1306",
+    "type": "ssd1306",
     "z": "ssd1306_tab",
     "name": "0.96\" OLED",
-    "transport": "i2c",
-    "i2cBus": "1",
-    "address": "0x3C",
-    "width": "128",
-    "height": "64",
     "autoShow": true,
     "x": 640,
     "y": 200,
     "wires": [],
-    "externalVcc": false
+    "device": "ssd1306-device-1"
   }
 ]

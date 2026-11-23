@@ -10,7 +10,6 @@
     "sensor",
     "peripheral"
   ],
-  "main": "index.js",
   "node-red": {
     "nodes": {
       "aht10": "nodes/aht10/aht10.js",

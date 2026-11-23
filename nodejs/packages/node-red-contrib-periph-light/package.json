@@ -12,8 +12,9 @@
   ],
   "node-red": {
     "nodes": {
+      "apds-9930": "nodes/apds-9930/apds-9930.js",
       "apds9960": "nodes/apds9960/apds9960.js",
-      "periph-max44009": "nodes/max44009/max44009.js"
+      "max44009": "nodes/max44009/max44009.js"
     }
   },
   "dependencies": {

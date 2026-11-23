@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "VL53L1X Bin Level Demo",
         "disabled": false,
-        "info": "An Inject node fires every 250 ms into a periph-vl53l1x node in single-shot mode (long distance mode, 50 ms timing budget), mounted at the top of a 2 m deep bin looking down. A Switch node routes on msg.payload.valid: valid readings go to a Function node that turns the distance into a fill level (fill_pct = 100 × (2000 − distance_mm) / 2000, clamped 0–100), then a filter (RBE) node in deadband mode passes only changes of at least 5 % to a Debug node labelled \"bin fill\"; invalid readings (no echo, e.g. range status 2 or 4) go to a second Debug node labelled \"no echo\". Long-range level monitoring like this is the use case the VL53L0X cannot cover beyond ~1.2 m. Adjust BIN_DEPTH_MM in the Function node to your container."
+        "info": "An Inject node fires every 250 ms into a vl53l1x node in single-shot mode (long distance mode, 50 ms timing budget), mounted at the top of a 2 m deep bin looking down. A Switch node routes on msg.payload.valid: valid readings go to a Function node that turns the distance into a fill level (fill_pct = 100 × (2000 − distance_mm) / 2000, clamped 0–100), then a filter (RBE) node in deadband mode passes only changes of at least 5 % to a Debug node labelled \"bin fill\"; invalid readings (no echo, e.g. range status 2 or 4) go to a second Debug node labelled \"no echo\". Long-range level monitoring like this is the use case the VL53L0X cannot cover beyond ~1.2 m. Adjust BIN_DEPTH_MM in the Function node to your container."
     },
     {
         "id": "inj-range",
@@ -27,21 +27,26 @@
         ]
     },
     {
-        "id": "vl53l1x-node",
-        "type": "periph-vl53l1x",
-        "name": "Bin VL53L1X",
-        "bus": "1",
-        "address": "0x29",
-        "distanceMode": "long",
-        "timingBudget": "50",
-        "roiWidth": "16",
-        "roiHeight": "16",
-        "mode": "single",
-        "periodMs": "100",
-        "threshold": "none",
+        "id": "vl53l1x-device-1",
+        "type": "vl53l1x-device",
+        "name": "VL53L1X",
         "lowMm": "100",
         "highMm": "800",
+        "distanceMode": "long",
+        "roiHeight": "16",
+        "address": "0x29",
+        "periodMs": "100",
+        "threshold": "none",
+        "timingBudget": "50",
         "gpioLine": "",
+        "bus": "1",
+        "mode": "single",
+        "roiWidth": "16"
+    },
+    {
+        "id": "vl53l1x-node",
+        "type": "vl53l1x",
+        "name": "Bin VL53L1X",
         "z": "tab-vl53l1x-demo",
         "x": 360,
         "y": 100,
@@ -49,7 +54,8 @@
             [
                 "sw-valid"
             ]
-        ]
+        ],
+        "device": "vl53l1x-device-1"
     },
     {
         "id": "sw-valid",

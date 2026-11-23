@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "l3g4200d": "nodes/l3g4200d/l3g4200d.js"
+      "l3g4200d": "nodes/l3g4200d/l3g4200d.js",
+      "l3gd20h": "nodes/l3gd20h/l3gd20h.js"
     }
   },
   "dependencies": {

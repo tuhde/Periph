@@ -53,7 +53,7 @@
 
 <!-- Control node: volume / mute / mic gain / readback -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-es8311', {
+    RED.nodes.registerType('es8311', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -68,7 +68,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-es8311">
+<script type="text/html" data-template-name="es8311">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -79,7 +79,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-es8311">
+<script type="text/html" data-help-name="es8311">
     <p>Controls an ES8311 low-power mono audio codec over its I²C control port. The audio stream
     itself (I²S) is not handled by this node.</p>
 

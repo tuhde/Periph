@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-tmc2208', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('tmc2208-device', {
+        category: 'config',
         defaults: {
             name:       { value: '' },
             port:       { value: '/dev/ttyS0', required: true },
@@ -11,6 +11,56 @@
             microsteps: { value: '16' },
             enGpio:     { value: '' }
         },
+        label: function() {
+            return this.name || 'TMC2208';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tmc2208-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="TMC2208">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="fa fa-plug"></i> Serial port</label>
+        <input type="text" id="node-config-input-port" placeholder="/dev/ttyS0">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-baudrate"><i class="fa fa-tachometer"></i> Baud rate</label>
+        <input type="number" id="node-config-input-baudrate" min="9000" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rsense"><i class="fa fa-bolt"></i> Sense resistor (Ω)</label>
+        <input type="number" id="node-config-input-rsense" min="0.01" step="0.01" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-current"><i class="fa fa-bolt"></i> Default current (A RMS)</label>
+        <input type="number" id="node-config-input-current" min="0" max="1.2" step="0.05" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-microsteps"><i class="fa fa-th"></i> Default microsteps</label>
+        <select id="node-config-input-microsteps" style="width:100px">
+            <option value="1">1</option><option value="2">2</option><option value="4">4</option>
+            <option value="8">8</option><option value="16">16</option><option value="32">32</option>
+            <option value="64">64</option><option value="128">128</option><option value="256">256</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-enGpio"><i class="fa fa-microchip"></i> ENN GPIO (optional)</label>
+        <input type="text" id="node-config-input-enGpio" placeholder="not wired, e.g. 0:17" style="width:140px">
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('tmc2208', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device: { value: '', type: 'tmc2208-device', required: true }
+        },
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-cog',
@@ -19,42 +69,18 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-tmc2208">
+<script type="text/html" data-template-name="tmc2208">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="TMC2208">
     </div>
     <div class="form-row">
-        <label for="node-input-port"><i class="fa fa-plug"></i> Serial port</label>
-        <input type="text" id="node-input-port" placeholder="/dev/ttyS0">
-    </div>
-    <div class="form-row">
-        <label for="node-input-baudrate"><i class="fa fa-tachometer"></i> Baud rate</label>
-        <input type="number" id="node-input-baudrate" min="9000" style="width:100px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-rsense"><i class="fa fa-bolt"></i> Sense resistor (Ω)</label>
-        <input type="number" id="node-input-rsense" min="0.01" step="0.01" style="width:100px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-current"><i class="fa fa-bolt"></i> Default current (A RMS)</label>
-        <input type="number" id="node-input-current" min="0" max="1.2" step="0.05" style="width:100px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-microsteps"><i class="fa fa-th"></i> Default microsteps</label>
-        <select id="node-input-microsteps" style="width:100px">
-            <option value="1">1</option><option value="2">2</option><option value="4">4</option>
-            <option value="8">8</option><option value="16">16</option><option value="32">32</option>
-            <option value="64">64</option><option value="128">128</option><option value="256">256</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-enGpio"><i class="fa fa-microchip"></i> ENN GPIO (optional)</label>
-        <input type="text" id="node-input-enGpio" placeholder="not wired, e.g. 0:17" style="width:140px">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-tmc2208">
+<script type="text/html" data-help-name="tmc2208">
     <p>Drives a two-phase bipolar stepper motor through a Trinamic TMC2202 / TMC2208 / TMC2224 over its single-wire UART. The chip's internal step generator moves the motor, so no STEP pulses are needed.</p>
 
     <h3>Inputs</h3>

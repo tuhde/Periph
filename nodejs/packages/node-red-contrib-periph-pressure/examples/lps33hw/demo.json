@@ -14,7 +14,7 @@
     },
     {
         "id": "lps33hw-read-1",
-        "type": "periph-lps33hw",
+        "type": "lps33hw",
         "name": "LPS33HW Altimeter",
         "device": "lps33hw-device-1",
         "wires": [["function-alt-1", "debug-1", "chart-pres-1", "chart-alt-1", "chart-temp-1"]]

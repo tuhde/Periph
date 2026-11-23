@@ -30,7 +30,7 @@
 
 <!-- EEPROM node: trigger → read / write / fill -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-cat24c512', {
+    RED.nodes.registerType('cat24c512', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -45,7 +45,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-cat24c512">
+<script type="text/html" data-template-name="cat24c512">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -56,7 +56,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-cat24c512">
+<script type="text/html" data-help-name="cat24c512">
     <p>Reads, writes and fills the 64 KiB EEPROM of a CAT24C512 over I²C. Writes are split at
     128-byte page boundaries and ACK-polled until each write cycle (5 ms max) has finished.</p>
     <p>The device is configured via an <b>cat24c512-device</b> config node.</p>

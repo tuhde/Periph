@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "PCF8578 Bouncing Pixel",
         "disabled": false,
-        "info": "Drives a 16-row x 24-column dot-matrix LCD from a PCF8578 over I2C. An inject node fires every 500 ms; a function node computes a bouncing pixel position, first clearing the previous position and then lighting the new one, and sends both to the periph-pcf8578 node. A second inject toggles inverse video on and off every 2 seconds to show the display status control. The RAM contents survive status changes, so the bouncing pixel keeps moving while the panel flips between normal and inverse."
+        "info": "Drives a 16-row x 24-column dot-matrix LCD from a PCF8578 over I2C. An inject node fires every 500 ms; a function node computes a bouncing pixel position, first clearing the previous position and then lighting the new one, and sends both to the pcf8578 node. A second inject toggles inverse video on and off every 2 seconds to show the display status control. The RAM contents survive status changes, so the bouncing pixel keeps moving while the panel flips between normal and inverse."
     },
     {
         "id": "cfg-pcf8578",
@@ -92,7 +92,7 @@
     },
     {
         "id": "lcd-node",
-        "type": "periph-pcf8578",
+        "type": "pcf8578",
         "name": "PCF8578",
         "device": "cfg-pcf8578",
         "z": "tab-pcf8578-demo",

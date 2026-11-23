@@ -9,7 +9,7 @@ module.exports = function(RED) {
         [TMP117Full.SOURCE_LOW, 'low'],
     ];
 
-    function TMP117Node(config) {
+    function TMP117DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const averaging = parseInt(config.averaging, 10);
@@ -31,7 +31,7 @@ module.exports = function(RED) {
                         config.polarity || 'active_low', 'alert');
                     await node.driver.onInterrupt((status) => {
                         for (const [bit, name] of SOURCE_NAMES) {
-                            if (status & bit) node.send({ payload: { source: name } });
+                            if (status & bit) node.emit('periph-data', { payload: { source: name } });
                         }
                     });
                 }
@@ -39,29 +39,6 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('TMP117 init failed: ' + e.message);
         }
-
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                const p = msg.payload;
-                if (p && typeof p === 'object' && typeof p.mode === 'string') {
-                    await node.driver.configure(p.mode, isNaN(averaging) ? 8 : averaging, cycleSeconds);
-                    done();
-                    return;
-                }
-                const temperature = await node.driver.readTemperature();
-                const status = await node.driver.pollInterrupt();
-                msg.payload = {
-                    temperature_c: temperature,
-                    high_alert: (status & TMP117Full.SOURCE_HIGH) !== 0,
-                    low_alert: (status & TMP117Full.SOURCE_LOW) !== 0,
-                };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
 
         node.on('close', async function(removed, done) {
             try {
@@ -74,5 +51,43 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-tmp117', TMP117Node);
+    RED.nodes.registerType('tmp117-device', TMP117DeviceNode);
+
+    function TMP117ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        const averaging = parseInt(config.averaging, 10);
+        const cycleSeconds = parseFloat(config.cycleSeconds) || 1.0;
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                const p = msg.payload;
+                if (p && typeof p === 'object' && typeof p.mode === 'string') {
+                    await deviceNode.driver.configure(p.mode, isNaN(averaging) ? 8 : averaging, cycleSeconds);
+                    done();
+                    return;
+                }
+                const temperature = await deviceNode.driver.readTemperature();
+                const status = await deviceNode.driver.pollInterrupt();
+                msg.payload = {
+                    temperature_c: temperature,
+                    high_alert: (status & TMP117Full.SOURCE_HIGH) !== 0,
+                    low_alert: (status & TMP117Full.SOURCE_LOW) !== 0,
+                };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('tmp117', TMP117ReadNode);
 };

@@ -1,6 +1,6 @@
 <!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ltc4151-device', {
+    RED.nodes.registerType('ltc4151-device', {
         category: 'config',
         defaults: {
             name:    { value: '' },
@@ -14,7 +14,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ltc4151-device">
+<script type="text/html" data-template-name="ltc4151-device">
     <div class="form-row">
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="LTC4151">
@@ -35,12 +35,12 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ltc4151', {
+    RED.nodes.registerType('ltc4151', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
             name:   { value: '' },
-            device: { value: '', type: 'periph-ltc4151-device', required: true },
+            device: { value: '', type: 'ltc4151-device', required: true },
             adin:   { value: false }
         },
         inputs:  1,
@@ -51,7 +51,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ltc4151">
+<script type="text/html" data-template-name="ltc4151">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -66,9 +66,9 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ltc4151">
+<script type="text/html" data-help-name="ltc4151">
     <p>Reads supply voltage, load current and power from an LTC4151 7&ndash;80&nbsp;V high-side power monitor over I²C.</p>
-    <p>Any input message triggers one reading. The device is configured via a <b>periph-ltc4151-device</b> config node.</p>
+    <p>Any input message triggers one reading. The device is configured via a <b>ltc4151-device</b> config node.</p>
 
     <h3>Output</h3>
     <dl class="message-properties">

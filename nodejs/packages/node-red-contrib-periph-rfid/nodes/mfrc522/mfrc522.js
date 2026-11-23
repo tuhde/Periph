@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { SPIConnection } = require('periph/src/connection/spi');
     const { MFRC522Full }   = require('periph/src/chips/rfid/mfrc522');
 
-    function MFRC522Node(config) {
+    function MFRC522DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -31,7 +31,7 @@ module.exports = function(RED) {
                     if (uid !== node._lastUid) {
                         node._lastUid = uid;
                         const msg = { payload: { present: present, uid: uid } };
-                        node.send(msg);
+                        node.emit('periph-data', msg);
                     }
                 } catch (e) {
                     node.error('MFRC522 poll failed: ' + e.message);
@@ -47,5 +47,20 @@ module.exports = function(RED) {
             if (node.connection) node.connection.close();
         });
     }
-    RED.nodes.registerType('periph-mfrc522', MFRC522Node);
+    RED.nodes.registerType('mfrc522-device', MFRC522DeviceNode);
+
+    // Reader node: forwards each card-present / card-removed event polled by the device node.
+    function MFRC522ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device);
+        if (!deviceNode) {
+            node.error('No MFRC522 device configured');
+            return;
+        }
+        const onData = (msg) => node.send(msg);
+        deviceNode.on('periph-data', onData);
+        node.on('close', () => deviceNode.removeListener('periph-data', onData));
+    }
+    RED.nodes.registerType('mfrc522', MFRC522ReadNode);
 };

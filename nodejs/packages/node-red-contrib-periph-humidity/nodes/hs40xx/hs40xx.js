@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { HS40xxFull } = require('periph/src/chips/humidity/hs40xx');
 
-    function HS40xxNode(config) {
+    function HS40xxDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -16,8 +16,19 @@ module.exports = function(RED) {
             node.error('HS40xx init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('hs40xx-device', HS40xxDeviceNode);
+
+    function HS40xxReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('HS40xx not initialised', msg);
                 done();
                 return;
@@ -25,20 +36,16 @@ module.exports = function(RED) {
             try {
                 if (!node.resolutionSet) {
                     const bits = parseInt(config.resolution) || 14;
-                    if (bits !== 14) await node.driver.setResolution(bits, bits);
+                    if (bits !== 14) await deviceNode.driver.setResolution(bits, bits);
                     node.resolutionSet = true;
                 }
-                msg.payload = await node.driver.read();
+                msg.payload = await deviceNode.driver.read();
                 send(msg);
                 done();
             } catch (e) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-hs40xx', HS40xxNode);
+    RED.nodes.registerType('hs40xx', HS40xxReadNode);
 };

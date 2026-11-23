@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-st7036', {
-        category: 'Peripheral',
-        color:    '#C084FC',
+    RED.nodes.registerType('st7036-device', {
+        category: 'config',
         defaults: {
             name:        { value: '' },
             spiBus:      { value: '0', required: true, validate: RED.validators.number() },
@@ -12,6 +12,60 @@
             lines:       { value: '2' },
             supply:      { value: '3v3' }
         },
+        label: function() {
+            return this.name || 'ST7036';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="st7036-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ST7036">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-spiBus" min="0" style="width:70px">
+        &nbsp;chip select <input type="number" id="node-config-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-config-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rsPin">RS (C/D) line</label>
+        <input type="number" id="node-config-input-rsPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resPin">RESET line</label>
+        <input type="number" id="node-config-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lines">Module</label>
+        <select id="node-config-input-lines" style="width:auto">
+            <option value="1">DOGM081 (1 x 8)</option>
+            <option value="2">DOGM162 (2 x 16)</option>
+            <option value="3">DOGM163 (3 x 16)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-supply">Supply</label>
+        <select id="node-config-input-supply" style="width:auto">
+            <option value="3v3">3.3 V (booster on)</option>
+            <option value="5v">5 V</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('st7036', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            device: { value: '', type: 'st7036-device', required: true }
+        },
         inputs:  1,
         outputs: 0,
         icon:    'font-awesome/fa-television',
@@ -20,46 +74,18 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-st7036">
+<script type="text/html" data-template-name="st7036">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="ST7036">
     </div>
     <div class="form-row">
-        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
-        <input type="number" id="node-input-spiBus" min="0" style="width:70px">
-        &nbsp;chip select <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-gpioChip">GPIO chip</label>
-        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-rsPin">RS (C/D) line</label>
-        <input type="number" id="node-input-rsPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-resPin">RESET line</label>
-        <input type="number" id="node-input-resPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-lines">Module</label>
-        <select id="node-input-lines" style="width:auto">
-            <option value="1">DOGM081 (1 x 8)</option>
-            <option value="2">DOGM162 (2 x 16)</option>
-            <option value="3">DOGM163 (3 x 16)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-supply">Supply</label>
-        <select id="node-input-supply" style="width:auto">
-            <option value="3v3">3.3 V (booster on)</option>
-            <option value="5v">5 V</option>
-        </select>
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-st7036">
+<script type="text/html" data-help-name="st7036">
     <p>Writes text on an ST7036 character LCD (EA DOGM081 / DOGM162 / DOGM163) in 4-wire serial mode over SPI. The serial mode is write-only; the chip has no BUSY line. Strapping: PSB = GND, E = 3V3, booster capacitors for 3.3 V.</p>
     <p>A string payload is written at the current cursor position. Characters other than ASCII <code>0x20..0x7D</code> become <code>?</code>.</p>
 

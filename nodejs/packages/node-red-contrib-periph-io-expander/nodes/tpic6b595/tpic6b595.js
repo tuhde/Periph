@@ -5,7 +5,7 @@ module.exports = function(RED) {
     const { SiPoConnection } = require('periph/src/connection/sipo');
     const { Tpic6b595Full }   = require('periph/src/chips/io_expander/tpic6b595');
 
-    function Tpic6b595Node(config) {
+    function Tpic6b595DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -26,35 +26,41 @@ module.exports = function(RED) {
             node.error('TPIC6B595 init failed: ' + e.message);
         }
 
+        node.on('close', async function() {
+            if (node.connection) await node.connection.close();
+        });
+    }
+    RED.nodes.registerType('tpic6b595-device', Tpic6b595DeviceNode);
+
+    function Tpic6b595ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.chip) { done(new Error('TPIC6B595 not initialised')); return; }
+            if (!deviceNode.chip) { done(new Error('TPIC6B595 not initialised')); return; }
             try {
                 const p = msg.payload;
                 if (p && typeof p.pin === 'number' && typeof p.value === 'number') {
-                    await node.chip.pin(p.pin).write(p.value ? 1 : 0);
+                    await deviceNode.chip.pin(p.pin).write(p.value ? 1 : 0);
                     done();
                 } else if (p && typeof p.port === 'number' && typeof p.value === 'number') {
-                    await node.chip.writePort(p.port, p.value & 0xFF);
+                    await deviceNode.chip.writePort(p.port, p.value & 0xFF);
                     done();
                 } else if (p && p.command === 'off') {
-                    await node.chip.off();
+                    await deviceNode.chip.off();
                     done();
                 } else if (p && typeof p.outputEnable === 'boolean') {
-                    node.chip.setOutputEnable(p.outputEnable);
+                    deviceNode.chip.setOutputEnable(p.outputEnable);
                     done();
                 } else if (p && Array.isArray(p.values)) {
-                    node.chip.writeAll(p.values);
+                    deviceNode.chip.writeAll(p.values);
                     done();
                 } else {
                     done(new Error('msg.payload must be {pin,value}, {port,value}, {command:"off"}, {outputEnable:true|false}, or {values:[...]}.'));
                 }
             } catch (e) { done(e); }
         });
-
-        node.on('close', async function() {
-            if (node.connection) await node.connection.close();
-        });
     }
-
-    RED.nodes.registerType('periph-tpic6b595', Tpic6b595Node);
+    RED.nodes.registerType('tpic6b595', Tpic6b595ReadNode);
 };

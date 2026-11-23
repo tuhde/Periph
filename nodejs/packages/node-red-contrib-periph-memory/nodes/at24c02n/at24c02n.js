@@ -58,5 +58,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-at24c02n', AT24C02NNode);
+    RED.nodes.registerType('at24c02n', AT24C02NNode);
 };

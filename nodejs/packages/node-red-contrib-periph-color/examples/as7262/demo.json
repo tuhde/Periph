@@ -31,12 +31,19 @@
     ]
   },
   {
-    "id": "as7262-node",
-    "type": "periph-as7262",
-    "z": "as7262-tab",
+    "id": "as7262-device-1",
+    "type": "as7262-device",
     "name": "AS7262",
+    "gain": "16",
     "bus": "1",
     "address": "0x49",
+    "integrationTime": "165.2"
+  },
+  {
+    "id": "as7262-node",
+    "type": "as7262",
+    "z": "as7262-tab",
+    "name": "AS7262",
     "x": 380,
     "y": 160,
     "wires": [
@@ -44,8 +51,7 @@
         "as7262-format"
       ]
     ],
-    "gain": "16",
-    "integrationTime": "165.2"
+    "device": "as7262-device-1"
   },
   {
     "id": "as7262-format",

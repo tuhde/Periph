@@ -12,7 +12,7 @@
     },
     {
         "id": "bmp581-read-1",
-        "type": "periph-bmp581",
+        "type": "bmp581",
         "name": "BMP581 Pressure/Temperature/Altitude",
         "device": "bmp581-device-1",
         "seaLevelPa": "101325",

@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { ADS7828Full } = require('periph/src/chips/adc_dac/ads7828');
 
-    function ADS7828Node(config) {
+    function ADS7828DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address, 16) || ADS7828Full.I2C_ADDRESS;
             const connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -19,11 +18,29 @@ module.exports = function(RED) {
             node.error('ADS7828 init failed: ' + e.message);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
+        node.on('close', async function(removed, done) {
             try {
-                await node.ready;
-                const d = node.driver;
+                if (node.driver) await node.driver.powerDown();
+                if (node.connection) await node.connection.close();
+            } catch (e) {
+                // bus may already be gone; nothing more to do on close
+            } finally {
+                done();
+            }
+        });
+    }
+    RED.nodes.registerType('ads7828-device', ADS7828DeviceNode);
+
+    function ADS7828ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                await deviceNode.ready;
+                const d = deviceNode.driver;
                 const diff = typeof msg.differential === 'string' ? /^([0-7])-([0-7])$/.exec(msg.differential) : null;
                 if (diff) {
                     const a = parseInt(diff[1], 10);
@@ -46,17 +63,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', async function(removed, done) {
-            try {
-                if (node.driver) await node.driver.powerDown();
-                if (node.connection) await node.connection.close();
-            } catch (e) {
-                // bus may already be gone; nothing more to do on close
-            } finally {
-                done();
-            }
-        });
     }
-    RED.nodes.registerType('periph-ads7828', ADS7828Node);
+    RED.nodes.registerType('ads7828', ADS7828ReadNode);
 };
