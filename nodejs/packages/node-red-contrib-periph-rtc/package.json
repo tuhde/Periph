@@ -1,16 +1,21 @@
 {
   "name": "node-red-contrib-periph-rtc",
   "version": "1.5.2",
-  "description": "Node-RED nodes for real-time clock chips",
+  "description": "Node-RED nodes for real-time clock chips: DS3231, PCF85063A, PCF8523",
   "keywords": [
     "node-red",
     "rtc",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "ds3231",
+    "pcf85063a",
+    "pcf8523"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "ds3231": "nodes/ds3231/ds3231.js",
       "pcf85063a": "nodes/pcf85063a/pcf85063a.js",

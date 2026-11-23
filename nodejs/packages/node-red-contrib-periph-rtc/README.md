@@ -1,6 +1,10 @@
 # node-red-contrib-periph-rtc
 
-Node-RED nodes for real-time clock chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for real-time clock chips: DS3231, PCF85063A, PCF8523 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (3):** DS3231, PCF85063A, PCF8523.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-rtc/examples).
 
 ## Install
 

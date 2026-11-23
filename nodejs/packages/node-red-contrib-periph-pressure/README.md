@@ -1,6 +1,10 @@
 # node-red-contrib-periph-pressure
 
-Node-RED nodes for pressure sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (10):** BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-pressure/examples).
 
 ## Install
 

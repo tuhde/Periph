@@ -1,6 +1,10 @@
 # node-red-contrib-periph-comms
 
-Node-RED nodes for communications peripheral chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for communications peripheral chips: MCP2515, RDA5807M, RFM9X — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (3):** MCP2515, RDA5807M, RFM9X.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-comms/examples).
 
 ## Install
 

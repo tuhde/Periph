@@ -1,6 +1,10 @@
 # node-red-contrib-periph-led
 
-Node-RED nodes for LED driver chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for LED driver chips: APA102, HT16K33, IS31FL3731, PCA9685, SK6812RGBW, WS2812B, WS2814 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (7):** APA102, HT16K33, IS31FL3731, PCA9685, SK6812RGBW, WS2812B, WS2814.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-led/examples).
 
 ## Install
 

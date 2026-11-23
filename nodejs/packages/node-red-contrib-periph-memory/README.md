@@ -1,6 +1,10 @@
 # node-red-contrib-periph-memory
 
-Node-RED nodes for memory chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for memory chips: 23X1024, 24AA02UID, AT24C02N, AT24C64, CAT24C512, MB85RC, MX25L12845E, SD_SPI — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (8):** 23X1024, 24AA02UID, AT24C02N, AT24C64, CAT24C512, MB85RC, MX25L12845E, SD-SPI.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-memory/examples).
 
 ## Install
 

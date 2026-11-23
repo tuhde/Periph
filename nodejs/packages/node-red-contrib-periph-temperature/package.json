@@ -1,16 +1,21 @@
 {
   "name": "node-red-contrib-periph-temperature",
   "version": "1.5.2",
-  "description": "Node-RED nodes for temperature sensor chips",
+  "description": "Node-RED nodes for temperature sensor chips: MCP9808, TMP102, TMP117",
   "keywords": [
     "node-red",
     "temperature",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "mcp9808",
+    "tmp102",
+    "tmp117"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "mcp9808": "nodes/mcp9808/mcp9808.js",
       "tmp102": "nodes/tmp102/tmp102.js",

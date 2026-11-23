@@ -1,6 +1,10 @@
 # node-red-contrib-periph-power
 
-Node-RED nodes for power monitor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for power monitor chips: ADE7953, AXP2101, INA219, INA226, INA260, INA3221, LC709203F, LM25066, LTC4151, MAX17048 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (10):** ADE7953, AXP2101, INA219, INA226, INA260, INA3221, LC709203F, LM25066, LTC4151, MAX17048.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-power/examples).
 
 ## Install
 

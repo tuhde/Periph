@@ -1,6 +1,10 @@
 # node-red-contrib-periph-color
 
-Node-RED nodes for color sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for color sensor chips: AS7262 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (1):** AS7262.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-color/examples).
 
 ## Install
 

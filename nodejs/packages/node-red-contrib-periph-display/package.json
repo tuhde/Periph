@@ -1,16 +1,30 @@
 {
   "name": "node-red-contrib-periph-display",
   "version": "1.5.2",
-  "description": "Node-RED nodes for display driver chips",
+  "description": "Node-RED nodes for display driver chips: IL0373, PCF8576, PCF8578, PCF8579, SH1106, SSD1305, SSD1306, SSD1331, ST7036, UC1611S, UC8159, UC8276C",
   "keywords": [
     "node-red",
     "display",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "il0373",
+    "pcf8576",
+    "pcf8578",
+    "pcf8579",
+    "sh1106",
+    "ssd1305",
+    "ssd1306",
+    "ssd1331",
+    "st7036",
+    "uc1611s",
+    "uc8159",
+    "uc8276c"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "il0373": "nodes/il0373/il0373.js",
       "pcf8576": "nodes/pcf8576/pcf8576.js",

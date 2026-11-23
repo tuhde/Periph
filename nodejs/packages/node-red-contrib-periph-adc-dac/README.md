@@ -1,6 +1,10 @@
 # node-red-contrib-periph-adc-dac
 
-Node-RED nodes for ADC and DAC chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for ADC and DAC chips: AD5243, AD5248, AD5251, AD5252, AD7705, AD7706, ADS1013, ADS1014, ADS1113, ADS1114, ADS1115, ADS7828, CAT5171, CS43L22, DS1881, DS3502, ES8311, HX710A, HX710B, HX711, HY3131, MCP3422, MCP4725, MCP4728, MCP4XXX, PCF8591 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (26):** AD5243, AD5248, AD5251, AD5252, AD7705, AD7706, ADS1013, ADS1014, ADS1113, ADS1114, ADS1115, ADS7828, CAT5171, CS43L22, DS1881, DS3502, ES8311, HX710A, HX710B, HX711, HY3131, MCP3422, MCP4725, MCP4728, MCP4XXX, PCF8591.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-adc-dac/examples).
 
 ## Install
 

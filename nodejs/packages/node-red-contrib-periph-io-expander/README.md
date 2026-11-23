@@ -1,6 +1,10 @@
 # node-red-contrib-periph-io-expander
 
-Node-RED nodes for IO expander chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for IO expander chips: MCP23008, MCP23017, PCA6408A, PCA6416A, PCA9536, PCA9539, PCF8574, PCF8575, TCA9554, TPIC6B595 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (10):** MCP23008, MCP23017, PCA6408A, PCA6416A, PCA9536, PCA9539, PCF8574, PCF8575, TCA9554, TPIC6B595.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-io-expander/examples).
 
 ## Install
 

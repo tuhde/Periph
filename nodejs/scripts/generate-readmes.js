@@ -136,10 +136,38 @@ function collectNodeRows(pkgDir) {
     return rows;
 }
 
+function collectChipNames(pkgDir) {
+    const nodesDir = path.join(pkgDir, 'nodes');
+    if (!fs.existsSync(nodesDir)) return [];
+    return fs.readdirSync(nodesDir).sort().filter((c) => fs.existsSync(path.join(nodesDir, c, c + '.html')));
+}
+
+// Chip names go into the npm description and keywords so the Node-RED flow
+// catalog (which indexes package name/description/keywords/README) finds
+// a chip by its part number. Idempotent: the noun phrase is whatever precedes
+// the first ":" of the existing description.
+function withSearchMetadata(pkg, chips) {
+    if (chips.length === 0) return pkg;
+    const noun = pkg.description.replace(/:.*$/, '');
+    const keywords = (pkg.keywords || []).slice();
+    for (const k of ['node-red-contrib', ...chips]) {
+        if (!keywords.includes(k)) keywords.push(k);
+    }
+    // Declare the minimum Node-RED version so the catalog shows compatibility.
+    const nodeRed = { version: '>=3.0.0', ...pkg['node-red'] };
+    return { ...pkg, description: `${noun}: ${chips.map((c) => c.toUpperCase()).join(', ')}`, keywords, 'node-red': nodeRed };
+}
+
 function buildReadme(pkg, rows) {
     const { name, description } = pkg;
     let body = `# ${name}\n\n`;
     body += `${description} — part of the [Periph](${REPO_URL}) library.\n\n`;
+    const chipNodes = rows.filter((r) => r.kind !== 'config').map((r) => r.node.toUpperCase());
+    if (chipNodes.length > 0) {
+        body += `**Supported chips (${chipNodes.length}):** ${chipNodes.join(', ')}.\n\n`;
+        body += `Each chip has a sensor/actuator node plus a shared \`-device\` config node that holds the bus settings. `;
+        body += `Importable example flows are in [\`examples/\`](${REPO_URL}/tree/main/nodejs/packages/${name}/examples).\n\n`;
+    }
     body += `## Install\n\n`;
     body += `Open Node-RED, go to **Manage Palette → Install** and search for \`${name}\`.\n\n`;
     body += `Or from the command line in your Node-RED user directory:\n\n`;
@@ -228,7 +256,19 @@ function main() {
 
     let drift = false;
     for (const dir of pkgDirs) {
-        const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));
+        const pkgPath = path.join(dir, 'package.json');
+        const pkgRaw = fs.readFileSync(pkgPath, 'utf8');
+        const pkg = withSearchMetadata(JSON.parse(pkgRaw), collectChipNames(dir));
+        const pkgOut = JSON.stringify(pkg, null, 2) + '\n';
+        if (pkgOut !== pkgRaw) {
+            if (checkOnly) {
+                console.error(`stale: ${path.relative(process.cwd(), pkgPath)}`);
+                drift = true;
+            } else {
+                fs.writeFileSync(pkgPath, pkgOut);
+                console.log(`wrote ${path.relative(process.cwd(), pkgPath)}`);
+            }
+        }
         const rows = collectNodeRows(dir);
         const readme = buildReadme(pkg, rows);
         const readmePath = path.join(dir, 'README.md');

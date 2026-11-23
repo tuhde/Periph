@@ -1,16 +1,25 @@
 {
   "name": "node-red-contrib-periph-led",
   "version": "1.5.2",
-  "description": "Node-RED nodes for LED driver chips",
+  "description": "Node-RED nodes for LED driver chips: APA102, HT16K33, IS31FL3731, PCA9685, SK6812RGBW, WS2812B, WS2814",
   "keywords": [
     "node-red",
     "led",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "apa102",
+    "ht16k33",
+    "is31fl3731",
+    "pca9685",
+    "sk6812rgbw",
+    "ws2812b",
+    "ws2814"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "apa102": "nodes/apa102/apa102.js",
       "ht16k33": "nodes/ht16k33/ht16k33.js",

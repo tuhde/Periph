@@ -1,6 +1,10 @@
 # node-red-contrib-periph-imu
 
-Node-RED nodes for IMU chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for IMU chips: BNO055, ICM20948, MPU6050, MPU9250, MPU9255, QMI8658A — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (6):** BNO055, ICM20948, MPU6050, MPU9250, MPU9255, QMI8658A.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-imu/examples).
 
 ## Install
 
