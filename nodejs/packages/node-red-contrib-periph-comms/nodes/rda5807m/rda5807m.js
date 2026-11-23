@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { RDA5807MFull } = require('periph/src/chips/comms/rda5807m');
 
-    function RDA5807MNode(config) {
+    function RDA5807MDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const connection = new I2CConnection(parseInt(config.bus), parseInt(config.address, 16) || 0x10);
             node.driver = new RDA5807MFull(connection, parseFloat(config.frequency) || 100.0, parseInt(config.volume) || 8);
@@ -17,14 +16,25 @@ module.exports = function(RED) {
             node.error('RDA5807M init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('rda5807m-device', RDA5807MDeviceNode);
+
+    function RDA5807MReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('RDA5807M not initialized', msg);
                 done();
                 return;
             }
             try {
-                const d = node.driver;
+                const d = deviceNode.driver;
                 const payload = msg.payload || {};
 
                 switch (payload.command) {
@@ -67,10 +77,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-rda5807m', RDA5807MNode);
+    RED.nodes.registerType('rda5807m', RDA5807MReadNode);
 };

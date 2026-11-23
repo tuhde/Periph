@@ -45,23 +45,29 @@
         ]
     },
     {
+        "id": "ssd1331-device-1",
+        "type": "ssd1331-device",
+        "name": "SSD1331",
+        "resPin": "17",
+        "spiDevice": "0",
+        "dcPin": "25",
+        "autoShow": false,
+        "spiBus": "0",
+        "gpioChip": "0"
+    },
+    {
         "id": "ssd1331_node",
-        "type": "periph-ssd1331",
+        "type": "ssd1331",
         "z": "ssd1331_tab",
         "name": "OLED",
-        "spiBus": "0",
-        "spiDevice": "0",
-        "gpioChip": "0",
-        "dcPin": "25",
-        "resPin": "17",
-        "autoShow": false,
         "x": 520,
         "y": 100,
         "wires": [
             [
                 "ssd1331_debug"
             ]
-        ]
+        ],
+        "device": "ssd1331-device-1"
     },
     {
         "id": "ssd1331_debug",

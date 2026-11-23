@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "TMP117 Server Room Cooling Demo",
         "disabled": false,
-        "info": "An Inject node fires every 5 seconds, triggering the periph-tmp117 node to read the temperature and its alert flags, which a Function node formats into a log line. The node is configured in Therm mode with THIGH at 30 °C — a server-room \"too hot\" threshold — and TLOW at 27 °C. When the room heats past THIGH the node emits a separate {source: \"high\"} message and the Function node switches the cooling fan on through the second output. In Therm mode the HIGH_Alert flag latches until the room cools below TLOW, so the periodic reading's high_alert field keeps the fan running and switches it off again automatically once the room is back below 27 °C. Replace the \"Cooling fan\" Debug node with a GPIO or relay node to drive a real fan. To try it without a server room, set THIGH just above room temperature and warm the sensor with a fingertip."
+        "info": "An Inject node fires every 5 seconds, triggering the tmp117 node to read the temperature and its alert flags, which a Function node formats into a log line. The node is configured in Therm mode with THIGH at 30 °C — a server-room \"too hot\" threshold — and TLOW at 27 °C. When the room heats past THIGH the node emits a separate {source: \"high\"} message and the Function node switches the cooling fan on through the second output. In Therm mode the HIGH_Alert flag latches until the room cools below TLOW, so the periodic reading's high_alert field keeps the fan running and switches it off again automatically once the room is back below 27 °C. Replace the \"Cooling fan\" Debug node with a GPIO or relay node to drive a real fan. To try it without a server room, set THIGH just above room temperature and warm the sensor with a fingertip."
     },
     {
         "id": "inj-read",
@@ -27,18 +27,25 @@
         ]
     },
     {
-        "id": "tmp117-node",
-        "type": "periph-tmp117",
-        "name": "Server room TMP117",
+        "id": "tmp117-device-1",
+        "type": "tmp117-device",
+        "name": "TMP117",
         "bus": "1",
-        "address": "0x48",
-        "averaging": "8",
-        "cycleSeconds": "1",
         "alertEnabled": true,
         "highLimit": "30",
-        "lowLimit": "27",
+        "address": "0x48",
+        "cycleSeconds": "1",
+        "averaging": "8",
         "alertMode": "therm",
         "polarity": "active_low",
+        "lowLimit": "27"
+    },
+    {
+        "id": "tmp117-node",
+        "type": "tmp117",
+        "name": "Server room TMP117",
+        "averaging": "8",
+        "cycleSeconds": "1",
         "z": "tab-tmp117-demo",
         "x": 400,
         "y": 100,
@@ -46,7 +53,8 @@
             [
                 "fn-fan"
             ]
-        ]
+        ],
+        "device": "tmp117-device-1"
     },
     {
         "id": "fn-fan",

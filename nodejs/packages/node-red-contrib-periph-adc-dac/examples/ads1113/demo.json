@@ -27,12 +27,17 @@
         ]
     },
     {
-        "id": "ads1113",
-        "type": "periph-ads1113",
+        "id": "ads1113-device-1",
+        "type": "ads1113-device",
         "name": "ADS1113",
         "bus": "1",
         "address": "48",
-        "dataRate": "4",
+        "dataRate": "4"
+    },
+    {
+        "id": "ads1113",
+        "type": "ads1113",
+        "name": "ADS1113",
         "z": "tab-ads1113-demo",
         "x": 380,
         "y": 100,
@@ -40,7 +45,8 @@
             [
                 "dbg"
             ]
-        ]
+        ],
+        "device": "ads1113-device-1"
     },
     {
         "id": "dbg",

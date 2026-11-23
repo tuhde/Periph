@@ -11,7 +11,11 @@
     "type": "inject",
     "z": "uc1611s_tab",
     "name": "draw frame",
-    "props": [{ "p": "payload" }],
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
     "repeat": "",
     "once": true,
     "onceDelay": "2",
@@ -19,14 +23,22 @@
     "payloadType": "json",
     "x": 130,
     "y": 80,
-    "wires": [["uc1611s_node"]]
+    "wires": [
+      [
+        "uc1611s_node"
+      ]
+    ]
   },
   {
     "id": "uc1611s_tick",
     "type": "inject",
     "z": "uc1611s_tab",
     "name": "every 100 ms",
-    "props": [{ "p": "payload" }],
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
     "repeat": "0.1",
     "once": true,
     "onceDelay": "4",
@@ -34,7 +46,11 @@
     "payloadType": "date",
     "x": 130,
     "y": 160,
-    "wires": [["uc1611s_ball"]]
+    "wires": [
+      [
+        "uc1611s_ball"
+      ]
+    ]
   },
   {
     "id": "uc1611s_ball",
@@ -45,21 +61,33 @@
     "outputs": 1,
     "x": 320,
     "y": 160,
-    "wires": [["uc1611s_node"]]
+    "wires": [
+      [
+        "uc1611s_node"
+      ]
+    ]
   },
   {
     "id": "uc1611s_invert",
     "type": "inject",
     "z": "uc1611s_tab",
     "name": "toggle invert",
-    "props": [{ "p": "payload" }],
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
     "repeat": "5",
     "once": false,
     "payload": "",
     "payloadType": "date",
     "x": 130,
     "y": 240,
-    "wires": [["uc1611s_invert_fn"]]
+    "wires": [
+      [
+        "uc1611s_invert_fn"
+      ]
+    ]
   },
   {
     "id": "uc1611s_invert_fn",
@@ -70,50 +98,79 @@
     "outputs": 1,
     "x": 330,
     "y": 240,
-    "wires": [["uc1611s_node"]]
+    "wires": [
+      [
+        "uc1611s_node"
+      ]
+    ]
   },
   {
     "id": "uc1611s_contrast",
     "type": "inject",
     "z": "uc1611s_tab",
     "name": "contrast 0x70",
-    "props": [{ "p": "payload" }],
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
     "repeat": "",
     "once": false,
     "payload": "{\"contrast\":112}",
     "payloadType": "json",
     "x": 130,
     "y": 320,
-    "wires": [["uc1611s_node"]]
+    "wires": [
+      [
+        "uc1611s_node"
+      ]
+    ]
   },
   {
     "id": "uc1611s_contrast_reset",
     "type": "inject",
     "z": "uc1611s_tab",
     "name": "contrast 0x8F",
-    "props": [{ "p": "payload" }],
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
     "repeat": "",
     "once": false,
     "payload": "{\"contrast\":143}",
     "payloadType": "json",
     "x": 130,
     "y": 380,
-    "wires": [["uc1611s_node"]]
+    "wires": [
+      [
+        "uc1611s_node"
+      ]
+    ]
+  },
+  {
+    "id": "uc1611s-device-1",
+    "type": "uc1611s-device",
+    "name": "UC1611S",
+    "contrast": "143",
+    "address": "0x38",
+    "height": "128",
+    "topView": false,
+    "autoShow": true,
+    "width": "240",
+    "i2cBus": "1"
   },
   {
     "id": "uc1611s_node",
-    "type": "periph-uc1611s",
+    "type": "uc1611s",
     "z": "uc1611s_tab",
     "name": "DOGXL240-7",
-    "i2cBus": "1",
-    "address": "0x38",
-    "width": "240",
-    "height": "128",
-    "topView": false,
-    "contrast": "143",
     "autoShow": true,
     "x": 640,
     "y": 200,
-    "wires": [[]]
+    "wires": [
+      []
+    ],
+    "device": "uc1611s-device-1"
   }
 ]

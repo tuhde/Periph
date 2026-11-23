@@ -25,7 +25,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mpl115a2', {
+    RED.nodes.registerType('mpl115a2', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -40,7 +40,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mpl115a2">
+<script type="text/html" data-template-name="mpl115a2">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -51,7 +51,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mpl115a2">
+<script type="text/html" data-help-name="mpl115a2">
     <p>Reads the barometric pressure (50–115 kPa) and an approximate temperature from an NXP MPL115A2 over I²C (address 0x60).</p>
     <p>Any input message triggers one conversion (about 5 ms). The device is configured via an <b>mpl115a2-device</b> config node.</p>
 

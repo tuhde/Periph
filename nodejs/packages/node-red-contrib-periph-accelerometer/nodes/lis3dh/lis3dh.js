@@ -65,5 +65,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-lis3dh', LIS3DHReadNode);
+    RED.nodes.registerType('lis3dh', LIS3DHReadNode);
 };

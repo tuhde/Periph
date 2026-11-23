@@ -50,7 +50,7 @@
 
 <!-- Node: set or read the wiper -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ad5248', {
+    RED.nodes.registerType('ad5248', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -65,7 +65,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ad5248">
+<script type="text/html" data-template-name="ad5248">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -76,7 +76,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ad5248">
+<script type="text/html" data-help-name="ad5248">
     <p>Sets or reads the two 256-position wipers of an AD5248 dual digital rheostat over I²C.
     The device is configured via an <b>ad5248-device</b> config node.</p>
 

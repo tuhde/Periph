@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { SHT31Full } = require('periph/src/chips/humidity/sht31');
 
-    function SHT31Node(config) {
+    function SHT31DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -23,15 +23,26 @@ module.exports = function(RED) {
             node.error('SHT31 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('sht31-device', SHT31DeviceNode);
+
+    function SHT31ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('SHT31 not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [temperature, humidity] = await node.driver.read();
+                await deviceNode.ready;
+                const [temperature, humidity] = await deviceNode.driver.read();
                 msg.payload = { temperature, humidity };
                 send(msg);
                 done();
@@ -39,10 +50,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-sht31', SHT31Node);
+    RED.nodes.registerType('sht31', SHT31ReadNode);
 };

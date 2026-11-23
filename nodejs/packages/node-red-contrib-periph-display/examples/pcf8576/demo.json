@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "PCF8576 Clock",
         "disabled": false,
-        "info": "Drives a 4-digit 7-segment LCD clock from a PCF8576 over I2C. An inject node fires every second, a function node converts the current time to four individual digits, and the periph-pcf8576 node writes the encoded bytes to the chip's display RAM. The chip handles AC drive waveforms internally — the host only writes segment data. With the demo's 9999-to-0000 countdown variant, the user can verify that all 20 segment positions update at the expected rate and that the chip is reliable over many writes."
+        "info": "Drives a 4-digit 7-segment LCD clock from a PCF8576 over I2C. An inject node fires every second, a function node converts the current time to four individual digits, and the pcf8576 node writes the encoded bytes to the chip's display RAM. The chip handles AC drive waveforms internally — the host only writes segment data. With the demo's 9999-to-0000 countdown variant, the user can verify that all 20 segment positions update at the expected rate and that the chip is reliable over many writes."
     },
     {
         "id": "cfg-pcf8576",
@@ -48,7 +48,7 @@
     },
     {
         "id": "write-lcd",
-        "type": "periph-pcf8576",
+        "type": "pcf8576",
         "name": "Display",
         "device": "cfg-pcf8576",
         "z": "tab-pcf8576-demo",

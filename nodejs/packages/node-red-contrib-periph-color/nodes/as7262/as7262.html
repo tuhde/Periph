@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-as7262', {
-        category:  'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('as7262-device', {
+        category: 'config',
         defaults: {
             name:    { value: '' },
             bus:     { value: '1', required: true, validate: RED.validators.number() },
@@ -9,31 +9,28 @@
             gain:    { value: '16' },
             integrationTime: { value: '165.2', validate: RED.validators.number() }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'bridge.svg',
         label: function() {
             return this.name || ('AS7262 @ ' + this.address + ' (bus ' + this.bus + ')');
         }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-as7262">
+<script type="text/html" data-template-name="as7262-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="AS7262">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AS7262">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
-        <input type="text" id="node-input-address" style="width:80px" placeholder="0x49"> &nbsp;(fixed, 0x49)
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x49"> &nbsp;(fixed, 0x49)
     </div>
     <div class="form-row">
-        <label for="node-input-gain"><i class="fa fa-sliders"></i> Gain</label>
-        <select id="node-input-gain" style="width:100px">
+        <label for="node-config-input-gain"><i class="fa fa-sliders"></i> Gain</label>
+        <select id="node-config-input-gain" style="width:100px">
             <option value="1">1×</option>
             <option value="3.7">3.7×</option>
             <option value="16">16×</option>
@@ -41,12 +38,40 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-integrationTime"><i class="fa fa-clock-o"></i> Integration</label>
-        <input type="text" id="node-input-integrationTime" style="width:80px"> &nbsp;ms per bank (2.8 – 714)
+        <label for="node-config-input-integrationTime"><i class="fa fa-clock-o"></i> Integration</label>
+        <input type="text" id="node-config-input-integrationTime" style="width:80px"> &nbsp;ms per bank (2.8 – 714)
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-as7262">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('as7262', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'as7262-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'AS7262'; },
+        paletteLabel: 'AS7262'
+    });
+</script>
+
+<script type="text/html" data-template-name="as7262">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AS7262">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="as7262">
     <p>Reads the six visible spectral channels (violet 450 nm, blue 500 nm, green 550 nm, yellow 570 nm,
     orange 600 nm, red 650 nm) and the chip temperature from an ams OSRAM AS7262 over I²C (fixed address 0x49)
     with one one-shot conversion per message.</p>

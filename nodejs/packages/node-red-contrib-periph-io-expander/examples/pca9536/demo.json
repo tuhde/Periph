@@ -40,17 +40,23 @@
     ]
   },
   {
+    "id": "pca9536-device-1",
+    "type": "pca9536-device",
+    "name": "PCA9536",
+    "pollInterval": "",
+    "bus": "1"
+  },
+  {
     "id": "mcp_write",
-    "type": "periph-pca9536",
+    "type": "pca9536",
     "z": "tab_pca9536_demo",
     "name": "Write LEDs",
-    "bus": "1",
     "x": 560,
     "y": 60,
     "wires": [
       []
     ],
-    "pollInterval": ""
+    "device": "pca9536-device-1"
   },
   {
     "id": "inj_port",
@@ -71,11 +77,17 @@
     ]
   },
   {
+    "id": "pca9536-device-2",
+    "type": "pca9536-device",
+    "name": "PCA9536",
+    "pollInterval": "",
+    "bus": "1"
+  },
+  {
     "id": "mcp_port",
-    "type": "periph-pca9536",
+    "type": "pca9536",
     "z": "tab_pca9536_demo",
     "name": "Read port",
-    "bus": "1",
     "x": 330,
     "y": 160,
     "wires": [
@@ -83,7 +95,7 @@
         "fn_hex"
       ]
     ],
-    "pollInterval": ""
+    "device": "pca9536-device-2"
   },
   {
     "id": "fn_hex",
@@ -132,11 +144,17 @@
     ]
   },
   {
+    "id": "pca9536-device-3",
+    "type": "pca9536-device",
+    "name": "PCA9536",
+    "pollInterval": "",
+    "bus": "1"
+  },
+  {
     "id": "mcp_btn",
-    "type": "periph-pca9536",
+    "type": "pca9536",
     "z": "tab_pca9536_demo",
     "name": "Read P2",
-    "bus": "1",
     "x": 330,
     "y": 260,
     "wires": [
@@ -144,7 +162,7 @@
         "dbg_btn"
       ]
     ],
-    "pollInterval": ""
+    "device": "pca9536-device-3"
   },
   {
     "id": "dbg_btn",

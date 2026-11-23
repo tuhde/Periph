@@ -83,7 +83,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-bmp581', {
+    RED.nodes.registerType('bmp581', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -99,7 +99,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-bmp581">
+<script type="text/html" data-template-name="bmp581">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -114,7 +114,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-bmp581">
+<script type="text/html" data-help-name="bmp581">
     <p>Reads pressure, temperature, and altitude from a BMP581 barometric pressure sensor.</p>
     <p>Any input message triggers a measurement. The device is configured via a <b>bmp581-device</b> config node.</p>
 

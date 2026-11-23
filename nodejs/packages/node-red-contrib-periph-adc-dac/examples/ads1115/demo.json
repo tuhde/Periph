@@ -27,12 +27,18 @@
         ]
     },
     {
-        "id": "ads1115",
-        "type": "periph-ads1115",
+        "id": "ads1115-device-1",
+        "type": "ads1115-device",
         "name": "ADS1115",
+        "gain": "1",
         "bus": "1",
-        "address": "48",
         "dataRate": "4",
+        "address": "48"
+    },
+    {
+        "id": "ads1115",
+        "type": "ads1115",
+        "name": "ADS1115",
         "z": "tab-ads1115-demo",
         "x": 380,
         "y": 100,
@@ -41,8 +47,8 @@
                 "fn-scale"
             ]
         ],
-        "gain": "1",
-        "channel": "0"
+        "channel": "0",
+        "device": "ads1115-device-1"
     },
     {
         "id": "fn-scale",

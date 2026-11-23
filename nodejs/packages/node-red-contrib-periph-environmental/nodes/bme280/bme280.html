@@ -103,7 +103,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-bme280', {
+    RED.nodes.registerType('bme280', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -119,7 +119,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-bme280">
+<script type="text/html" data-template-name="bme280">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -134,7 +134,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-bme280">
+<script type="text/html" data-help-name="bme280">
     <p>Reads temperature, pressure, humidity, altitude, and dew point
     from a BME280 combined humidity + pressure + temperature sensor.</p>
     <p>Any input message triggers a measurement. The device is configured via a <b>bme280-device</b> config node.</p>

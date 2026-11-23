@@ -43,7 +43,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ad7706', {
+    RED.nodes.registerType('ad7706', {
         category: 'Peripheral',
         color: '#C084FC',
         defaults: {
@@ -58,7 +58,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ad7706">
+<script type="text/html" data-template-name="ad7706">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -69,7 +69,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ad7706">
+<script type="text/html" data-help-name="ad7706">
     <p>Reads voltage from a 3-channel, 16-bit sigma-delta AD7706 ADC over SPI. The driver uses the chip's two-phase register-access protocol and polls DRDY over SPI, so only SCLK/DIN/DOUT/CS are needed (no dedicated DRDY GPIO). All three channels share a single COMMON reference pin.</p>
 
     <h3>Inputs</h3>

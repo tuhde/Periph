@@ -31,19 +31,25 @@
     ]
   },
   {
+    "id": "hs40xx-device-1",
+    "type": "hs40xx-device",
+    "name": "HS40XX",
+    "bus": "1",
+    "address": "0x54"
+  },
+  {
     "id": "hs40xx-node",
-    "type": "periph-hs40xx",
+    "type": "hs40xx",
     "z": "hs40xx-tab",
     "name": "HS40xx",
-    "bus": "1",
-    "address": "0x54",
     "x": 380,
     "y": 160,
     "wires": [
       [
         "hs40xx-format"
       ]
-    ]
+    ],
+    "device": "hs40xx-device-1"
   },
   {
     "id": "hs40xx-format",

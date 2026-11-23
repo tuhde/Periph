@@ -13,10 +13,9 @@ module.exports = function(RED) {
         return enabled ? parseInt(value, 10) || 0 : null;
     }
 
-    function PCF85063ANode(config) {
+    function PCF85063ADeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const connection = new I2CConnection(parseInt(config.bus, 10), 0x51);
             node.driver = new PCF85063AFull(connection);
@@ -46,7 +45,7 @@ module.exports = function(RED) {
                     await node.driver.enableInterrupt(sources);
                     await node.driver.onInterrupt((status) => {
                         for (const [bit, name] of SOURCE_NAMES) {
-                            if (status & bit) node.send({ payload: { source: name } });
+                            if (status & bit) node.emit('periph-data', { payload: { source: name } });
                         }
                     });
                 }
@@ -54,32 +53,6 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('PCF85063A init failed: ' + e.message);
         }
-
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                if (msg.payload && msg.payload.datetime) {
-                    const d = msg.payload.datetime;
-                    await node.driver.setDatetime(d.year, d.month, d.day, d.weekday, d.hour, d.minute, d.second);
-                    done();
-                    return;
-                }
-                if (msg.payload && msg.payload.alarm) {
-                    await node.driver.setAlarm(msg.payload.alarm);
-                    done();
-                    return;
-                }
-                const dt = await node.driver.getDatetime();
-                msg.payload = {
-                    ...dt,
-                    oscillator_stopped: await node.driver.oscillatorStopped(),
-                };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
 
         node.on('close', async function(removed, done) {
             try {
@@ -90,5 +63,43 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-pcf85063a', PCF85063ANode);
+    RED.nodes.registerType('pcf85063a-device', PCF85063ADeviceNode);
+
+    function PCF85063AReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                if (msg.payload && msg.payload.datetime) {
+                    const d = msg.payload.datetime;
+                    await deviceNode.driver.setDatetime(d.year, d.month, d.day, d.weekday, d.hour, d.minute, d.second);
+                    done();
+                    return;
+                }
+                if (msg.payload && msg.payload.alarm) {
+                    await deviceNode.driver.setAlarm(msg.payload.alarm);
+                    done();
+                    return;
+                }
+                const dt = await deviceNode.driver.getDatetime();
+                msg.payload = {
+                    ...dt,
+                    oscillator_stopped: await deviceNode.driver.oscillatorStopped(),
+                };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('pcf85063a', PCF85063AReadNode);
 };

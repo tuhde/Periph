@@ -28,7 +28,7 @@
     },
     {
         "id": "l3g4200d-read-1",
-        "type": "periph-l3g4200d",
+        "type": "l3g4200d",
         "name": "L3G4200D Angular Rate",
         "device": "l3g4200d-device-1",
         "wires": [["debug-l3g4200d-1", "chart-x-1", "chart-y-1", "chart-z-1"]]

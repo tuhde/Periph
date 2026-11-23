@@ -39,7 +39,7 @@
 
 <!-- Node: pixels / raw RAM / brightness / blink / key matrix -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ht16k33', {
+    RED.nodes.registerType('ht16k33', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -54,7 +54,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ht16k33">
+<script type="text/html" data-template-name="ht16k33">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -65,7 +65,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ht16k33">
+<script type="text/html" data-help-name="ht16k33">
     <p>Controls a HT16K33 16 × 8 LED matrix driver over I²C: set pixels, write the display RAM, change brightness and blink rate, and read the 13 × 3 key matrix.</p>
     <p>The device is configured via a <b>ht16k33-device</b> config node.</p>
 

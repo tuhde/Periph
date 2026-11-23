@@ -56,7 +56,7 @@
 
 <!-- Input node: message → draw on the display -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pcf8579', {
+    RED.nodes.registerType('pcf8579', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -71,7 +71,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pcf8579">
+<script type="text/html" data-template-name="pcf8579">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -82,7 +82,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pcf8579">
+<script type="text/html" data-help-name="pcf8579">
     <p>Draws into the display RAM of a PCF8579 LCD column driver over I²C. The PCF8579 cannot run alone: a PCF8578 (or an equivalent source) must supply the clock, frame sync and row waveforms. Any incoming message triggers the writes described below. The device is configured via a <b>pcf8579-device</b> config node.</p>
 
     <h3>Inputs</h3>

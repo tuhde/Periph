@@ -42,5 +42,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-mpl115a2', MPL115A2ReadNode);
+    RED.nodes.registerType('mpl115a2', MPL115A2ReadNode);
 };

@@ -6,7 +6,7 @@ module.exports = function(RED) {
 
     const RESOLUTIONS = { '14/14': [14, 14], '14/11': [14, 11], '14/8': [14, 8], '11/14': [11, 14], '11/11': [11, 11], '11/8': [11, 8] };
 
-    function HDC1080Node(config) {
+    function HDC1080DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -26,15 +26,26 @@ module.exports = function(RED) {
             node.error('HDC1080 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('hdc1080-device', HDC1080DeviceNode);
+
+    function HDC1080ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('HDC1080 not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [temperature_c, humidity_pct] = await node.driver.read();
+                await deviceNode.ready;
+                const [temperature_c, humidity_pct] = await deviceNode.driver.read();
                 msg.payload = { temperature_c, humidity_pct };
                 send(msg);
                 done();
@@ -42,10 +53,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-hdc1080', HDC1080Node);
+    RED.nodes.registerType('hdc1080', HDC1080ReadNode);
 };

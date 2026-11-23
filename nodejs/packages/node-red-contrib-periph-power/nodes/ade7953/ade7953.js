@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { ADE7953Full }   = require('periph/src/chips/power/ade7953');
 
-    function ADE7953Node(config) {
+    function ADE7953DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -24,15 +24,22 @@ module.exports = function(RED) {
         node.on('close', function() {
             if (node.connection) node.connection.close();
         });
+    }
+    RED.nodes.registerType('ade7953-device', ADE7953DeviceNode);
+
+    function ADE7953ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
 
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
-                node.error('No ADE7953 driver', msg);
+            if (!deviceNode.driver) {
+                node.error('No ADE7953 device configured', msg);
                 done();
                 return;
             }
             try {
-                const d = node.driver;
+                const d = deviceNode.driver;
                 const voltage = await d.voltage();
                 const current = await d.current();
                 const activePower = await d.activePower();
@@ -50,5 +57,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ade7953', ADE7953Node);
+    RED.nodes.registerType('ade7953', ADE7953ReadNode);
 };

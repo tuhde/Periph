@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "VL6180X Proximity Light Demo",
         "disabled": false,
-        "info": "An Inject node fires every 500 ms into a periph-vl6180x node (I²C bus 1, address 0x29, ALS gain 1, 100 ms integration). The node performs one single-shot range measurement and one single-shot ambient-light measurement per message and outputs msg.payload = { range_mm, range_error, valid, lux }. A Switch node routes on msg.payload.range_mm < 50 with msg.payload.valid true: a hand within 50 mm goes to a Debug node labelled \"hand detected\" and to a gauge-style Function node that reports the proximity in percent (100 at 0 mm, 0 at 50 mm); everything else goes to a Debug node labelled \"idle\" that shows the lux reading, so the sensor works as a proximity-activated light meter."
+        "info": "An Inject node fires every 500 ms into a vl6180x node (I²C bus 1, address 0x29, ALS gain 1, 100 ms integration). The node performs one single-shot range measurement and one single-shot ambient-light measurement per message and outputs msg.payload = { range_mm, range_error, valid, lux }. A Switch node routes on msg.payload.range_mm < 50 with msg.payload.valid true: a hand within 50 mm goes to a Debug node labelled \"hand detected\" and to a gauge-style Function node that reports the proximity in percent (100 at 0 mm, 0 at 50 mm); everything else goes to a Debug node labelled \"idle\" that shows the lux reading, so the sensor works as a proximity-activated light meter."
     },
     {
         "id": "inj-vl6180x",
@@ -27,13 +27,18 @@
         ]
     },
     {
-        "id": "vl6180x-node",
-        "type": "periph-vl6180x",
-        "name": "Proximity VL6180X",
-        "bus": "1",
-        "address": "0x29",
+        "id": "vl6180x-device-1",
+        "type": "vl6180x-device",
+        "name": "VL6180X",
         "gain": "6",
+        "address": "0x29",
         "integrationMs": "100",
+        "bus": "1"
+    },
+    {
+        "id": "vl6180x-node",
+        "type": "vl6180x",
+        "name": "Proximity VL6180X",
         "z": "tab-vl6180x-demo",
         "x": 360,
         "y": 100,
@@ -41,7 +46,8 @@
             [
                 "sw-near"
             ]
-        ]
+        ],
+        "device": "vl6180x-device-1"
     },
     {
         "id": "sw-near",

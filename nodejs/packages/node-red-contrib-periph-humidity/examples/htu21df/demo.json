@@ -31,12 +31,19 @@
     ]
   },
   {
-    "id": "htu21df-node",
-    "type": "periph-htu21df",
-    "z": "htu21df-tab",
-    "name": "HTU21D-F",
+    "id": "htu21df-device-1",
+    "type": "htu21df-device",
+    "name": "HTU21DF",
+    "resolution": "12/14",
     "bus": "1",
     "address": "0x40",
+    "heater": false
+  },
+  {
+    "id": "htu21df-node",
+    "type": "htu21df",
+    "z": "htu21df-tab",
+    "name": "HTU21D-F",
     "x": 380,
     "y": 160,
     "wires": [
@@ -44,8 +51,7 @@
         "htu21df-format"
       ]
     ],
-    "resolution": "12/14",
-    "heater": false
+    "device": "htu21df-device-1"
   },
   {
     "id": "htu21df-format",

@@ -40,19 +40,25 @@
     ]
   },
   {
+    "id": "pca6408a-device-1",
+    "type": "pca6408a-device",
+    "name": "PCA6408A",
+    "address": "20",
+    "bus": "1",
+    "intPin": "",
+    "gpioChip": "0"
+  },
+  {
     "id": "mcp_write",
-    "type": "periph-pca6408a",
+    "type": "pca6408a",
     "z": "tab_pca6408a_demo",
     "name": "Write LEDs",
-    "bus": "1",
-    "address": "20",
-    "gpioChip": "0",
-    "intPin": "",
     "x": 560,
     "y": 60,
     "wires": [
       []
-    ]
+    ],
+    "device": "pca6408a-device-1"
   },
   {
     "id": "inj_port",
@@ -73,21 +79,27 @@
     ]
   },
   {
+    "id": "pca6408a-device-2",
+    "type": "pca6408a-device",
+    "name": "PCA6408A",
+    "address": "20",
+    "bus": "1",
+    "intPin": "",
+    "gpioChip": "0"
+  },
+  {
     "id": "mcp_port",
-    "type": "periph-pca6408a",
+    "type": "pca6408a",
     "z": "tab_pca6408a_demo",
     "name": "Read port",
-    "bus": "1",
-    "address": "20",
-    "gpioChip": "0",
-    "intPin": "",
     "x": 330,
     "y": 160,
     "wires": [
       [
         "fn_hex"
       ]
-    ]
+    ],
+    "device": "pca6408a-device-2"
   },
   {
     "id": "fn_hex",
@@ -136,21 +148,27 @@
     ]
   },
   {
+    "id": "pca6408a-device-3",
+    "type": "pca6408a-device",
+    "name": "PCA6408A",
+    "address": "20",
+    "bus": "1",
+    "intPin": "",
+    "gpioChip": "0"
+  },
+  {
     "id": "mcp_btn",
-    "type": "periph-pca6408a",
+    "type": "pca6408a",
     "z": "tab_pca6408a_demo",
     "name": "Read P4",
-    "bus": "1",
-    "address": "20",
-    "gpioChip": "0",
-    "intPin": "",
     "x": 330,
     "y": 260,
     "wires": [
       [
         "dbg_btn"
       ]
-    ]
+    ],
+    "device": "pca6408a-device-3"
   },
   {
     "id": "dbg_btn",

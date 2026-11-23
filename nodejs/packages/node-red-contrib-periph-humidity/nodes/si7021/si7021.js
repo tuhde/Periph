@@ -6,7 +6,7 @@ module.exports = function(RED) {
 
     const RESOLUTIONS = { '12/14': [12, 14], '8/12': [8, 12], '10/13': [10, 13], '11/11': [11, 11] };
 
-    function Si7021Node(config) {
+    function Si7021DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -26,15 +26,26 @@ module.exports = function(RED) {
             node.error('Si7021 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('si7021-device', Si7021DeviceNode);
+
+    function Si7021ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('Si7021 not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [temperature_c, humidity_pct] = await node.driver.read();
+                await deviceNode.ready;
+                const [temperature_c, humidity_pct] = await deviceNode.driver.read();
                 msg.payload = { temperature_c, humidity_pct };
                 send(msg);
                 done();
@@ -42,10 +53,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-si7021', Si7021Node);
+    RED.nodes.registerType('si7021', Si7021ReadNode);
 };

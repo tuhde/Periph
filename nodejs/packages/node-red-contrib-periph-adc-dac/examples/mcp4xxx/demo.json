@@ -176,7 +176,7 @@
     },
     {
         "id": "mcp4xxx",
-        "type": "periph-mcp4xxx",
+        "type": "mcp4xxx",
         "name": "MCP4XXX",
         "device": "cfg-mcp4xxx",
         "z": "tab-mcp4xxx-demo",

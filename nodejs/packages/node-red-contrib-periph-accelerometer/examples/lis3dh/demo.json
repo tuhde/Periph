@@ -34,7 +34,7 @@
     },
     {
         "id": "read-lis3dh",
-        "type": "periph-lis3dh",
+        "type": "lis3dh",
         "name": "LIS3DH read",
         "device": "cfg-lis3dh",
         "z": "tab-lis3dh-demo",

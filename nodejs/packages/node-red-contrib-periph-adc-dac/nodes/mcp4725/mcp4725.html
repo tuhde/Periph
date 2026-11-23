@@ -28,7 +28,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mcp4725', {
+    RED.nodes.registerType('mcp4725', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -44,7 +44,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mcp4725">
+<script type="text/html" data-template-name="mcp4725">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -62,7 +62,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mcp4725">
+<script type="text/html" data-help-name="mcp4725">
     <p>Sets the output voltage of an MCP4725 12-bit DAC over I²C.</p>
     <p>Any input message triggers a DAC write. The device is configured via a <b>mcp4725-device</b> config node.</p>
 

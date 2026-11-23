@@ -12,7 +12,7 @@ module.exports = function(RED) {
         return new GpioOutputPin(Default.output({ chip, line }));
     }
 
-    function TMC2130Node(config) {
+    function TMC2130DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.ready = false;
@@ -50,47 +50,6 @@ module.exports = function(RED) {
             };
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver || !node.ready) { done(); return; }
-            try {
-                const p = msg.payload;
-                let handled = false;
-                if (p && typeof p === 'object') {
-                    if (typeof p.microsteps === 'number') { await node.driver.setMicrosteps(p.microsteps); handled = true; }
-                    if (typeof p.current === 'number') { await node.driver.setCurrent(p.current); handled = true; }
-                    if (typeof p.stall_threshold === 'number') { await node.driver.setStallThreshold(p.stall_threshold); handled = true; }
-                    if (typeof p.spreadcycle === 'boolean') { await node.driver.setChopperMode(p.spreadcycle); handled = true; }
-                    if (typeof p.enable === 'boolean') {
-                        if (p.enable) await node.driver.enable(); else await node.driver.disable();
-                        handled = true;
-                    }
-                    if (typeof p.move === 'number') {
-                        await node.driver.move(p.move, typeof p.speed === 'number' ? p.speed : node.speed);
-                        handled = true;
-                    }
-                }
-                if (handled) {
-                    msg.payload = await snapshot();
-                } else {
-                    const status = await node.driver.readStatus();
-                    msg.payload = {
-                        standstill: status.stst,
-                        fault: await node.driver.readFault(),
-                        cs_actual: status.cs_actual,
-                        sg_result: status.sg_result,
-                        tstep: await node.driver.readTstep(),
-                        stallguard: status.stallguard,
-                        otpw: status.otpw,
-                        ot: status.ot,
-                    };
-                }
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.driver && node.ready) await node.driver.disable();
@@ -102,5 +61,53 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-tmc2130', TMC2130Node);
+    RED.nodes.registerType('tmc2130-device', TMC2130DeviceNode);
+
+    function TMC2130ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver || !deviceNode.ready) { done(); return; }
+            try {
+                const p = msg.payload;
+                let handled = false;
+                if (p && typeof p === 'object') {
+                    if (typeof p.microsteps === 'number') { await deviceNode.driver.setMicrosteps(p.microsteps); handled = true; }
+                    if (typeof p.current === 'number') { await deviceNode.driver.setCurrent(p.current); handled = true; }
+                    if (typeof p.stall_threshold === 'number') { await deviceNode.driver.setStallThreshold(p.stall_threshold); handled = true; }
+                    if (typeof p.spreadcycle === 'boolean') { await deviceNode.driver.setChopperMode(p.spreadcycle); handled = true; }
+                    if (typeof p.enable === 'boolean') {
+                        if (p.enable) await deviceNode.driver.enable(); else await deviceNode.driver.disable();
+                        handled = true;
+                    }
+                    if (typeof p.move === 'number') {
+                        await deviceNode.driver.move(p.move, typeof p.speed === 'number' ? p.speed : deviceNode.speed);
+                        handled = true;
+                    }
+                }
+                if (handled) {
+                    msg.payload = await snapshot();
+                } else {
+                    const status = await deviceNode.driver.readStatus();
+                    msg.payload = {
+                        standstill: status.stst,
+                        fault: await deviceNode.driver.readFault(),
+                        cs_actual: status.cs_actual,
+                        sg_result: status.sg_result,
+                        tstep: await deviceNode.driver.readTstep(),
+                        stallguard: status.stallguard,
+                        otpw: status.otpw,
+                        ot: status.ot,
+                    };
+                }
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('tmc2130', TMC2130ReadNode);
 };

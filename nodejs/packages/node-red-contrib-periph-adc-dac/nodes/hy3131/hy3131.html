@@ -65,7 +65,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('periph-hy3131', {
+    RED.nodes.registerType('hy3131', {
         category: 'Peripheral',
         color: '#C084FC',
         defaults: {
@@ -80,7 +80,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-hy3131">
+<script type="text/html" data-template-name="hy3131">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -91,7 +91,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-hy3131">
+<script type="text/html" data-help-name="hy3131">
     <p>Reads the AD1 differential input (PB2 vs AGND) of an HY3131 DMM analog front end over SPI. Data-ready is polled via the INTF register, so only CK/DI/DO/CS are needed.</p>
 
     <h3>Inputs</h3>

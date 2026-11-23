@@ -48,5 +48,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-l3gd20h', L3GD20HReadNode);
+    RED.nodes.registerType('l3gd20h', L3GD20HReadNode);
 };

@@ -1,37 +1,62 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-am2320', {
-        category:  'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('am2320-device', {
+        category: 'config',
         defaults: {
             name:    { value: '' },
             bus:     { value: '1', required: true, validate: RED.validators.number() },
             address: { value: '0x5C' }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'bridge.svg',
         label: function() {
             return this.name || ('AM2320 @ ' + this.address + ' (bus ' + this.bus + ')');
         }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-am2320">
+<script type="text/html" data-template-name="am2320-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AM2320">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, standard mode)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x5C"> &nbsp;(fixed, 0x5C)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('am2320', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'am2320-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'AM2320'; },
+        paletteLabel: 'AM2320'
+    });
+</script>
+
+<script type="text/html" data-template-name="am2320">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="AM2320">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, standard mode)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
-        <input type="text" id="node-input-address" style="width:80px" placeholder="0x5C"> &nbsp;(fixed, 0x5C)
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-am2320">
+<script type="text/html" data-help-name="am2320">
     <p>Reads temperature and relative humidity from an Aosong AM2320 over I²C (fixed address 0x5C). The sensor
     sleeps between transactions and returns the result of the <em>previous</em> measurement; the node keeps
     transactions at least 2 s apart, so a message arriving earlier is answered after the remaining delay.

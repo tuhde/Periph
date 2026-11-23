@@ -1,6 +1,6 @@
 <!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-max17048-device', {
+    RED.nodes.registerType('max17048-device', {
         category: 'config',
         defaults: {
             name:    { value: '' },
@@ -14,7 +14,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-max17048-device">
+<script type="text/html" data-template-name="max17048-device">
     <div class="form-row">
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="MAX17048">
@@ -38,12 +38,12 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-max17048', {
+    RED.nodes.registerType('max17048', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
             name:   { value: '' },
-            device: { value: '', type: 'periph-max17048-device', required: true },
+            device: { value: '', type: 'max17048-device', required: true },
             rate:   { value: false }
         },
         inputs:  1,
@@ -54,7 +54,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-max17048">
+<script type="text/html" data-template-name="max17048">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -69,9 +69,9 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-max17048">
+<script type="text/html" data-help-name="max17048">
     <p>Reads cell voltage and state of charge from a MAX17048 (1-cell) or MAX17049 (2-cell) lithium fuel gauge over I²C.</p>
-    <p>Any input message triggers one reading. The device is configured via a <b>periph-max17048-device</b> config node.</p>
+    <p>Any input message triggers one reading. The device is configured via a <b>max17048-device</b> config node.</p>
 
     <h3>Output</h3>
     <dl class="message-properties">

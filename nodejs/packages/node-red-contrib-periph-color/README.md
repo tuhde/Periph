@@ -16,7 +16,8 @@ npm install node-red-contrib-periph-color
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-as7262` | input | Reads the six visible spectral channels (violet 450 nm, blue 500 nm, green 550 nm, yellow 570 nm, orange 600 nm, red 650 nm) and the chip temperature from an ams OSRAM AS7262 over I²C (fixed address 0x49) with one one-shot conversion per message. |
+| `as7262-device` | config | I²C bus and address for an AS7262 |
+| `as7262` | input | Reads the six visible spectral channels (violet 450 nm, blue 500 nm, green 550 nm, yellow 570 nm, orange 600 nm, red 650 nm) and the chip temperature from an ams OSRAM AS7262 over I²C (fixed address 0x49) with one one-shot conversion per message. |
 
 ## Links
 

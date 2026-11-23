@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ssd1306', {
-        category: 'Peripheral',
-        color:    '#C084FC',
+    RED.nodes.registerType('ssd1306-device', {
+        category: 'config',
         defaults: {
             name:     { value: '' },
             transport: { value: 'i2c' },
@@ -14,74 +14,100 @@
             resPin:   { value: '17', validate: RED.validators.number() },
             width:    { value: '128', required: true, validate: RED.validators.number() },
             height:   { value: '64', required: true, validate: RED.validators.number() },
-            externalVcc: { value: false },
+            externalVcc: { value: false }
+        },
+        label: function() {
+            return this.name || 'SSD1306';
+        },
+        oneditprepare: function() {
+            function show() {
+                const spi = $('#node-config-input-transport').val() === 'spi';
+                $('.ssd1306-i2c').toggle(!spi);
+                $('.ssd1306-spi').toggle(spi);
+            }
+            $('#node-config-input-transport').on('change', show);
+            show();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ssd1306-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="SSD1306">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-transport"><i class="fa fa-exchange"></i> Interface</label>
+        <select id="node-config-input-transport" style="width:auto">
+            <option value="i2c">I2C</option>
+            <option value="spi">4-wire SPI</option>
+        </select>
+    </div>
+    <div class="form-row ssd1306-i2c">
+        <label for="node-config-input-i2cBus"><i class="fa fa-microchip"></i> I2C bus</label>
+        <input type="number" id="node-config-input-i2cBus" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1306-i2c">
+        <label for="node-config-input-address">Address</label>
+        <select id="node-config-input-address" style="width:auto">
+            <option value="0x3C">0x3C (SA0 = low)</option>
+            <option value="0x3D">0x3D (SA0 = high)</option>
+        </select>
+    </div>
+    <div class="form-row ssd1306-spi">
+        <label for="node-config-input-spiBus"><i class="fa fa-microchip"></i> SPI bus / device</label>
+        <input type="number" id="node-config-input-spiBus" min="0" style="width:70px"> /
+        <input type="number" id="node-config-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1306-spi">
+        <label for="node-config-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-config-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1306-spi">
+        <label for="node-config-input-dcPin">D/C line</label>
+        <input type="number" id="node-config-input-dcPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row ssd1306-spi">
+        <label for="node-config-input-resPin">RES line</label>
+        <input type="number" id="node-config-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-width">Size</label>
+        <input type="number" id="node-config-input-width" min="1" max="128" style="width:70px"> x
+        <input type="number" id="node-config-input-height" min="16" max="64" step="8" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-externalVcc">External VCC</label>
+        <input type="checkbox" id="node-config-input-externalVcc" style="width:auto; vertical-align:top">
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('ssd1306', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:     { value: '' },
+            device: { value: '', type: 'ssd1306-device', required: true },
             autoShow: { value: true }
         },
         inputs:  1,
         outputs: 0,
         icon:    'font-awesome/fa-television',
         label:   function() { return this.name || 'SSD1306'; },
-        paletteLabel: 'SSD1306',
-        oneditprepare: function() {
-            function show() {
-                const spi = $('#node-input-transport').val() === 'spi';
-                $('.ssd1306-i2c').toggle(!spi);
-                $('.ssd1306-spi').toggle(spi);
-            }
-            $('#node-input-transport').on('change', show);
-            show();
-        }
+        paletteLabel: 'SSD1306'
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ssd1306">
+<script type="text/html" data-template-name="ssd1306">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="SSD1306">
     </div>
     <div class="form-row">
-        <label for="node-input-transport"><i class="fa fa-exchange"></i> Interface</label>
-        <select id="node-input-transport" style="width:auto">
-            <option value="i2c">I2C</option>
-            <option value="spi">4-wire SPI</option>
-        </select>
-    </div>
-    <div class="form-row ssd1306-i2c">
-        <label for="node-input-i2cBus"><i class="fa fa-microchip"></i> I2C bus</label>
-        <input type="number" id="node-input-i2cBus" min="0" style="width:70px">
-    </div>
-    <div class="form-row ssd1306-i2c">
-        <label for="node-input-address">Address</label>
-        <select id="node-input-address" style="width:auto">
-            <option value="0x3C">0x3C (SA0 = low)</option>
-            <option value="0x3D">0x3D (SA0 = high)</option>
-        </select>
-    </div>
-    <div class="form-row ssd1306-spi">
-        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus / device</label>
-        <input type="number" id="node-input-spiBus" min="0" style="width:70px"> /
-        <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
-    </div>
-    <div class="form-row ssd1306-spi">
-        <label for="node-input-gpioChip">GPIO chip</label>
-        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
-    </div>
-    <div class="form-row ssd1306-spi">
-        <label for="node-input-dcPin">D/C line</label>
-        <input type="number" id="node-input-dcPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row ssd1306-spi">
-        <label for="node-input-resPin">RES line</label>
-        <input type="number" id="node-input-resPin" min="0" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-width">Size</label>
-        <input type="number" id="node-input-width" min="1" max="128" style="width:70px"> x
-        <input type="number" id="node-input-height" min="16" max="64" step="8" style="width:70px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-externalVcc">External VCC</label>
-        <input type="checkbox" id="node-input-externalVcc" style="width:auto; vertical-align:top">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
     <div class="form-row">
         <label for="node-input-autoShow">Auto-show</label>
@@ -89,7 +115,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ssd1306">
+<script type="text/html" data-help-name="ssd1306">
     <p>Draws on an SSD1306 monochrome OLED (128 x 64 RAM, typically a 0.96" 128 x 64 or 128 x 32 module) over I2C (<code>0x3C</code> / <code>0x3D</code>) or 4-wire SPI. On SPI the node needs the SPI bus / chip-select device and the GPIO lines for D/C and RES. The chip cannot be read, so there is no status output. <em>External VCC</em> keeps the internal charge pump off for boards that supply the OLED voltage themselves.</p>
     <p>Drawing commands change a framebuffer; with <em>Auto-show</em> the framebuffer is sent after every message that draws, otherwise send <code>{ show: true }</code>.</p>
 

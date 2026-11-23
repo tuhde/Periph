@@ -18,7 +18,7 @@ module.exports = function(RED) {
             if (node.connection) node.connection.close();
         });
     }
-    RED.nodes.registerType('periph-lm25066-device', LM25066DeviceNode);
+    RED.nodes.registerType('lm25066-device', LM25066DeviceNode);
 
     function LM25066ReadNode(config) {
         RED.nodes.createNode(this, config);
@@ -47,5 +47,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-lm25066', LM25066ReadNode);
+    RED.nodes.registerType('lm25066', LM25066ReadNode);
 };

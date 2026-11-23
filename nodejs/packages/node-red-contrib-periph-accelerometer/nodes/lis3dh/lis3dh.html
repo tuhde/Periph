@@ -68,7 +68,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-lis3dh', {
+    RED.nodes.registerType('lis3dh', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -83,7 +83,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-lis3dh">
+<script type="text/html" data-template-name="lis3dh">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -94,7 +94,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-lis3dh">
+<script type="text/html" data-help-name="lis3dh">
     <p>Reads 3-axis acceleration and the relative on-chip temperature from a LIS3DH 3-axis accelerometer over I²C.</p>
     <p>Any input message triggers a measurement. The device is configured via a <b>lis3dh-device</b> config node.</p>
 

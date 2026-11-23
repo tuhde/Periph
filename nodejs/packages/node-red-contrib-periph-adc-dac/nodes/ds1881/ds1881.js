@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { DS1881Full } = require('periph/src/chips/adc_dac/ds1881');
 
-    function DS1881Node(config) {
+    function DS1881DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.lastDb = [0, 0];
@@ -28,45 +28,62 @@ module.exports = function(RED) {
             node.error('DS1881 init failed: ' + e.message);
         }
 
+        node.on('close', async function(removed, done) {
+            try {
+                if (node.connection) await node.connection.close();
+            } catch (e) {
+                // bus may already be gone; nothing more to do on close
+            } finally {
+                done();
+            }
+        });
+    }
+    RED.nodes.registerType('ds1881-device', DS1881DeviceNode);
+
+    function DS1881ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         async function readback() {
-            const [position0, position1, raw] = await node.driver.readAll();
-            const cfg = await node.driver.getConfig();
+            const [position0, position1, raw] = await deviceNode.driver.readAll();
+            const cfg = await deviceNode.driver.getConfig();
             return {
                 position0, position1,
-                db0: node.driver.positionToDb(position0),
-                db1: node.driver.positionToDb(position1),
+                db0: deviceNode.driver.positionToDb(position0),
+                db1: deviceNode.driver.positionToDb(position1),
                 config: { option: cfg.option, zeroCrossing: cfg.zeroCrossing, nonvolatile: cfg.nonvolatile, raw },
             };
         }
 
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
+            if (!deviceNode.driver) { done(); return; }
             try {
-                await node.ready;
+                await deviceNode.ready;
                 const p = msg.payload;
                 const isObj = p && typeof p === 'object';
                 if (isObj && p.store === true) {
-                    await node.driver.store();
+                    await deviceNode.driver.store();
                     done();
                     return;
                 }
                 if (isObj && typeof p.mute === 'boolean') {
                     const channels = typeof p.channel === 'number' ? [p.channel] : [0, 1];
                     for (const ch of channels) {
-                        if (p.mute) await node.driver.mute(ch);
-                        else await node.driver.setAttenuation(ch, node.lastDb[ch]);
+                        if (p.mute) await deviceNode.driver.mute(ch);
+                        else await deviceNode.driver.setAttenuation(ch, deviceNode.lastDb[ch]);
                     }
                     done();
                     return;
                 }
                 if (isObj && typeof p.db === 'number' && typeof p.channel === 'number') {
-                    await node.driver.setAttenuation(p.channel, p.db);
-                    node.lastDb[p.channel] = p.db;
-                    const position = await node.driver.getPosition(p.channel);
-                    msg.payload = { channel: p.channel, position, db: node.driver.positionToDb(position) };
+                    await deviceNode.driver.setAttenuation(p.channel, p.db);
+                    deviceNode.lastDb[p.channel] = p.db;
+                    const position = await deviceNode.driver.getPosition(p.channel);
+                    msg.payload = { channel: p.channel, position, db: deviceNode.driver.positionToDb(position) };
                 } else if (isObj && typeof p.db === 'number') {
-                    await node.driver.setAttenuationBoth(p.db);
-                    node.lastDb = [p.db, p.db];
+                    await deviceNode.driver.setAttenuationBoth(p.db);
+                    deviceNode.lastDb = [p.db, p.db];
                     const r = await readback();
                     msg.payload = { position0: r.position0, position1: r.position1, db0: r.db0, db1: r.db1 };
                 } else {
@@ -78,16 +95,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', async function(removed, done) {
-            try {
-                if (node.connection) await node.connection.close();
-            } catch (e) {
-                // bus may already be gone; nothing more to do on close
-            } finally {
-                done();
-            }
-        });
     }
-    RED.nodes.registerType('periph-ds1881', DS1881Node);
+    RED.nodes.registerType('ds1881', DS1881ReadNode);
 };

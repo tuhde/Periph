@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "ADS7828 Supply Monitor Demo",
     "disabled": false,
-    "info": "Eight-channel supply monitor on an ADS7828 with its internal 2.5 V reference. An Inject node ticks every second into the periph-ads7828 node, which scans CH0-CH7 and returns {channels, raw}. A Function node splits the eight voltages into separate messages with topics ch0 ... ch7 and a Debug node prints them. A second Inject node sends msg.differential = \"0-1\" to read a bridge sensor on CH0/CH1 as a differential pair."
+    "info": "Eight-channel supply monitor on an ADS7828 with its internal 2.5 V reference. An Inject node ticks every second into the ads7828 node, which scans CH0-CH7 and returns {channels, raw}. A Function node splits the eight voltages into separate messages with topics ch0 ... ch7 and a Debug node prints them. A second Inject node sends msg.differential = \"0-1\" to read a bridge sensor on CH0/CH1 as a differential pair."
   },
   {
     "id": "inj-scan",
@@ -63,13 +63,18 @@
     ]
   },
   {
-    "id": "ads7828-node",
-    "type": "periph-ads7828",
+    "id": "ads7828-device-1",
+    "type": "ads7828-device",
     "name": "ADS7828",
-    "bus": "1",
     "address": "0x48",
-    "reference": "internal",
+    "bus": "1",
     "vref": "5.0",
+    "reference": "internal"
+  },
+  {
+    "id": "ads7828-node",
+    "type": "ads7828",
+    "name": "ADS7828",
     "z": "tab-ads7828-demo",
     "x": 560,
     "y": 140,
@@ -78,7 +83,8 @@
         "fn-split",
         "dbg-raw"
       ]
-    ]
+    ],
+    "device": "ads7828-device-1"
   },
   {
     "id": "fn-split",

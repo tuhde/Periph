@@ -95,7 +95,7 @@
 
 <!-- Node: set or read the wipers -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-mcp4xxx', {
+    RED.nodes.registerType('mcp4xxx', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -110,7 +110,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-mcp4xxx">
+<script type="text/html" data-template-name="mcp4xxx">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -121,7 +121,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mcp4xxx">
+<script type="text/html" data-help-name="mcp4xxx">
     <p>Sets or reads the volatile wiper(s) of an MCP4XXX I²C digital potentiometer / rheostat
     (MCP4531 … MCP4662: 7 / 8-bit, one or two networks, volatile or non-volatile). The device is
     configured via an <b>mcp4xxx-device</b> config node.</p>

@@ -18,7 +18,7 @@ module.exports = function(RED) {
             if (node.connection) node.connection.close();
         });
     }
-    RED.nodes.registerType('periph-max17048-device', MAX17048DeviceNode);
+    RED.nodes.registerType('max17048-device', MAX17048DeviceNode);
 
     function MAX17048ReadNode(config) {
         RED.nodes.createNode(this, config);
@@ -45,5 +45,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-max17048', MAX17048ReadNode);
+    RED.nodes.registerType('max17048', MAX17048ReadNode);
 };

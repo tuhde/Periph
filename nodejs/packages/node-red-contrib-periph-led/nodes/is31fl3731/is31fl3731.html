@@ -35,7 +35,7 @@
 
 <!-- Node: pixels / fill / clear -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-is31fl3731', {
+    RED.nodes.registerType('is31fl3731', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -50,7 +50,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-is31fl3731">
+<script type="text/html" data-template-name="is31fl3731">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -61,7 +61,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-is31fl3731">
+<script type="text/html" data-help-name="is31fl3731">
     <p>Controls an IS31FL3731 144-LED matrix driver (9 × 16, 8-bit PWM per LED) over I²C. The node draws into frame 1 in Picture mode.</p>
     <p>The device is configured via a <b>is31fl3731-device</b> config node.</p>
 

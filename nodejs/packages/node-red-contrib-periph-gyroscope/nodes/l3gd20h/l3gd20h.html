@@ -62,7 +62,7 @@
 
 <!-- Read node: trigger -> measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-l3gd20h', {
+    RED.nodes.registerType('l3gd20h', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -77,7 +77,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-l3gd20h">
+<script type="text/html" data-template-name="l3gd20h">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -88,7 +88,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-l3gd20h">
+<script type="text/html" data-help-name="l3gd20h">
     <p>Reads angular rate on the X, Y, and Z axes from an L3GD20H (or L3GD20) MEMS gyroscope.</p>
     <p>Any input message triggers a measurement. The device is configured via an <b>l3gd20h-device</b> config node.</p>
 

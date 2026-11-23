@@ -35,7 +35,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-as5600', {
+    RED.nodes.registerType('as5600', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -50,7 +50,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-as5600">
+<script type="text/html" data-template-name="as5600">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -61,7 +61,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-as5600">
+<script type="text/html" data-help-name="as5600">
     <p>Reads the absolute angle, raw count, and magnet detection status from an AS5600
     contactless rotary position sensor over I²C.</p>
     <p>Any input message triggers a measurement. The device is configured via an

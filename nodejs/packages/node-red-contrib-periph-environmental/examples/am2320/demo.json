@@ -31,19 +31,25 @@
     ]
   },
   {
+    "id": "am2320-device-1",
+    "type": "am2320-device",
+    "name": "AM2320",
+    "address": "0x5C",
+    "bus": "1"
+  },
+  {
     "id": "am2320-node",
-    "type": "periph-am2320",
+    "type": "am2320",
     "z": "am2320-tab",
     "name": "AM2320",
-    "bus": "1",
-    "address": "0x5C",
     "x": 380,
     "y": 160,
     "wires": [
       [
         "am2320-format"
       ]
-    ]
+    ],
+    "device": "am2320-device-1"
   },
   {
     "id": "am2320-format",

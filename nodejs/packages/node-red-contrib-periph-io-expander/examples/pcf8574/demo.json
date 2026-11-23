@@ -15,18 +15,33 @@
         "payloadType": "json",
         "x": 120,
         "y": 100,
-        "wires": [["pcf8574_read"]]
+        "wires": [
+            [
+                "pcf8574_read"
+            ]
+        ]
+    },
+    {
+        "id": "pcf8574-device-1",
+        "type": "pcf8574-device",
+        "name": "PCF8574",
+        "bus": "1",
+        "address": "20"
     },
     {
         "id": "pcf8574_read",
-        "type": "periph-pcf8574",
+        "type": "pcf8574",
         "z": "tab_pcf8574_demo",
         "name": "PCF8574 read",
-        "bus": "1",
-        "address": "20",
         "x": 320,
         "y": 100,
-        "wires": [["fn_mirror", "debug_port"]]
+        "wires": [
+            [
+                "fn_mirror",
+                "debug_port"
+            ]
+        ],
+        "device": "pcf8574-device-1"
     },
     {
         "id": "fn_mirror",
@@ -37,23 +52,96 @@
         "outputs": 4,
         "x": 540,
         "y": 100,
-        "wires": [["pcf8574_p0"], ["pcf8574_p1"], ["pcf8574_p2"], ["pcf8574_p3"]]
+        "wires": [
+            [
+                "pcf8574_p0"
+            ],
+            [
+                "pcf8574_p1"
+            ],
+            [
+                "pcf8574_p2"
+            ],
+            [
+                "pcf8574_p3"
+            ]
+        ]
     },
     {
-        "id": "pcf8574_p0", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
-        "name": "PCF8574 P0", "bus": "1", "address": "20", "x": 760, "y": 60, "wires": [[]]
+        "id": "pcf8574-device-2",
+        "type": "pcf8574-device",
+        "name": "PCF8574",
+        "bus": "1",
+        "address": "20"
     },
     {
-        "id": "pcf8574_p1", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
-        "name": "PCF8574 P1", "bus": "1", "address": "20", "x": 760, "y": 100, "wires": [[]]
+        "id": "pcf8574_p0",
+        "type": "pcf8574",
+        "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P0",
+        "x": 760,
+        "y": 60,
+        "wires": [
+            []
+        ],
+        "device": "pcf8574-device-2"
     },
     {
-        "id": "pcf8574_p2", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
-        "name": "PCF8574 P2", "bus": "1", "address": "20", "x": 760, "y": 140, "wires": [[]]
+        "id": "pcf8574-device-3",
+        "type": "pcf8574-device",
+        "name": "PCF8574",
+        "bus": "1",
+        "address": "20"
     },
     {
-        "id": "pcf8574_p3", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
-        "name": "PCF8574 P3", "bus": "1", "address": "20", "x": 760, "y": 180, "wires": [[]]
+        "id": "pcf8574_p1",
+        "type": "pcf8574",
+        "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P1",
+        "x": 760,
+        "y": 100,
+        "wires": [
+            []
+        ],
+        "device": "pcf8574-device-3"
+    },
+    {
+        "id": "pcf8574-device-4",
+        "type": "pcf8574-device",
+        "name": "PCF8574",
+        "bus": "1",
+        "address": "20"
+    },
+    {
+        "id": "pcf8574_p2",
+        "type": "pcf8574",
+        "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P2",
+        "x": 760,
+        "y": 140,
+        "wires": [
+            []
+        ],
+        "device": "pcf8574-device-4"
+    },
+    {
+        "id": "pcf8574-device-5",
+        "type": "pcf8574-device",
+        "name": "PCF8574",
+        "bus": "1",
+        "address": "20"
+    },
+    {
+        "id": "pcf8574_p3",
+        "type": "pcf8574",
+        "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P3",
+        "x": 760,
+        "y": 180,
+        "wires": [
+            []
+        ],
+        "device": "pcf8574-device-5"
     },
     {
         "id": "debug_port",

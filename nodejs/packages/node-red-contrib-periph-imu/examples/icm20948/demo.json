@@ -31,14 +31,20 @@
     ]
   },
   {
-    "id": "icm20948-node",
-    "type": "periph-icm20948",
-    "z": "icm20948-tab",
-    "name": "ICM-20948",
+    "id": "icm20948-device-1",
+    "type": "icm20948-device",
+    "name": "ICM20948",
+    "mag": true,
+    "gyroRange": "1",
     "bus": "1",
     "address": "0x68",
-    "accelRange": "1",
-    "gyroRange": "1",
+    "accelRange": "1"
+  },
+  {
+    "id": "icm20948-node",
+    "type": "icm20948",
+    "z": "icm20948-tab",
+    "name": "ICM-20948",
     "mag": true,
     "x": 400,
     "y": 160,
@@ -46,7 +52,8 @@
       [
         "icm20948-compass"
       ]
-    ]
+    ],
+    "device": "icm20948-device-1"
   },
   {
     "id": "icm20948-compass",

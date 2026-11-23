@@ -15,18 +15,32 @@
         "payloadType": "json",
         "x": 120,
         "y": 160,
-        "wires": [["mcp23017_read_a"]]
+        "wires": [
+            [
+                "mcp23017_read_a"
+            ]
+        ]
+    },
+    {
+        "id": "mcp23017-device-1",
+        "type": "mcp23017-device",
+        "name": "MCP23017",
+        "bus": "1",
+        "address": "20"
     },
     {
         "id": "mcp23017_read_a",
-        "type": "periph-mcp23017",
+        "type": "mcp23017",
         "z": "tab_mcp23017_demo",
         "name": "Read PORTA",
-        "bus": "1",
-        "address": "20",
         "x": 340,
         "y": 160,
-        "wires": [["fn_combine"]]
+        "wires": [
+            [
+                "fn_combine"
+            ]
+        ],
+        "device": "mcp23017-device-1"
     },
     {
         "id": "fn_combine",
@@ -37,18 +51,35 @@
         "outputs": 2,
         "x": 540,
         "y": 160,
-        "wires": [["mcp23017_read_b"], ["fn_display"]]
+        "wires": [
+            [
+                "mcp23017_read_b"
+            ],
+            [
+                "fn_display"
+            ]
+        ]
+    },
+    {
+        "id": "mcp23017-device-2",
+        "type": "mcp23017-device",
+        "name": "MCP23017",
+        "bus": "1",
+        "address": "20"
     },
     {
         "id": "mcp23017_read_b",
-        "type": "periph-mcp23017",
+        "type": "mcp23017",
         "z": "tab_mcp23017_demo",
         "name": "Read PORTB",
-        "bus": "1",
-        "address": "20",
         "x": 760,
         "y": 160,
-        "wires": [["fn_display"]]
+        "wires": [
+            [
+                "fn_display"
+            ]
+        ],
+        "device": "mcp23017-device-2"
     },
     {
         "id": "fn_display",
@@ -59,7 +90,11 @@
         "outputs": 1,
         "x": 980,
         "y": 160,
-        "wires": [["debug_ports"]]
+        "wires": [
+            [
+                "debug_ports"
+            ]
+        ]
     },
     {
         "id": "debug_ports",
@@ -81,7 +116,11 @@
         "payloadType": "json",
         "x": 120,
         "y": 60,
-        "wires": [["fn_knight"]]
+        "wires": [
+            [
+                "fn_knight"
+            ]
+        ]
     },
     {
         "id": "fn_knight",
@@ -92,7 +131,11 @@
         "outputs": 1,
         "x": 340,
         "y": 60,
-        "wires": [["mcp23017_write"]]
+        "wires": [
+            [
+                "mcp23017_write"
+            ]
+        ]
     },
     {
         "id": "inject_alt",
@@ -104,7 +147,11 @@
         "payloadType": "json",
         "x": 120,
         "y": 100,
-        "wires": [["fn_alt"]]
+        "wires": [
+            [
+                "fn_alt"
+            ]
+        ]
     },
     {
         "id": "fn_alt",
@@ -115,7 +162,11 @@
         "outputs": 1,
         "x": 340,
         "y": 100,
-        "wires": [["mcp23017_write"]]
+        "wires": [
+            [
+                "mcp23017_write"
+            ]
+        ]
     },
     {
         "id": "inject_rotate",
@@ -127,7 +178,11 @@
         "payloadType": "json",
         "x": 120,
         "y": 140,
-        "wires": [["fn_rotate"]]
+        "wires": [
+            [
+                "fn_rotate"
+            ]
+        ]
     },
     {
         "id": "fn_rotate",
@@ -138,17 +193,27 @@
         "outputs": 1,
         "x": 340,
         "y": 140,
-        "wires": [["mcp23017_write"]]
+        "wires": [
+            [
+                "mcp23017_write"
+            ]
+        ]
+    },
+    {
+        "id": "mcp23017-device-3",
+        "type": "mcp23017-device",
+        "name": "MCP23017",
+        "bus": "1",
+        "address": "20"
     },
     {
         "id": "mcp23017_write",
-        "type": "periph-mcp23017",
+        "type": "mcp23017",
         "z": "tab_mcp23017_demo",
         "name": "Write PORTA",
-        "bus": "1",
-        "address": "20",
         "x": 540,
         "y": 100,
-        "wires": []
+        "wires": [],
+        "device": "mcp23017-device-3"
     }
 ]

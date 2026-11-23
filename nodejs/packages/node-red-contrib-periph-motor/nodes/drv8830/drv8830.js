@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { DRV8830Full } = require('periph/src/chips/motor/drv8830');
 
-    function DRV8830Node(config) {
+    function DRV8830DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address, 16) || DRV8830Full.I2C_ADDRESS;
             const connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -17,24 +16,6 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('DRV8830 init failed: ' + e.message);
         }
-
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                const p = msg.payload;
-                if (p && typeof p === 'object') {
-                    if (p.clear_fault === true) { await node.driver.clearFault(); done(); return; }
-                    if (p.brake === true) { await node.driver.brake(); done(); return; }
-                    if (p.stop === true) { await node.driver.stop(); done(); return; }
-                    if (typeof p.voltage === 'number') { await node.driver.drive(p.voltage); done(); return; }
-                }
-                msg.payload = await node.driver.readFault();
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
 
         node.on('close', async function(removed, done) {
             try {
@@ -47,5 +28,30 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-drv8830', DRV8830Node);
+    RED.nodes.registerType('drv8830-device', DRV8830DeviceNode);
+
+    function DRV8830ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                const p = msg.payload;
+                if (p && typeof p === 'object') {
+                    if (p.clear_fault === true) { await deviceNode.driver.clearFault(); done(); return; }
+                    if (p.brake === true) { await deviceNode.driver.brake(); done(); return; }
+                    if (p.stop === true) { await deviceNode.driver.stop(); done(); return; }
+                    if (typeof p.voltage === 'number') { await deviceNode.driver.drive(p.voltage); done(); return; }
+                }
+                msg.payload = await deviceNode.driver.readFault();
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('drv8830', DRV8830ReadNode);
 };

@@ -115,7 +115,7 @@
   },
   {
     "id": "apa102-node",
-    "type": "periph-apa102",
+    "type": "apa102",
     "z": "apa102-demo-tab",
     "name": "APA102",
     "device": "apa102-device-1",

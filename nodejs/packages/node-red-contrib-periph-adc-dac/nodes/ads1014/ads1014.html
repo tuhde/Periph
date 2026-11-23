@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ads1014', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('ads1014-device', {
+        category: 'config',
         defaults: {
             name:     { value: '' },
             bus:      { value: '1', required: true, validate: RED.validators.number() },
@@ -9,26 +9,24 @@
             gain:     { value: '2' },
             dataRate: { value: '4' }
         },
-        inputs:  1,
-        outputs: 1,
-        icon:    'font-awesome/fa-tachometer',
-        label:   function() { return this.name || 'ADS1014'; },
-        paletteLabel: 'ADS1014'
+        label: function() {
+            return this.name || ('ADS1014 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ads1014">
+<script type="text/html" data-template-name="ads1014-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="ADS1014">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ADS1014">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
-        <select id="node-input-address" style="width:120px">
+        <label for="node-config-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:120px">
             <option value="0x48">0x48 (ADDR = GND)</option>
             <option value="0x49">0x49 (ADDR = VDD)</option>
             <option value="0x4A">0x4A (ADDR = SDA)</option>
@@ -36,8 +34,8 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-gain"><i class="fa fa-sliders"></i> Gain</label>
-        <select id="node-input-gain" style="width:200px">
+        <label for="node-config-input-gain"><i class="fa fa-sliders"></i> Gain</label>
+        <select id="node-config-input-gain" style="width:200px">
             <option value="0">±6.144 V (3 mV/LSB)</option>
             <option value="1">±4.096 V (2 mV/LSB)</option>
             <option value="2">±2.048 V (1 mV/LSB)</option>
@@ -47,8 +45,8 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-dataRate"><i class="fa fa-clock-o"></i> Data rate</label>
-        <select id="node-input-dataRate" style="width:160px">
+        <label for="node-config-input-dataRate"><i class="fa fa-clock-o"></i> Data rate</label>
+        <select id="node-config-input-dataRate" style="width:160px">
             <option value="0">128 SPS</option>
             <option value="1">250 SPS</option>
             <option value="2">490 SPS</option>
@@ -60,7 +58,35 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ads1014">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('ads1014', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:     { value: '' },
+            device: { value: '', type: 'ads1014-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'ADS1014'; },
+        paletteLabel: 'ADS1014'
+    });
+</script>
+
+<script type="text/html" data-template-name="ads1014">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ADS1014">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ads1014">
     <p>Reads the voltage AIN0 − AIN1 from an ADS1014 12-bit ADC over I²C using a single-shot conversion.</p>
 
     <h3>Inputs</h3>

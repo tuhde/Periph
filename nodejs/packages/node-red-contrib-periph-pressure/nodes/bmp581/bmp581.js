@@ -52,5 +52,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-bmp581', BMP581ReadNode);
+    RED.nodes.registerType('bmp581', BMP581ReadNode);
 };

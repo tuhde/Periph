@@ -152,21 +152,29 @@
     ]
   },
   {
+    "id": "sh1106-device-1",
+    "type": "sh1106-device",
+    "name": "SH1106",
+    "address": "0x3C",
+    "height": "64",
+    "columnOffset": "2",
+    "autoShow": true,
+    "width": "128",
+    "i2cBus": "1",
+    "transport": "i2c"
+  },
+  {
     "id": "sh1106_node",
-    "type": "periph-sh1106",
+    "type": "sh1106",
     "z": "sh1106_tab",
     "name": "1.3\" OLED",
     "transport": "i2c",
-    "i2cBus": "1",
-    "address": "0x3C",
-    "width": "128",
-    "height": "64",
-    "columnOffset": "2",
     "autoShow": true,
     "x": 640,
     "y": 200,
     "wires": [
       []
-    ]
+    ],
+    "device": "sh1106-device-1"
   }
 ]

@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { TMP102Full } = require('periph/src/chips/temperature/tmp102');
 
-    function TMP102Node(config) {
+    function TMP102DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address, 16) || TMP102Full.I2C_ADDRESS;
             const connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -21,17 +20,6 @@ module.exports = function(RED) {
             node.error('TMP102 init failed: ' + e.message);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                msg.payload = { temperature: await node.driver.readTemperature() };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.connection) await node.connection.close();
@@ -42,5 +30,23 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-tmp102', TMP102Node);
+    RED.nodes.registerType('tmp102-device', TMP102DeviceNode);
+
+    function TMP102ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                msg.payload = { temperature: await deviceNode.driver.readTemperature() };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('tmp102', TMP102ReadNode);
 };

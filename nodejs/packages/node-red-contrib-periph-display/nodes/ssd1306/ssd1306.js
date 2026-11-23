@@ -6,11 +6,9 @@ module.exports = function(RED) {
     const { GpioOutputPin } = require('periph/src/connection/output_pin');
     const S = require('periph/src/chips/display/ssd1306');
 
-    function SSD1306Node(config) {
+    function SSD1306DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const autoShow = config.autoShow !== false && config.autoShow !== 'false';
-
         try {
             const width = parseInt(config.width || 128, 10);
             const height = parseInt(config.height || 64, 10);
@@ -38,6 +36,20 @@ module.exports = function(RED) {
             node.error('SSD1306 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.i2c) node.i2c.close();
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('ssd1306-device', SSD1306DeviceNode);
+
+    function SSD1306ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        const autoShow = config.autoShow !== false && config.autoShow !== 'false';
+
         // Messages are handled one at a time: two overlapping transfers would corrupt each other.
         let queue = Promise.resolve();
         node.on('input', function(msg, send, done) {
@@ -45,8 +57,8 @@ module.exports = function(RED) {
         });
 
         async function handle(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            const d = node.driver;
+            if (!deviceNode.driver) { done(); return; }
+            const d = deviceNode.driver;
             let p = msg.payload;
             try {
                 await d.ready();
@@ -82,11 +94,6 @@ module.exports = function(RED) {
                 done(e);
             }
         }
-
-        node.on('close', function() {
-            if (node.i2c) node.i2c.close();
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-ssd1306', SSD1306Node);
+    RED.nodes.registerType('ssd1306', SSD1306ReadNode);
 };

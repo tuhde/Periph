@@ -5,7 +5,7 @@ module.exports = function(RED) {
     const { SPIConnection } = require('periph/src/connection/spi');
     const { Mcp23008Full, Mcp23S08Full } = require('periph/src/chips/io_expander/mcp23008');
 
-    function Mcp23008Node(config) {
+    function Mcp23008DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -36,7 +36,7 @@ module.exports = function(RED) {
                     await node.chip.enablePinInterrupt(parseInt(config.intMask || 'F0', 16));
                     await node.chip.onInterrupt(async (status) => {
                         const capture = await node.chip.readCapture();
-                        node.send({ payload: { interrupt: status, capture } });
+                        node.emit('periph-data', { payload: { interrupt: status, capture } });
                     }, { intPin });
                 } catch (e) {
                     node.error('MCP23008 INT setup failed: ' + e.message);
@@ -44,21 +44,38 @@ module.exports = function(RED) {
             })();
         }
 
+        node.on('close', async function() {
+            if (node.chip) await node.chip.offInterrupt();
+            if (node.connection) await node.connection.close();
+        });
+    }
+    RED.nodes.registerType('mcp23008-device', Mcp23008DeviceNode);
+
+    function Mcp23008ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
         node.on('input', async function(msg, send, done) {
-            if (!node.chip) { done(new Error('MCP23008 not initialised')); return; }
+            if (!deviceNode.chip) { done(new Error('MCP23008 not initialised')); return; }
             try {
                 const p = msg.payload;
                 if (p && typeof p.pin === 'number' && typeof p.value === 'number') {
-                    const pin = node.chip.pin(p.pin);
-                    if ((node.chip._direction >> p.pin) & 1) await pin.setDirection('out');
+                    const pin = deviceNode.chip.pin(p.pin);
+                    if ((deviceNode.chip._direction >> p.pin) & 1) await pin.setDirection('out');
                     await pin.write(p.value ? 1 : 0);
                     done();
                 } else if (p && typeof p.pin === 'number') {
-                    msg.payload = { pin: p.pin, value: ((await node.chip.readPort()) >> p.pin) & 1 };
+                    msg.payload = { pin: p.pin, value: ((await deviceNode.chip.readPort()) >> p.pin) & 1 };
                     send(msg);
                     done();
                 } else if (p && typeof p.port === 'number') {
-                    msg.payload = { port: p.port, value: await node.chip.readPort() };
+                    msg.payload = { port: p.port, value: await deviceNode.chip.readPort() };
                     send(msg);
                     done();
                 } else {
@@ -66,12 +83,6 @@ module.exports = function(RED) {
                 }
             } catch (e) { done(e); }
         });
-
-        node.on('close', async function() {
-            if (node.chip) await node.chip.offInterrupt();
-            if (node.connection) await node.connection.close();
-        });
     }
-
-    RED.nodes.registerType('periph-mcp23008', Mcp23008Node);
+    RED.nodes.registerType('mcp23008', Mcp23008ReadNode);
 };

@@ -83,16 +83,21 @@
         ]
     },
     {
+        "id": "tmc2209-device-1",
+        "type": "tmc2209-device",
+        "name": "TMC2209",
+        "baudrate": "115200",
+        "current": "0.5",
+        "rsense": "0.11",
+        "microsteps": "16",
+        "port": "/dev/ttyS0",
+        "enGpio": ""
+    },
+    {
         "id": "tmc2209-node",
-        "type": "periph-tmc2209",
+        "type": "tmc2209",
         "z": "tab-tmc2209-demo",
         "name": "TMC2209",
-        "port": "/dev/ttyS0",
-        "baudrate": "115200",
-        "rsense": "0.11",
-        "current": "0.5",
-        "microsteps": "16",
-        "enGpio": "",
         "x": 570,
         "y": 160,
         "wires": [
@@ -100,7 +105,8 @@
                 "fn-fault",
                 "dbg-status"
             ]
-        ]
+        ],
+        "device": "tmc2209-device-1"
     },
     {
         "id": "fn-fault",

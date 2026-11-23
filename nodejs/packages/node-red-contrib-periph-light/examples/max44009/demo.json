@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "MAX44009 Backlight Demo",
         "disabled": false,
-        "info": "Adaptive backlight on a MAX44009 ambient light sensor. An inject node fires every 2 s into periph-max44009; a function node maps the lux to a backlight percentage (log scale) and a debug node shows lux and percentage. A second inject sends {low: 50, high: 500, delay: 2} to arm the interrupt window, and with the INT line wired the node emits {lux, interrupt: true} messages when the light leaves the window."
+        "info": "Adaptive backlight on a MAX44009 ambient light sensor. An inject node fires every 2 s into max44009; a function node maps the lux to a backlight percentage (log scale) and a debug node shows lux and percentage. A second inject sends {low: 50, high: 500, delay: 2} to arm the interrupt window, and with the INT line wired the node emits {lux, interrupt: true} messages when the light leaves the window."
     },
     {
         "id": "inj-read",
@@ -47,17 +47,22 @@
         ]
     },
     {
-        "id": "max44009-node",
-        "type": "periph-max44009",
+        "id": "max44009-device-1",
+        "type": "max44009-device",
         "name": "MAX44009",
         "bus": "1",
-        "address": "0x4A",
-        "mode": "lowpower",
-        "range": "auto",
-        "integration": "100",
         "divide8": false,
-        "gpioChip": "0",
+        "range": "auto",
+        "mode": "lowpower",
+        "address": "0x4A",
         "intPin": "",
+        "integration": "100",
+        "gpioChip": "0"
+    },
+    {
+        "id": "max44009-node",
+        "type": "max44009",
+        "name": "MAX44009",
         "z": "tab-max44009-demo",
         "x": 400,
         "y": 140,
@@ -65,7 +70,8 @@
             [
                 "fn-backlight"
             ]
-        ]
+        ],
+        "device": "max44009-device-1"
     },
     {
         "id": "fn-backlight",

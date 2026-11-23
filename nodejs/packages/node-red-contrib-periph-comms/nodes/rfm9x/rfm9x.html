@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-rfm9x', {
-        category: 'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('rfm9x-device', {
+        category: 'config',
         defaults: {
             name:      { value: '' },
             bus:       { value: '0', required: true, validate: RED.validators.number() },
@@ -14,30 +14,28 @@
             crc:       { value: true },
             power:     { value: '17' }
         },
-        inputs:  1,
-        outputs: 1,
-        icon:    'font-awesome/fa-signal',
-        label:   function() { return this.name || (this.variant + ' @ ' + this.frequency + ' Hz'); },
-        paletteLabel: 'RFM9x'
+        label: function() {
+            return this.name || 'RFM9X';
+        }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-rfm9x">
+<script type="text/html" data-template-name="rfm9x-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="RFM9x">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="RFM9X">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.DEVICE)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.DEVICE)
     </div>
     <div class="form-row">
-        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
-        <input type="number" id="node-input-device" min="0" style="width:80px">
+        <label for="node-config-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px">
     </div>
     <div class="form-row">
-        <label for="node-input-variant">Variant</label>
-        <select id="node-input-variant" style="width:200px">
+        <label for="node-config-input-variant">Variant</label>
+        <select id="node-config-input-variant" style="width:200px">
             <option value="RFM95W">RFM95W (868/915 MHz, SF ≤ 12)</option>
             <option value="RFM96W">RFM96W (433/470 MHz, SF ≤ 12)</option>
             <option value="RFM97W">RFM97W (868/915 MHz, SF ≤ 9)</option>
@@ -45,20 +43,20 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-frequency">Frequency (Hz)</label>
-        <input type="number" id="node-input-frequency" min="410000000" max="1020000000" style="width:160px">
+        <label for="node-config-input-frequency">Frequency (Hz)</label>
+        <input type="number" id="node-config-input-frequency" min="410000000" max="1020000000" style="width:160px">
     </div>
     <div class="form-row">
-        <label for="node-input-sf">Spreading Factor</label>
-        <input type="number" id="node-input-sf" min="6" max="12" style="width:60px"> &nbsp;(6–9 for RFM97W)
+        <label for="node-config-input-sf">Spreading Factor</label>
+        <input type="number" id="node-config-input-sf" min="6" max="12" style="width:60px"> &nbsp;(6–9 for RFM97W)
     </div>
     <div class="form-row">
-        <label for="node-input-bandwidth">Bandwidth (kHz)</label>
-        <input type="number" id="node-input-bandwidth" style="width:80px"> &nbsp;(7.8, 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250, 500)
+        <label for="node-config-input-bandwidth">Bandwidth (kHz)</label>
+        <input type="number" id="node-config-input-bandwidth" style="width:80px"> &nbsp;(7.8, 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250, 500)
     </div>
     <div class="form-row">
-        <label for="node-input-cr">Coding Rate</label>
-        <select id="node-input-cr" style="width:100px">
+        <label for="node-config-input-cr">Coding Rate</label>
+        <select id="node-config-input-cr" style="width:100px">
             <option value="5">4/5</option>
             <option value="6">4/6</option>
             <option value="7">4/7</option>
@@ -66,16 +64,44 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-crc">CRC</label>
-        <input type="checkbox" id="node-input-crc" checked>
+        <label for="node-config-input-crc">CRC</label>
+        <input type="checkbox" id="node-config-input-crc" checked>
     </div>
     <div class="form-row">
-        <label for="node-input-power">TX Power (dBm)</label>
-        <input type="number" id="node-input-power" min="2" max="20" style="width:60px"> &nbsp;(−1 to +14 on RFO, +2 to +20 on PA_BOOST)
+        <label for="node-config-input-power">TX Power (dBm)</label>
+        <input type="number" id="node-config-input-power" min="2" max="20" style="width:60px"> &nbsp;(−1 to +14 on RFO, +2 to +20 on PA_BOOST)
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-rfm9x">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('rfm9x', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            device: { value: '', type: 'rfm9x-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-signal',
+        label:   function() { return this.name || 'RFM9X'; },
+        paletteLabel: 'RFM9X'
+    });
+</script>
+
+<script type="text/html" data-template-name="rfm9x">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="RFM9X">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rfm9x">
     <p>Sends and receives LoRa packets with the HopeRF RFM95/96/97/98W transceiver module over SPI.</p>
 
     <h3>Inputs</h3>

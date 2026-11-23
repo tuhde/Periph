@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "PCF8591 ADC + DAC Demo",
         "disabled": false,
-        "info": "An Inject node fires every second, triggering the periph-pcf8591 node to read all four analog channels. A Function node maps the four raw 0–255 values to approximate voltages (assuming 3.3 V reference). A Debug node prints the four channel voltages. A second Inject node sends a numeric payload to write a value to the on-chip DAC. The flow shows simultaneous ADC reading and DAC output from a single PCF8591 device."
+        "info": "An Inject node fires every second, triggering the pcf8591 node to read all four analog channels. A Function node maps the four raw 0–255 values to approximate voltages (assuming 3.3 V reference). A Debug node prints the four channel voltages. A second Inject node sends a numeric payload to write a value to the on-chip DAC. The flow shows simultaneous ADC reading and DAC output from a single PCF8591 device."
     },
     {
         "id": "inj-read",
@@ -20,19 +20,33 @@
         "z": "tab-pcf8591-demo",
         "x": 140,
         "y": 100,
-        "wires": [["pcf8591-node"]]
+        "wires": [
+            [
+                "pcf8591-node"
+            ]
+        ]
+    },
+    {
+        "id": "pcf8591-device-1",
+        "type": "pcf8591-device",
+        "name": "PCF8591",
+        "address": "48",
+        "bus": "1"
     },
     {
         "id": "pcf8591-node",
-        "type": "periph-pcf8591",
+        "type": "pcf8591",
         "name": "PCF8591",
-        "bus": "1",
-        "address": "48",
         "inputMode": "4 single-ended",
         "z": "tab-pcf8591-demo",
         "x": 360,
         "y": 100,
-        "wires": [["fn-volts"]]
+        "wires": [
+            [
+                "fn-volts"
+            ]
+        ],
+        "device": "pcf8591-device-1"
     },
     {
         "id": "fn-volts",
@@ -44,7 +58,11 @@
         "z": "tab-pcf8591-demo",
         "x": 560,
         "y": 100,
-        "wires": [["dbg-voltages"]]
+        "wires": [
+            [
+                "dbg-voltages"
+            ]
+        ]
     },
     {
         "id": "dbg-voltages",
@@ -77,6 +95,10 @@
         "z": "tab-pcf8591-demo",
         "x": 140,
         "y": 200,
-        "wires": [["pcf8591-node"]]
+        "wires": [
+            [
+                "pcf8591-node"
+            ]
+        ]
     }
 ]

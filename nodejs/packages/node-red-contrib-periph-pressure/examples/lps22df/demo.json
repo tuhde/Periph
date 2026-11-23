@@ -13,7 +13,7 @@
     },
     {
         "id": "lps22df-read-1",
-        "type": "periph-lps22df",
+        "type": "lps22df",
         "name": "LPS22DF Altimeter",
         "device": "lps22df-device-1",
         "seaLevelPa": "101325",

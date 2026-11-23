@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "MCP3422 Two-Channel Demo",
         "disabled": false,
-        "info": "Inject node (every 2 s) into periph-mcp3422 (16 bit, x1); a function node splits payload.channels into two messages with topics ch1 and ch2 for the chart / debug nodes. A second inject sends gain = 8 and resolution = 18 for a bridge-sensor measurement."
+        "info": "Inject node (every 2 s) into mcp3422 (16 bit, x1); a function node splits payload.channels into two messages with topics ch1 and ch2 for the chart / debug nodes. A second inject sends gain = 8 and resolution = 18 for a bridge-sensor measurement."
     },
     {
         "id": "inj-scan",
@@ -59,13 +59,18 @@
         ]
     },
     {
-        "id": "mcp3422-node",
-        "type": "periph-mcp3422",
+        "id": "mcp3422-device-1",
+        "type": "mcp3422-device",
         "name": "MCP3422",
+        "gain": "1",
         "bus": "1",
         "address": "0x68",
-        "resolution": "16",
-        "gain": "1",
+        "resolution": "16"
+    },
+    {
+        "id": "mcp3422-node",
+        "type": "mcp3422",
+        "name": "MCP3422",
         "z": "tab-mcp3422-demo",
         "x": 380,
         "y": 140,
@@ -73,7 +78,8 @@
             [
                 "fn-split"
             ]
-        ]
+        ],
+        "device": "mcp3422-device-1"
     },
     {
         "id": "fn-split",

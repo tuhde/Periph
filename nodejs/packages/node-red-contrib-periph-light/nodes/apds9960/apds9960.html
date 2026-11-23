@@ -8,7 +8,7 @@
             address: { value: '39', required: true }
         },
         label: function() {
-            return this.name || ('APDS-9960 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+            return this.name || ('APDS9960 @ 0x' + this.address + ' (bus ' + this.bus + ')');
         }
     });
 </script>
@@ -32,7 +32,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('apds9960', {
         category:  'Peripheral',
-        color:     '#c0d8a0',
+        color:     '#C084FC',
         defaults: {
             name:   { value: '' },
             device: { value: '', type: 'apds9960-device', required: true }
@@ -40,8 +40,8 @@
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-sun-o',
-        label:   function() { return this.name || 'APDS-9960'; },
-        paletteLabel: 'APDS-9960'
+        label:   function() { return this.name || 'APDS9960'; },
+        paletteLabel: 'APDS9960'
     });
 </script>
 

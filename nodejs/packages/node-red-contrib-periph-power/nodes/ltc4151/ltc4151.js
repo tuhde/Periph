@@ -18,7 +18,7 @@ module.exports = function(RED) {
             if (node.connection) node.connection.close();
         });
     }
-    RED.nodes.registerType('periph-ltc4151-device', LTC4151DeviceNode);
+    RED.nodes.registerType('ltc4151-device', LTC4151DeviceNode);
 
     function LTC4151ReadNode(config) {
         RED.nodes.createNode(this, config);
@@ -47,5 +47,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ltc4151', LTC4151ReadNode);
+    RED.nodes.registerType('ltc4151', LTC4151ReadNode);
 };

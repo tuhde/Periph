@@ -20,7 +20,11 @@
         "z": "tab-hx710b-demo",
         "x": 140,
         "y": 100,
-        "wires": [["hx710b"]]
+        "wires": [
+            [
+                "hx710b"
+            ]
+        ]
     },
     {
         "id": "inj-read-hx710b",
@@ -36,7 +40,11 @@
         "z": "tab-hx710b-demo",
         "x": 140,
         "y": 200,
-        "wires": [["hx710b"]]
+        "wires": [
+            [
+                "hx710b"
+            ]
+        ]
     },
     {
         "id": "inj-supply-diff-hx710b",
@@ -52,22 +60,38 @@
         "z": "tab-hx710b-demo",
         "x": 140,
         "y": 300,
-        "wires": [["hx710b"]]
+        "wires": [
+            [
+                "hx710b"
+            ]
+        ]
+    },
+    {
+        "id": "hx710b-device-1",
+        "type": "hx710b-device",
+        "name": "HX710B",
+        "doutPin": "5",
+        "gpioChip": "0",
+        "tareOffset": "0",
+        "scaleFactor": "1.0",
+        "rate": "10",
+        "pdSckPin": "6"
     },
     {
         "id": "hx710b",
-        "type": "periph-hx710b",
+        "type": "hx710b",
         "z": "tab-hx710b-demo",
         "name": "",
-        "gpioChip": "0",
-        "doutPin": "5",
-        "pdSckPin": "6",
-        "rate": "10",
-        "scaleFactor": "1.0",
-        "tareOffset": "0",
         "x": 360,
         "y": 200,
-        "wires": [["dbg-weight-hx710b", "gauge-weight-hx710b", "switch-supply-diff-hx710b"]]
+        "wires": [
+            [
+                "dbg-weight-hx710b",
+                "gauge-weight-hx710b",
+                "switch-supply-diff-hx710b"
+            ]
+        ],
+        "device": "hx710b-device-1"
     },
     {
         "id": "dbg-weight-hx710b",
@@ -99,7 +123,11 @@
         "format": "{{value}}",
         "min": 0,
         "max": 1000,
-        "colors": ["#00b500", "#e6e600", "#ca3838"],
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
         "seg1": "",
         "seg2": "",
         "x": 580,
@@ -132,15 +160,28 @@
         "property": "payload.raw_supply_diff",
         "propertyType": "msg",
         "rules": [
-            { "t": "lt", "v": "-50000", "vt": "num" },
-            { "t": "gt", "v": "50000",  "vt": "num" }
+            {
+                "t": "lt",
+                "v": "-50000",
+                "vt": "num"
+            },
+            {
+                "t": "gt",
+                "v": "50000",
+                "vt": "num"
+            }
         ],
         "checkall": "false",
         "repair": false,
         "outputs": 2,
         "x": 580,
         "y": 300,
-        "wires": [["notify-low-batt-hx710b"], []]
+        "wires": [
+            [
+                "notify-low-batt-hx710b"
+            ],
+            []
+        ]
     },
     {
         "id": "notify-low-batt-hx710b",

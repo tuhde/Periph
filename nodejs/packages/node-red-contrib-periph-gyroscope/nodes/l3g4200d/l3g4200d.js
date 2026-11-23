@@ -48,5 +48,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-l3g4200d', L3G4200DReadNode);
+    RED.nodes.registerType('l3g4200d', L3G4200DReadNode);
 };

@@ -1,7 +1,7 @@
 [
     {
         "id": "n1",
-        "type": "periph-ina3221",
+        "type": "ina3221",
         "name": "INA3221 Monitor",
         "device": "c1",
         "wires": [["n2_ch1", "n2_ch2", "n2_ch3"]],

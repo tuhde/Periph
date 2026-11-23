@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "VL53L0X Proximity Zones Demo",
         "disabled": false,
-        "info": "An Inject node fires every 200 ms into a periph-vl53l0x node in single-shot mode with the high_speed profile (20 ms timing budget). A Switch node routes on msg.payload.valid: valid readings go to a Function node that classifies the distance into near (< 150 mm), mid (150–600 mm) and far (> 600 mm) and forwards only changes of zone (RBE-style, the last zone is kept in the node context) to a Debug node; invalid readings (no target in range, typically 8190/8191 mm with range status 4) go to a second Debug node labelled \"no target\". This is presence/proximity zoning — for example a hand approaching a touchless soap or disinfectant dispenser: trigger the pump on the change to near. Replace the Debug node with a GPIO or relay node to drive real hardware."
+        "info": "An Inject node fires every 200 ms into a vl53l0x node in single-shot mode with the high_speed profile (20 ms timing budget). A Switch node routes on msg.payload.valid: valid readings go to a Function node that classifies the distance into near (< 150 mm), mid (150–600 mm) and far (> 600 mm) and forwards only changes of zone (RBE-style, the last zone is kept in the node context) to a Debug node; invalid readings (no target in range, typically 8190/8191 mm with range status 4) go to a second Debug node labelled \"no target\". This is presence/proximity zoning — for example a hand approaching a touchless soap or disinfectant dispenser: trigger the pump on the change to near. Replace the Debug node with a GPIO or relay node to drive real hardware."
     },
     {
         "id": "inj-range",
@@ -27,18 +27,23 @@
         ]
     },
     {
-        "id": "vl53l0x-node",
-        "type": "periph-vl53l0x",
-        "name": "Dispenser VL53L0X",
-        "bus": "1",
-        "address": "0x29",
-        "profile": "high_speed",
-        "mode": "single",
-        "periodMs": "100",
-        "threshold": "none",
+        "id": "vl53l0x-device-1",
+        "type": "vl53l0x-device",
+        "name": "VL53L0X",
         "lowMm": "100",
         "highMm": "800",
+        "address": "0x29",
+        "periodMs": "100",
+        "threshold": "none",
         "gpioLine": "",
+        "profile": "high_speed",
+        "bus": "1",
+        "mode": "single"
+    },
+    {
+        "id": "vl53l0x-node",
+        "type": "vl53l0x",
+        "name": "Dispenser VL53L0X",
         "z": "tab-vl53l0x-demo",
         "x": 370,
         "y": 100,
@@ -46,7 +51,8 @@
             [
                 "sw-valid"
             ]
-        ]
+        ],
+        "device": "vl53l0x-device-1"
     },
     {
         "id": "sw-valid",

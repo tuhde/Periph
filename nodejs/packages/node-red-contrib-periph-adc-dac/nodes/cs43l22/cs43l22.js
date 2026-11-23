@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { CS43L22Full, BEEP, FMT } = require('periph/src/chips/adc_dac/cs43l22');
 
-    function CS43L22Node(config) {
+    function CS43L22DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.ready = null;
@@ -31,39 +31,6 @@ module.exports = function(RED) {
             node.error('CS43L22 init failed: ' + e.message);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                await node.ready;
-                const p = msg.payload;
-                const isObj = p && typeof p === 'object';
-                let handled = false;
-                if (isObj && p.start === true) { await node.driver.start(); handled = true; }
-                if (isObj && p.stop === true) { await node.driver.stop(); handled = true; }
-                if (isObj && typeof p.volume === 'number') { await node.driver.setVolume(p.volume); handled = true; }
-                if (isObj && typeof p.mute === 'boolean') { await node.driver.mute(p.mute); handled = true; }
-                if (isObj && p.beep && typeof p.beep === 'object') {
-                    const b = p.beep;
-                    await node.driver.setBeep(b.frequency ?? 12, b.onTime ?? 2, b.offTime ?? 0, b.volume ?? -6,
-                        b.mode ?? BEEP.SINGLE);
-                    handled = true;
-                }
-                if (isObj && p.tone && typeof p.tone === 'object') {
-                    await node.driver.setTone(p.tone.treble ?? 0, p.tone.bass ?? 0);
-                    handled = true;
-                }
-                if (handled && !(isObj && typeof p.volume === 'number')) { done(); return; }
-                msg.payload = {
-                    volume: await node.driver.getVolume(),
-                    status: await node.driver.readStatus(),
-                };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.connection) await node.connection.close();
@@ -74,5 +41,45 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-cs43l22', CS43L22Node);
+    RED.nodes.registerType('cs43l22-device', CS43L22DeviceNode);
+
+    function CS43L22ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                await deviceNode.ready;
+                const p = msg.payload;
+                const isObj = p && typeof p === 'object';
+                let handled = false;
+                if (isObj && p.start === true) { await deviceNode.driver.start(); handled = true; }
+                if (isObj && p.stop === true) { await deviceNode.driver.stop(); handled = true; }
+                if (isObj && typeof p.volume === 'number') { await deviceNode.driver.setVolume(p.volume); handled = true; }
+                if (isObj && typeof p.mute === 'boolean') { await deviceNode.driver.mute(p.mute); handled = true; }
+                if (isObj && p.beep && typeof p.beep === 'object') {
+                    const b = p.beep;
+                    await deviceNode.driver.setBeep(b.frequency ?? 12, b.onTime ?? 2, b.offTime ?? 0, b.volume ?? -6,
+                        b.mode ?? BEEP.SINGLE);
+                    handled = true;
+                }
+                if (isObj && p.tone && typeof p.tone === 'object') {
+                    await deviceNode.driver.setTone(p.tone.treble ?? 0, p.tone.bass ?? 0);
+                    handled = true;
+                }
+                if (handled && !(isObj && typeof p.volume === 'number')) { done(); return; }
+                msg.payload = {
+                    volume: await deviceNode.driver.getVolume(),
+                    status: await deviceNode.driver.readStatus(),
+                };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('cs43l22', CS43L22ReadNode);
 };

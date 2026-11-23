@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-neo6', {
-        category: 'periph',
-        color: '#a6d8ff',
+    RED.nodes.registerType('neo6-device', {
+        category: 'config',
         defaults: {
             name:    { value: '' },
             busType: { value: 'uart', required: true },
@@ -11,61 +11,86 @@
             device:  { value: '0', validate: RED.validators.number() },
             addr:    { value: '0x42' }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'font-awesome/fa-map-marker',
         label: function() {
-            return this.name || 'NEO-6 (' + this.busType + ')';
+            return this.name || ('NEO6 @ ' + this.addr + ' (bus ' + this.bus + ')');
         },
         oneditprepare: function() {
             function updateVisibility() {
-                const busType = $('#node-input-busType').val();
+                const busType = $('#node-config-input-busType').val();
                 $('.neo6-uart-row').toggle(busType === 'uart');
                 $('.neo6-i2c-row').toggle(busType === 'i2c');
                 $('.neo6-spi-row').toggle(busType === 'spi');
             }
-            $('#node-input-busType').on('change', updateVisibility);
+            $('#node-config-input-busType').on('change', updateVisibility);
             updateVisibility();
         }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-neo6">
+<script type="text/html" data-template-name="neo6-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="NEO-6">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="NEO6">
     </div>
     <div class="form-row">
-        <label for="node-input-busType"><i class="fa fa-random"></i> Bus type</label>
-        <select id="node-input-busType" style="width:150px">
+        <label for="node-config-input-busType"><i class="fa fa-random"></i> Bus type</label>
+        <select id="node-config-input-busType" style="width:150px">
             <option value="uart">UART</option>
             <option value="i2c">I&sup2;C (DDC)</option>
             <option value="spi">SPI</option>
         </select>
     </div>
     <div class="form-row neo6-uart-row">
-        <label for="node-input-port"><i class="fa fa-plug"></i> Serial port</label>
-        <input type="text" id="node-input-port" placeholder="/dev/ttyS0">
+        <label for="node-config-input-port"><i class="fa fa-plug"></i> Serial port</label>
+        <input type="text" id="node-config-input-port" placeholder="/dev/ttyS0">
     </div>
     <div class="form-row neo6-uart-row">
-        <label for="node-input-baud"><i class="fa fa-tachometer"></i> Baud rate</label>
-        <input type="number" id="node-input-baud" style="width:100px">
+        <label for="node-config-input-baud"><i class="fa fa-tachometer"></i> Baud rate</label>
+        <input type="number" id="node-config-input-baud" style="width:100px">
     </div>
     <div class="form-row neo6-i2c-row neo6-spi-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> Bus number</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> Bus number</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px">
     </div>
     <div class="form-row neo6-spi-row">
-        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI CS/device</label>
-        <input type="number" id="node-input-device" min="0" style="width:80px">
+        <label for="node-config-input-device"><i class="fa fa-microchip"></i> SPI CS/device</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px">
     </div>
     <div class="form-row neo6-i2c-row">
-        <label for="node-input-addr"><i class="fa fa-microchip"></i> I&sup2;C address</label>
-        <input type="text" id="node-input-addr" style="width:100px" placeholder="0x42">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I&sup2;C address</label>
+        <input type="text" id="node-config-input-addr" style="width:100px" placeholder="0x42">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-neo6">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('neo6', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'neo6-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-map-marker',
+        label:   function() { return this.name || 'NEO6'; },
+        paletteLabel: 'NEO6'
+    });
+</script>
+
+<script type="text/html" data-template-name="neo6">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="NEO6">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="neo6">
     <p>Reads NMEA position, altitude, and fix status from a u-blox NEO-6 GNSS receiver over UART, I&sup2;C (DDC), or SPI.</p>
     <h3>Inputs</h3>
     <dl class="message-properties">

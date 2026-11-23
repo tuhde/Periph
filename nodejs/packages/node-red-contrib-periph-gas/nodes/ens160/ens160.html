@@ -33,7 +33,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ens160', {
+    RED.nodes.registerType('ens160', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -48,7 +48,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ens160">
+<script type="text/html" data-template-name="ens160">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -59,7 +59,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ens160">
+<script type="text/html" data-help-name="ens160">
     <p>Reads air quality (AQI, TVOC, eCO2) from an ENS160 digital multi-gas sensor.</p>
     <p>Any input message triggers a measurement. The device is configured via an <b>ens160-device</b> config node.</p>
 

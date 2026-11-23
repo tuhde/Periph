@@ -1,65 +1,58 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-ds3231', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('ds3231-device', {
+        category: 'config',
         defaults: {
             name:    { value: '' },
             bus:     { value: '1', required: true, validate: RED.validators.number() },
-
             alarm1Enabled:     { value: false },
-            alarm1MatchMode:   { value: '15' },   // DS3231Full.ALARM1_EVERY_SECOND
+            alarm1MatchMode:   { value: '15' },
             alarm1Second:      { value: '0' },
             alarm1Minute:      { value: '0' },
             alarm1Hour:        { value: '0' },
             alarm1DayOrDate:   { value: '1' },
             alarm1IsDayOfWeek: { value: false },
-
             alarm2Enabled:     { value: false },
-            alarm2MatchMode:   { value: '7' },    // DS3231Full.ALARM2_EVERY_MINUTE
+            alarm2MatchMode:   { value: '7' },
             alarm2Minute:      { value: '0' },
             alarm2Hour:        { value: '0' },
             alarm2DayOrDate:   { value: '1' },
             alarm2IsDayOfWeek: { value: false },
-
             squareWaveEnabled:       { value: false },
             squareWaveRate:          { value: '8192' },
             squareWaveBatteryBacked: { value: false }
         },
-        inputs:  1,
-        outputs: 1,
-        icon:    'font-awesome/fa-clock-o',
-        label:   function() { return this.name || 'DS3231'; },
-        paletteLabel: 'DS3231',
+        label: function() {
+            return this.name || 'DS3231';
+        },
         oneditprepare: function() {
             const node = this;
             function refresh() {
-                const alarmsOn = $('#node-input-alarm1Enabled').is(':checked') || $('#node-input-alarm2Enabled').is(':checked');
-                $('#node-input-squareWaveEnabled').prop('disabled', alarmsOn);
-                if (alarmsOn) $('#node-input-squareWaveEnabled').prop('checked', false);
-                const sqwOn = $('#node-input-squareWaveEnabled').is(':checked');
-                $('#node-input-alarm1Enabled, #node-input-alarm2Enabled').prop('disabled', sqwOn);
+                const alarmsOn = $('#node-config-input-alarm1Enabled').is(':checked') || $('#node-config-input-alarm2Enabled').is(':checked');
+                $('#node-config-input-squareWaveEnabled').prop('disabled', alarmsOn);
+                if (alarmsOn) $('#node-config-input-squareWaveEnabled').prop('checked', false);
+                const sqwOn = $('#node-config-input-squareWaveEnabled').is(':checked');
+                $('#node-config-input-alarm1Enabled, #node-config-input-alarm2Enabled').prop('disabled', sqwOn);
             }
-            $('#node-input-alarm1Enabled, #node-input-alarm2Enabled, #node-input-squareWaveEnabled').on('change', refresh);
+            $('#node-config-input-alarm1Enabled, #node-config-input-alarm2Enabled, #node-config-input-squareWaveEnabled').on('change', refresh);
             refresh();
         }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-ds3231">
+<script type="text/html" data-template-name="ds3231-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="DS3231">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="DS3231">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N; address is fixed at 0x68)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N; address is fixed at 0x68)
     </div>
-
-    <hr>
     <div class="form-row">
-        <label for="node-input-alarm1Enabled"><i class="fa fa-bell"></i> Alarm 1</label>
-        <input type="checkbox" id="node-input-alarm1Enabled" style="width:auto">
-        <select id="node-input-alarm1MatchMode" style="width:260px">
+        <label for="node-config-input-alarm1Enabled"><i class="fa fa-bell"></i> Alarm 1</label>
+        <input type="checkbox" id="node-config-input-alarm1Enabled" style="width:auto">
+        <select id="node-config-input-alarm1MatchMode" style="width:260px">
             <option value="15">Once per second</option>
             <option value="14">Seconds match</option>
             <option value="12">Minutes, seconds match</option>
@@ -69,21 +62,19 @@
     </div>
     <div class="form-row">
         <label>&nbsp;</label>
-        Sec <input type="number" id="node-input-alarm1Second" min="0" max="59" style="width:50px">
-        Min <input type="number" id="node-input-alarm1Minute" min="0" max="59" style="width:50px">
-        Hour <input type="number" id="node-input-alarm1Hour" min="0" max="23" style="width:50px">
+        Sec <input type="number" id="node-config-input-alarm1Second" min="0" max="59" style="width:50px">
+        Min <input type="number" id="node-config-input-alarm1Minute" min="0" max="59" style="width:50px">
+        Hour <input type="number" id="node-config-input-alarm1Hour" min="0" max="23" style="width:50px">
     </div>
     <div class="form-row">
         <label>&nbsp;</label>
-        Day/Date <input type="number" id="node-input-alarm1DayOrDate" min="1" max="31" style="width:50px">
-        <input type="checkbox" id="node-input-alarm1IsDayOfWeek" style="width:auto"> is day-of-week (else day-of-month)
+        Day/Date <input type="number" id="node-config-input-alarm1DayOrDate" min="1" max="31" style="width:50px">
+        <input type="checkbox" id="node-config-input-alarm1IsDayOfWeek" style="width:auto"> is day-of-week (else day-of-month)
     </div>
-
-    <hr>
     <div class="form-row">
-        <label for="node-input-alarm2Enabled"><i class="fa fa-bell-o"></i> Alarm 2</label>
-        <input type="checkbox" id="node-input-alarm2Enabled" style="width:auto">
-        <select id="node-input-alarm2MatchMode" style="width:260px">
+        <label for="node-config-input-alarm2Enabled"><i class="fa fa-bell-o"></i> Alarm 2</label>
+        <input type="checkbox" id="node-config-input-alarm2Enabled" style="width:auto">
+        <select id="node-config-input-alarm2MatchMode" style="width:260px">
             <option value="7">Once per minute</option>
             <option value="6">Minutes match</option>
             <option value="4">Hours, minutes match</option>
@@ -92,33 +83,59 @@
     </div>
     <div class="form-row">
         <label>&nbsp;</label>
-        Min <input type="number" id="node-input-alarm2Minute" min="0" max="59" style="width:50px">
-        Hour <input type="number" id="node-input-alarm2Hour" min="0" max="23" style="width:50px">
+        Min <input type="number" id="node-config-input-alarm2Minute" min="0" max="59" style="width:50px">
+        Hour <input type="number" id="node-config-input-alarm2Hour" min="0" max="23" style="width:50px">
     </div>
     <div class="form-row">
         <label>&nbsp;</label>
-        Day/Date <input type="number" id="node-input-alarm2DayOrDate" min="1" max="31" style="width:50px">
-        <input type="checkbox" id="node-input-alarm2IsDayOfWeek" style="width:auto"> is day-of-week (else day-of-month)
+        Day/Date <input type="number" id="node-config-input-alarm2DayOrDate" min="1" max="31" style="width:50px">
+        <input type="checkbox" id="node-config-input-alarm2IsDayOfWeek" style="width:auto"> is day-of-week (else day-of-month)
     </div>
-
-    <hr>
     <div class="form-row">
-        <label for="node-input-squareWaveEnabled"><i class="fa fa-square-o"></i> Square wave</label>
-        <input type="checkbox" id="node-input-squareWaveEnabled" style="width:auto">
-        <select id="node-input-squareWaveRate" style="width:120px">
+        <label for="node-config-input-squareWaveEnabled"><i class="fa fa-square-o"></i> Square wave</label>
+        <input type="checkbox" id="node-config-input-squareWaveEnabled" style="width:auto">
+        <select id="node-config-input-squareWaveRate" style="width:120px">
             <option value="1">1 Hz</option>
             <option value="1024">1.024 kHz</option>
             <option value="4096">4.096 kHz</option>
             <option value="8192">8.192 kHz</option>
         </select>
-        <input type="checkbox" id="node-input-squareWaveBatteryBacked" style="width:auto"> battery-backed
+        <input type="checkbox" id="node-config-input-squareWaveBatteryBacked" style="width:auto"> battery-backed
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('ds3231', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'ds3231-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-clock-o',
+        label:   function() { return this.name || 'DS3231'; },
+        paletteLabel: 'DS3231'
+    });
+</script>
+
+<script type="text/html" data-template-name="ds3231">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DS3231">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
     <div class="form-row">
         <em>Alarms and the square wave share the INT/SQW pin — enabling one disables the other in this panel.</em>
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-ds3231">
+<script type="text/html" data-help-name="ds3231">
     <p>Reads and sets the calendar clock of a DS3231 extremely accurate I²C RTC, and reports its on-chip temperature reading. Fixed address <code>0x68</code>.</p>
 
     <h3>Inputs</h3>

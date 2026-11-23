@@ -10,10 +10,9 @@ module.exports = function(RED) {
         [MCP9808Full.SOURCE_CRITICAL, 'critical'],
     ];
 
-    function MCP9808Node(config) {
+    function MCP9808DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const address = parseInt(config.address, 16) || MCP9808Full.I2C_ADDRESS;
             const connection = new I2CConnection(parseInt(config.bus, 10), address);
@@ -33,7 +32,7 @@ module.exports = function(RED) {
                     await node.driver.enableAlert();
                     await node.driver.onInterrupt((status) => {
                         for (const [bit, name] of SOURCE_NAMES) {
-                            if (status & bit) node.send({ payload: { source: name } });
+                            if (status & bit) node.emit('periph-data', { payload: { source: name } });
                         }
                     });
                 }
@@ -41,26 +40,6 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('MCP9808 init failed: ' + e.message);
         }
-
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                const p = msg.payload;
-                if (p && typeof p === 'object') {
-                    if (p.shutdown === true) { await node.driver.shutdown(); done(); return; }
-                    if (p.shutdown === false) { await node.driver.wake(); done(); return; }
-                    if (p.clear_interrupt === true) { await node.driver.clearInterrupt(); done(); return; }
-                }
-                msg.payload = {
-                    temperature_c: await node.driver.readTemperature(),
-                    alert_asserted: await node.driver.isAlertAsserted(),
-                };
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
 
         node.on('close', async function(removed, done) {
             try {
@@ -73,5 +52,37 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-mcp9808', MCP9808Node);
+    RED.nodes.registerType('mcp9808-device', MCP9808DeviceNode);
+
+    function MCP9808ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                const p = msg.payload;
+                if (p && typeof p === 'object') {
+                    if (p.shutdown === true) { await deviceNode.driver.shutdown(); done(); return; }
+                    if (p.shutdown === false) { await deviceNode.driver.wake(); done(); return; }
+                    if (p.clear_interrupt === true) { await deviceNode.driver.clearInterrupt(); done(); return; }
+                }
+                msg.payload = {
+                    temperature_c: await deviceNode.driver.readTemperature(),
+                    alert_asserted: await deviceNode.driver.isAlertAsserted(),
+                };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('mcp9808', MCP9808ReadNode);
 };

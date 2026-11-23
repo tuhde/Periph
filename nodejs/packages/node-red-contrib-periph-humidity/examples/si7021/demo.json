@@ -31,12 +31,19 @@
     ]
   },
   {
-    "id": "si7021-node",
-    "type": "periph-si7021",
-    "z": "si7021-tab",
-    "name": "Si7021",
+    "id": "si7021-device-1",
+    "type": "si7021-device",
+    "name": "SI7021",
+    "resolution": "12/14",
     "bus": "1",
     "address": "0x40",
+    "heater": false
+  },
+  {
+    "id": "si7021-node",
+    "type": "si7021",
+    "z": "si7021-tab",
+    "name": "Si7021",
     "x": 380,
     "y": 160,
     "wires": [
@@ -44,8 +51,7 @@
         "si7021-format"
       ]
     ],
-    "resolution": "12/14",
-    "heater": false
+    "device": "si7021-device-1"
   },
   {
     "id": "si7021-format",

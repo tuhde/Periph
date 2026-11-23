@@ -70,5 +70,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-mma8451q', MMA8451QReadNode);
+    RED.nodes.registerType('mma8451q', MMA8451QReadNode);
 };

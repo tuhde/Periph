@@ -31,17 +31,23 @@
     ]
   },
   {
+    "id": "qmi8658a-device-1",
+    "type": "qmi8658a-device",
+    "name": "QMI8658A",
+    "bus": "1",
+    "odr": "5",
+    "accelRange": "1",
+    "address": "0x6B",
+    "gyroRange": "4",
+    "transport": "i2c",
+    "device": "0"
+  },
+  {
     "id": "qmi8658a-node",
-    "type": "periph-qmi8658a",
+    "type": "qmi8658a",
     "z": "qmi8658a-tab",
     "name": "QMI8658A",
-    "transport": "i2c",
-    "bus": "1",
-    "device": "0",
-    "address": "0x6B",
-    "accelRange": "1",
-    "gyroRange": "4",
-    "odr": "5",
+    "device": "qmi8658a-device-1",
     "x": 400,
     "y": 160,
     "wires": [

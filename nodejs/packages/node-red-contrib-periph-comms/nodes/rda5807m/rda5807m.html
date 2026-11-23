@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-rda5807m', {
-        category: 'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('rda5807m-device', {
+        category: 'config',
         defaults: {
             name:      { value: '' },
             bus:       { value: '1', required: true, validate: RED.validators.number() },
@@ -11,30 +11,28 @@
             frequency: { value: '100.0', required: true, validate: RED.validators.number() },
             volume:    { value: '8', required: true, validate: RED.validators.number() }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'font-awesome/fa-rss',
-        label: function() { return this.name || 'RDA5807M'; },
-        paletteLabel: 'RDA5807M'
+        label: function() {
+            return this.name || ('RDA5807M @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-rda5807m">
+<script type="text/html" data-template-name="rda5807m-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="RDA5807M">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="RDA5807M">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I&sup2;C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I&sup2;C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-input-address">Address (hex)</label>
-        <input type="text" id="node-input-address" placeholder="10" style="width:80px"> &nbsp;default: 10 (0x10)
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="10" style="width:80px"> &nbsp;default: 10 (0x10)
     </div>
     <div class="form-row">
-        <label for="node-input-band">Band</label>
-        <select id="node-input-band" style="width:200px">
+        <label for="node-config-input-band">Band</label>
+        <select id="node-config-input-band" style="width:200px">
             <option value="0">US/Europe (87-108 MHz)</option>
             <option value="1">Japan (76-91 MHz)</option>
             <option value="2">World wide (76-108 MHz)</option>
@@ -42,8 +40,8 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-space">Channel spacing</label>
-        <select id="node-input-space" style="width:200px">
+        <label for="node-config-input-space">Channel spacing</label>
+        <select id="node-config-input-space" style="width:200px">
             <option value="0">100 kHz</option>
             <option value="1">200 kHz</option>
             <option value="2">50 kHz</option>
@@ -51,16 +49,44 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-frequency">Initial frequency (MHz)</label>
-        <input type="number" id="node-input-frequency" min="50" max="115" step="0.1" style="width:100px">
+        <label for="node-config-input-frequency">Initial frequency (MHz)</label>
+        <input type="number" id="node-config-input-frequency" min="50" max="115" step="0.1" style="width:100px">
     </div>
     <div class="form-row">
-        <label for="node-input-volume">Initial volume (0&ndash;15)</label>
-        <input type="number" id="node-input-volume" min="0" max="15" style="width:80px">
+        <label for="node-config-input-volume">Initial volume (0&ndash;15)</label>
+        <input type="number" id="node-config-input-volume" min="0" max="15" style="width:80px">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-rda5807m">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('rda5807m', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            device: { value: '', type: 'rda5807m-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-rss',
+        label:   function() { return this.name || 'RDA5807M'; },
+        paletteLabel: 'RDA5807M'
+    });
+</script>
+
+<script type="text/html" data-template-name="rda5807m">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="RDA5807M">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rda5807m">
     <p>Controls an RDA5807M single-chip FM stereo radio tuner over I&sup2;C: tune, seek, volume, and mute, with frequency/signal status on every trigger.</p>
 
     <h3>Inputs</h3>

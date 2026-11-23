@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "AT24C02N Boot Counter",
         "disabled": false,
-        "info": "Demonstrates non-volatile EEPROM state. Every 5 seconds a function node reads a 4-byte big-endian counter at address 0x0000 through periph-at24c02n, increments it and writes it back (page-split and ACK-polled by the driver). The Debug node shows the counter, which survives a Node-RED restart or power loss."
+        "info": "Demonstrates non-volatile EEPROM state. Every 5 seconds a function node reads a 4-byte big-endian counter at address 0x0000 through at24c02n, increments it and writes it back (page-split and ACK-polled by the driver). The Debug node shows the counter, which survives a Node-RED restart or power loss."
     },
     {
         "id": "cfg-at24c02n",
@@ -31,7 +31,7 @@
     },
     {
         "id": "rd",
-        "type": "periph-at24c02n",
+        "type": "at24c02n",
         "name": "Read counter",
         "device": "cfg-at24c02n",
         "z": "tab-at24c02n-demo",
@@ -52,7 +52,7 @@
     },
     {
         "id": "wr",
-        "type": "periph-at24c02n",
+        "type": "at24c02n",
         "name": "Write counter",
         "device": "cfg-at24c02n",
         "z": "tab-at24c02n-demo",

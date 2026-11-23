@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "AD5252 Wiper Sweep Demo",
         "disabled": false,
-        "info": "Two scenarios on one AD5252 dual digital potentiometer with nonvolatile memory. An Inject node ticks every 500 ms into a Function node that sweeps channel 0 through 16 evenly spaced wiper codes (0, 16, ... 240), producing the staircase; the periph-ad5252 node returns {channel, code, resistance} which a Debug node shows. A second Inject node sets channel 1 to a 2.2 kOhm W-B resistance once and a third reads back both channels."
+        "info": "Two scenarios on one AD5252 dual digital potentiometer with nonvolatile memory. An Inject node ticks every 500 ms into a Function node that sweeps channel 0 through 16 evenly spaced wiper codes (0, 16, ... 240), producing the staircase; the ad5252 node returns {channel, code, resistance} which a Debug node shows. A second Inject node sets channel 1 to a 2.2 kOhm W-B resistance once and a third reads back both channels."
     },
     {
         "id": "inj-sweep",
@@ -83,13 +83,18 @@
         ]
     },
     {
-        "id": "ad5252-node",
-        "type": "periph-ad5252",
+        "id": "ad5252-device-1",
+        "type": "ad5252-device",
         "name": "AD5252",
         "bus": "1",
         "rab": "10000",
-        "address": "0x2C",
         "rwiper": "75",
+        "address": "0x2C"
+    },
+    {
+        "id": "ad5252-node",
+        "type": "ad5252",
+        "name": "AD5252",
         "z": "tab-ad5252-demo",
         "x": 560,
         "y": 140,
@@ -97,7 +102,8 @@
             [
                 "dbg-ad5252"
             ]
-        ]
+        ],
+        "device": "ad5252-device-1"
     },
     {
         "id": "dbg-ad5252",

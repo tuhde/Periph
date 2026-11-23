@@ -18,7 +18,7 @@ module.exports = function(RED) {
         return c;
     }
 
-    function UC8276CNode(config) {
+    function UC8276CDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.autoShow = !!config.autoShow;
@@ -45,9 +45,20 @@ module.exports = function(RED) {
             node.error('UC8276C init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('uc8276c-device', UC8276CDeviceNode);
+
+    function UC8276CReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            const d = node.driver;
+            if (!deviceNode.driver) { done(); return; }
+            const d = deviceNode.driver;
             const p = msg.payload || {};
             try {
                 if (p.clear !== undefined) d.clear(color(p.clear, WHITE));
@@ -65,7 +76,7 @@ module.exports = function(RED) {
                     d.blit(b.x, b.y, Buffer.from(b.data), b.w, b.h, color(b.color));
                 }
                 if (p.wake) await d.wake();
-                if (p.show || (node.autoShow && (p.clear !== undefined || p.pixel || p.line || p.rect || p.bitmap))) {
+                if (p.show || (deviceNode.autoShow && (p.clear !== undefined || p.pixel || p.line || p.rect || p.bitmap))) {
                     node.status({ fill: 'yellow', shape: 'ring', text: 'refreshing' });
                     await d.show();
                     node.status({});
@@ -92,10 +103,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-uc8276c', UC8276CNode);
+    RED.nodes.registerType('uc8276c', UC8276CReadNode);
 };

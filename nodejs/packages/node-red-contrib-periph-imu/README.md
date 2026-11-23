@@ -16,11 +16,18 @@ npm install node-red-contrib-periph-imu
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-bno055` | input | Reads the fused absolute orientation of a Bosch BNO055 9-axis sensor over I²C (0x29 with COM3 high, 0x28 with COM3 low). The chip stretches the I²C clock, so the host bus must support clock stretching. Allow up to about one second after deploying for the chip to boot. |
-| `periph-icm20948` | input | Reads acceleration, angular rate, die temperature and (optionally) the magnetic field from a TDK InvenSense ICM-20948 9-axis MotionTracking device over I²C. The AK09916 magnetometer is read through the chip's own I²C master, so only one I²C address is needed. VDDIO must be 1.71–1.95 V. |
+| `bno055-device` | config | I²C bus and address for a BNO055 |
+| `bno055` | input | Reads the fused absolute orientation of a Bosch BNO055 9-axis sensor over I²C (0x29 with COM3 high, 0x28 with COM3 low). The chip stretches the I²C clock, so the host bus must support clock stretching. Allow up to about one second after deploying for the chip to boot. |
+| `icm20948-device` | config | I²C bus and address for an ICM20948 |
+| `icm20948` | input | Reads acceleration, angular rate, die temperature and (optionally) the magnetic field from a TDK InvenSense ICM-20948 9-axis MotionTracking device over I²C. The AK09916 magnetometer is read through the chip's own I²C master, so only one I²C address is needed. VDDIO must be 1.71–1.95 V. |
 | `mpu6050-device` | config | I²C bus and address for a MPU6050 |
 | `mpu6050` | input | Reads 3-axis acceleration and 3-axis angular rate from an MPU6050 IMU over I²C. |
-| `periph-qmi8658a` | input | Reads acceleration, angular rate and die temperature from a QST QMI8658A 6-axis IMU over I²C (0x6B with SA0 = GND, 0x6A with SA0 = VDDIO) or 4-wire SPI. The three values come from one 14-byte burst, so they belong to the same sample. |
+| `mpu9250-device` | config | Bus configuration for a MPU9250 |
+| `mpu9250` | input | Reads bus voltage, load current, and power from an MPU-9250 9-axis MotionTracking device. |
+| `mpu9255-device` | config | Bus configuration for a MPU9255 |
+| `mpu9255` | input | Reads acceleration and angular rate from an MPU-9255 9-axis MotionTracking device. |
+| `qmi8658a-device` | config | I²C bus and address for a QMI8658A |
+| `qmi8658a` | input | Reads acceleration, angular rate and die temperature from a QST QMI8658A 6-axis IMU over I²C (0x6B with SA0 = GND, 0x6A with SA0 = VDDIO) or 4-wire SPI. The three values come from one 14-byte burst, so they belong to the same sample. |
 
 ## Links
 

@@ -1,4 +1,72 @@
-<script type="text/html" data-help-name="periph-ade7953">
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ade7953-device', {
+        category: 'config',
+        defaults: {
+            name:        { value: '' },
+            bus:         { value: '1', required: true, validate: RED.validators.number() },
+            addr:        { value: '0x38', required: true, validate: RED.validators.regex(/^0x[0-9a-fA-F]{1,2}$/) },
+            voltageGain: { value: '251.0', required: true, validate: RED.validators.number() },
+            currentGain: { value: '30.0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('ADE7953 @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ade7953-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ADE7953">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr">Address (hex)</label>
+        <input type="text" id="node-config-input-addr" placeholder="0x38" style="width:80px"> &nbsp;fixed: 0x38
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-voltageGain">Voltage gain</label>
+        <input type="number" id="node-config-input-voltageGain" step="any" style="width:100px"> &nbsp;V per V at VP–VN
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-currentGain">Current gain</label>
+        <input type="number" id="node-config-input-currentGain" step="any" style="width:100px"> &nbsp;A per V at IAP–IAN
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('ade7953', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ade7953-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || 'ADE7953'; },
+        paletteLabel: 'ADE7953'
+    });
+</script>
+
+<script type="text/html" data-template-name="ade7953">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ADE7953">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ade7953">
     <p>Reads bus voltage, load current, active power, and accumulated active
        energy from an ADE7953 single-phase multifunction metering IC.</p>
     <h3>Inputs</h3>
@@ -26,27 +94,4 @@
        (transconductance of the CT + burden, shunt or Rogowski front end).
        Both must be supplied at construction — there is no universal default
        because they depend on the external sensor network.</p>
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('periph-ade7953', {
-        category: 'Periph',
-        color: '#C084FC',
-        defaults: {
-            name: { value: '' },
-            bus: { value: '1', validate: RED.validators.number() },
-            addr: { value: '0x38', validate: RED.validators.regex(/^0x[0-9a-fA-F]{1,2}$/) },
-            voltageGain: { value: '251.0', validate: RED.validators.number() },
-            currentGain: { value: '30.0', validate: RED.validators.number() },
-        },
-        inputs: 1,
-        outputs: 1,
-        icon: 'light.png',
-        label: function() {
-            return this.name || 'ADE7953';
-        },
-        labelStyle: function() {
-            return this.name ? 'node_label_italic' : '';
-        }
-    });
 </script>

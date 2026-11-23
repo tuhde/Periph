@@ -49,7 +49,7 @@
     },
     {
         "id": "ad7705",
-        "type": "periph-ad7705",
+        "type": "ad7705",
         "name": "AD7705",
         "device": "cfg-ad7705",
         "z": "tab-ad7705-demo",

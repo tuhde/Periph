@@ -60,5 +60,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ad5248', AD5248Node);
+    RED.nodes.registerType('ad5248', AD5248Node);
 };

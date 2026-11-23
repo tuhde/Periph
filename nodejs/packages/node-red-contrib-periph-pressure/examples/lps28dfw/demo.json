@@ -13,7 +13,7 @@
     },
     {
         "id": "lps28dfw-read-1",
-        "type": "periph-lps28dfw",
+        "type": "lps28dfw",
         "name": "LPS28DFW Weather",
         "device": "lps28dfw-device-1",
         "seaLevelHpa": "1013.25",
@@ -65,6 +65,6 @@
         "type": "tab",
         "label": "LPS28DFW weather",
         "disabled": false,
-        "info": "An inject node fires every 5 seconds, triggering the periph-lps28dfw node which reads pressure and temperature from the LPS28DFW dual full-scale digital barometer. The node also computes an estimated altitude from the barometric formula using a configurable sea-level reference (default 1013.25 hPa). The debug tab displays pressure (hPa), temperature (°C), and altitude (m). Adjust the lps28dfw-device config node to switch between Mode 1 (0–1260 hPa) and Mode 2 (0–4060 hPa) full-scale, change the averaging depth (4 to 512 samples), set the output data rate, and enable/disable the IIR low-pass filter."
+        "info": "An inject node fires every 5 seconds, triggering the lps28dfw node which reads pressure and temperature from the LPS28DFW dual full-scale digital barometer. The node also computes an estimated altitude from the barometric formula using a configurable sea-level reference (default 1013.25 hPa). The debug tab displays pressure (hPa), temperature (°C), and altitude (m). Adjust the lps28dfw-device config node to switch between Mode 1 (0–1260 hPa) and Mode 2 (0–4060 hPa) full-scale, change the averaging depth (4 to 512 samples), set the output data rate, and enable/disable the IIR low-pass filter."
     }
 ]

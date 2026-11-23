@@ -13,16 +13,15 @@
   "node-red": {
     "nodes": {
       "mcp23008": "nodes/mcp23008/mcp23008.js",
-      "periph-mcp23008": "nodes/mcp23008/mcp23008.js",
-      "periph-mcp23017": "nodes/mcp23017/mcp23017.js",
-      "periph-pca6408a": "nodes/pca6408a/pca6408a.js",
-      "periph-pca9536": "nodes/pca9536/pca9536.js",
-      "periph-pca6416a": "nodes/pca6416a/pca6416a.js",
-      "periph-pca9539": "nodes/pca9539/pca9539.js",
-      "periph-pcf8574": "nodes/pcf8574/pcf8574.js",
-      "periph-pcf8575": "nodes/pcf8575/pcf8575.js",
-      "periph-tca9554": "nodes/tca9554/tca9554.js",
-      "periph-tpic6b595": "nodes/tpic6b595/tpic6b595.js"
+      "mcp23017": "nodes/mcp23017/mcp23017.js",
+      "pca6408a": "nodes/pca6408a/pca6408a.js",
+      "pca6416a": "nodes/pca6416a/pca6416a.js",
+      "pca9536": "nodes/pca9536/pca9536.js",
+      "pca9539": "nodes/pca9539/pca9539.js",
+      "pcf8574": "nodes/pcf8574/pcf8574.js",
+      "pcf8575": "nodes/pcf8575/pcf8575.js",
+      "tca9554": "nodes/tca9554/tca9554.js",
+      "tpic6b595": "nodes/tpic6b595/tpic6b595.js"
     }
   },
   "dependencies": {

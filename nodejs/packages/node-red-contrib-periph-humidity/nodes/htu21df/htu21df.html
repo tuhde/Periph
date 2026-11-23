@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-htu21df', {
-        category:  'Peripheral',
-        color: '#C084FC',
+    RED.nodes.registerType('htu21df-device', {
+        category: 'config',
         defaults: {
             name:       { value: '' },
             bus:        { value: '1', required: true, validate: RED.validators.number() },
@@ -9,31 +9,28 @@
             resolution: { value: '12/14' },
             heater:     { value: false }
         },
-        inputs: 1,
-        outputs: 1,
-        icon: 'bridge.svg',
         label: function() {
-            return this.name || ('HTU21D-F @ ' + this.address + ' (bus ' + this.bus + ')');
+            return this.name || ('HTU21DF @ ' + this.address + ' (bus ' + this.bus + ')');
         }
     });
 </script>
 
-<script type="text/html" data-template-name="periph-htu21df">
+<script type="text/html" data-template-name="htu21df-device">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="HTU21D-F">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HTU21DF">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
-        <input type="text" id="node-input-address" style="width:80px" placeholder="0x40"> &nbsp;(fixed, 0x40)
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x40"> &nbsp;(fixed, 0x40)
     </div>
     <div class="form-row">
-        <label for="node-input-resolution"><i class="fa fa-cog"></i> Resolution</label>
-        <select id="node-input-resolution" style="width:200px">
+        <label for="node-config-input-resolution"><i class="fa fa-cog"></i> Resolution</label>
+        <select id="node-config-input-resolution" style="width:200px">
             <option value="12/14" selected>RH 12 bit / T 14 bit</option>
             <option value="10/13">RH 10 bit / T 13 bit</option>
             <option value="11/11">RH 11 bit / T 11 bit</option>
@@ -41,12 +38,40 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-heater"><i class="fa fa-fire"></i> Heater</label>
-        <input type="checkbox" id="node-input-heater" style="width:auto"> &nbsp;on-chip heater (about 5.5 mW)
+        <label for="node-config-input-heater"><i class="fa fa-fire"></i> Heater</label>
+        <input type="checkbox" id="node-config-input-heater" style="width:auto"> &nbsp;on-chip heater (about 5.5 mW)
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-htu21df">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('htu21df', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device: { value: '', type: 'htu21df-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'HTU21DF'; },
+        paletteLabel: 'HTU21DF'
+    });
+</script>
+
+<script type="text/html" data-template-name="htu21df">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HTU21DF">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="htu21df">
     <p>Reads temperature and relative humidity from a Measurement Specialties HTU21D-F over I²C (fixed address 0x40)
     with one temperature and one humidity measurement per message. The CRC of both results is verified.</p>
     <h3>Inputs</h3>

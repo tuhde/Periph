@@ -31,12 +31,18 @@
     ]
   },
   {
-    "id": "hdc1080-node",
-    "type": "periph-hdc1080",
-    "z": "hdc1080-tab",
+    "id": "hdc1080-device-1",
+    "type": "hdc1080-device",
     "name": "HDC1080",
     "bus": "1",
     "address": "0x40",
+    "resolution": "14/14"
+  },
+  {
+    "id": "hdc1080-node",
+    "type": "hdc1080",
+    "z": "hdc1080-tab",
+    "name": "HDC1080",
     "x": 380,
     "y": 160,
     "wires": [
@@ -44,7 +50,7 @@
         "hdc1080-format"
       ]
     ],
-    "resolution": "14/14"
+    "device": "hdc1080-device-1"
   },
   {
     "id": "hdc1080-format",

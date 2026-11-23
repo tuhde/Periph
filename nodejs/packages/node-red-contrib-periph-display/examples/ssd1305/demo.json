@@ -198,21 +198,29 @@
     ]
   },
   {
+    "id": "ssd1305-device-1",
+    "type": "ssd1305-device",
+    "name": "SSD1305",
+    "address": "0x3C",
+    "height": "64",
+    "columnOffset": "4",
+    "autoShow": true,
+    "width": "128",
+    "i2cBus": "1",
+    "transport": "i2c"
+  },
+  {
     "id": "ssd1305_node",
-    "type": "periph-ssd1305",
+    "type": "ssd1305",
     "z": "ssd1305_tab",
     "name": "1.3\" OLED",
     "transport": "i2c",
-    "i2cBus": "1",
-    "address": "0x3C",
-    "width": "128",
-    "height": "64",
-    "columnOffset": "4",
     "autoShow": true,
     "x": 640,
     "y": 200,
     "wires": [
       []
-    ]
+    ],
+    "device": "ssd1305-device-1"
   }
 ]

@@ -20,7 +20,11 @@
         "z": "tab-hx710a-demo",
         "x": 140,
         "y": 100,
-        "wires": [["hx710a"]]
+        "wires": [
+            [
+                "hx710a"
+            ]
+        ]
     },
     {
         "id": "inj-read",
@@ -36,7 +40,11 @@
         "z": "tab-hx710a-demo",
         "x": 140,
         "y": 200,
-        "wires": [["hx710a"]]
+        "wires": [
+            [
+                "hx710a"
+            ]
+        ]
     },
     {
         "id": "inj-temperature",
@@ -52,21 +60,37 @@
         "z": "tab-hx710a-demo",
         "x": 160,
         "y": 300,
-        "wires": [["hx710a"]]
+        "wires": [
+            [
+                "hx710a"
+            ]
+        ]
+    },
+    {
+        "id": "hx710a-device-1",
+        "type": "hx710a-device",
+        "name": "HX710A",
+        "doutPin": "5",
+        "tareOffset": "0",
+        "scaleFactor": "420.0",
+        "rate": "10",
+        "pdSckPin": "6"
     },
     {
         "id": "hx710a",
-        "type": "periph-hx710a",
+        "type": "hx710a",
         "name": "HX710A",
-        "doutPin": "5",
-        "pdSckPin": "6",
-        "rate": "10",
-        "scaleFactor": "420.0",
-        "tareOffset": "0",
         "z": "tab-hx710a-demo",
         "x": 380,
         "y": 200,
-        "wires": [["dbg-weight", "gauge-weight", "dbg-temperature"]]
+        "wires": [
+            [
+                "dbg-weight",
+                "gauge-weight",
+                "dbg-temperature"
+            ]
+        ],
+        "device": "hx710a-device-1"
     },
     {
         "id": "dbg-weight",
@@ -99,7 +123,11 @@
         "format": "{{payload.weight | number:1}}",
         "min": "0",
         "max": "1000",
-        "colors": ["#00b500", "#e6e600", "#ca3838"],
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
         "seg1": "500",
         "seg2": "800",
         "className": "",

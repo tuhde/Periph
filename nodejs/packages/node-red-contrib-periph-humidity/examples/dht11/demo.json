@@ -1,8 +1,70 @@
 [
-  {
-    "id": "dht11_demo_tab",
-    "type": "tab",
-    "label": "DHT11 Demo",
-    "info": "Indoor comfort monitor using a DHT11 sensor.\n\nAn inject node fires every 5 seconds and triggers a `periph-dht11` read. The output connects to a debug node (logging the full payload) and two dashboard gauge nodes (node-red-dashboard): one for temperature in °C and one for humidity in %RH.\n\nConfigure the `dht11-device` config node with the GPIO pin number wired to the DHT11 DATA line (with a 4.7 kΩ pull-up to 3V3). Set the retry count to 3 to gracefully handle occasional checksum errors."
-  }
+    {
+        "id": "dht11_demo_tab",
+        "type": "tab",
+        "label": "DHT11 Demo",
+        "info": "Indoor comfort monitor using a DHT11 sensor.\n\nAn inject node fires every 5 seconds and triggers a `dht11` read. The output connects to a debug node (logging the full payload) and two dashboard gauge nodes (node-red-dashboard): one for temperature in °C and one for humidity in %RH.\n\nConfigure the `dht11-device` config node with the GPIO pin number wired to the DHT11 DATA line (with a 4.7 kΩ pull-up to 3V3). Set the retry count to 3 to gracefully handle occasional checksum errors.",
+        "disabled": false
+    },
+    {
+        "id": "dht11-device-1",
+        "type": "dht11-device",
+        "name": "DHT11",
+        "dataPin": "4",
+        "retries": "3"
+    },
+    {
+        "id": "dht11-inject-1",
+        "type": "inject",
+        "z": "dht11_demo_tab",
+        "name": "Every 5 s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "dht11-read-1"
+            ]
+        ]
+    },
+    {
+        "id": "dht11-read-1",
+        "type": "dht11",
+        "z": "dht11_demo_tab",
+        "name": "DHT11",
+        "device": "dht11-device-1",
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "dht11-debug-1"
+            ]
+        ]
+    },
+    {
+        "id": "dht11-debug-1",
+        "type": "debug",
+        "z": "dht11_demo_tab",
+        "name": "DHT11 reading",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 540,
+        "y": 100,
+        "wires": []
+    }
 ]

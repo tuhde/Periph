@@ -6,10 +6,10 @@ module.exports = function(RED) {
     const { GpioOutputPin } = require('periph/src/connection/output_pin');
     const U = require('periph/src/chips/display/uc1611s');
 
-    function UC1611sNode(config) {
+    function UC1611sDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const autoShow = config.autoShow !== false && config.autoShow !== 'false';
+        node.transport = config.transport;
 
         try {
             const width = parseInt(config.width || 240, 10);
@@ -40,6 +40,21 @@ module.exports = function(RED) {
             node.error('UC1611s init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.command) node.command.close();
+            if (node.data) node.data.close();
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('uc1611s-device', UC1611sDeviceNode);
+
+    function UC1611sReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        const autoShow = config.autoShow !== false && config.autoShow !== 'false';
+
         // Messages are handled one at a time: two overlapping transfers would corrupt each other.
         let queue = Promise.resolve();
         node.on('input', function(msg, send, done) {
@@ -47,8 +62,8 @@ module.exports = function(RED) {
         });
 
         async function handle(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            const d = node.driver;
+            if (!deviceNode.driver) { done(); return; }
+            const d = deviceNode.driver;
             let p = msg.payload;
             try {
                 await d.ready();
@@ -66,7 +81,7 @@ module.exports = function(RED) {
                 if (p.flip) await d.setFlip(!!p.flip.x, !!p.flip.y);
                 if (p.show || (draw && autoShow)) await d.show();
                 if (p.status) {
-                    if (config.transport === 'spi') throw new Error('status read is not available over SPI');
+                    if (deviceNode.transport === 'spi') throw new Error('status read is not available over SPI');
                     const s = await d.readStatus();
                     send({ payload: { status: [s[0], s[1], s[2]] } });
                 }
@@ -77,12 +92,6 @@ module.exports = function(RED) {
                 done(e);
             }
         }
-
-        node.on('close', function() {
-            if (node.command) node.command.close();
-            if (node.data) node.data.close();
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-uc1611s', UC1611sNode);
+    RED.nodes.registerType('uc1611s', UC1611sReadNode);
 };

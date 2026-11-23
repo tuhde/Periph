@@ -6,7 +6,7 @@ module.exports = function(RED) {
     const { SPIConnection }  = require('periph/src/connection/spi');
     const { NEO6Full }      = require('periph/src/chips/gnss/neo6');
 
-    function NEO6Node(config) {
+    function NEO6DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.busType = config.busType || 'uart';
@@ -34,8 +34,22 @@ module.exports = function(RED) {
             }
         })();
 
+        node.on('close', async function(done) {
+            if (node.connection) {
+                try { await node.connection.close(); } catch (_) { /* already closed */ }
+            }
+            done();
+        });
+    }
+    RED.nodes.registerType('neo6-device', NEO6DeviceNode);
+
+    function NEO6ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.ready || !node.driver) {
+            if (!deviceNode.ready || !deviceNode.driver) {
                 node.error('NEO-6 not ready', msg);
                 done();
                 return;
@@ -51,9 +65,9 @@ module.exports = function(RED) {
                 // stream goes quiet between bursts.
                 const deadline = Date.now() + 900;
                 while (Date.now() < deadline) {
-                    await node.driver.update();
+                    await deviceNode.driver.update();
                 }
-                const d = node.driver;
+                const d = deviceNode.driver;
                 msg.payload = {
                     lat: d.latitude(),
                     lon: d.longitude(),
@@ -72,14 +86,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', async function(done) {
-            if (node.connection) {
-                try { await node.connection.close(); } catch (_) { /* already closed */ }
-            }
-            done();
-        });
     }
-
-    RED.nodes.registerType('periph-neo6', NEO6Node);
+    RED.nodes.registerType('neo6', NEO6ReadNode);
 };

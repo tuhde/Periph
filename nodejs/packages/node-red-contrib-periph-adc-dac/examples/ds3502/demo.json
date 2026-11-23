@@ -103,10 +103,18 @@
         ]
     },
     {
-        "id": "ds3502-node",
-        "type": "periph-ds3502",
+        "id": "ds3502-device-1",
+        "type": "ds3502-device",
         "name": "DS3502",
+        "vhigh": "15",
         "bus": "1",
+        "address": "0x28",
+        "vlow": "0"
+    },
+    {
+        "id": "ds3502-node",
+        "type": "ds3502",
+        "name": "DS3502",
         "z": "tab-ds3502-demo",
         "x": 560,
         "y": 140,
@@ -115,9 +123,7 @@
                 "dbg-ds3502"
             ]
         ],
-        "address": "0x28",
-        "vhigh": "15",
-        "vlow": "0"
+        "device": "ds3502-device-1"
     },
     {
         "id": "dbg-ds3502",

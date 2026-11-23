@@ -1,7 +1,7 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pca6408a', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('pca6408a-device', {
+        category: 'config',
         defaults: {
             name:      { value: '' },
             bus:       { value: '1',  required: true, validate: RED.validators.number() },
@@ -9,41 +9,65 @@
             gpioChip:  { value: '0' },
             intPin:    { value: '' }
         },
+        label: function() {
+            return this.name || ('PCA6408A @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pca6408a-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCA6408A">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(/dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="20" style="width:80px">
+        &nbsp;20 (ADDR = VSS) or 21 (ADDR = VDD(P))
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-config-input-gpioChip" min="0" style="width:80px"> &nbsp;(for the optional INT line)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-intPin">INT GPIO line</label>
+        <input type="number" id="node-config-input-intPin" min="0" style="width:80px" placeholder="none">
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('pca6408a', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            device: { value: '', type: 'pca6408a-device', required: true }
+        },
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-microchip',
-        label:   function() {
-            return this.name || ('PCA6408A @ 0x' + this.address + ' (bus ' + this.bus + ')');
-        },
+        label:   function() { return this.name || 'PCA6408A'; },
         paletteLabel: 'PCA6408A'
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pca6408a">
+<script type="text/html" data-template-name="pca6408a">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="PCA6408A">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(/dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address">Address (hex)</label>
-        <input type="text" id="node-input-address" placeholder="20" style="width:80px">
-        &nbsp;20 (ADDR = VSS) or 21 (ADDR = VDD(P))
-    </div>
-    <div class="form-row">
-        <label for="node-input-gpioChip">GPIO chip</label>
-        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;(for the optional INT line)
-    </div>
-    <div class="form-row">
-        <label for="node-input-intPin">INT GPIO line</label>
-        <input type="number" id="node-input-intPin" min="0" style="width:80px" placeholder="none">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pca6408a">
+<script type="text/html" data-help-name="pca6408a">
     <p>Controls and reads an 8-bit PCA6408A I/O expander (I²C / SMBus, NXP). The chip has no internal pull-ups: inputs need external pull-up resistors.</p>
 
     <h3>Inputs</h3>

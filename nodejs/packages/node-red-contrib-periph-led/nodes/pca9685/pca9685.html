@@ -35,7 +35,7 @@
 
 <!-- Node: duty / pulse width / frequency -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pca9685', {
+    RED.nodes.registerType('pca9685', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -50,7 +50,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pca9685">
+<script type="text/html" data-template-name="pca9685">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -61,7 +61,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pca9685">
+<script type="text/html" data-help-name="pca9685">
     <p>Controls the 16 PWM channels of a PCA9685 (12-bit, 24–1526 Hz) over I²C.</p>
     <h3>Inputs</h3>
     <dl class="message-properties">

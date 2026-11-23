@@ -4,7 +4,7 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { PCF8591Full }   = require('periph/src/chips/adc_dac/pcf8591');
 
-    function PCF8591Node(config) {
+    function PCF8591DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -14,10 +14,22 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('PCF8591 init failed: ' + e.message);
         }
+
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('pcf8591-device', PCF8591DeviceNode);
+
+    function PCF8591ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
+            if (!deviceNode.driver) { done(); return; }
             try {
-                const driver = node.driver;
+                const driver = deviceNode.driver;
                 if (msg.payload && msg.payload.dac !== undefined) {
                     await driver.set_dac(msg.payload.dac);
                 }
@@ -29,9 +41,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-pcf8591', PCF8591Node);
+    RED.nodes.registerType('pcf8591', PCF8591ReadNode);
 };

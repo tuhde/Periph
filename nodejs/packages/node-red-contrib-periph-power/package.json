@@ -20,9 +20,9 @@
       "ade7953": "nodes/ade7953/ade7953.js",
       "axp2101": "nodes/axp2101/axp2101.js",
       "lc709203f": "nodes/lc709203f/lc709203f.js",
-      "periph-lm25066": "nodes/lm25066/lm25066.js",
-      "periph-ltc4151": "nodes/ltc4151/ltc4151.js",
-      "periph-max17048": "nodes/max17048/max17048.js"
+      "lm25066": "nodes/lm25066/lm25066.js",
+      "ltc4151": "nodes/ltc4151/ltc4151.js",
+      "max17048": "nodes/max17048/max17048.js"
     }
   },
   "dependencies": {

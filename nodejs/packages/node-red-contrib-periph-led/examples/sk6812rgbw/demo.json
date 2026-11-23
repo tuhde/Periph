@@ -81,7 +81,7 @@
   },
   {
     "id": "sk6812rgbw-node",
-    "type": "periph-sk6812rgbw",
+    "type": "sk6812rgbw",
     "z": "sk6812rgbw-demo-tab",
     "name": "SK6812RGBW",
     "device": "sk6812rgbw-device-1",

@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "AD5243 Wiper Sweep Demo",
         "disabled": false,
-        "info": "Two scenarios on one AD5243 dual digital potentiometer. An Inject node ticks every 500 ms into a Function node that sweeps channel 0 through 16 evenly spaced wiper codes (0, 16, ... 240), producing the staircase; the periph-ad5243 node returns {channel, code, resistance} which a Debug node shows. A second Inject node sets channel 1 to a 2.2 kOhm W-B resistance once and a third reads back both channels."
+        "info": "Two scenarios on one AD5243 dual digital potentiometer. An Inject node ticks every 500 ms into a Function node that sweeps channel 0 through 16 evenly spaced wiper codes (0, 16, ... 240), producing the staircase; the ad5243 node returns {channel, code, resistance} which a Debug node shows. A second Inject node sets channel 1 to a 2.2 kOhm W-B resistance once and a third reads back both channels."
     },
     {
         "id": "inj-sweep",
@@ -83,12 +83,17 @@
         ]
     },
     {
-        "id": "ad5243-node",
-        "type": "periph-ad5243",
+        "id": "ad5243-device-1",
+        "type": "ad5243-device",
         "name": "AD5243",
         "bus": "1",
         "rab": "10000",
-        "rwiper": "160",
+        "rwiper": "160"
+    },
+    {
+        "id": "ad5243-node",
+        "type": "ad5243",
+        "name": "AD5243",
         "z": "tab-ad5243-demo",
         "x": 560,
         "y": 140,
@@ -96,7 +101,8 @@
             [
                 "dbg-ad5243"
             ]
-        ]
+        ],
+        "device": "ad5243-device-1"
     },
     {
         "id": "dbg-ad5243",

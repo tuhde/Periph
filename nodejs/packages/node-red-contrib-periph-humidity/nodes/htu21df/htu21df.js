@@ -6,7 +6,7 @@ module.exports = function(RED) {
 
     const RESOLUTIONS = { '12/14': 0, '8/12': 1, '10/13': 2, '11/11': 3 };
 
-    function HTU21DFNode(config) {
+    function HTU21DFDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
@@ -27,15 +27,26 @@ module.exports = function(RED) {
             node.error('HTU21D-F init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('htu21df-device', HTU21DFDeviceNode);
+
+    function HTU21DFReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', async function(msg, send, done) {
-            if (!node.driver) {
+            if (!deviceNode.driver) {
                 node.error('HTU21D-F not initialised', msg);
                 done();
                 return;
             }
             try {
-                await node.ready;
-                const [temperature_c, humidity_pct] = await node.driver.read();
+                await deviceNode.ready;
+                const [temperature_c, humidity_pct] = await deviceNode.driver.read();
                 msg.payload = { temperature_c, humidity_pct };
                 send(msg);
                 done();
@@ -43,10 +54,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-htu21df', HTU21DFNode);
+    RED.nodes.registerType('htu21df', HTU21DFReadNode);
 };

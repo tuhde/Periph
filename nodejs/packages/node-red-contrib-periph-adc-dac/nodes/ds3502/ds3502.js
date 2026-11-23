@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
     const { DS3502Full } = require('periph/src/chips/adc_dac/ds3502');
 
-    function DS3502Node(config) {
+    function DS3502DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         const vHigh = config.vhigh === '' || config.vhigh === undefined ? 1.0 : parseFloat(config.vhigh);
         const vLow = config.vlow === '' || config.vlow === undefined ? 0.0 : parseFloat(config.vlow);
         const address = parseInt(config.address || '0x28', 16);
@@ -28,29 +27,6 @@ module.exports = function(RED) {
             return Object.assign({ code, ratio, voltage }, extra);
         }
 
-        node.on('input', async function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            try {
-                await node.ready;
-                const p = msg.payload;
-                let extra;
-                if (p && typeof p === 'object') {
-                    if (typeof p.code === 'number') await node.driver.setWiper(p.code);
-                    else if (typeof p.ratio === 'number') await node.driver.setRatio(p.ratio);
-                    else if (typeof p.voltage === 'number') await node.driver.setVoltage(p.voltage);
-                    if (p.store === true) {
-                        await node.driver.storeWiper();
-                        extra = { stored: true };
-                    }
-                }
-                msg.payload = await readback(extra);
-                send(msg);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-
         node.on('close', async function(removed, done) {
             try {
                 if (node.connection) await node.connection.close();
@@ -61,5 +37,35 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ds3502', DS3502Node);
+    RED.nodes.registerType('ds3502-device', DS3502DeviceNode);
+
+    function DS3502ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            try {
+                await deviceNode.ready;
+                const p = msg.payload;
+                let extra;
+                if (p && typeof p === 'object') {
+                    if (typeof p.code === 'number') await deviceNode.driver.setWiper(p.code);
+                    else if (typeof p.ratio === 'number') await deviceNode.driver.setRatio(p.ratio);
+                    else if (typeof p.voltage === 'number') await deviceNode.driver.setVoltage(p.voltage);
+                    if (p.store === true) {
+                        await deviceNode.driver.storeWiper();
+                        extra = { stored: true };
+                    }
+                }
+                msg.payload = await readback(extra);
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('ds3502', DS3502ReadNode);
 };

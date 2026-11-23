@@ -8,7 +8,7 @@
     },
     {
         "id": "cfg-lm25066",
-        "type": "periph-lm25066-device",
+        "type": "lm25066-device",
         "name": "LM25066",
         "bus": "1",
         "address": "40",
@@ -37,7 +37,7 @@
     },
     {
         "id": "read-lm25066",
-        "type": "periph-lm25066",
+        "type": "lm25066",
         "name": "LM25066",
         "device": "cfg-lm25066",
         "z": "tab-lm25066-demo",

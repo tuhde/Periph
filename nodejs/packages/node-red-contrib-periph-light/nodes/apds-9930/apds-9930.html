@@ -8,7 +8,7 @@
             address: { value: '39', required: true }
         },
         label: function() {
-            return this.name || ('APDS-9930 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+            return this.name || ('APDS9930 @ 0x' + this.address + ' (bus ' + this.bus + ')');
         }
     });
 </script>
@@ -31,7 +31,7 @@
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
     RED.nodes.registerType('apds9930', {
-        category:  'Periph',
+        category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
             name:   { value: '' },
@@ -40,8 +40,8 @@
         inputs:  1,
         outputs: 1,
         icon:    'font-awesome/fa-sun-o',
-        label:   function() { return this.name || 'APDS-9930'; },
-        paletteLabel: 'APDS-9930'
+        label:   function() { return this.name || 'APDS9930'; },
+        paletteLabel: 'APDS9930'
     });
 </script>
 

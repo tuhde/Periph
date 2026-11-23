@@ -1,6 +1,6 @@
 <!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-lm25066-device', {
+    RED.nodes.registerType('lm25066-device', {
         category: 'config',
         defaults: {
             name:    { value: '' },
@@ -15,7 +15,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-lm25066-device">
+<script type="text/html" data-template-name="lm25066-device">
     <div class="form-row">
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-config-input-name" placeholder="LM25066">
@@ -43,12 +43,12 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-lm25066', {
+    RED.nodes.registerType('lm25066', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
             name:   { value: '' },
-            device: { value: '', type: 'periph-lm25066-device', required: true }
+            device: { value: '', type: 'lm25066-device', required: true }
         },
         inputs:  1,
         outputs: 1,
@@ -58,7 +58,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-lm25066">
+<script type="text/html" data-template-name="lm25066">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -69,9 +69,9 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-lm25066">
+<script type="text/html" data-help-name="lm25066">
     <p>Reads input and output voltage, input current, input power and MOSFET temperature from an LM25066 hot-swap controller over I²C/PMBus.</p>
-    <p>Any input message triggers one reading. The device is configured via a <b>periph-lm25066-device</b> config node. The node never writes the control registers (OPERATION, GATE_MASK, DEVICE_SETUP).</p>
+    <p>Any input message triggers one reading. The device is configured via a <b>lm25066-device</b> config node. The node never writes the control registers (OPERATION, GATE_MASK, DEVICE_SETUP).</p>
 
     <h3>Input</h3>
     <p>Any message.</p>
