@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-humidity",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTU21DF, SHT31, SI7021",
   "keywords": [
     "node-red",

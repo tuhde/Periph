@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-color",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Node-RED nodes for color sensor chips: AS7262",
   "keywords": [
     "node-red",

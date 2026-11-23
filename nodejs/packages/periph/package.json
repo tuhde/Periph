@@ -1,6 +1,6 @@
 {
   "name": "periph",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "JavaScript drivers for peripheral chips (I2C, SPI)",
   "main": "src/index.js",
   "keywords": [

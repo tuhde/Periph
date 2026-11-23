@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-comms",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Node-RED nodes for communications peripheral chips: MCP2515, RDA5807M, RFM9X",
   "keywords": [
     "node-red",

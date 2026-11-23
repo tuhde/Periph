@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-accelerometer",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Node-RED nodes for accelerometer chips: ADXL345, ADXL362, BMA150, BMA180, FXOS8700, LIS3DH, LSM303, MMA8451Q",
   "keywords": [
     "node-red",

@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-pressure",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2",
   "keywords": [
     "node-red",

@@ -6,7 +6,7 @@
 
     <groupId>it.uhde</groupId>
     <artifactId>periph</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
     <packaging>pom</packaging>
 
     <name>Periph</name>

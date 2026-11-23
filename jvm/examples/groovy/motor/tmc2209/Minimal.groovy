@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.5.2
-//DEPS it.uhde:periph-groovy:1.5.2
+//DEPS it.uhde:periph-connection:1.5.3
+//DEPS it.uhde:periph-groovy:1.5.3
 
 // TMC2209 minimal: spin a stepper with the internal step generator.
 // Wiring: MCU TX -> 1 kOhm -> PDN_UART, MCU RX -> PDN_UART directly (echo handling is on).
