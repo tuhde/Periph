@@ -1,6 +1,10 @@
 # node-red-contrib-periph-other
 
-Node-RED nodes for miscellaneous peripheral chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for miscellaneous peripheral chips: MPR121, PCA9541 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (2):** MPR121, PCA9541.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-other/examples).
 
 ## Install
 

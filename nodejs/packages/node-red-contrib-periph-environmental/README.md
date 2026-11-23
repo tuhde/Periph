@@ -1,6 +1,10 @@
 # node-red-contrib-periph-environmental
 
-Node-RED nodes for environmental sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for environmental sensor chips: AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (7):** AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-environmental/examples).
 
 ## Install
 

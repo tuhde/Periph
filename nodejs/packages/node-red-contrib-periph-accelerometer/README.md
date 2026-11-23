@@ -1,6 +1,10 @@
 # node-red-contrib-periph-accelerometer
 
-Node-RED nodes for accelerometer chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for accelerometer chips: ADXL345, ADXL362, BMA150, BMA180, FXOS8700, LIS3DH, LSM303, MMA8451Q — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (8):** ADXL345, ADXL362, BMA150, BMA180, FXOS8700, LIS3DH, LSM303, MMA8451Q.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-accelerometer/examples).
 
 ## Install
 

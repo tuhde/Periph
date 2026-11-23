@@ -1,16 +1,20 @@
 {
   "name": "node-red-contrib-periph-other",
   "version": "1.5.2",
-  "description": "Node-RED nodes for miscellaneous peripheral chips",
+  "description": "Node-RED nodes for miscellaneous peripheral chips: MPR121, PCA9541",
   "keywords": [
     "node-red",
     "other",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "mpr121",
+    "pca9541"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "mpr121": "nodes/mpr121/mpr121.js",
       "pca9541": "nodes/pca9541/pca9541.js"

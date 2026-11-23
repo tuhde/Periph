@@ -1,6 +1,10 @@
 # node-red-contrib-periph-gyroscope
 
-Node-RED nodes for gyroscope chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for gyroscope chips: L3G4200D, L3GD20H — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (2):** L3G4200D, L3GD20H.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-gyroscope/examples).
 
 ## Install
 

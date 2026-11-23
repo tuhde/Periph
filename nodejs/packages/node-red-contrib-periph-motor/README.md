@@ -1,6 +1,10 @@
 # node-red-contrib-periph-motor
 
-Node-RED nodes for motor driver chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for motor driver chips: DRV2605, DRV8830, TMC2130, TMC2208, TMC2209, TMC5160 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (6):** DRV2605, DRV8830, TMC2130, TMC2208, TMC2209, TMC5160.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-motor/examples).
 
 ## Install
 

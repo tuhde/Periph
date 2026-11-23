@@ -1,6 +1,10 @@
 # node-red-contrib-periph-temperature
 
-Node-RED nodes for temperature sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for temperature sensor chips: MCP9808, TMP102, TMP117 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (3):** MCP9808, TMP102, TMP117.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-temperature/examples).
 
 ## Install
 

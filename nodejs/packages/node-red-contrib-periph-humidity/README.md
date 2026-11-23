@@ -1,6 +1,10 @@
 # node-red-contrib-periph-humidity
 
-Node-RED nodes for humidity sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTU21DF, SHT31, SI7021 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (8):** DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTU21DF, SHT31, SI7021.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-humidity/examples).
 
 ## Install
 

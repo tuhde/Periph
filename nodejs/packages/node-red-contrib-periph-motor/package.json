@@ -1,16 +1,24 @@
 {
   "name": "node-red-contrib-periph-motor",
   "version": "1.5.2",
-  "description": "Node-RED nodes for motor driver chips",
+  "description": "Node-RED nodes for motor driver chips: DRV2605, DRV8830, TMC2130, TMC2208, TMC2209, TMC5160",
   "keywords": [
     "node-red",
     "motor",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "drv2605",
+    "drv8830",
+    "tmc2130",
+    "tmc2208",
+    "tmc2209",
+    "tmc5160"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "drv2605": "nodes/drv2605/drv2605.js",
       "drv8830": "nodes/drv8830/drv8830.js",

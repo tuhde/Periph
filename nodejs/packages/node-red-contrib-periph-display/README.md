@@ -1,6 +1,10 @@
 # node-red-contrib-periph-display
 
-Node-RED nodes for display driver chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for display driver chips: IL0373, PCF8576, PCF8578, PCF8579, SH1106, SSD1305, SSD1306, SSD1331, ST7036, UC1611S, UC8159, UC8276C — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (12):** IL0373, PCF8576, PCF8578, PCF8579, SH1106, SSD1305, SSD1306, SSD1331, ST7036, UC1611S, UC8159, UC8276C.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-display/examples).
 
 ## Install
 
