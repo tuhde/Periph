@@ -36,7 +36,6 @@ const CATEGORY_LABELS = {
     environmental: 'Environmental sensor',
     gas: 'Gas sensor',
     gnss: 'GNSS/GPS',
-    gpio: 'GPIO expander',
     gyroscope: 'Gyroscope',
     humidity: 'Humidity sensor',
     imu: 'IMU',
