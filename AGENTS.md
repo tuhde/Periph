@@ -980,9 +980,7 @@ Always look up properties on `deviceNode` at message time (never copy `deviceNod
 
 **`<chip>.html`** — editor UI. Config fields go in the `<chip>-device` registration and its template (use `node-config-input-<field>` ids); the flow node registration has a `device: { value: '', type: '<chip>-device', required: true }` default and a template with a Device row (`node-input-device`). Any `oneditprepare` that toggles device fields (e.g. I²C/SPI transport switch) belongs to the `<chip>-device` registration and uses `#node-config-input-…` selectors.
 
-The `index.js` at the package root auto-discovers nodes — never edit it manually.
-
-When a new node is added, update the `"node-red": { "nodes": {} }` field in the package's `package.json` to register the node name and file path. The package `README.md` is generated (`node nodejs/scripts/generate-readmes.js`).
+Node-RED loads nodes only through the `"node-red": { "nodes": {} }` map in the package's `package.json` — a new chip must be added there (`"<chip>": "nodes/<chip>/<chip>.js"`) or it never appears in the palette. The `index.js` at each package root is not used by Node-RED (there is no `"main"` entry and nothing loads it); don't edit it. The package `README.md` is generated (`node nodejs/scripts/generate-readmes.js`).
 
 ## Rust conventions
 
