@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.5.1
-//DEPS it.uhde:periph-kotlin:1.5.1
+//DEPS it.uhde:periph-connection:1.5.2
+//DEPS it.uhde:periph-kotlin:1.5.2
 
 // Scheduling core of a battery-powered logger: reseeds the clock after a
 // power loss, counts boots in the free RAM byte, then wakes on an hourly

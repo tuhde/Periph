@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.5.1
-//DEPS it.uhde:periph-java:1.5.1
+//DEPS it.uhde:periph-connection:1.5.2
+//DEPS it.uhde:periph-java:1.5.2
 // SSD1306 demo example: 0.96" 128 x 64 OLED module (SSD1306) over I2C on a Raspberry Pi (JVM).
 // Wiring: SDA=GPIO2, SCL=GPIO3 (/dev/i2c-1), VCC = 3V3 (the module generates the OLED supply with the SSD1306 charge pump); address 0x3C (SA0 = low) or 0x3D (SA0 = high). Demo: a bouncing ball inside a border, a contrast fade, inverse flashes, hardware scroll and sleep.
 
