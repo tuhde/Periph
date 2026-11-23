@@ -7,7 +7,7 @@
     <parent>
         <groupId>it.uhde</groupId>
         <artifactId>periph</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
     </parent>
 
     <artifactId>periph-kotlin</artifactId>

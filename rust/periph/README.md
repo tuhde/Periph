@@ -16,7 +16,7 @@ Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-periph = "1.5.0"
+periph = "1.5.1"
 ```
 
 ## Example
