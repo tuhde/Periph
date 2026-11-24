@@ -1,8 +1,8 @@
 # node-red-contrib-periph-light
 
-Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (5):** APDS9930, APDS9250, APDS9960, BH1750, MAX44009.
+**Supported chips (6):** APDS9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-light/examples).
 
@@ -30,6 +30,8 @@ npm install node-red-contrib-periph-light
 | `bh1750` | input | Reads the illuminance from a ROHM BH1750FVI ambient light sensor over I²C (address 0x23 or 0x5C) with one one-time measurement per message. |
 | `max44009-device` | config | I²C bus and address for a MAX44009 |
 | `max44009` | input | Reads the ambient illuminance of a MAX44009 ultra-low-power light sensor (I²C, 0.045 lx to 188 006.4 lx) and arms its threshold interrupt. |
+| `si1132-device` | config | I²C bus and address for a SI1132 |
+| `si1132` | input | Reads the UV index and the raw ambient-light counts from a Silicon Labs Si1132 over I²C (address 0x60) with one forced measurement per message. |
 
 ## Links
 
