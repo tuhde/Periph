@@ -63,6 +63,7 @@ Each chip exposes two classes:
 | AM2315 | Environmental sensor | `chips/environmental/AM2315.h` |
 | AM2320 | Environmental sensor | `chips/environmental/AM2320.h` |
 | APA102 | LED driver | `chips/led/APA102.h` |
+| Apds9250 | Light sensor | `chips/light/Apds9250.h` |
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |

@@ -127,6 +127,7 @@
 #include "chips/led/WS2812B.h"
 #include "chips/led/WS2814.h"
 #include "chips/light/APDS9960.h"
+#include "chips/light/Apds9250.h"
 #include "chips/light/Apds9930.h"
 #include "chips/light/MAX44009.h"
 #include "chips/magnetometer/AS5600.h"
