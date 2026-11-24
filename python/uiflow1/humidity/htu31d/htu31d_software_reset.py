@@ -1,0 +1,1 @@
+_periph_htu31d.software_reset()

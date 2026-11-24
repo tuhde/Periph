@@ -1,0 +1,93 @@
+[
+  {
+    "id": "htu31d-tab",
+    "type": "tab",
+    "label": "HTU31D hygrometer",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HTU31D every 5 s and formats them as \"25.0 °C / 45.0 %RH\". Each message triggers one CRC-checked conversion; change the oversampling (OSR 0-3) in the HTU31D device node to trade resolution against conversion time."
+  },
+  {
+    "id": "htu31d-inject",
+    "type": "inject",
+    "z": "htu31d-tab",
+    "name": "5 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "htu31d-node"
+      ]
+    ]
+  },
+  {
+    "id": "htu31d-device-1",
+    "type": "htu31d-device",
+    "name": "HTU31D",
+    "bus": "1",
+    "address": "0x40",
+    "osrRh": "3",
+    "osrT": "3",
+    "heater": false
+  },
+  {
+    "id": "htu31d-node",
+    "type": "htu31d",
+    "z": "htu31d-tab",
+    "name": "HTU31D",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "htu31d-format"
+      ]
+    ],
+    "device": "htu31d-device-1"
+  },
+  {
+    "id": "htu31d-format",
+    "type": "function",
+    "z": "htu31d-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(1) + ' °C / ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "htu31d-debug"
+      ]
+    ]
+  },
+  {
+    "id": "htu31d-debug",
+    "type": "debug",
+    "z": "htu31d-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

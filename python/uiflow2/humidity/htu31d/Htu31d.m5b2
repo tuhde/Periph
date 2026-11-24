@@ -1,0 +1,243 @@
+{
+  "category": "Htu31d",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HTU31D_LANGUAGES = {\n  \"CUSTOM_HTU31D_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_HTU31D_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_HTU31D_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%RH)\"\n  },\n  \"CUSTOM_HTU31D_DEW_POINT\": {\n    \"en\": \"%1 dew point (°C)\"\n  },\n  \"CUSTOM_HTU31D_SERIAL_NUMBER\": {\n    \"en\": \"%1 serial number\"\n  },\n  \"CUSTOM_HTU31D_DIAGNOSTIC\": {\n    \"en\": \"%1 diagnostic byte\"\n  },\n  \"CUSTOM_HTU31D_SET_RESOLUTION\": {\n    \"en\": \"%1 oversampling RH OSR (0-3) %2 T OSR (0-3) %3\"\n  },\n  \"CUSTOM_HTU31D_SET_HEATER\": {\n    \"en\": \"%1 heater (1=on 0=off) %2\"\n  },\n  \"CUSTOM_HTU31D_HEATER_ON\": {\n    \"en\": \"%1 heater on (1=yes 0=no)\"\n  },\n  \"CUSTOM_HTU31D_SOFTWARE_RESET\": {\n    \"en\": \"%1 software reset\"\n  }\n};\n\nconst initType = 'custom_htu31d_init';\nBlockly.BlockRegExpList['custom_htu31d'] = {\n  regexp: new RegExp(/^custom_htu31d_/),\n  code: \"from Htu31d import Htu31d\",\n  initBlockType: initType,\n  categoryId: 'custom_htu31d',\n}\nBlockly.utils.registerLanguages(CUSTOM_HTU31D_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HTU31D_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HTU31D = 'Htu31d'\n\nBlockly.utils.getcustom_htu31dOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['htu31d_0', 'htu31d_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_htu31d_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_htu31dOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'htu31d_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Htu31d(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_htu31d_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_htu31d_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_htu31d_dew_point\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_DEW_POINT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_dew_point\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.dew_point()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_htu31d_serial_number\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_SERIAL_NUMBER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_serial_number\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.serial_number()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_htu31d_diagnostic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_DIAGNOSTIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_diagnostic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.diagnostic()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_htu31d_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'osr_rh'\n        },\n        {\n          'type': 'input_value',\n          'name': 'osr_t'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var osr_rh = Blockly.Python.valueToCode(block, 'osr_rh', Blockly.Python.ORDER_FUNCTION_CALL);\n  var osr_t = Blockly.Python.valueToCode(block, 'osr_t', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(${osr_rh}, ${osr_t})\\n`\n}\n\nBlockly.Blocks[\"custom_htu31d_set_heater\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_SET_HEATER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_set_heater\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_heater(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_htu31d_heater_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_HEATER_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_heater_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.heater_on()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_htu31d_software_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTU31D_SOFTWARE_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_htu31dOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_htu31d_software_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.software_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Htu31d\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_htu31d\">\n<title text=\"Htu31d\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_htu31d_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_htu31d_temperature\"/><block type=\"custom_htu31d_humidity\"/><block type=\"custom_htu31d_dew_point\"/><block type=\"custom_htu31d_serial_number\"/><block type=\"custom_htu31d_diagnostic\"/><block type=\"custom_htu31d_set_resolution\">\n  <value name=\"osr_rh\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n  <value name=\"osr_t\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_htu31d_set_heater\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_htu31d_heater_on\"/><block type=\"custom_htu31d_software_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_htu31d",
+    "block_type": [
+      "custom_htu31d___init__",
+      "custom_htu31d_temperature",
+      "custom_htu31d_humidity",
+      "custom_htu31d_dew_point",
+      "custom_htu31d_serial_number",
+      "custom_htu31d_diagnostic",
+      "custom_htu31d_set_resolution",
+      "custom_htu31d_set_heater",
+      "custom_htu31d_heater_on",
+      "custom_htu31d_software_reset"
+    ]
+  },
+  "data": {
+    "name": "Htu31d",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Htu31d",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.htu31d import HTU31DFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = HTU31DFull(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "dew_point",
+        "note": {},
+        "label": {
+          "en": "%1 dew point (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.dew_point()",
+        "ast_return": {
+          "code": "self._driver.dew_point()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "serial_number",
+        "note": {},
+        "label": {
+          "en": "%1 serial number"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.serial_number()",
+        "ast_return": {
+          "code": "self._driver.serial_number()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "diagnostic",
+        "note": {},
+        "label": {
+          "en": "%1 diagnostic byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.diagnostic()",
+        "ast_return": {
+          "code": "self._driver.diagnostic()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 oversampling RH OSR (0-3) %2 T OSR (0-3) %3"
+        },
+        "params": [
+          {
+            "name": "osr_rh",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "osr_t",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(osr_rh, osr_t)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_heater",
+        "note": {},
+        "label": {
+          "en": "%1 heater (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_heater(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "heater_on",
+        "note": {},
+        "label": {
+          "en": "%1 heater on (1=yes 0=no)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.is_heater_on())",
+        "ast_return": {
+          "code": "int(self._driver.is_heater_on())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "software_reset",
+        "note": {},
+        "label": {
+          "en": "%1 software reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.software_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "htu31d"
+  },
+  "pyCode": "\"\"\"\nfile     Htu31d\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.htu31d import HTU31DFull\n\n\nclass Htu31d:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 64):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '64'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = HTU31DFull(connection)\n        self._driver.init()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def dew_point(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 dew point (°C)'\n        \"\"\"\n        return self._driver.dew_point()\n\n    def serial_number(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 serial number'\n        \"\"\"\n        return self._driver.serial_number()\n\n    def diagnostic(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 diagnostic byte'\n        \"\"\"\n        return self._driver.diagnostic()\n\n    def set_resolution(self, osr_rh: int = 3, osr_t: int = 3):\n        \"\"\"\n        label:\n            en: '%1 oversampling RH OSR (0-3) %2 T OSR (0-3) %3'\n        params:\n            osr_rh:\n                name: osr_rh\n                type: int\n                default: '3'\n                field: number\n                max: '3'\n                min: '0'\n            osr_t:\n                name: osr_t\n                type: int\n                default: '3'\n                field: number\n                max: '3'\n                min: '0'\n        \"\"\"\n        self._driver.set_resolution(osr_rh, osr_t)\n\n    def set_heater(self, enabled: int = 0):\n        \"\"\"\n        label:\n            en: '%1 heater (1=on 0=off) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_heater(bool(enabled))\n\n    def heater_on(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 heater on (1=yes 0=no)'\n        \"\"\"\n        return int(self._driver.is_heater_on())\n\n    def software_reset(self):\n        \"\"\"\n        label:\n            en: '%1 software reset'\n        \"\"\"\n        self._driver.software_reset()\n",
+  "version": "alpha2"
+}

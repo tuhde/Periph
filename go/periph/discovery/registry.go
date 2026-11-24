@@ -186,7 +186,7 @@ var registry = []Chip{
 	{ID: "is31fl3731", Driver: "is31fl3731", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x74, 0x75, 0x76, 0x77}, Probe: nil},
 	{ID: "as7262", Driver: "as7262", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x49}, Probe: nil},
 	{ID: "hts221", Driver: "hts221", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5F}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xBC}}},
-	{ID: "htu31d", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x40, 0x41}, Probe: nil},
+	{ID: "htu31d", Driver: "htu31d", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x40, 0x41}, Probe: nil},
 	{ID: "bh1750", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x23, 0x5C}, Probe: nil},
 	{ID: "ms5607", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: nil},
 	{ID: "ms5611", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: nil},

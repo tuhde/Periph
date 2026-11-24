@@ -2492,7 +2492,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "htu31d",
       "datasheet": "datasheets/humidity/htu31d.pdf"
     },
     {

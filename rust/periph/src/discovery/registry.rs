@@ -186,7 +186,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "is31fl3731", driver: Some("is31fl3731"), write_sensitive: false, aliased: false, addresses: &[0x74, 0x75, 0x76, 0x77], probe: None },
     ChipEntry { id: "as7262", driver: Some("as7262"), write_sensitive: true, aliased: false, addresses: &[0x49], probe: None },
     ChipEntry { id: "hts221", driver: Some("hts221"), write_sensitive: false, aliased: false, addresses: &[0x5F], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xBC] }) },
-    ChipEntry { id: "htu31d", driver: None, write_sensitive: true, aliased: false, addresses: &[0x40, 0x41], probe: None },
+    ChipEntry { id: "htu31d", driver: Some("htu31d"), write_sensitive: true, aliased: false, addresses: &[0x40, 0x41], probe: None },
     ChipEntry { id: "bh1750", driver: None, write_sensitive: true, aliased: false, addresses: &[0x23, 0x5C], probe: None },
     ChipEntry { id: "ms5607", driver: None, write_sensitive: true, aliased: false, addresses: &[0x76, 0x77], probe: None },
     ChipEntry { id: "ms5611", driver: None, write_sensitive: true, aliased: false, addresses: &[0x76, 0x77], probe: None },

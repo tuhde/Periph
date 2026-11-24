@@ -176,7 +176,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HTU21D-F | Humidity + temperature sensor (±2 %RH, ±0.3 °C, heater, CRC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| HTU31D | Digital humidity and temperature sensor (16-bit, OSR 0–3, CRC-8, heater, diagnostic) | | | | | | | | |
+| HTU31D | Digital humidity and temperature sensor (16-bit, OSR 0–3, CRC-8, heater, diagnostic) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
