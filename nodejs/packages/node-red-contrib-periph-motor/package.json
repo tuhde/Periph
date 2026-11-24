@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-motor",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Node-RED nodes for motor driver chips: DRV2605, DRV8830, TMC2130, TMC2208, TMC2209, TMC5160",
   "keywords": [
     "node-red",

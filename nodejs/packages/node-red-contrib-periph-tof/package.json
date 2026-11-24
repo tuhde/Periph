@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-tof",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Node-RED nodes for time-of-flight sensor chips: VL53L0X, VL53L1X, VL6180X",
   "keywords": [
     "node-red",
