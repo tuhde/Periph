@@ -1,0 +1,146 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "htu31d_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HTU31D",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU31D temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU31D relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU31D dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_serial_number",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU31D serial number",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_diagnostic",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU31D diagnostic byte",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTU31D oversampling (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "humidity OSR",
+          "type": "label"
+        },
+        {
+          "name": "_osr_rh",
+          "type": "number"
+        },
+        {
+          "name": "temperature OSR",
+          "type": "label"
+        },
+        {
+          "name": "_osr_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_set_heater",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTU31D heater (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_heater_on",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU31D heater on (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu31d_software_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTU31D software reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

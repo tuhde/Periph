@@ -285,6 +285,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/htu21df.py"
     ],
     [
+      "periph/chips/humidity/htu31d.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/htu31d.py"
+    ],
+    [
       "periph/chips/humidity/sht31.py",
       "github:tuhde/Periph/python/periph/chips/humidity/sht31.py"
     ],

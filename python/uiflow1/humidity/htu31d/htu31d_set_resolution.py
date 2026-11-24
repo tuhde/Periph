@@ -1,0 +1,1 @@
+_periph_htu31d.set_resolution(int(${_osr_rh}), int(${_osr_t}))
