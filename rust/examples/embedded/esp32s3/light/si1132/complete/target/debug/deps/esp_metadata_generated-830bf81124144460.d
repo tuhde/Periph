@@ -1,0 +1,9 @@
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/debug/deps/esp_metadata_generated-830bf81124144460.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_generated_esp32s3.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_build_script_utils.rs
+
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/debug/deps/libesp_metadata_generated-830bf81124144460.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_generated_esp32s3.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_build_script_utils.rs
+
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/debug/deps/libesp_metadata_generated-830bf81124144460.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_generated_esp32s3.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_build_script_utils.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_generated_esp32s3.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/esp-metadata-generated-0.4.0/src/_build_script_utils.rs:

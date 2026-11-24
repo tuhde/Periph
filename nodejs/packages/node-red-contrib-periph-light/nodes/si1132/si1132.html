@@ -1,0 +1,89 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('si1132-device', {
+        category: 'config',
+        defaults: {
+            name:              { value: '' },
+            bus:               { value: '1', required: true, validate: RED.validators.number() },
+            address:           { value: '0x60' },
+            highRangeVisible:  { value: false },
+            highRangeInfrared: { value: false }
+        },
+        label: function() {
+            return this.name || ('Si1132 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="si1132-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Si1132">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x60"> &nbsp;(fixed 0x60)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-highRangeVisible"><i class="fa fa-sun-o"></i> High range visible</label>
+        <input type="checkbox" id="node-config-input-highRangeVisible" style="width:auto"> &nbsp;sensitivity ÷ 14.5 (direct sunlight)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-highRangeInfrared"><i class="fa fa-sun-o"></i> High range infrared</label>
+        <input type="checkbox" id="node-config-input-highRangeInfrared" style="width:auto"> &nbsp;sensitivity ÷ 14.5 (direct sunlight)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('si1132', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'si1132-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'Si1132'; },
+        paletteLabel: 'Si1132'
+    });
+</script>
+
+<script type="text/html" data-template-name="si1132">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Si1132">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="si1132">
+    <p>Reads the UV index and the raw ambient-light counts from a Silicon Labs Si1132 over I²C (address 0x60)
+    with one forced measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.uv_index <span class="property-type">number</span></dt>
+        <dd>UV index (the chip reports 100 times the index).</dd>
+        <dt>payload.visible <span class="property-type">number</span></dt>
+        <dd>Raw 16-bit visible ambient-light count.</dd>
+        <dt>payload.infrared <span class="property-type">number</span></dt>
+        <dd>Raw 16-bit infrared ambient-light count.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x60) and the high-range flags for the visible and infrared channels
+    (sensitivity ÷ 14.5, for direct sunlight), set in the <b>si1132-device</b> config node.</p>
+</script>

@@ -25,6 +25,10 @@
       "github:tuhde/Periph/python/periph/chips/light/max44009.py"
     ],
     [
+      "periph/chips/light/si1132.py",
+      "github:tuhde/Periph/python/periph/chips/light/si1132.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

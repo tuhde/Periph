@@ -135,6 +135,7 @@
 #include "chips/light/Apds9930.h"
 #include "chips/light/Bh1750.h"
 #include "chips/light/MAX44009.h"
+#include "chips/light/Si1132.h"
 #include "chips/magnetometer/AS5600.h"
 #include "chips/magnetometer/HMC5883L.h"
 #include "chips/memory/23X1024.h"

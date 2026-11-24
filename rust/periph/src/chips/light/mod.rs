@@ -22,3 +22,6 @@ pub use bh1750::{
     BH1750Minimal, BH1750Full, Mode as BH1750Mode, Error as BH1750Error, BH1750_I2C_ADDRESS,
     BH1750_I2C_ADDRESS_ADDR_HIGH,
 };
+
+pub mod si1132;
+pub use si1132::{Si1132Minimal, Si1132Full, Reading as Si1132Reading, Error as Si1132Error};
