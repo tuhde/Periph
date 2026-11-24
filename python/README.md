@@ -79,6 +79,7 @@ Each chip exposes two classes:
 | AT24C02N | Memory | 2 Kbit (256 B) I2C EEPROM |
 | AT24C64 | Memory | 64 Kbit (8 KiB) I2C EEPROM |
 | AXP2101 | Power monitor | PMIC |
+| BH1750 | Light sensor | BH1750FVI ambient light sensor |
 | BMA150 | Accelerometer | 3-axis accelerometer |
 | BMA180 | Accelerometer | 3-axis accelerometer |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor |

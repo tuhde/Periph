@@ -1,0 +1,228 @@
+{
+  "category": "Bh1750",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_BH1750_LANGUAGES = {\n  \"CUSTOM_BH1750_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_BH1750_LUX\": {\n    \"en\": \"%1 illuminance (lx)\"\n  },\n  \"CUSTOM_BH1750_LUX_MODE\": {\n    \"en\": \"%1 illuminance (lx) mode (0=H 1=H2 2=L) %2\"\n  },\n  \"CUSTOM_BH1750_SET_MEASUREMENT_TIME\": {\n    \"en\": \"%1 measurement time register (31-254) %2\"\n  },\n  \"CUSTOM_BH1750_MEASUREMENT_TIME_REGISTER\": {\n    \"en\": \"%1 measurement time register\"\n  },\n  \"CUSTOM_BH1750_SET_SENSITIVITY\": {\n    \"en\": \"%1 sensitivity factor (0.45-3.68) %2\"\n  },\n  \"CUSTOM_BH1750_POWER_DOWN\": {\n    \"en\": \"%1 power down\"\n  },\n  \"CUSTOM_BH1750_POWER_ON\": {\n    \"en\": \"%1 power on\"\n  },\n  \"CUSTOM_BH1750_RESET\": {\n    \"en\": \"%1 reset data register\"\n  }\n};\n\nconst initType = 'custom_bh1750_init';\nBlockly.BlockRegExpList['custom_bh1750'] = {\n  regexp: new RegExp(/^custom_bh1750_/),\n  code: \"from Bh1750 import Bh1750\",\n  initBlockType: initType,\n  categoryId: 'custom_bh1750',\n}\nBlockly.utils.registerLanguages(CUSTOM_BH1750_LANGUAGES)\n\nBlockly.Msg.CUSTOM_BH1750_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_BH1750 = 'Bh1750'\n\nBlockly.utils.getcustom_bh1750Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['bh1750_0', 'bh1750_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_bh1750_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_bh1750Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'bh1750_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Bh1750(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_bh1750_lux\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_LUX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_lux\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lux()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bh1750_lux_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_LUX_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_lux_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.lux_mode(${mode})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bh1750_set_measurement_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_SET_MEASUREMENT_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mtreg'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_set_measurement_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mtreg = Blockly.Python.valueToCode(block, 'mtreg', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_measurement_time(${mtreg})\\n`\n}\n\nBlockly.Blocks[\"custom_bh1750_measurement_time_register\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_MEASUREMENT_TIME_REGISTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_measurement_time_register\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.measurement_time_register()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bh1750_set_sensitivity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_SET_SENSITIVITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'factor'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_set_sensitivity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var factor = Blockly.Python.valueToCode(block, 'factor', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sensitivity(${factor})\\n`\n}\n\nBlockly.Blocks[\"custom_bh1750_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_down()\\n`\n}\n\nBlockly.Blocks[\"custom_bh1750_power_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_POWER_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_power_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_on()\\n`\n}\n\nBlockly.Blocks[\"custom_bh1750_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BH1750_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bh1750Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bh1750_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Bh1750\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_bh1750\">\n<title text=\"Bh1750\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_bh1750_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">35</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bh1750_lux\"/><block type=\"custom_bh1750_lux_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bh1750_set_measurement_time\">\n  <value name=\"mtreg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">69</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bh1750_measurement_time_register\"/><block type=\"custom_bh1750_set_sensitivity\">\n  <value name=\"factor\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bh1750_power_down\"/><block type=\"custom_bh1750_power_on\"/><block type=\"custom_bh1750_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_bh1750",
+    "block_type": [
+      "custom_bh1750___init__",
+      "custom_bh1750_lux",
+      "custom_bh1750_lux_mode",
+      "custom_bh1750_set_measurement_time",
+      "custom_bh1750_measurement_time_register",
+      "custom_bh1750_set_sensitivity",
+      "custom_bh1750_power_down",
+      "custom_bh1750_power_on",
+      "custom_bh1750_reset"
+    ]
+  },
+  "data": {
+    "name": "Bh1750",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Bh1750",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.bh1750 import BH1750Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "35",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = BH1750Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lux",
+        "note": {},
+        "label": {
+          "en": "%1 illuminance (lx)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()",
+        "ast_return": {
+          "code": "self._driver.read()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lux_mode",
+        "note": {},
+        "label": {
+          "en": "%1 illuminance (lx) mode (0=H 1=H2 2=L) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.measure_once(mode)",
+        "ast_return": {
+          "code": "self._driver.measure_once(mode)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_measurement_time",
+        "note": {},
+        "label": {
+          "en": "%1 measurement time register (31-254) %2"
+        },
+        "params": [
+          {
+            "name": "mtreg",
+            "type": "int",
+            "default": "69",
+            "note": {},
+            "field": "number",
+            "max": "254",
+            "min": "31"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_measurement_time(mtreg)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "measurement_time_register",
+        "note": {},
+        "label": {
+          "en": "%1 measurement time register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_measurement_time_register()",
+        "ast_return": {
+          "code": "self._driver.get_measurement_time_register()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sensitivity",
+        "note": {},
+        "label": {
+          "en": "%1 sensitivity factor (0.45-3.68) %2"
+        },
+        "params": [
+          {
+            "name": "factor",
+            "type": "float",
+            "default": "1.0",
+            "note": {},
+            "field": "number",
+            "max": "3.68",
+            "min": "0.45"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sensitivity(factor)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_on",
+        "note": {},
+        "label": {
+          "en": "%1 power on"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_on()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset data register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "bh1750"
+  },
+  "pyCode": "\"\"\"\nfile     Bh1750\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.bh1750 import BH1750Full\n\n\nclass Bh1750:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 35):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '35'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = BH1750Full(connection)\n        self._driver.init()\n\n    def lux(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 illuminance (lx)'\n        \"\"\"\n        return self._driver.read()\n\n    def lux_mode(self, mode: int = 0) -> float:\n        \"\"\"\n        label:\n            en: '%1 illuminance (lx) mode (0=H 1=H2 2=L) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        return self._driver.measure_once(mode)\n\n    def set_measurement_time(self, mtreg: int = 69):\n        \"\"\"\n        label:\n            en: '%1 measurement time register (31-254) %2'\n        params:\n            mtreg:\n                name: mtreg\n                type: int\n                default: '69'\n                field: number\n                max: '254'\n                min: '31'\n        \"\"\"\n        self._driver.set_measurement_time(mtreg)\n\n    def measurement_time_register(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 measurement time register'\n        \"\"\"\n        return self._driver.get_measurement_time_register()\n\n    def set_sensitivity(self, factor: float = 1.0):\n        \"\"\"\n        label:\n            en: '%1 sensitivity factor (0.45-3.68) %2'\n        params:\n            factor:\n                name: factor\n                type: float\n                default: '1.0'\n                field: number\n                max: '3.68'\n                min: '0.45'\n        \"\"\"\n        self._driver.set_sensitivity(factor)\n\n    def power_down(self):\n        \"\"\"\n        label:\n            en: '%1 power down'\n        \"\"\"\n        self._driver.power_down()\n\n    def power_on(self):\n        \"\"\"\n        label:\n            en: '%1 power on'\n        \"\"\"\n        self._driver.power_on()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset data register'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}
