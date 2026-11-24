@@ -2517,7 +2517,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ms5607",
       "datasheet": "datasheets/pressure/ms5607.pdf"
     },
     {

@@ -136,7 +136,7 @@ check_true('read_commands', cmds(c) == [0x58, 0x00, 0x48, 0x00])
 check_true('read_values', near(r['temperature_c'], 20.0) and near(r['pressure_pa'], 110002.0))
 
 # second-order compensation against the reference transcription
-for d2 in (D2_EX - 300000, D2_EX - 1000000, D2_EX + 400000):
+for d2 in (D2_EX - 300000, D2_EX - 1200000, D2_EX + 400000):
     for d1 in (D1_EX, 5000000):
         c = ChipMock(d1=d1, d2=d2)
         s = MS5607Full(c)
@@ -146,7 +146,7 @@ for d2 in (D2_EX - 300000, D2_EX - 1000000, D2_EX + 400000):
         check_true('compensate_%d_%d' % (d1, d2), near(got['temperature_c'], t) and near(got['pressure_pa'], p))
 t_cold = reference(D1_EX, D2_EX - 300000)[0]
 check_true('cold_branch_taken', t_cold < 20.0 and t_cold > -15.0)
-check_true('very_cold_branch_taken', reference(D1_EX, D2_EX - 1000000)[0] < -15.0)
+check_true('very_cold_branch_taken', reference(D1_EX, D2_EX - 1200000)[0] < -15.0)
 s = MS5607Full(ChipMock())
 s.init()
 first = s.compensate(D1_EX, D2_EX - 300000, second_order=False)

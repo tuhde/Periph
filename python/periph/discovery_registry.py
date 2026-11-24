@@ -498,7 +498,7 @@ CHIPS = (
     {"id": "bh1750", "driver": "bh1750", "write_sensitive": True, "aliased": False,
      "addresses": (0x23, 0x5C,),
      "probe": None},
-    {"id": "ms5607", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ms5607", "driver": "ms5607", "write_sensitive": True, "aliased": False,
      "addresses": (0x76, 0x77,),
      "probe": None},
     {"id": "ms5611", "driver": None, "write_sensitive": True, "aliased": False,
