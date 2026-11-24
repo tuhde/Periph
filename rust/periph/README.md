@@ -73,6 +73,7 @@ Each chip exposes two structs:
 | AT24C02N | Memory | 2 Kbit (256 B) I²C EEPROM (Atmel / Microchip). |
 | AT24C64 | Memory | 64 Kbit (8 KiB) I²C EEPROM (Atmel / Microchip). |
 | AXP2101 | Power monitor | Single-cell Li-ion NVDC power-management IC (X-Powers). |
+| BH1750 | Light sensor | Ambient light sensor (ROHM). |
 | BMA150 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BMA180 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor (Bosch Sensortec). |

@@ -137,7 +137,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | AT24C02N | I²C EEPROM 2 Kbit (256 B, 8-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AT24C64 | I²C EEPROM 64 Kbit (8 KiB, 32-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AXP2101 | Power management IC (single-cell charger, 15 rails, fuel gauge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| BH1750FVI | Digital ambient light sensor (16-bit, 1 lx / 0.5 lx / 4 lx modes, adjustable sensitivity) | | | | | | | | |
+| BH1750FVI | Digital ambient light sensor (16-bit, 1 lx / 0.5 lx / 4 lx modes, adjustable sensitivity) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMA150 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMA180 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
