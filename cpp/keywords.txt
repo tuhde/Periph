@@ -419,6 +419,8 @@ SSD1331Minimal	KEYWORD1
 ST7036Full	KEYWORD1
 ST7036Minimal	KEYWORD1
 SequenceStep	KEYWORD1
+Si1132Full	KEYWORD1
+Si1132Minimal	KEYWORD1
 Si7021Full	KEYWORD1
 Si7021Minimal	KEYWORD1
 SiPoConnection	KEYWORD1
@@ -812,6 +814,7 @@ filtered	KEYWORD2
 firmware_revision	KEYWORD2
 firmware_version	KEYWORD2
 fix	KEYWORD2
+force	KEYWORD2
 forceTemperatureConversion	KEYWORD2
 force_hibernate	KEYWORD2
 forced	KEYWORD2
@@ -1043,6 +1046,7 @@ max_position	KEYWORD2
 measure	KEYWORD2
 measureMagOnce	KEYWORD2
 measure_once	KEYWORD2
+measurement_ready	KEYWORD2
 measurement_time	KEYWORD2
 microstepPosition	KEYWORD2
 midscale	KEYWORD2
@@ -1098,6 +1102,7 @@ page_program	KEYWORD2
 page_size	KEYWORD2
 pages	KEYWORD2
 partId	KEYWORD2
+pause	KEYWORD2
 percent	KEYWORD2
 pin	KEYWORD2
 playEffect	KEYWORD2
@@ -1275,6 +1280,7 @@ read_hold	KEYWORD2
 read_humidity	KEYWORD2
 read_humidity_compensated	KEYWORD2
 read_id	KEYWORD2
+read_infrared	KEYWORD2
 read_int_source	KEYWORD2
 read_interrupt_source	KEYWORD2
 read_keys	KEYWORD2
@@ -1311,6 +1317,7 @@ read_raw_with_retry	KEYWORD2
 read_rds_group	KEYWORD2
 read_register	KEYWORD2
 read_registers	KEYWORD2
+read_response	KEYWORD2
 read_result	KEYWORD2
 read_retry	KEYWORD2
 read_revision	KEYWORD2
@@ -1332,9 +1339,12 @@ read_uid	KEYWORD2
 read_ultralight_page	KEYWORD2
 read_user_register	KEYWORD2
 read_user_registers	KEYWORD2
+read_uv_index	KEYWORD2
 read_vcom	KEYWORD2
+read_vdd_raw	KEYWORD2
 read_version	KEYWORD2
 read_virtual	KEYWORD2
+read_visible	KEYWORD2
 read_voltage	KEYWORD2
 read_weight	KEYWORD2
 read_with_crc	KEYWORD2
@@ -1645,6 +1655,7 @@ set_alert	KEYWORD2
 set_alert_polarity	KEYWORD2
 set_alert_soc	KEYWORD2
 set_alert_thresholds	KEYWORD2
+set_alignment	KEYWORD2
 set_all	KEYWORD2
 set_all_duty	KEYWORD2
 set_all_eeprom	KEYWORD2
@@ -1688,6 +1699,7 @@ set_both	KEYWORD2
 set_breath	KEYWORD2
 set_brightness	KEYWORD2
 set_calibration	KEYWORD2
+set_channels	KEYWORD2
 set_charge_pump	KEYWORD2
 set_click	KEYWORD2
 set_clock	KEYWORD2
@@ -1762,7 +1774,9 @@ set_hibernate_thresholds	KEYWORD2
 set_high_g	KEYWORD2
 set_high_pass	KEYWORD2
 set_high_pass_output	KEYWORD2
+set_high_range	KEYWORD2
 set_hold_master	KEYWORD2
+set_i2c_address	KEYWORD2
 set_iin_warn	KEYWORD2
 set_iir_filter	KEYWORD2
 set_inactivity	KEYWORD2
@@ -1912,6 +1926,7 @@ set_transient	KEYWORD2
 set_tristate	KEYWORD2
 set_tx_power	KEYWORD2
 set_update_on_ack	KEYWORD2
+set_uv_coefficients	KEYWORD2
 set_vcom_dc	KEYWORD2
 set_vcom_deselect	KEYWORD2
 set_vcomh	KEYWORD2
@@ -1964,6 +1979,7 @@ start	KEYWORD2
 startClock	KEYWORD2
 startContinuous	KEYWORD2
 start_auto_play	KEYWORD2
+start_autonomous	KEYWORD2
 start_continuous	KEYWORD2
 start_continuous_als	KEYWORD2
 start_continuous_range	KEYWORD2

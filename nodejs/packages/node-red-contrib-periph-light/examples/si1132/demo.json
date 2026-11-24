@@ -1,0 +1,92 @@
+[
+  {
+    "id": "si1132-tab",
+    "type": "tab",
+    "label": "Si1132 UV monitor",
+    "disabled": false,
+    "info": "Reads the UV index and the visible and infrared counts from an Si1132 every 2 s and classifies the UV index as low (below 3), moderate (3 to 5.9) or high (6 and above). Set the high-range flags in the Si1132 device node for direct sunlight."
+  },
+  {
+    "id": "si1132-inject",
+    "type": "inject",
+    "z": "si1132-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "si1132-node"
+      ]
+    ]
+  },
+  {
+    "id": "si1132-device-1",
+    "type": "si1132-device",
+    "name": "Si1132",
+    "bus": "1",
+    "address": "0x60",
+    "highRangeVisible": false,
+    "highRangeInfrared": false
+  },
+  {
+    "id": "si1132-node",
+    "type": "si1132",
+    "z": "si1132-tab",
+    "name": "Si1132",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "si1132-format"
+      ]
+    ],
+    "device": "si1132-device-1"
+  },
+  {
+    "id": "si1132-format",
+    "type": "function",
+    "z": "si1132-tab",
+    "name": "Classify",
+    "func": "const uv = msg.payload.uv_index;\nconst level = uv < 3 ? 'low' : (uv < 6 ? 'moderate' : 'high');\nmsg.payload = 'UV ' + uv.toFixed(2) + ' (' + level + '), visible ' + msg.payload.visible + ', infrared ' + msg.payload.infrared;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "si1132-debug"
+      ]
+    ]
+  },
+  {
+    "id": "si1132-debug",
+    "type": "debug",
+    "z": "si1132-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

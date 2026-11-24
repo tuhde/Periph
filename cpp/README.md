@@ -174,6 +174,7 @@ Each chip exposes two classes:
 | SH1106 | Display driver | `chips/display/SH1106.h` |
 | SHT31 | Humidity sensor | `chips/humidity/SHT31.h` |
 | Shtc3 | Humidity sensor | `chips/humidity/Shtc3.h` |
+| Si1132 | Light sensor | `chips/light/Si1132.h` |
 | Si7021 | Humidity sensor | `chips/humidity/Si7021.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | SSD1305 | Display driver | `chips/display/SSD1305.h` |

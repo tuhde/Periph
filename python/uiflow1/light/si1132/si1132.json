@@ -1,0 +1,216 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "si1132_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init Si1132",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1132_read_uv_index",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1132 UV index",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_read_visible",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1132 visible count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_read_infrared",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1132 infrared count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_read_temperature_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1132 raw die temperature",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_read_vdd_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1132 raw supply voltage",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_set_channels",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1132 channels (1 = on)",
+          "type": "label"
+        },
+        {
+          "name": "UV (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_uv",
+          "type": "number"
+        },
+        {
+          "name": "visible (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_visible",
+          "type": "number"
+        },
+        {
+          "name": "infrared (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_infrared",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1132_set_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1132 gain (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "visible gain (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_visible",
+          "type": "number"
+        },
+        {
+          "name": "infrared gain (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_infrared",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1132_set_high_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1132 high range (1 = sunlight)",
+          "type": "label"
+        },
+        {
+          "name": "visible (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_visible",
+          "type": "number"
+        },
+        {
+          "name": "infrared (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_infrared",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1132_start_autonomous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1132 autonomous interval (ms, 0 = forced)",
+          "type": "label"
+        },
+        {
+          "name": "interval (ms, 0-2000)",
+          "type": "label"
+        },
+        {
+          "name": "_interval_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1132_pause",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1132 pause autonomous mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_measurement_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1132 measurement ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1132_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1132 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

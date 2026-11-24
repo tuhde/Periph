@@ -1,0 +1,3 @@
+cargo:rustc-link-search=/var/projects/Periph/worktrees/si1132/rust/tests/light/si1132_test_esp32s3/target/xtensa-esp32s3-none-elf/debug/build/esp32s3-e440871c31a46e31/out
+cargo:rerun-if-changed=device.x
+cargo:rerun-if-changed=build.rs

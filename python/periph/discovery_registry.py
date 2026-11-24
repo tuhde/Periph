@@ -510,7 +510,7 @@ CHIPS = (
     {"id": "spl06", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x76, 0x77,),
      "probe": {"register": 0x0D, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x10,)}},
-    {"id": "si1132", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "si1132", "driver": "si1132", "write_sensitive": False, "aliased": False,
      "addresses": (0x60,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x32,)}},
     {"id": "si1133", "driver": None, "write_sensitive": False, "aliased": False,

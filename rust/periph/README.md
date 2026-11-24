@@ -174,6 +174,7 @@ Each chip exposes two structs:
 | SH1106 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Sino Wealth), the chip behind the common |
 | SHT31 | Humidity sensor | Digital temperature and humidity sensor (Sensirion SHT3x-DIS family). |
 | SHTC3 | Humidity sensor | Relative humidity and temperature sensor (Sensirion). |
+| SI1132 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
 | SI7021 | Humidity sensor | Relative humidity and temperature sensor (Silicon Labs). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1305 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |

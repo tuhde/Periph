@@ -1,0 +1,8 @@
+/var/projects/Periph/worktrees/si1132/rust/tests/light/si1132_test_esp32s3/target/debug/deps/darling-7ac48d329b45c4cd.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/macros_public.rs
+
+/var/projects/Periph/worktrees/si1132/rust/tests/light/si1132_test_esp32s3/target/debug/deps/libdarling-7ac48d329b45c4cd.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/macros_public.rs
+
+/var/projects/Periph/worktrees/si1132/rust/tests/light/si1132_test_esp32s3/target/debug/deps/libdarling-7ac48d329b45c4cd.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/macros_public.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/darling-0.21.3/src/macros_public.rs:

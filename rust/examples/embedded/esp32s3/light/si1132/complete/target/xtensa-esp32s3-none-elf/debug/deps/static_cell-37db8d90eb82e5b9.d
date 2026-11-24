@@ -1,0 +1,8 @@
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/xtensa-esp32s3-none-elf/debug/deps/static_cell-37db8d90eb82e5b9.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/../README.md
+
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/xtensa-esp32s3-none-elf/debug/deps/libstatic_cell-37db8d90eb82e5b9.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/../README.md
+
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/xtensa-esp32s3-none-elf/debug/deps/libstatic_cell-37db8d90eb82e5b9.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/../README.md
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/static_cell-2.1.1/src/../README.md:

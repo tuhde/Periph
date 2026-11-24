@@ -1,0 +1,10 @@
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/xtensa-esp32s3-none-elf/debug/deps/embedded_can-58c98f9b9b6e2753.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/blocking.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/nb.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/id.rs
+
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/xtensa-esp32s3-none-elf/debug/deps/libembedded_can-58c98f9b9b6e2753.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/blocking.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/nb.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/id.rs
+
+/var/projects/Periph/worktrees/si1132/rust/examples/embedded/esp32s3/light/si1132/complete/target/xtensa-esp32s3-none-elf/debug/deps/libembedded_can-58c98f9b9b6e2753.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/blocking.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/nb.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/id.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/blocking.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/nb.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-can-0.4.1/src/id.rs:
