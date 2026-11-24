@@ -2142,7 +2142,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mpl3115a2",
       "datasheet": "datasheets/pressure/mpl3115a2.pdf"
     },
     {

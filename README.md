@@ -227,7 +227,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MLX90640 | 32×24 thermal IR array (768 pixels, 55°/110° FOV, 0.5–64 Hz, I²C) | | | | | | | | |
 | MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPL115A2 | Barometer (50–115 kPa, 10-bit, calibration coefficients) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) |  |  |  |  |  |  |  |  |
+| MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPR121 | Capacitive touch sensor (12-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
