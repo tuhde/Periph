@@ -585,6 +585,10 @@
       "github:tuhde/Periph/python/periph/chips/pressure/mpl3115a2.py"
     ],
     [
+      "periph/chips/pressure/ms5607.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/ms5607.py"
+    ],
+    [
       "periph/chips/rfid/mfrc522.py",
       "github:tuhde/Periph/python/periph/chips/rfid/mfrc522.py"
     ],

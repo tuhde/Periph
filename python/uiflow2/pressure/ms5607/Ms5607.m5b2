@@ -1,0 +1,192 @@
+{
+  "category": "Ms5607",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MS5607_LANGUAGES = {\n  \"CUSTOM_MS5607_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MS5607_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_MS5607_PRESSURE\": {\n    \"en\": \"%1 pressure (Pa)\"\n  },\n  \"CUSTOM_MS5607_ALTITUDE\": {\n    \"en\": \"%1 altitude vs 101325 Pa (m)\"\n  },\n  \"CUSTOM_MS5607_SET_OVERSAMPLING\": {\n    \"en\": \"%1 oversampling ratio (256-4096) %2\"\n  },\n  \"CUSTOM_MS5607_SERIAL_CODE\": {\n    \"en\": \"%1 serial code\"\n  },\n  \"CUSTOM_MS5607_PROM_CRC_OK\": {\n    \"en\": \"%1 PROM CRC ok (1=yes 0=no)\"\n  },\n  \"CUSTOM_MS5607_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_ms5607_init';\nBlockly.BlockRegExpList['custom_ms5607'] = {\n  regexp: new RegExp(/^custom_ms5607_/),\n  code: \"from Ms5607 import Ms5607\",\n  initBlockType: initType,\n  categoryId: 'custom_ms5607',\n}\nBlockly.utils.registerLanguages(CUSTOM_MS5607_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MS5607_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MS5607 = 'Ms5607'\n\nBlockly.utils.getcustom_ms5607Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ms5607_0', 'ms5607_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ms5607_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ms5607Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ms5607_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Ms5607(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_ms5607_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ms5607_pressure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_PRESSURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_pressure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pressure()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ms5607_altitude\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_ALTITUDE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_altitude\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.altitude()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ms5607_set_oversampling\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_SET_OVERSAMPLING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'osr'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_set_oversampling\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var osr = Blockly.Python.valueToCode(block, 'osr', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_oversampling(${osr})\\n`\n}\n\nBlockly.Blocks[\"custom_ms5607_serial_code\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_SERIAL_CODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_serial_code\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.serial_code()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ms5607_prom_crc_ok\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_PROM_CRC_OK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_prom_crc_ok\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.prom_crc_ok()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ms5607_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MS5607_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ms5607Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ms5607_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Ms5607\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ms5607\">\n<title text=\"Ms5607\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ms5607_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">119</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ms5607_temperature\"/><block type=\"custom_ms5607_pressure\"/><block type=\"custom_ms5607_altitude\"/><block type=\"custom_ms5607_set_oversampling\">\n  <value name=\"osr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4096</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ms5607_serial_code\"/><block type=\"custom_ms5607_prom_crc_ok\"/><block type=\"custom_ms5607_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_ms5607",
+    "block_type": [
+      "custom_ms5607___init__",
+      "custom_ms5607_temperature",
+      "custom_ms5607_pressure",
+      "custom_ms5607_altitude",
+      "custom_ms5607_set_oversampling",
+      "custom_ms5607_serial_code",
+      "custom_ms5607_prom_crc_ok",
+      "custom_ms5607_reset"
+    ]
+  },
+  "data": {
+    "name": "Ms5607",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Ms5607",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.pressure.ms5607 import MS5607Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "119",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MS5607Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pressure",
+        "note": {},
+        "label": {
+          "en": "%1 pressure (Pa)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_pressure()",
+        "ast_return": {
+          "code": "self._driver.read_pressure()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "altitude",
+        "note": {},
+        "label": {
+          "en": "%1 altitude vs 101325 Pa (m)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.altitude()",
+        "ast_return": {
+          "code": "self._driver.altitude()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_oversampling",
+        "note": {},
+        "label": {
+          "en": "%1 oversampling ratio (256-4096) %2"
+        },
+        "params": [
+          {
+            "name": "osr",
+            "type": "int",
+            "default": "4096",
+            "note": {},
+            "field": "number",
+            "max": "4096",
+            "min": "256"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_oversampling(osr)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "serial_code",
+        "note": {},
+        "label": {
+          "en": "%1 serial code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.serial_code()",
+        "ast_return": {
+          "code": "self._driver.serial_code()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "prom_crc_ok",
+        "note": {},
+        "label": {
+          "en": "%1 PROM CRC ok (1=yes 0=no)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.prom_crc_ok())",
+        "ast_return": {
+          "code": "int(self._driver.prom_crc_ok())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ms5607"
+  },
+  "pyCode": "\"\"\"\nfile     Ms5607\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.pressure.ms5607 import MS5607Full\n\n\nclass Ms5607:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 119):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '119'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MS5607Full(connection)\n        self._driver.init()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def pressure(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 pressure (Pa)'\n        \"\"\"\n        return self._driver.read_pressure()\n\n    def altitude(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 altitude vs 101325 Pa (m)'\n        \"\"\"\n        return self._driver.altitude()\n\n    def set_oversampling(self, osr: int = 4096):\n        \"\"\"\n        label:\n            en: '%1 oversampling ratio (256-4096) %2'\n        params:\n            osr:\n                name: osr\n                type: int\n                default: '4096'\n                field: number\n                max: '4096'\n                min: '256'\n        \"\"\"\n        self._driver.set_oversampling(osr)\n\n    def serial_code(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 serial code'\n        \"\"\"\n        return self._driver.serial_code()\n\n    def prom_crc_ok(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 PROM CRC ok (1=yes 0=no)'\n        \"\"\"\n        return int(self._driver.prom_crc_ok())\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}
