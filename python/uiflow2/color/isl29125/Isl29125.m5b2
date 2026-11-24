@@ -1,0 +1,436 @@
+{
+  "category": "Isl29125",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ISL29125_LANGUAGES = {\n  \"CUSTOM_ISL29125_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_ISL29125_READ_RED\": {\n    \"en\": \"%1 red count\"\n  },\n  \"CUSTOM_ISL29125_READ_GREEN\": {\n    \"en\": \"%1 green count\"\n  },\n  \"CUSTOM_ISL29125_READ_BLUE\": {\n    \"en\": \"%1 blue count\"\n  },\n  \"CUSTOM_ISL29125_DATA_READY\": {\n    \"en\": \"%1 conversion done\"\n  },\n  \"CUSTOM_ISL29125_SET_MODE\": {\n    \"en\": \"%1 set mode %2 (0 power down, 1 green, 2 red, 3 blue, 4 standby, 5 RGB, 6 green+red, 7 green+blue)\"\n  },\n  \"CUSTOM_ISL29125_SET_RANGE\": {\n    \"en\": \"%1 set range lux %2\"\n  },\n  \"CUSTOM_ISL29125_SET_RESOLUTION\": {\n    \"en\": \"%1 set resolution bits %2\"\n  },\n  \"CUSTOM_ISL29125_SET_SYNC\": {\n    \"en\": \"%1 set external sync %2 (1 = INT starts conversion)\"\n  },\n  \"CUSTOM_ISL29125_SET_IR_COMPENSATION\": {\n    \"en\": \"%1 set IR compensation offset %2 adjust %3\"\n  },\n  \"CUSTOM_ISL29125_SET_THRESHOLDS\": {\n    \"en\": \"%1 set thresholds low %2 high %3\"\n  },\n  \"CUSTOM_ISL29125_SET_INTERRUPT_CHANNEL\": {\n    \"en\": \"%1 set interrupt channel %2 (0 none, 1 green, 2 red, 3 blue)\"\n  },\n  \"CUSTOM_ISL29125_SET_PERSISTENCE\": {\n    \"en\": \"%1 set persistence %2\"\n  },\n  \"CUSTOM_ISL29125_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt %2 (1 conversion, 0 threshold)\"\n  },\n  \"CUSTOM_ISL29125_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt %2 (1 conversion, 0 threshold)\"\n  },\n  \"CUSTOM_ISL29125_STATUS\": {\n    \"en\": \"%1 status byte\"\n  },\n  \"CUSTOM_ISL29125_DEVICE_ID\": {\n    \"en\": \"%1 device ID\"\n  },\n  \"CUSTOM_ISL29125_SOFT_RESET\": {\n    \"en\": \"%1 software reset\"\n  }\n};\n\nconst initType = 'custom_isl29125_init';\nBlockly.BlockRegExpList['custom_isl29125'] = {\n  regexp: new RegExp(/^custom_isl29125_/),\n  code: \"from Isl29125 import Isl29125\",\n  initBlockType: initType,\n  categoryId: 'custom_isl29125',\n}\nBlockly.utils.registerLanguages(CUSTOM_ISL29125_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ISL29125_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ISL29125 = 'Isl29125'\n\nBlockly.utils.getcustom_isl29125Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['isl29125_0', 'isl29125_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_isl29125_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_isl29125Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'isl29125_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Isl29125(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_read_red\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_READ_RED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_read_red\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_red()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_isl29125_read_green\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_READ_GREEN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_read_green\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_green()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_isl29125_read_blue\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_READ_BLUE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_read_blue\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_blue()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_isl29125_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_isl29125_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'lux'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var lux = Blockly.Python.valueToCode(block, 'lux', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_range(${lux})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'bits'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bits = Blockly.Python.valueToCode(block, 'bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(${bits})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_sync\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_SYNC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'external'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_sync\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var external = Blockly.Python.valueToCode(block, 'external', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sync(${external})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_ir_compensation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_IR_COMPENSATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'offset'\n        },\n        {\n          'type': 'input_value',\n          'name': 'adjust'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_ir_compensation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var offset = Blockly.Python.valueToCode(block, 'offset', Blockly.Python.ORDER_FUNCTION_CALL);\n  var adjust = Blockly.Python.valueToCode(block, 'adjust', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ir_compensation(${offset}, ${adjust})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_thresholds(${low}, ${high})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_interrupt_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_INTERRUPT_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_interrupt_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interrupt_channel(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_set_persistence\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SET_PERSISTENCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'count'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_set_persistence\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var count = Blockly.Python.valueToCode(block, 'count', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_persistence(${count})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_isl29125_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_isl29125_device_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_DEVICE_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_device_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.device_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_isl29125_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ISL29125_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_isl29125Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_isl29125_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Isl29125\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_isl29125\">\n<title text=\"Isl29125\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_isl29125_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">68</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_read_red\"/><block type=\"custom_isl29125_read_green\"/><block type=\"custom_isl29125_read_blue\"/><block type=\"custom_isl29125_data_ready\"/><block type=\"custom_isl29125_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_range\">\n  <value name=\"lux\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_resolution\">\n  <value name=\"bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_sync\">\n  <value name=\"external\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_ir_compensation\">\n  <value name=\"offset\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"adjust\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">63</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">65535</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_interrupt_channel\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_set_persistence\">\n  <value name=\"count\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_isl29125_status\"/><block type=\"custom_isl29125_device_id\"/><block type=\"custom_isl29125_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_isl29125",
+    "block_type": [
+      "custom_isl29125___init__",
+      "custom_isl29125_read_red",
+      "custom_isl29125_read_green",
+      "custom_isl29125_read_blue",
+      "custom_isl29125_data_ready",
+      "custom_isl29125_set_mode",
+      "custom_isl29125_set_range",
+      "custom_isl29125_set_resolution",
+      "custom_isl29125_set_sync",
+      "custom_isl29125_set_ir_compensation",
+      "custom_isl29125_set_thresholds",
+      "custom_isl29125_set_interrupt_channel",
+      "custom_isl29125_set_persistence",
+      "custom_isl29125_enable_interrupt",
+      "custom_isl29125_disable_interrupt",
+      "custom_isl29125_status",
+      "custom_isl29125_device_id",
+      "custom_isl29125_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "Isl29125",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Isl29125",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.color.isl29125 import ISL29125Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "68",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = ISL29125Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_red",
+        "note": {},
+        "label": {
+          "en": "%1 red count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_red()",
+        "ast_return": {
+          "code": "self._driver.read_red()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_green",
+        "note": {},
+        "label": {
+          "en": "%1 green count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_green()",
+        "ast_return": {
+          "code": "self._driver.read_green()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_blue",
+        "note": {},
+        "label": {
+          "en": "%1 blue count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_blue()",
+        "ast_return": {
+          "code": "self._driver.read_blue()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 conversion done"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.data_ready())",
+        "ast_return": {
+          "code": "int(self._driver.data_ready())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set mode %2 (0 power down, 1 green, 2 red, 3 blue, 4 standby, 5 RGB, 6 green+red, 7 green+blue)"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(['power_down', 'green', 'red', 'blue', 'standby', 'rgb', 'green_red', 'green_blue'][mode])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_range",
+        "note": {},
+        "label": {
+          "en": "%1 set range lux %2"
+        },
+        "params": [
+          {
+            "name": "lux",
+            "type": "int",
+            "default": "10000",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_range(lux)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 set resolution bits %2"
+        },
+        "params": [
+          {
+            "name": "bits",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(bits)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sync",
+        "note": {},
+        "label": {
+          "en": "%1 set external sync %2 (1 = INT starts conversion)"
+        },
+        "params": [
+          {
+            "name": "external",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sync(bool(external))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ir_compensation",
+        "note": {},
+        "label": {
+          "en": "%1 set IR compensation offset %2 adjust %3"
+        },
+        "params": [
+          {
+            "name": "offset",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "adjust",
+            "type": "int",
+            "default": "63",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ir_compensation(bool(offset), adjust)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 set thresholds low %2 high %3"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "high",
+            "type": "int",
+            "default": "65535",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_thresholds(low, high)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interrupt_channel",
+        "note": {},
+        "label": {
+          "en": "%1 set interrupt channel %2 (0 none, 1 green, 2 red, 3 blue)"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interrupt_channel(['none', 'green', 'red', 'blue'][channel])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_persistence",
+        "note": {},
+        "label": {
+          "en": "%1 set persistence %2"
+        },
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_persistence(count)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt %2 (1 conversion, 0 threshold)"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(2 if source else 1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt %2 (1 conversion, 0 threshold)"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(2 if source else 1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 status byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.status()",
+        "ast_return": {
+          "code": "self._driver.status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "device_id",
+        "note": {},
+        "label": {
+          "en": "%1 device ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.device_id()",
+        "ast_return": {
+          "code": "self._driver.device_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 software reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "isl29125"
+  },
+  "pyCode": "\"\"\"\nfile     Isl29125\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.color.isl29125 import ISL29125Full\n\n\nclass Isl29125:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 68):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '68'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = ISL29125Full(connection)\n\n    def read_red(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 red count'\n        \"\"\"\n        return self._driver.read_red()\n\n    def read_green(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 green count'\n        \"\"\"\n        return self._driver.read_green()\n\n    def read_blue(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 blue count'\n        \"\"\"\n        return self._driver.read_blue()\n\n    def data_ready(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 conversion done'\n        \"\"\"\n        return int(self._driver.data_ready())\n\n    def set_mode(self, mode: int = 5):\n        \"\"\"\n        label:\n            en: '%1 set mode %2 (0 power down, 1 green, 2 red, 3 blue, 4 standby, 5 RGB, 6 green+red, 7 green+blue)'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '5'\n                field: number\n        \"\"\"\n        self._driver.set_mode(['power_down', 'green', 'red', 'blue', 'standby', 'rgb', 'green_red', 'green_blue'][mode])\n\n    def set_range(self, lux: int = 10000):\n        \"\"\"\n        label:\n            en: '%1 set range lux %2'\n        params:\n            lux:\n                name: lux\n                type: int\n                default: '10000'\n                field: number\n        \"\"\"\n        self._driver.set_range(lux)\n\n    def set_resolution(self, bits: int = 16):\n        \"\"\"\n        label:\n            en: '%1 set resolution bits %2'\n        params:\n            bits:\n                name: bits\n                type: int\n                default: '16'\n                field: number\n        \"\"\"\n        self._driver.set_resolution(bits)\n\n    def set_sync(self, external: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set external sync %2 (1 = INT starts conversion)'\n        params:\n            external:\n                name: external\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_sync(bool(external))\n\n    def set_ir_compensation(self, offset: int = 1, adjust: int = 63):\n        \"\"\"\n        label:\n            en: '%1 set IR compensation offset %2 adjust %3'\n        params:\n            offset:\n                name: offset\n                type: int\n                default: '1'\n                field: number\n            adjust:\n                name: adjust\n                type: int\n                default: '63'\n                field: number\n        \"\"\"\n        self._driver.set_ir_compensation(bool(offset), adjust)\n\n    def set_thresholds(self, low: int = 0, high: int = 65535):\n        \"\"\"\n        label:\n            en: '%1 set thresholds low %2 high %3'\n        params:\n            low:\n                name: low\n                type: int\n                default: '0'\n                field: number\n            high:\n                name: high\n                type: int\n                default: '65535'\n                field: number\n        \"\"\"\n        self._driver.set_thresholds(low, high)\n\n    def set_interrupt_channel(self, channel: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set interrupt channel %2 (0 none, 1 green, 2 red, 3 blue)'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_interrupt_channel(['none', 'green', 'red', 'blue'][channel])\n\n    def set_persistence(self, count: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set persistence %2'\n        params:\n            count:\n                name: count\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_persistence(count)\n\n    def enable_interrupt(self, source: int = 0):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt %2 (1 conversion, 0 threshold)'\n        params:\n            source:\n                name: source\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.enable_interrupt(2 if source else 1)\n\n    def disable_interrupt(self, source: int = 0):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt %2 (1 conversion, 0 threshold)'\n        params:\n            source:\n                name: source\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.disable_interrupt(2 if source else 1)\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 status byte'\n        \"\"\"\n        return self._driver.status()\n\n    def device_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 device ID'\n        \"\"\"\n        return self._driver.device_id()\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 software reset'\n        \"\"\"\n        self._driver.soft_reset()\n",
+  "version": "alpha2"
+}
