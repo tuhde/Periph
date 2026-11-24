@@ -21,6 +21,9 @@ pub use hts221::{HTS221Minimal, HTS221Full, Calibration as HTS221Calibration, Er
 pub mod htu21df;
 pub use htu21df::{HTU21DFMinimal, HTU21DFFull, Error as HTU21DFError};
 
+pub mod htu31d;
+pub use htu31d::{HTU31DMinimal, HTU31DFull, Error as HTU31DError};
+
 pub mod sht31;
 pub use sht31::{Sht31Minimal, Sht31Full, Repeatability, Error as Sht31Error};
 
