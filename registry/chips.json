@@ -2175,7 +2175,7 @@
         ]
       },
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "shtc3",
       "datasheet": "datasheets/humidity/shtc3.pdf"
     },
     {

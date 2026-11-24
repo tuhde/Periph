@@ -1,0 +1,138 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "shtc3_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init SHTC3",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHTC3 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHTC3 relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHTC3 dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "SHTC3 ID word",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_set_low_power",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHTC3 low-power mode (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_set_sleep_between",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHTC3 sleep between reads (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHTC3 wake up",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHTC3 sleep",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "shtc3_software_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SHTC3 software reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

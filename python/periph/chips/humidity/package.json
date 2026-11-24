@@ -41,6 +41,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/sht31.py"
     ],
     [
+      "periph/chips/humidity/shtc3.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/shtc3.py"
+    ],
+    [
       "periph/chips/humidity/si7021.py",
       "github:tuhde/Periph/python/periph/chips/humidity/si7021.py"
     ],

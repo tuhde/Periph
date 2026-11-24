@@ -429,7 +429,7 @@ CHIPS = (
     {"id": "sht31", "driver": "sht31", "write_sensitive": True, "aliased": False,
      "addresses": (0x44, 0x45,),
      "probe": None},
-    {"id": "shtc3", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "shtc3", "driver": "shtc3", "write_sensitive": True, "aliased": False,
      "addresses": (0x70,),
      "probe": {"register": 0xEFC8, "reg_bytes": 2, "length": 2, "byte_order": "big", "mask": 0x083F, "expected": (0x0807,)}},
     {"id": "tsl2561", "driver": None, "write_sensitive": False, "aliased": False,
