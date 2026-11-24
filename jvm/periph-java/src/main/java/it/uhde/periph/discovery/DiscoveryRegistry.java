@@ -199,7 +199,7 @@ public final class DiscoveryRegistry {
         new Chip("max31341", null, false, false, new int[] {0x69}, new IdProbe(0x59, 1, 1, false, 0xF0L, new long[] {0x10L})),
         new Chip("veml6075", null, false, false, new int[] {0x10}, new IdProbe(0x0C, 1, 2, true, 0x0FFFL, new long[] {0x0026L})),
         new Chip("sgp40", null, true, false, new int[] {0x59}, null),
-        new Chip("isl29125", null, false, false, new int[] {0x44}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0x7DL})),
+        new Chip("isl29125", "isl29125", false, false, new int[] {0x44}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0x7DL})),
         new Chip("ccs811", null, false, false, new int[] {0x5A, 0x5B}, new IdProbe(0x20, 1, 1, false, 0xFFL, new long[] {0x81L})),
         new Chip("vcnl4040", null, false, false, new int[] {0x60}, new IdProbe(0x0C, 1, 2, true, 0xFFFFL, new long[] {0x0186L})),
         new Chip("veml6070", null, true, false, new int[] {0x38, 0x39}, null),

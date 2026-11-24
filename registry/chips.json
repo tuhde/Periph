@@ -2885,7 +2885,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "isl29125",
       "datasheet": "datasheets/color/isl29125.pdf"
     },
     {

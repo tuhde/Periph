@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/color/as7262.py"
     ],
     [
+      "periph/chips/color/isl29125.py",
+      "github:tuhde/Periph/python/periph/chips/color/isl29125.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

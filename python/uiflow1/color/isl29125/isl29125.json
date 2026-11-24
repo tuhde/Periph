@@ -1,0 +1,298 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "isl29125_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ISL29125",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_read_red",
+      "type": "value",
+      "params": [
+        {
+          "name": "ISL29125 red count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_read_green",
+      "type": "value",
+      "params": [
+        {
+          "name": "ISL29125 green count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_read_blue",
+      "type": "value",
+      "params": [
+        {
+          "name": "ISL29125 blue count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "ISL29125 conversion done",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 mode (0 power down, 1 green, 2 red, 3 blue, 4 standby, 5 RGB, 6 green+red, 7 green+blue)",
+          "type": "label"
+        },
+        {
+          "name": "mode (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 range",
+          "type": "label"
+        },
+        {
+          "name": "range (375 or 10000 lux)",
+          "type": "label"
+        },
+        {
+          "name": "_lux",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 resolution",
+          "type": "label"
+        },
+        {
+          "name": "bits (12 or 16)",
+          "type": "label"
+        },
+        {
+          "name": "_bits",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_sync",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 external sync (1 = INT starts conversion)",
+          "type": "label"
+        },
+        {
+          "name": "external",
+          "type": "label"
+        },
+        {
+          "name": "_external",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_ir_compensation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 IR compensation",
+          "type": "label"
+        },
+        {
+          "name": "offset (1 = codes 106-169)",
+          "type": "label"
+        },
+        {
+          "name": "_offset",
+          "type": "number"
+        },
+        {
+          "name": "adjust (0-63)",
+          "type": "label"
+        },
+        {
+          "name": "_adjust",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 thresholds",
+          "type": "label"
+        },
+        {
+          "name": "low (counts)",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        },
+        {
+          "name": "high (counts)",
+          "type": "label"
+        },
+        {
+          "name": "_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_interrupt_channel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 interrupt channel (0 none, 1 green, 2 red, 3 blue)",
+          "type": "label"
+        },
+        {
+          "name": "channel",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_set_persistence",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 persistence",
+          "type": "label"
+        },
+        {
+          "name": "cycles (1, 2, 4, 8)",
+          "type": "label"
+        },
+        {
+          "name": "_count",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 enable interrupt (1 = conversion, 0 = threshold)",
+          "type": "label"
+        },
+        {
+          "name": "conversion",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 disable interrupt (1 = conversion, 0 = threshold)",
+          "type": "label"
+        },
+        {
+          "name": "conversion",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "ISL29125 status byte",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_device_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "ISL29125 device ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "isl29125_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ISL29125 software reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
