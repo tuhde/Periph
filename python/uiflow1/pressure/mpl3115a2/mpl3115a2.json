@@ -1,0 +1,114 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mpl3115a2_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MPL3115A2",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_read_pressure",
+      "type": "value",
+      "params": [
+        {
+          "name": "MPL3115A2 pressure (Pa)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_read_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "MPL3115A2 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_read_altitude",
+      "type": "value",
+      "params": [
+        {
+          "name": "MPL3115A2 altitude (m)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_set_oversample",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MPL3115A2 oversample ratio (1-128)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_set_sea_level_pressure",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MPL3115A2 sea-level pressure (Pa)",
+          "type": "label"
+        },
+        {
+          "name": "_pa",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MPL3115A2 start continuous, step 2^n s",
+          "type": "label"
+        },
+        {
+          "name": "_step",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mpl3115a2_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MPL3115A2 stop continuous",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
