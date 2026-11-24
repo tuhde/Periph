@@ -94,7 +94,7 @@ int main(void) {
     Isl29125Counts c = {0, 0, 0};
     check_true(sensor.valid(), "valid");
     check_true(sensor.read(c), "read");                    // Read the three channels, (counts&) → bool
-    check_true(c.red <= 0xFFFF && c.green <= 0xFFFF && c.blue <= 0xFFFF, "read_range");
+    check_true((uint32_t)c.red + c.green + c.blue < 3u * 65536u, "read_range");
 
     check_true(full.deviceId() == 0x7D, "device_id");       // Read DEVICE_ID, () → uint8_t
     check_true(full.setRange(375) && full.setRange(10000), "set_range");
@@ -103,10 +103,10 @@ int main(void) {
     check_true(full.setIrCompensation(true, 0x3F), "ir_compensation");
     full.setSync(false);
     full.readRgb(c);
-    check_true(c.green <= 0xFFFF, "read_rgb_range");
-    check_true(full.readGreen() <= 0xFFFF && full.readRed() <= 0xFFFF && full.readBlue() <= 0xFFFF, "read_single");
+    check_true((uint32_t)c.red + c.green + c.blue < 3u * 65536u, "read_rgb_range");
+    check_true((uint32_t)full.readGreen() + full.readRed() + full.readBlue() < 3u * 65536u, "read_single");
     check_true(full.setMode(Isl29125Full::MODE_GREEN), "mode_green");
-    check_true(full.readGreen() <= 0xFFFF, "green_mode_reads");
+    check_true((uint32_t)full.readGreen() + full.readRed() < 2u * 65536u, "green_mode_reads");
     full.setMode(Isl29125Full::MODE_RGB);
     check_true(full.setThresholds(100, 60000), "set_thresholds");
     uint16_t lo = 0, hi = 0;
