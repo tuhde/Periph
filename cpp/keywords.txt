@@ -287,6 +287,8 @@ MMA8451QFull	KEYWORD1
 MMA8451QMinimal	KEYWORD1
 MPL115A2Full	KEYWORD1
 MPL115A2Minimal	KEYWORD1
+MPL3115A2Full	KEYWORD1
+MPL3115A2Minimal	KEYWORD1
 MPR121Full	KEYWORD1
 MPR121Minimal	KEYWORD1
 MPU6050Full	KEYWORD1
@@ -555,6 +557,7 @@ clear_faults	KEYWORD2
 clear_frame	KEYWORD2
 clear_gesture_fifo	KEYWORD2
 clear_interrupt	KEYWORD2
+clear_min_max	KEYWORD2
 clear_overcurrent	KEYWORD2
 clear_overflow	KEYWORD2
 clear_power_peak	KEYWORD2
@@ -786,6 +789,7 @@ fifo_level	KEYWORD2
 fifo_read	KEYWORD2
 fifo_sample_count	KEYWORD2
 fifo_samples	KEYWORD2
+fifo_setup	KEYWORD2
 fifo_status	KEYWORD2
 fill	KEYWORD2
 fill_hsv	KEYWORD2
@@ -875,6 +879,7 @@ get_nv_wiper	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
 get_output_data_rate	KEYWORD2
+get_oversample	KEYWORD2
 get_pixel	KEYWORD2
 get_profile	KEYWORD2
 get_pwm	KEYWORD2
@@ -954,6 +959,7 @@ isShutdown	KEYWORD2
 isStalled	KEYWORD2
 isStandstill	KEYWORD2
 isWindowLimitsLocked	KEYWORD2
+is_active	KEYWORD2
 is_als_saturated	KEYWORD2
 is_als_valid	KEYWORD2
 is_bad	KEYWORD2
@@ -994,6 +1000,7 @@ lc709203f_crc8	KEYWORD2
 lineFrequency	KEYWORD2
 linePeriod	KEYWORD2
 linear_acceleration	KEYWORD2
+load_current_as_target	KEYWORD2
 lockCriticalLimit	KEYWORD2
 lockEeprom	KEYWORD2
 lockWindowLimits	KEYWORD2
@@ -1205,6 +1212,7 @@ read_air_quality	KEYWORD2
 read_all	KEYWORD2
 read_all_voltage	KEYWORD2
 read_als_raw	KEYWORD2
+read_altitude	KEYWORD2
 read_aqi	KEYWORD2
 read_average	KEYWORD2
 read_block	KEYWORD2
@@ -1224,6 +1232,7 @@ read_control	KEYWORD2
 read_counter	KEYWORD2
 read_customer	KEYWORD2
 read_data	KEYWORD2
+read_delta	KEYWORD2
 read_device_code	KEYWORD2
 read_device_id	KEYWORD2
 read_device_info	KEYWORD2
@@ -1250,6 +1259,7 @@ read_low_power	KEYWORD2
 read_lpf_raw	KEYWORD2
 read_lux	KEYWORD2
 read_manufacturer_code	KEYWORD2
+read_min_max	KEYWORD2
 read_mode	KEYWORD2
 read_motion_source	KEYWORD2
 read_nvm	KEYWORD2
@@ -1775,6 +1785,7 @@ set_nv_wiper	KEYWORD2
 set_odr	KEYWORD2
 set_offset	KEYWORD2
 set_offset_calibration	KEYWORD2
+set_offsets	KEYWORD2
 set_one_shot	KEYWORD2
 set_oor_threshold	KEYWORD2
 set_orientation	KEYWORD2
@@ -1783,6 +1794,7 @@ set_ot_warn	KEYWORD2
 set_output_data_rate	KEYWORD2
 set_output_enable	KEYWORD2
 set_output_mode	KEYWORD2
+set_oversample	KEYWORD2
 set_oversampling	KEYWORD2
 set_page_rw	KEYWORD2
 set_panel_loading	KEYWORD2
@@ -1837,6 +1849,7 @@ set_scroll_line	KEYWORD2
 set_scroll_vertical	KEYWORD2
 set_sdo_pullup	KEYWORD2
 set_sdp_mute	KEYWORD2
+set_sea_level_pressure	KEYWORD2
 set_segment_map	KEYWORD2
 set_sense_resistor	KEYWORD2
 set_sensors	KEYWORD2
@@ -1857,6 +1870,7 @@ set_summation_channels	KEYWORD2
 set_sync_sample	KEYWORD2
 set_tap	KEYWORD2
 set_tap_detection	KEYWORD2
+set_target	KEYWORD2
 set_temperature	KEYWORD2
 set_temperature_compensation	KEYWORD2
 set_temperature_sensor	KEYWORD2
@@ -1919,6 +1933,7 @@ start	KEYWORD2
 startClock	KEYWORD2
 startContinuous	KEYWORD2
 start_auto_play	KEYWORD2
+start_continuous	KEYWORD2
 start_continuous_als	KEYWORD2
 start_continuous_range	KEYWORD2
 start_conversion	KEYWORD2
@@ -1941,6 +1956,7 @@ stopBeep	KEYWORD2
 stopClock	KEYWORD2
 stopContinuous	KEYWORD2
 stop_auto_play	KEYWORD2
+stop_continuous	KEYWORD2
 stop_continuous_als	KEYWORD2
 stop_continuous_range	KEYWORD2
 stop_crypto	KEYWORD2
@@ -2420,8 +2436,10 @@ FIFO_MODE_DYNAMIC_STREAM	LITERAL1
 FIFO_MODE_FIFO	LITERAL1
 FIFO_MODE_STREAM	LITERAL1
 FIFO_MODE_STREAM_TO_FIFO	LITERAL1
+FIFO_OFF	LITERAL1
 FIFO_OLDEST_SAVED	LITERAL1
 FIFO_PRESS	LITERAL1
+FIFO_STOP	LITERAL1
 FIFO_STOP_ON_FULL	LITERAL1
 FIFO_STREAM	LITERAL1
 FIFO_STREAM_TO_FIFO	LITERAL1
@@ -2801,6 +2819,7 @@ SOURCE_CORRECTION	LITERAL1
 SOURCE_CRITICAL	LITERAL1
 SOURCE_DATA_READY	LITERAL1
 SOURCE_DIE_OVER_TEMP_L1	LITERAL1
+SOURCE_DRDY	LITERAL1
 SOURCE_ERROR	LITERAL1
 SOURCE_FF_MT	LITERAL1
 SOURCE_FIFO	LITERAL1
@@ -2847,10 +2866,13 @@ SOURCE_OT_WARN	LITERAL1
 SOURCE_OUT_OF_WINDOW	LITERAL1
 SOURCE_OVERRUN	LITERAL1
 SOURCE_OVERVOLTAGE	LITERAL1
+SOURCE_PCHG	LITERAL1
 SOURCE_PIN_OP_WARN	LITERAL1
 SOURCE_PLL_READY	LITERAL1
 SOURCE_POWER_GOOD	LITERAL1
+SOURCE_PTH	LITERAL1
 SOURCE_PULSE	LITERAL1
+SOURCE_PW	LITERAL1
 SOURCE_PWRON_LONG	LITERAL1
 SOURCE_PWRON_NEG_EDGE	LITERAL1
 SOURCE_PWRON_POS_EDGE	LITERAL1
@@ -2867,6 +2889,7 @@ SOURCE_SOC_WARN_L1	LITERAL1
 SOURCE_SOC_WARN_L2	LITERAL1
 SOURCE_STEP	LITERAL1
 SOURCE_TAP	LITERAL1
+SOURCE_TCHG	LITERAL1
 SOURCE_TEMP_HIGH	LITERAL1
 SOURCE_TEMP_LOW	LITERAL1
 SOURCE_TEST	LITERAL1
@@ -2875,6 +2898,8 @@ SOURCE_TIMER	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
 SOURCE_TRANSIENT	LITERAL1
+SOURCE_TTH	LITERAL1
+SOURCE_TW	LITERAL1
 SOURCE_UNDERVOLTAGE	LITERAL1
 SOURCE_UPPER	LITERAL1
 SOURCE_VARIATION	LITERAL1
