@@ -2529,7 +2529,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ms5611",
       "datasheet": "datasheets/pressure/ms5611.pdf"
     },
     {

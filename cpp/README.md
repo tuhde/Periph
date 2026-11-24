@@ -146,6 +146,7 @@ Each chip exposes two classes:
 | MPU9250 | IMU | `chips/imu/MPU9250.h` |
 | MPU9255 | IMU | `chips/imu/MPU9255.h` |
 | Ms5607 | Pressure sensor | `chips/pressure/Ms5607.h` |
+| Ms5611 | Pressure sensor | `chips/pressure/Ms5611.h` |
 | MX25L12845E | Memory | `chips/memory/MX25L12845E.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |

@@ -233,7 +233,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9255 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MS5607 | Barometric pressure sensor (10–2000 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MS5611 | Barometric pressure sensor (10–1200 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | | | | | | | | |
+| MS5611 | Barometric pressure sensor (10–1200 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MX25L12845E | NOR flash (128 Mbit, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA6408A | IO expander (8-bit, low-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

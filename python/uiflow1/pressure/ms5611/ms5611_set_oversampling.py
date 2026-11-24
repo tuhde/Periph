@@ -1,0 +1,1 @@
+_periph_ms5611.set_oversampling(int(${_osr}))

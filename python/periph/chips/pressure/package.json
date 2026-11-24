@@ -53,6 +53,10 @@
       "github:tuhde/Periph/python/periph/chips/pressure/ms5607.py"
     ],
     [
+      "periph/chips/pressure/ms5611.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/ms5611.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
