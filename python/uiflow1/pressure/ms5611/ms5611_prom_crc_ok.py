@@ -1,0 +1,1 @@
+int(_periph_ms5611.prom_crc_ok())

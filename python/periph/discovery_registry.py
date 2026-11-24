@@ -501,7 +501,7 @@ CHIPS = (
     {"id": "ms5607", "driver": "ms5607", "write_sensitive": True, "aliased": False,
      "addresses": (0x76, 0x77,),
      "probe": None},
-    {"id": "ms5611", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ms5611", "driver": "ms5611", "write_sensitive": True, "aliased": False,
      "addresses": (0x76, 0x77,),
      "probe": None},
     {"id": "pca9685", "driver": "pca9685", "write_sensitive": False, "aliased": False,

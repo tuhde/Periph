@@ -10,6 +10,7 @@ pub mod lps22hb;
 pub mod mpl115a2;
 pub mod mpl3115a2;
 pub mod ms5607;
+pub mod ms5611;
 pub use bmp085::{Bmp085Minimal, Bmp085Full, OSS_ULP as BMP085_OSS_ULP, OSS_STANDARD as BMP085_OSS_STANDARD, OSS_HIGH_RES as BMP085_OSS_HIGH_RES, OSS_ULTRA_HIGH_RES as BMP085_OSS_ULTRA_HIGH_RES};
 pub use bmp180::{Bmp180Minimal, Bmp180Full, OSS_ULP, OSS_STANDARD, OSS_HIGH_RES, OSS_ULTRA_HIGH_RES};
 pub use bmp280::{Bmp280Minimal, Bmp280Full, OSRS_SKIP, OSRS_X1, OSRS_X2, OSRS_X4, OSRS_X8, OSRS_X16, MODE_SLEEP, MODE_FORCED, MODE_NORMAL, FILTER_OFF, FILTER_2, FILTER_4, FILTER_8, FILTER_16, T_SB_0_5_MS, T_SB_62_5_MS, T_SB_125_MS, T_SB_250_MS, T_SB_500_MS, T_SB_1000_MS, T_SB_2000_MS, T_SB_4000_MS, STATUS_MEASURING, STATUS_IM_UPDATE};
@@ -24,3 +25,4 @@ pub use mpl115a2::{Mpl115a2Minimal, Mpl115a2Full};
 // MPL3115A2 shares SOURCE_*/FIFO_* constant names with other chips; use mpl3115a2:: for those.
 pub use mpl3115a2::{MPL3115A2Minimal, MPL3115A2Full};
 pub use ms5607::{MS5607Minimal, MS5607Full, Error as MS5607Error, Conversion as MS5607Conversion};
+pub use ms5611::{MS5611Minimal, MS5611Full, Error as MS5611Error, Conversion as MS5611Conversion};

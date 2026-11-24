@@ -154,6 +154,7 @@ Each chip exposes two classes:
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | MS5607 | Pressure sensor | Barometric pressure sensor |
+| MS5611 | Pressure sensor | Barometric pressure sensor |
 | MX25L12845E | Memory | — minimal driver: byte-addressed read, erase-aware write. |
 | NEO-6 | GNSS/GPS | U-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status. |
 | PCA6408A | IO expander | 8-bit I/O expander (I²C / SMBus) |
