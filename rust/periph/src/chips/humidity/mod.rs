@@ -15,6 +15,9 @@ pub use hs30xx::{HS30xxMinimal, HS30xxFull, HS3001Minimal, HS3001Full, HS3002Min
 pub mod hs40xx;
 pub use hs40xx::{HS40xxMinimal, HS40xxFull, HS4001Minimal, HS4001Full, HS4003Minimal, HS4003Full, Error as HS40xxError};
 
+pub mod hts221;
+pub use hts221::{HTS221Minimal, HTS221Full, Calibration as HTS221Calibration, Error as HTS221Error};
+
 pub mod htu21df;
 pub use htu21df::{HTU21DFMinimal, HTU21DFFull, Error as HTU21DFError};
 

@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-periph-humidity",
   "version": "1.5.3",
-  "description": "Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTU21DF, SHT31, SI7021",
+  "description": "Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, SHT31, SI7021",
   "keywords": [
     "node-red",
     "humidity",
@@ -15,6 +15,7 @@
     "hdc1080",
     "hs30xx",
     "hs40xx",
+    "hts221",
     "htu21df",
     "sht31",
     "si7021"
@@ -27,6 +28,7 @@
       "hdc1080": "nodes/hdc1080/hdc1080.js",
       "hs30xx": "nodes/hs30xx/hs30xx.js",
       "hs40xx": "nodes/hs40xx/hs40xx.js",
+      "hts221": "nodes/hts221/hts221.js",
       "htu21df": "nodes/htu21df/htu21df.js",
       "sht31": "nodes/sht31/sht31.js",
       "si7021": "nodes/si7021/si7021.js"

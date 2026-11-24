@@ -489,7 +489,7 @@ CHIPS = (
     {"id": "as7262", "driver": "as7262", "write_sensitive": True, "aliased": False,
      "addresses": (0x49,),
      "probe": None},
-    {"id": "hts221", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "hts221", "driver": "hts221", "write_sensitive": False, "aliased": False,
      "addresses": (0x5F,),
      "probe": {"register": 0x0F, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xBC,)}},
     {"id": "htu31d", "driver": None, "write_sensitive": True, "aliased": False,

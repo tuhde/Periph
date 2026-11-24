@@ -159,6 +159,9 @@ HS40xxFull	KEYWORD1
 HS40xxMinimal	KEYWORD1
 HT16K33Full	KEYWORD1
 HT16K33Minimal	KEYWORD1
+HTS221Calibration	KEYWORD1
+HTS221Full	KEYWORD1
+HTS221Minimal	KEYWORD1
 HTU21DFFull	KEYWORD1
 HTU21DFMinimal	KEYWORD1
 HX710AFull	KEYWORD1
@@ -609,6 +612,7 @@ configure_device	KEYWORD2
 configure_dlpf	KEYWORD2
 configure_dmic	KEYWORD2
 configure_drc	KEYWORD2
+configure_drdy	KEYWORD2
 configure_fifo	KEYWORD2
 configure_filters	KEYWORD2
 configure_gesture	KEYWORD2
@@ -860,6 +864,7 @@ get_mode	KEYWORD2
 get_nv_wiper	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
+get_output_data_rate	KEYWORD2
 get_pixel	KEYWORD2
 get_profile	KEYWORD2
 get_pwm	KEYWORD2
@@ -1187,6 +1192,7 @@ read_block	KEYWORD2
 read_byte	KEYWORD2
 read_bytes	KEYWORD2
 read_calibrated	KEYWORD2
+read_calibration	KEYWORD2
 read_capture	KEYWORD2
 read_channel	KEYWORD2
 read_channel_raw	KEYWORD2
@@ -1194,6 +1200,7 @@ read_channel_voltage	KEYWORD2
 read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
 read_config	KEYWORD2
+read_continuous	KEYWORD2
 read_control	KEYWORD2
 read_counter	KEYWORD2
 read_customer	KEYWORD2
@@ -1612,6 +1619,7 @@ set_bias	KEYWORD2
 set_bias_ratio	KEYWORD2
 set_blink	KEYWORD2
 set_blink_all	KEYWORD2
+set_block_data_update	KEYWORD2
 set_booster	KEYWORD2
 set_both	KEYWORD2
 set_breath	KEYWORD2
@@ -1745,6 +1753,7 @@ set_oor_threshold	KEYWORD2
 set_orientation	KEYWORD2
 set_ot_fault	KEYWORD2
 set_ot_warn	KEYWORD2
+set_output_data_rate	KEYWORD2
 set_output_enable	KEYWORD2
 set_output_mode	KEYWORD2
 set_oversampling	KEYWORD2
@@ -2844,6 +2853,7 @@ STATUS_HEATER_STABLE	LITERAL1
 STATUS_HG	LITERAL1
 STATUS_HG_LATCHED	LITERAL1
 STATUS_HIGH_G	LITERAL1
+STATUS_H_DA	LITERAL1
 STATUS_IM_UPDATE	LITERAL1
 STATUS_INVERSE	LITERAL1
 STATUS_LG	LITERAL1
@@ -2904,6 +2914,7 @@ WF1	LITERAL1
 WF2	LITERAL1
 WF3	LITERAL1
 WHITE	LITERAL1
+WHO_AM_I_VALUE	LITERAL1
 WIDTH	LITERAL1
 YELLOW	LITERAL1
 kChange	LITERAL1

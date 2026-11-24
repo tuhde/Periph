@@ -100,6 +100,7 @@ Each chip exposes two structs:
 | HS30XX | Humidity sensor | Relative humidity and temperature sensors (Renesas HS3001, HS3002, HS3003). |
 | HS40XX | Humidity sensor | Relative humidity and temperature sensors (Renesas HS4001, HS4003). |
 | HT16K33 | LED driver | 16 × 8 LED matrix driver with key scan (Holtek). |
+| HTS221 | Humidity sensor | Capacitive digital relative-humidity and temperature sensor (STMicroelectronics). |
 | HTU21DF | Humidity sensor | Relative humidity and temperature sensor (Measurement Specialties). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |

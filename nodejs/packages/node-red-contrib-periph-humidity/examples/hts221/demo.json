@@ -1,0 +1,93 @@
+[
+  {
+    "id": "hts221-tab",
+    "type": "tab",
+    "label": "HTS221 hygrometer",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HTS221 every 5 s and formats them as \"25.0 °C / 45.0 %RH\". The sensor is factory calibrated and measured one-shot per message; change the averaging in the HTS221 device node to trade noise against conversion time."
+  },
+  {
+    "id": "hts221-inject",
+    "type": "inject",
+    "z": "hts221-tab",
+    "name": "5 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "hts221-node"
+      ]
+    ]
+  },
+  {
+    "id": "hts221-device-1",
+    "type": "hts221-device",
+    "name": "HTS221",
+    "bus": "1",
+    "address": "0x5F",
+    "temperatureSamples": "16",
+    "humiditySamples": "32",
+    "heater": false
+  },
+  {
+    "id": "hts221-node",
+    "type": "hts221",
+    "z": "hts221-tab",
+    "name": "HTS221",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "hts221-format"
+      ]
+    ],
+    "device": "hts221-device-1"
+  },
+  {
+    "id": "hts221-format",
+    "type": "function",
+    "z": "hts221-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(1) + ' °C / ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "hts221-debug"
+      ]
+    ]
+  },
+  {
+    "id": "hts221-debug",
+    "type": "debug",
+    "z": "hts221-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]
