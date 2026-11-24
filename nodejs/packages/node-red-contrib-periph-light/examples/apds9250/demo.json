@@ -1,0 +1,83 @@
+[
+  {
+    "id": "tab-apds9250-demo",
+    "type": "tab",
+    "label": "APDS-9250 Colour Demo",
+    "disabled": false,
+    "info": "Colour sampling with an APDS-9250 RGB/IR light sensor. An inject node fires every 2 s into apds9250; a function node normalises the red, green and blue counts to an #rrggbb colour and computes the IR fraction; a debug node shows the result."
+  },
+  {
+    "id": "inj-read",
+    "type": "inject",
+    "name": "Read every 2 s",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "2",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1,
+    "z": "tab-apds9250-demo",
+    "x": 150,
+    "y": 100,
+    "wires": [
+      [
+        "apds9250-node"
+      ]
+    ]
+  },
+  {
+    "id": "apds9250-device-1",
+    "type": "apds9250-device",
+    "name": "APDS-9250",
+    "bus": "1",
+    "resolution": "18",
+    "rate": "100",
+    "gain": "3"
+  },
+  {
+    "id": "apds9250-node",
+    "type": "apds9250",
+    "name": "APDS-9250",
+    "z": "tab-apds9250-demo",
+    "x": 400,
+    "y": 140,
+    "wires": [
+      [
+        "fn-colour"
+      ]
+    ],
+    "device": "apds9250-device-1"
+  },
+  {
+    "id": "fn-colour",
+    "type": "function",
+    "name": "counts to #rrggbb",
+    "func": "// Normalise R/G/B to the strongest channel and compute the IR fraction.\nconst p = msg.payload;\nconst top = Math.max(p.red, p.green, p.blue, 1);\nconst h = (v) => Math.floor(v * 255 / top).toString(16).padStart(2, '0');\np.colour = '#' + h(p.red) + h(p.green) + h(p.blue);\np.irFraction = p.ir / Math.max(1, p.ir + p.green);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "z": "tab-apds9250-demo",
+    "x": 640,
+    "y": 140,
+    "wires": [
+      [
+        "dbg-apds9250"
+      ]
+    ]
+  },
+  {
+    "id": "dbg-apds9250",
+    "type": "debug",
+    "name": "colour / IR",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "z": "tab-apds9250-demo",
+    "x": 860,
+    "y": 140,
+    "wires": []
+  }
+]

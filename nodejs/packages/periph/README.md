@@ -54,6 +54,7 @@ Each chip exposes two classes:
 | AM2320 | Environmental sensor | `periph/src/chips/environmental/am2320` |
 | APA102 | LED driver | `periph/src/chips/led/apa102` |
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
+| APDS9250 | Light sensor | `periph/src/chips/light/apds9250` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
 | AS7262 | Color sensor | `periph/src/chips/color/as7262` |
