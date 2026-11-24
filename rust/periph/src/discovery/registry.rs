@@ -188,7 +188,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "hts221", driver: Some("hts221"), write_sensitive: false, aliased: false, addresses: &[0x5F], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xBC] }) },
     ChipEntry { id: "htu31d", driver: Some("htu31d"), write_sensitive: true, aliased: false, addresses: &[0x40, 0x41], probe: None },
     ChipEntry { id: "bh1750", driver: Some("bh1750"), write_sensitive: true, aliased: false, addresses: &[0x23, 0x5C], probe: None },
-    ChipEntry { id: "ms5607", driver: None, write_sensitive: true, aliased: false, addresses: &[0x76, 0x77], probe: None },
+    ChipEntry { id: "ms5607", driver: Some("ms5607"), write_sensitive: true, aliased: false, addresses: &[0x76, 0x77], probe: None },
     ChipEntry { id: "ms5611", driver: None, write_sensitive: true, aliased: false, addresses: &[0x76, 0x77], probe: None },
     ChipEntry { id: "pca9685", driver: Some("pca9685"), write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77], probe: None },
     ChipEntry { id: "spl06", driver: None, write_sensitive: false, aliased: false, addresses: &[0x76, 0x77], probe: Some(IdProbe { register: 0x0D, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x10] }) },

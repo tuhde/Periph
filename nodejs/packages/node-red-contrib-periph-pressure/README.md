@@ -1,8 +1,8 @@
 # node-red-contrib-periph-pressure
 
-Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (11):** BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2.
+**Supported chips (12):** BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-pressure/examples).
 
@@ -42,6 +42,8 @@ npm install node-red-contrib-periph-pressure
 | `mpl115a2` | input | Reads the barometric pressure (50–115 kPa) and an approximate temperature from an NXP MPL115A2 over I²C (address 0x60). |
 | `mpl3115a2-device` | config | I²C bus and address for a MPL3115A2 |
 | `mpl3115a2` | input | Reads absolute pressure (or altitude) and temperature from an NXP MPL3115A2 over I²C (address 0x60) with one conversion per message. |
+| `ms5607-device` | config | I²C bus and address for a MS5607 |
+| `ms5607` | input | Reads temperature and barometric pressure from a TE Connectivity MS5607 over I²C (address 0x77, or 0x76 with CSB high). Each message converts the temperature and then the pressure and applies the first- and second-order compensation. |
 
 ## Links
 
