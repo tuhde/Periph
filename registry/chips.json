@@ -2231,7 +2231,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "bme688",
       "datasheet": "datasheets/environmental/bme688.pdf"
     },
     {

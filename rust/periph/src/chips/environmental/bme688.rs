@@ -1,0 +1,884 @@
+//! BME688 — 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec).
+//!
+//! Communicates over I²C (address 0x76 or 0x77). The compensation algorithms use
+//! 32-bit integer arithmetic for temperature, pressure, and humidity; 64-bit for
+//! gas resistance. Calibration is read from three non-contiguous register blocks.
+//! Besides forced mode the Full driver supports the BME688's parallel mode
+//! (`start_parallel` / `read_parallel` / `stop_parallel`).
+//!
+//! ## Constants
+//!
+//! Oversampling: [`OSRS_SKIP`], [`OSRS_X1`], [`OSRS_X2`], [`OSRS_X4`], [`OSRS_X8`], [`OSRS_X16`]
+//! Mode: [`MODE_SLEEP`], [`MODE_FORCED`], [`MODE_PARALLEL`]
+//! Filter: [`FILTER_0`] through [`FILTER_127`]
+//! Status: [`STATUS_NEW_DATA`], [`STATUS_GAS_MEASURING`], [`STATUS_MEASURING`], [`STATUS_GAS_VALID`], [`STATUS_HEATER_STABLE`]
+
+use embedded_hal::i2c::I2c;
+
+use crate::connection::register;
+
+const REG_RES_HEAT_VAL: u8 = 0x00;
+const REG_RES_HEAT_RANGE: u8 = 0x02;
+const REG_MEAS_STATUS: u8 = 0x1D;
+const REG_VARIANT_ID: u8 = 0xF0;
+const FIELD_LEN: usize = 17;
+const RUN_GAS: u8 = 0x20;
+const REG_CTRL_GAS_0: u8 = 0x70;
+const REG_CTRL_GAS_1: u8 = 0x71;
+const REG_CTRL_HUM: u8 = 0x72;
+const REG_CTRL_MEAS: u8 = 0x74;
+const REG_CONFIG: u8 = 0x75;
+const REG_CAL_BLOCK1: u8 = 0x8A;
+const REG_ID: u8 = 0xD0;
+const REG_RESET: u8 = 0xE0;
+const REG_CAL_BLOCK2: u8 = 0xE1;
+
+const CHIP_ID: u8 = 0x61;
+const VARIANT_ID: u8 = 0x01;
+const RESET_CMD: u8 = 0xB6;
+
+fn delay_ms(ms: u32) {
+    #[cfg(feature = "std")]
+    std::thread::sleep(std::time::Duration::from_millis(ms as u64));
+    #[cfg(not(feature = "std"))]
+    let _ = ms;
+}
+
+/// Temperature oversampling: skipped.
+pub const OSRS_SKIP: u8 = 0;
+/// Temperature oversampling: ×1.
+pub const OSRS_X1: u8 = 1;
+/// Temperature oversampling: ×2.
+pub const OSRS_X2: u8 = 2;
+/// Temperature oversampling: ×4.
+pub const OSRS_X4: u8 = 3;
+/// Temperature oversampling: ×8.
+pub const OSRS_X8: u8 = 4;
+/// Temperature oversampling: ×16.
+pub const OSRS_X16: u8 = 5;
+
+/// Power mode: sleep.
+pub const MODE_SLEEP: u8 = 0;
+/// Power mode: forced (single-shot).
+pub const MODE_FORCED: u8 = 1;
+/// Power mode: parallel (the chip cycles TPHG through the heater profile on its own).
+pub const MODE_PARALLEL: u8 = 2;
+
+/// IIR filter: off.
+pub const FILTER_0: u8 = 0;
+/// IIR filter: coefficient 1.
+pub const FILTER_1: u8 = 1;
+/// IIR filter: coefficient 3.
+pub const FILTER_3: u8 = 2;
+/// IIR filter: coefficient 7.
+pub const FILTER_7: u8 = 3;
+/// IIR filter: coefficient 15.
+pub const FILTER_15: u8 = 4;
+/// IIR filter: coefficient 31.
+pub const FILTER_31: u8 = 5;
+/// IIR filter: coefficient 63.
+pub const FILTER_63: u8 = 6;
+/// IIR filter: coefficient 127.
+pub const FILTER_127: u8 = 7;
+
+/// Status flag: new TPH data available.
+pub const STATUS_NEW_DATA: u8 = 0x80;
+/// Status flag: gas conversion in progress.
+pub const STATUS_GAS_MEASURING: u8 = 0x40;
+/// Status flag: any conversion in progress.
+pub const STATUS_MEASURING: u8 = 0x20;
+/// Gas status flag: gas reading is valid (in gas_r_lsb).
+pub const STATUS_GAS_VALID: u8 = 0x20;
+/// Gas status flag: heater reached target (in gas_r_lsb).
+pub const STATUS_HEATER_STABLE: u8 = 0x10;
+
+#[derive(Clone, Copy)]
+struct Calibration {
+    par_t1: u16,
+    par_t2: i16,
+    par_t3: i8,
+    par_p1: u16,
+    par_p2: i16,
+    par_p3: i8,
+    par_p4: i16,
+    par_p5: i16,
+    par_p6: i8,
+    par_p7: i8,
+    par_p8: i16,
+    par_p9: i16,
+    par_p10: u8,
+    par_h1: u16,
+    par_h2: u16,
+    par_h3: i8,
+    par_h4: i8,
+    par_h5: i8,
+    par_h6: u8,
+    par_h7: i8,
+    par_g1: i8,
+    par_g2: i16,
+    par_g3: i8,
+    res_heat_val: i8,
+    res_heat_range: u8,
+}
+
+fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<Calibration, I2C::Error> {
+    let mut b1 = [0u8; 23];
+    let mut b2 = [0u8; 14];
+    let mut s1 = [0u8; 1];
+    let mut s2 = [0u8; 1];
+
+    register::read_register(i2c, addr, REG_CAL_BLOCK1.into(), 1, &mut b1)?;
+    register::read_register(i2c, addr, REG_CAL_BLOCK2.into(), 1, &mut b2)?;
+    register::read_register(i2c, addr, REG_RES_HEAT_VAL.into(), 1, &mut s1)?;
+    register::read_register(i2c, addr, REG_RES_HEAT_RANGE.into(), 1, &mut s2)?;
+
+    let par_t2 = i16::from_le_bytes([b1[0], b1[1]]);
+    let par_t3 = b1[2] as i8;
+    let par_p1 = u16::from_le_bytes([b1[4], b1[5]]);
+    let par_p2 = i16::from_le_bytes([b1[6], b1[7]]);
+    let par_p3 = b1[8] as i8;
+    let par_p4 = i16::from_le_bytes([b1[10], b1[11]]);
+    let par_p5 = i16::from_le_bytes([b1[12], b1[13]]);
+    let par_p7 = b1[14] as i8;
+    let par_p6 = b1[15] as i8;
+    let par_p8 = i16::from_le_bytes([b1[18], b1[19]]);
+    let par_p9 = i16::from_le_bytes([b1[20], b1[21]]);
+    let par_p10 = b1[22];
+
+    let par_h2 = ((b2[0] as u16) << 4) | ((b2[1] as u16) >> 4);
+    let par_h1 = ((b2[2] as u16) << 4) | ((b2[1] as u16) & 0x0F);
+    let par_h3 = b2[3] as i8;
+    let par_h4 = b2[4] as i8;
+    let par_h5 = b2[5] as i8;
+    let par_h6 = b2[6];
+    let par_h7 = b2[7] as i8;
+    let par_t1 = u16::from_le_bytes([b2[8], b2[9]]);
+    let par_g2 = i16::from_le_bytes([b2[10], b2[11]]);
+    let par_g1 = b2[12] as i8;
+    let par_g3 = b2[13] as i8;
+
+    let res_heat_val = s1[0] as i8;
+    let res_heat_range = (s2[0] >> 4) & 0x03;
+
+    Ok(Calibration {
+        par_t1, par_t2, par_t3,
+        par_p1, par_p2, par_p3, par_p4, par_p5, par_p6, par_p7, par_p8, par_p9, par_p10,
+        par_h1, par_h2, par_h3, par_h4, par_h5, par_h6, par_h7,
+        par_g1, par_g2, par_g3,
+        res_heat_val, res_heat_range,
+    })
+}
+
+fn compensate_temp(adc_t: u32, cal: &Calibration) -> (i32, f32) {
+    let par_t1 = cal.par_t1 as i32;
+    let par_t2 = cal.par_t2 as i32;
+    let par_t3 = cal.par_t3 as i32;
+    let adc = adc_t as i32;
+    let var1 = (adc >> 3) - (par_t1 << 1);
+    let var2 = (var1 * par_t2) >> 11;
+    let var3 = (((var1 >> 1) * (var1 >> 1)) >> 12) * (par_t3 << 4) >> 14;
+    let t_fine = var2 + var3;
+    let temp = ((t_fine * 5 + 128) >> 8) as f32 / 100.0;
+    (t_fine, temp)
+}
+
+fn compensate_pressure(adc_p: u32, t_fine: i32, cal: &Calibration) -> f32 {
+    let par_p1 = cal.par_p1 as i32;
+    let par_p2 = cal.par_p2 as i32;
+    let par_p3 = cal.par_p3 as i32;
+    let par_p4 = cal.par_p4 as i32;
+    let par_p5 = cal.par_p5 as i32;
+    let par_p6 = cal.par_p6 as i32;
+    let par_p7 = cal.par_p7 as i32;
+    let par_p8 = cal.par_p8 as i32;
+    let par_p9 = cal.par_p9 as i32;
+    let par_p10 = cal.par_p10 as i32;
+
+    let mut var1 = (t_fine >> 1) - 64000;
+    let mut var2 = ((((var1 >> 2) * (var1 >> 2)) >> 11) * par_p6) >> 2;
+    var2 = var2 + ((var1 * par_p5) << 1);
+    var2 = (var2 >> 2) + (par_p4 << 16);
+    var1 = (((((var1 >> 2) * (var1 >> 2)) >> 13) * (par_p3 << 5)) >> 3) + ((par_p2 * var1) >> 1);
+    var1 = var1 >> 18;
+    var1 = ((32768 + var1) * par_p1) >> 15;
+    let mut press_comp: i32 = 1048576 - adc_p as i32;
+    press_comp = ((press_comp - (var2 >> 12)) as i64 * 3125) as i32;
+    if press_comp >= (1 << 30) {
+        press_comp = (press_comp / var1) << 1;
+    } else {
+        press_comp = (press_comp << 1) / var1;
+    }
+    var1 = (par_p9 * (((press_comp >> 3) * (press_comp >> 3)) >> 13)) >> 12;
+    var2 = ((press_comp >> 2) * par_p8) >> 13;
+    let var3 = ((press_comp >> 8) * (press_comp >> 8) * (press_comp >> 8) * par_p10) >> 17;
+    press_comp = press_comp + ((var1 + var2 + var3 + (par_p7 << 7)) >> 4);
+    press_comp as f32 / 100.0
+}
+
+fn compensate_humidity(hum_adc: u16, t_fine: i32, cal: &Calibration) -> f32 {
+    let temp_scaled = t_fine as i64;
+    let par_h1 = cal.par_h1 as i64;
+    let par_h2 = cal.par_h2 as i64;
+    let par_h3 = cal.par_h3 as i64;
+    let par_h4 = cal.par_h4 as i64;
+    let par_h5 = cal.par_h5 as i64;
+    let par_h6 = cal.par_h6 as i64;
+    let par_h7 = cal.par_h7 as i64;
+
+    let var1 = hum_adc as i64 - ((par_h1 << 4) + (((temp_scaled * par_h3) / 100) >> 1));
+    let var2 = (par_h2 * (((temp_scaled * par_h4) / 100) +
+                          (((temp_scaled * ((temp_scaled * par_h5) / 100)) >> 6) / 100) +
+                          (1 << 14))) >> 10;
+    let var3 = var1 * var2;
+    let var4 = ((par_h6 << 7) + ((temp_scaled * par_h7) / 100)) >> 4;
+    let var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
+    let var6 = (var4 * var5) >> 1;
+    let mut hum_comp = (((var3 + var6) >> 10) * 1000) >> 12;
+    if hum_comp < 0 { hum_comp = 0; }
+    if hum_comp > 100000 { hum_comp = 100000; }
+    hum_comp as f32 / 1000.0
+}
+
+fn compensate_gas(gas_adc: u16, gas_range: u8) -> f32 {
+    let var1 = 262144i64 >> gas_range;
+    let var2 = 4096 + 3 * (gas_adc as i64 - 512);
+    if var2 <= 0 { return f32::NAN; }
+    ((10000 * var1 / var2) * 100) as f32
+}
+
+/// One data field returned by [`Bme688Full::read_parallel`].
+#[derive(Clone, Copy, Debug)]
+pub struct Bme688Field {
+    /// Heater step index (`gas_meas_index`).
+    pub step: u8,
+    /// `sub_meas_index` counter.
+    pub sub_index: u8,
+    /// Temperature in °C.
+    pub temperature: f32,
+    /// Pressure in hPa.
+    pub pressure: f32,
+    /// Relative humidity in %RH.
+    pub humidity: f32,
+    /// Gas resistance in Ω, NaN when the gas reading is not valid.
+    pub gas_resistance: f32,
+    /// `gas_valid_r` flag.
+    pub gas_valid: bool,
+    /// `heat_stab_r` flag.
+    pub heater_stable: bool,
+}
+
+struct RawField {
+    press_adc: u32,
+    temp_adc: u32,
+    hum_adc: u16,
+    gas_adc: u16,
+    gas_range: u8,
+    gas_valid: bool,
+    heat_stab: bool,
+}
+
+fn parse_field(raw: &[u8]) -> RawField {
+    RawField {
+        press_adc: ((raw[2] as u32) << 12) | ((raw[3] as u32) << 4) | ((raw[4] as u32) >> 4),
+        temp_adc: ((raw[5] as u32) << 12) | ((raw[6] as u32) << 4) | ((raw[7] as u32) >> 4),
+        hum_adc: ((raw[8] as u16) << 8) | raw[9] as u16,
+        gas_adc: ((raw[15] as u16) << 2) | ((raw[16] as u16) >> 6),
+        gas_range: raw[16] & 0x0F,
+        gas_valid: (raw[16] >> 5) & 1 == 1,
+        heat_stab: (raw[16] >> 4) & 1 == 1,
+    }
+}
+
+fn calc_shared_wait(ms: f32) -> u8 {
+    let units = libm::floorf(ms / 0.477 + 0.5) as u32;
+    if units <= 0x3F {
+        units as u8
+    } else if units <= 0x3F * 4 {
+        ((1u32 << 6) | (units / 4)) as u8
+    } else if units <= 0x3F * 16 {
+        ((2u32 << 6) | (units / 16)) as u8
+    } else {
+        ((3u32 << 6) | core::cmp::min(units / 64, 0x3F)) as u8
+    }
+}
+
+fn calc_heater_resistance(target_temp: i16, ambient_temp: f32, cal: &Calibration) -> u8 {
+    let par_g1 = cal.par_g1 as i32;
+    let par_g2 = cal.par_g2 as i32;
+    let par_g3 = cal.par_g3 as i32;
+    let rhr = cal.res_heat_range as i32;
+    let rhv = cal.res_heat_val as i32;
+
+    // Multiply as float before flooring to whole tenths, matching the spec's
+    // `((amb_temp_c * par_G3) // 10) << 8` - truncating ambient_temp to i32
+    // *before* the multiply (the previous implementation) silently discards
+    // its fractional part and drifts from every other language's driver.
+    let var1 = (libm::floorf((ambient_temp * par_g3 as f32) / 10.0) as i32) << 8;
+    let var2 = (par_g1 + 784) * ((((par_g2 + 154009) * target_temp as i32 * 5 / 100) + 3276800) / 10);
+    let var3 = var1 + (var2 >> 1);
+    let var4 = var3 / (rhr + 4);
+    let var5 = (131 * rhv) + 65536;
+    let res_heat_x100 = ((var4 / var5) - 250) * 34;
+    let res_heat_x = (res_heat_x100 + 50) / 100;
+    (res_heat_x & 0xFF) as u8
+}
+
+fn calc_gas_wait(target_ms: u16) -> u8 {
+    if target_ms <= 0x3F {
+        target_ms as u8
+    } else if target_ms <= 0x3F * 4 {
+        ((1u16 << 6) | (target_ms / 4)) as u8
+    } else if target_ms <= 0x3F * 16 {
+        ((2u16 << 6) | (target_ms / 16)) as u8
+    } else {
+        let val = core::cmp::min(target_ms / 64, 0x3F);
+        ((3u16 << 6) | val) as u8
+    }
+}
+
+/// BME688 minimal driver — temperature (°C), pressure (hPa), humidity (%RH), gas resistance (Ω).
+///
+/// Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off,
+/// heater profile 0 at 320 °C / 150 ms.
+pub struct Bme688Minimal<I2C> {
+    i2c: I2C,
+    addr: u8,
+    osrs_t: u8,
+    osrs_p: u8,
+    osrs_h: u8,
+    filter: u8,
+    t_fine: i32,
+    ambient_temp: f32,
+    heat_temp: i16,
+    heat_dur: u16,
+    gas_enabled: bool,
+    nb_conv: u8,
+    cal: Calibration,
+}
+
+impl<I2C: I2c> Bme688Minimal<I2C> {
+    /// Create a new `Bme688Minimal` and read calibration coefficients.
+    ///
+    /// # Arguments
+    /// * `i2c` — Configured I²C bus.
+    /// * `addr` — 7-bit I²C address (0x76 or 0x77).
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let cal = read_calibration(&mut i2c, addr)?;
+        let mut s = Self {
+            i2c, addr,
+            osrs_t: 1, osrs_p: 1, osrs_h: 1,
+            filter: 0, t_fine: 0, ambient_temp: 25.0,
+            heat_temp: 320, heat_dur: 150,
+            gas_enabled: true, nb_conv: 0, cal,
+        };
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_HUM.into(), 1, &[s.osrs_h])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_MEAS.into(), 1, &[(s.osrs_t << 5) | (s.osrs_p << 2) | 0])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CONFIG.into(), 1, &[0])?;
+        s.setup_heater(0)?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_GAS_1.into(), 1, &[RUN_GAS | 0])?;
+        Ok(s)
+    }
+
+    fn setup_heater(&mut self, index: u8) -> Result<(), I2C::Error> {
+        let res = calc_heater_resistance(self.heat_temp, self.ambient_temp, &self.cal);
+        let gw = calc_gas_wait(self.heat_dur);
+        register::write_register(&mut self.i2c, self.addr, (0x5A + index).into(), 1, &[res])?;
+        register::write_register(&mut self.i2c, self.addr, (0x64 + index).into(), 1, &[gw])
+    }
+
+    fn trigger_and_read(&mut self) -> Result<RawField, I2C::Error> {
+        register::write_register(&mut self.i2c, self.addr, REG_CTRL_HUM.into(), 1, &[self.osrs_h])?;
+        let ctrl = (self.osrs_t << 5) | (self.osrs_p << 2) | 1;
+        register::write_register(&mut self.i2c, self.addr, REG_CTRL_MEAS.into(), 1, &[ctrl])?;
+        // Poll new_data / measuring (timeout = heater time + 500 ms, 5 ms steps); on a
+        // timeout the registers are read anyway and the gas value is flagged invalid.
+        let polls = (self.heat_dur as u32 + 500) / 5;
+        for _ in 0..polls {
+            let mut st = [0u8; 1];
+            register::read_register(&mut self.i2c, self.addr, REG_MEAS_STATUS.into(), 1, &mut st)?;
+            if (st[0] & 0x80) != 0 && (st[0] & 0x20) == 0 { break; }
+            delay_ms(5);
+        }
+        let mut raw = [0u8; FIELD_LEN];
+        register::read_register(&mut self.i2c, self.addr, REG_MEAS_STATUS.into(), 1, &mut raw)?;
+        Ok(parse_field(&raw))
+    }
+
+    /// Read calibrated temperature.
+    ///
+    /// Returns temperature in degrees Celsius.
+    pub fn temperature(&mut self) -> Result<f32, I2C::Error> {
+        let f = self.trigger_and_read()?;
+        let (t_fine, temp) = compensate_temp(f.temp_adc, &self.cal);
+        self.t_fine = t_fine;
+        self.ambient_temp = temp;
+        Ok(temp)
+    }
+
+    /// Read calibrated pressure.
+    ///
+    /// Returns pressure in hPa.
+    pub fn pressure(&mut self) -> Result<f32, I2C::Error> {
+        let f = self.trigger_and_read()?;
+        let (t_fine, _) = compensate_temp(f.temp_adc, &self.cal);
+        self.t_fine = t_fine;
+        Ok(compensate_pressure(f.press_adc, t_fine, &self.cal))
+    }
+
+    /// Read calibrated humidity.
+    ///
+    /// Returns relative humidity in %RH.
+    pub fn humidity(&mut self) -> Result<f32, I2C::Error> {
+        let f = self.trigger_and_read()?;
+        let (t_fine, _) = compensate_temp(f.temp_adc, &self.cal);
+        self.t_fine = t_fine;
+        Ok(compensate_humidity(f.hum_adc, t_fine, &self.cal))
+    }
+
+    /// Read gas sensor resistance.
+    ///
+    /// Returns gas resistance in Ohms, or NaN on invalid reading.
+    pub fn gas_resistance(&mut self) -> Result<f32, I2C::Error> {
+        let f = self.trigger_and_read()?;
+        let (t_fine, _) = compensate_temp(f.temp_adc, &self.cal);
+        self.t_fine = t_fine;
+        if !f.gas_valid || !f.heat_stab { return Ok(f32::NAN); }
+        Ok(compensate_gas(f.gas_adc, f.gas_range))
+    }
+}
+
+/// BME688 full driver — extends minimal with configuration, multi-profile heater, status and parallel mode.
+pub struct Bme688Full<I2C> {
+    inner: Bme688Minimal<I2C>,
+}
+
+impl<I2C: I2c> Bme688Full<I2C> {
+    /// Create a new `Bme688Full`.
+    ///
+    /// # Arguments
+    /// * `i2c` — Configured I²C bus.
+    /// * `addr` — 7-bit I²C address (0x76 or 0x77).
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let inner = Bme688Minimal::new(i2c, addr)?;
+        Ok(Self { inner })
+    }
+
+    /// Write ctrl_hum, ctrl_meas, and config registers in the correct order.
+    pub fn configure(&mut self, osrs_t: u8, osrs_p: u8, osrs_h: u8, mode: u8, filter: u8) -> Result<(), I2C::Error> {
+        self.inner.osrs_t = osrs_t;
+        self.inner.osrs_p = osrs_p;
+        self.inner.osrs_h = osrs_h;
+        self.inner.filter = filter;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[filter << 2])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(osrs_t << 5) | (osrs_p << 2) | mode])
+    }
+
+    /// Update oversampling for all three TPH channels.
+    pub fn set_oversampling(&mut self, osrs_t: u8, osrs_p: u8, osrs_h: u8) -> Result<(), I2C::Error> {
+        self.inner.osrs_t = osrs_t;
+        self.inner.osrs_p = osrs_p;
+        self.inner.osrs_h = osrs_h;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(osrs_t << 5) | (osrs_p << 2) | 0])
+    }
+
+    /// Update IIR filter coefficient.
+    pub fn set_filter(&mut self, coeff: u8) -> Result<(), I2C::Error> {
+        self.inner.filter = coeff;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[coeff << 2])
+    }
+
+    /// Configure heater profile 0 and activate it.
+    pub fn set_heater(&mut self, temp_c: i16, duration_ms: u16) -> Result<(), I2C::Error> {
+        self.inner.heat_temp = temp_c;
+        self.inner.heat_dur = duration_ms;
+        self.inner.setup_heater(0)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[RUN_GAS | 0])
+    }
+
+    /// Configure one of the 10 heater profiles.
+    pub fn set_heater_profile(&mut self, index: u8, temp_c: i16, duration_ms: u16) -> Result<(), I2C::Error> {
+        let saved_temp = self.inner.heat_temp;
+        let saved_dur = self.inner.heat_dur;
+        self.inner.heat_temp = temp_c;
+        self.inner.heat_dur = duration_ms;
+        self.inner.setup_heater(index)?;
+        self.inner.heat_temp = saved_temp;
+        self.inner.heat_dur = saved_dur;
+        Ok(())
+    }
+
+    /// Select which heater profile to use in the next forced cycle.
+    pub fn select_heater_profile(&mut self, index: u8) -> Result<(), I2C::Error> {
+        self.inner.nb_conv = index;
+        let gas1 = if self.inner.gas_enabled { RUN_GAS | index } else { index };
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[gas1])
+    }
+
+    /// Enable or disable gas conversion.
+    pub fn set_gas_enabled(&mut self, enabled: bool) -> Result<(), I2C::Error> {
+        self.inner.gas_enabled = enabled;
+        let gas1 = if enabled { RUN_GAS | self.inner.nb_conv } else { self.inner.nb_conv };
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[gas1])
+    }
+
+    /// Turn the heater off or on via ctrl_gas_0.
+    pub fn set_heater_off(&mut self, off: bool) -> Result<(), I2C::Error> {
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_0.into(), 1, &[if off { 0x08 } else { 0x00 }])
+    }
+
+    /// Override the ambient temperature used for heater-resistance calculation.
+    pub fn set_ambient_temperature(&mut self, temp_c: f32) -> Result<(), I2C::Error> {
+        self.inner.ambient_temp = temp_c;
+        self.inner.setup_heater(self.inner.nb_conv)
+    }
+
+    /// Read all four sensor values from a single TPHG cycle.
+    ///
+    /// Returns `(temperature_C, pressure_hPa, humidity_RH, gas_resistance_Ohms)`.
+    /// Gas resistance is NaN if the reading is invalid.
+    pub fn read_all(&mut self) -> Result<(f32, f32, f32, f32), I2C::Error> {
+        let f = self.inner.trigger_and_read()?;
+        let (t_fine, t) = compensate_temp(f.temp_adc, &self.inner.cal);
+        self.inner.t_fine = t_fine;
+        self.inner.ambient_temp = t;
+        let p = compensate_pressure(f.press_adc, t_fine, &self.inner.cal);
+        let h = compensate_humidity(f.hum_adc, t_fine, &self.inner.cal);
+        let g = if f.gas_valid && f.heat_stab {
+            compensate_gas(f.gas_adc, f.gas_range)
+        } else {
+            f32::NAN
+        };
+        Ok((t, p, h, g))
+    }
+
+    /// Check if the most recent gas reading is valid.
+    pub fn gas_valid(&mut self) -> Result<bool, I2C::Error> {
+        let mut buf = [0u8; 1];
+        register::read_register(&mut self.inner.i2c, self.inner.addr, 0x2Du32, 1, &mut buf)?;
+        Ok((buf[0] >> 5) & 1 == 1)
+    }
+
+    /// Check if the heater reached its target temperature.
+    pub fn heater_stable(&mut self) -> Result<bool, I2C::Error> {
+        let mut buf = [0u8; 1];
+        register::read_register(&mut self.inner.i2c, self.inner.addr, 0x2Du32, 1, &mut buf)?;
+        Ok((buf[0] >> 4) & 1 == 1)
+    }
+
+    /// Read the measurement status register.
+    pub fn status(&mut self) -> Result<u8, I2C::Error> {
+        let mut buf = [0u8; 1];
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_MEAS_STATUS.into(), 1, &mut buf)?;
+        Ok(buf[0])
+    }
+
+    /// Read the chip ID register.
+    pub fn chip_id(&mut self) -> Result<u8, I2C::Error> {
+        let mut buf = [0u8; 1];
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_ID.into(), 1, &mut buf)?;
+        Ok(buf[0])
+    }
+
+    /// Read the variant ID register (0x01 for the BME688).
+    pub fn variant_id(&mut self) -> Result<u8, I2C::Error> {
+        let mut buf = [0u8; 1];
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_VARIANT_ID.into(), 1, &mut buf)?;
+        Ok(buf[0])
+    }
+
+    /// Start parallel mode: the chip cycles TPHG through a heater profile on its own.
+    ///
+    /// Programs `res_heat_x`, `gas_wait_x` (repetitions), `gas_wait_shared`, `nb_conv`
+    /// and `run_gas`, then sets `mode` = parallel. At least one of the T/P/H
+    /// oversamplings must not be `OSRS_SKIP`. Steps beyond 10 are ignored.
+    ///
+    /// # Arguments
+    /// * `steps` — `(temp_c, repeats)` per heater step, 1–10 entries, repeats 1–255.
+    /// * `shared_wait_ms` — wait before every TPHG sequence in ms (0.477 ms resolution).
+    pub fn start_parallel(&mut self, steps: &[(i16, u8)], shared_wait_ms: f32) -> Result<(), I2C::Error> {
+        let n = core::cmp::min(steps.len(), 10);
+        for (i, &(temp_c, repeats)) in steps.iter().take(n).enumerate() {
+            let res = calc_heater_resistance(temp_c, self.inner.ambient_temp, &self.inner.cal);
+            let rep = if repeats == 0 { 1 } else { repeats };
+            register::write_register(&mut self.inner.i2c, self.inner.addr, (0x5A + i as u8).into(), 1, &[res])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, (0x64 + i as u8).into(), 1, &[rep])?;
+        }
+        register::write_register(&mut self.inner.i2c, self.inner.addr, 0x6Eu32, 1, &[calc_shared_wait(shared_wait_ms)])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[RUN_GAS | n as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[self.inner.osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[self.inner.filter << 2])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1,
+            &[(self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | MODE_PARALLEL])
+    }
+
+    /// Burst-read the three data fields and return those holding new data.
+    ///
+    /// Returns one `Some(Bme688Field)` per field with `new_data` set (in field
+    /// order), `None` for the others.
+    pub fn read_parallel(&mut self) -> Result<[Option<Bme688Field>; 3], I2C::Error> {
+        let mut raw = [0u8; 3 * FIELD_LEN];
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_MEAS_STATUS.into(), 1, &mut raw)?;
+        let mut out: [Option<Bme688Field>; 3] = [None; 3];
+        for n in 0..3 {
+            let b = &raw[n * FIELD_LEN..(n + 1) * FIELD_LEN];
+            if b[0] & 0x80 == 0 { continue; }
+            let f = parse_field(b);
+            let (t_fine, t) = compensate_temp(f.temp_adc, &self.inner.cal);
+            self.inner.t_fine = t_fine;
+            out[n] = Some(Bme688Field {
+                step: b[0] & 0x0F,
+                sub_index: b[1],
+                temperature: t,
+                pressure: compensate_pressure(f.press_adc, t_fine, &self.inner.cal),
+                humidity: compensate_humidity(f.hum_adc, t_fine, &self.inner.cal),
+                gas_resistance: if f.gas_valid && f.heat_stab { compensate_gas(f.gas_adc, f.gas_range) } else { f32::NAN },
+                gas_valid: f.gas_valid,
+                heater_stable: f.heat_stab,
+            });
+        }
+        Ok(out)
+    }
+
+    /// Leave parallel mode (mode = sleep).
+    pub fn stop_parallel(&mut self) -> Result<(), I2C::Error> {
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1,
+            &[(self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | MODE_SLEEP])
+    }
+
+    /// Perform a soft reset, re-read calibration, and re-apply configuration.
+    pub fn reset(&mut self) -> Result<(), I2C::Error> {
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_RESET.into(), 1, &[RESET_CMD])?;
+        delay_ms(2);
+        self.inner.cal = read_calibration(&mut self.inner.i2c, self.inner.addr)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[self.inner.osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[self.inner.filter << 2])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | 0])?;
+        self.inner.setup_heater(self.inner.nb_conv)?;
+        let gas1 = if self.inner.gas_enabled { RUN_GAS | self.inner.nb_conv } else { self.inner.nb_conv };
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[gas1])
+    }
+
+    /// Read calibrated temperature.
+    pub fn temperature(&mut self) -> Result<f32, I2C::Error> {
+        self.inner.temperature()
+    }
+
+    /// Read calibrated pressure.
+    pub fn pressure(&mut self) -> Result<f32, I2C::Error> {
+        self.inner.pressure()
+    }
+
+    /// Read calibrated humidity.
+    pub fn humidity(&mut self) -> Result<f32, I2C::Error> {
+        self.inner.humidity()
+    }
+
+    /// Read gas sensor resistance.
+    pub fn gas_resistance(&mut self) -> Result<f32, I2C::Error> {
+        self.inner.gas_resistance()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x76;
+
+    // Calibration block 1 (23 bytes from 0x8A). No published worked example
+    // exists for BME688 (see spec's Data Conversion > Validation) - these are
+    // self-consistent, hand-derived values used to check every language's
+    // translation against the same formula.
+    const CAL1: [u8; 23] = [
+        0x43, 0x67, 0x03, 0x00, 0x7D, 0x8E, 0x43, 0xD6, 0x58, 0x00, 0x27,
+        0x0B, 0x8C, 0x00, 0x0F, 0xF9, 0x00, 0x00, 0xF8, 0xC6, 0x70, 0x17, 0x1E,
+    ];
+    // Calibration block 2 (14 bytes from 0xE1).
+    const CAL2: [u8; 14] = [0x2B, 0xC8, 0x25, 0x00, 0x2D, 0x14, 0x78, 0x9C, 0x90, 0x65, 0x0C, 0xE5, 0xE2, 0x1E];
+    // Single-byte calibration: res_heat_val=50, res_heat_range=2.
+    const S1: [u8; 1] = [0x32];
+    const S2: [u8; 1] = [0x20];
+    // Field 0 (17 bytes from 0x1D): new_data set, press_adc=415148, temp_adc=419888,
+    // hum_adc=20000, gas_adc=400, gas_range=5, gas_valid=1, heat_stab=1
+    // (gas at 0x2C/0x2D, not 0x2A/0x2B as on the BME680).
+    const FIELD0: [u8; 17] = [0x80, 0x00, 0x65, 0x5A, 0xC0, 0x66, 0x83, 0x00, 0x4E, 0x20,
+                              0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x35];
+
+    const EXPECTED_T: f32 = 1.23;
+    const EXPECTED_P: f32 = 969.4;
+    const EXPECTED_H: f32 = 39.826;
+    const EXPECTED_GAS: f32 = 2178700.0;
+
+    fn cal_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_BLOCK1], CAL1.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_BLOCK2], CAL2.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_RES_HEAT_VAL], S1.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_RES_HEAT_RANGE], S2.to_vec()),
+        ]
+    }
+
+    fn trigger_transactions(ctrl_hum: u8, ctrl_meas: u8) -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, ctrl_hum]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, ctrl_meas]),
+            I2cTransaction::write_read(ADDR, vec![REG_MEAS_STATUS], vec![0x80]),
+            I2cTransaction::write_read(ADDR, vec![REG_MEAS_STATUS], FIELD0.to_vec()),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = cal_transactions();
+        // Construction: ctrl_hum=1, ctrl_meas=0x24 (sleep), config=0,
+        // default heater profile 0 (320 degC / 150 ms, ambient=25.0).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 1]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0]),
+            I2cTransaction::write(ADDR, vec![0x5A, 0x52]),
+            I2cTransaction::write(ADDR, vec![0x64, 0x65]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, RUN_GAS | 0]),
+        ]);
+        // set_heater(300, 200) at ambient=25.0 (unchanged since construction).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![0x5A, 0x4E]),
+            I2cTransaction::write(ADDR, vec![0x64, 0x72]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, RUN_GAS | 0]),
+        ]);
+        // set_heater_profile(4, 280, 50) at ambient=25.0 (still unchanged).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![0x5A + 4, 0x49]),
+            I2cTransaction::write(ADDR, vec![0x64 + 4, 0x32]),
+        ]);
+        // temperature(), pressure(), humidity(), gas_resistance(): each
+        // triggers a fresh forced TPHG cycle with ctrl_hum=1, ctrl_meas=0x25.
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        // configure(2, 3, 1, 0, 3): ctrl_hum=1, config=0x0C, ctrl_meas=0x4C
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 1]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 3 << 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (2 << 5) | (3 << 2) | 0]),
+        ]);
+        // set_oversampling(3, 4, 2): ctrl_hum=2, ctrl_meas=0x70
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (3 << 5) | (4 << 2) | 0]),
+        ]);
+        // set_filter(5): config=0x14
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 5 << 2]));
+        // select_heater_profile(2): ctrl_gas_1=0x12
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, RUN_GAS | 2]));
+        // set_gas_enabled(false)/true
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, RUN_GAS | 2]));
+        // set_heater_off(true)/false
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_0, 0x08]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_0, 0x00]));
+        // read_all(): triggers with the now-current oversampling (ctrl_hum=2, ctrl_meas=0x71)
+        transactions.extend(trigger_transactions(2, 0x71));
+        // gas_valid(), heater_stable(): each reads gas_r_lsb (0x2D) directly
+        transactions.push(I2cTransaction::write_read(ADDR, vec![0x2D], vec![0x35]));
+        transactions.push(I2cTransaction::write_read(ADDR, vec![0x2D], vec![0x35]));
+        // status()
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_MEAS_STATUS], vec![0xA0]));
+        // chip_id(), variant_id()
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_ID], vec![CHIP_ID]));
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_VARIANT_ID], vec![VARIANT_ID]));
+        // start_parallel([(320, 1), (250, 2)], 100.0) with the current t/p/h oversampling
+        // (3/4/2), filter 5 and ambient 1.23: res_heat 0x52 / 0x42, repeats, shared wait
+        // 210 units = x4 multiplier with timer 52, nb_conv 2, then hum/config/meas (mode 2).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![0x5A, 0x52]),
+            I2cTransaction::write(ADDR, vec![0x64, 1]),
+            I2cTransaction::write(ADDR, vec![0x5B, 0x42]),
+            I2cTransaction::write(ADDR, vec![0x65, 2]),
+            I2cTransaction::write(ADDR, vec![0x6E, (1 << 6) | (210 / 4)]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, RUN_GAS | 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 5 << 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (3 << 5) | (4 << 2) | 2]),
+        ]);
+        // read_parallel(): field 0 has data, field 1 none, field 2 an invalid gas reading.
+        let mut field2 = FIELD0;
+        field2[0] = 0x81;
+        field2[1] = 0x03;
+        field2[16] = 0x05;
+        let mut all = FIELD0.to_vec();
+        all.extend_from_slice(&[0u8; 17]);
+        all.extend_from_slice(&field2);
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_MEAS_STATUS], all));
+        // stop_parallel(): mode back to sleep
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (3 << 5) | (4 << 2) | 0]));
+        // reset(): reset write, re-read calibration, re-apply ctrl_hum/config/
+        // ctrl_meas, re-apply heater profile 2 (heat_temp=300/heat_dur=200,
+        // ambient now 1.23 from the temperature()/read_all() calls above),
+        // re-apply ctrl_gas_1 (gas_enabled=true, nb_conv=2).
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_RESET, RESET_CMD]));
+        transactions.extend(cal_transactions());
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 5 << 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (3 << 5) | (4 << 2) | 0]));
+        transactions.push(I2cTransaction::write(ADDR, vec![0x5A + 2, 0x4D]));
+        transactions.push(I2cTransaction::write(ADDR, vec![0x64 + 2, 0x72]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, RUN_GAS | 2]));
+
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = Bme688Full::new(i2c, ADDR).expect("init");
+
+        sensor.set_heater(300, 200).unwrap();
+        sensor.set_heater_profile(4, 280, 50).unwrap();
+
+        assert!((sensor.temperature().unwrap() - EXPECTED_T).abs() < 0.01);
+        assert!((sensor.pressure().unwrap() - EXPECTED_P).abs() < 0.1);
+        assert!((sensor.humidity().unwrap() - EXPECTED_H).abs() < 0.01);
+        assert!((sensor.gas_resistance().unwrap() - EXPECTED_GAS).abs() < 1.0);
+
+        sensor.configure(2, 3, 1, 0, 3).unwrap();
+        sensor.set_oversampling(3, 4, 2).unwrap();
+        sensor.set_filter(5).unwrap();
+        sensor.select_heater_profile(2).unwrap();
+        sensor.set_gas_enabled(false).unwrap();
+        sensor.set_gas_enabled(true).unwrap();
+        sensor.set_heater_off(true).unwrap();
+        sensor.set_heater_off(false).unwrap();
+
+        let (t, p, h, g) = sensor.read_all().unwrap();
+        assert!((t - EXPECTED_T).abs() < 0.01);
+        assert!((p - EXPECTED_P).abs() < 0.1);
+        assert!((h - EXPECTED_H).abs() < 0.01);
+        assert!((g - EXPECTED_GAS).abs() < 1.0);
+
+        assert!(sensor.gas_valid().unwrap());
+        assert!(sensor.heater_stable().unwrap());
+
+        assert_eq!(sensor.status().unwrap(), 0xA0);
+        assert_eq!(sensor.chip_id().unwrap(), 0x61);
+        assert_eq!(sensor.variant_id().unwrap(), 0x01);
+
+        sensor.start_parallel(&[(320, 1), (250, 2)], 100.0).unwrap();
+        let fields = sensor.read_parallel().unwrap();
+        let f0 = fields[0].unwrap();
+        assert!(fields[1].is_none());
+        let f2 = fields[2].unwrap();
+        assert_eq!(f0.step, 0);
+        assert_eq!(f0.sub_index, 0);
+        assert!((f0.temperature - EXPECTED_T).abs() < 0.01);
+        assert!((f0.gas_resistance - EXPECTED_GAS).abs() < 1.0);
+        assert!(f0.gas_valid && f0.heater_stable);
+        assert_eq!(f2.step, 1);
+        assert_eq!(f2.sub_index, 3);
+        assert!(f2.gas_resistance.is_nan());
+        sensor.stop_parallel().unwrap();
+
+        sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+}

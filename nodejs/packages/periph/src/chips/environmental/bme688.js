@@ -1,0 +1,573 @@
+'use strict';
+
+const _REG_RES_HEAT_VAL   = 0x00;
+const _REG_RES_HEAT_RANGE = 0x02;
+const _REG_MEAS_STATUS    = 0x1D;
+const _REG_VARIANT_ID     = 0xF0;
+const _FIELD_LEN          = 17;
+const _RUN_GAS            = 0x20;
+const _REG_CTRL_GAS_0     = 0x70;
+const _REG_CTRL_GAS_1     = 0x71;
+const _REG_CTRL_HUM       = 0x72;
+const _REG_CTRL_MEAS      = 0x74;
+const _REG_CONFIG         = 0x75;
+const _REG_CAL_BLOCK1     = 0x8A;
+const _REG_ID             = 0xD0;
+const _REG_RESET          = 0xE0;
+const _REG_CAL_BLOCK2     = 0xE1;
+
+const _CHIP_ID            = 0x61;
+const _VARIANT_ID         = 0x01;
+const _RESET_CMD          = 0xB6;
+
+function _delay(ms) {
+    const start = Date.now();
+    while (Date.now() - start < ms) { /* spin */ }
+}
+
+/**
+ * BME688 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance — minimal interface.
+ *
+ * Provides calibrated readings with no configuration beyond the connection.
+ * I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
+ *
+ * Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off,
+ * heater profile 0 at 320 °C / 150 ms.
+ *
+ * Constructor caveat: JS constructors cannot be async. The calibration read
+ * and initial register writes are fired off unawaited, matching the
+ * fire-and-forget convention used throughout this port — in practice they
+ * settle before any subsequent `await` in caller code is scheduled, since
+ * the underlying I2C connection is synchronous under the hood, but this is
+ * not a guaranteed blocking wait the way the pre-async version was. Call
+ * `await sensor.temperature()` (or any other async method) once before
+ * relying on calibrated readings if this matters for your use case.
+ *
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
+ */
+class BME688Minimal {
+    constructor(connection) {
+        this._conn = connection;
+        this._osrsT = 1;
+        this._osrsP = 1;
+        this._osrsH = 1;
+        this._filter = 0;
+        this._tFine = 0;
+        this._ambientTemp = 25.0;
+        this._heatTemp = 320;
+        this._heatDur = 150;
+        this._gasEnabled = true;
+        this._nbConv = 0;
+        this._init();
+    }
+
+    async _init() {
+        await this._readCalibration();
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
+        await this._conn.writeReg(_REG_CONFIG, 0);
+        await this._setupHeater(0, this._heatTemp, this._heatDur);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, _RUN_GAS | 0);
+    }
+
+    async _readCalibration() {
+        const b1 = await this._conn.readReg(_REG_CAL_BLOCK1, 23);
+        const b2 = await this._conn.readReg(_REG_CAL_BLOCK2, 14);
+        const s1 = await this._conn.readReg(_REG_RES_HEAT_VAL, 1);
+        const s2 = await this._conn.readReg(_REG_RES_HEAT_RANGE, 1);
+
+        this._parT2 = b1.readInt16LE(0);
+        this._parT3 = b1.readInt8(2);
+        this._parP1 = b1.readUInt16LE(4);
+        this._parP2 = b1.readInt16LE(6);
+        this._parP3 = b1.readInt8(8);
+        this._parP4 = b1.readInt16LE(10);
+        this._parP5 = b1.readInt16LE(12);
+        this._parP7 = b1.readInt8(14);
+        this._parP6 = b1.readInt8(15);
+        this._parP8 = b1.readInt16LE(18);
+        this._parP9 = b1.readInt16LE(20);
+        this._parP10 = b1[22];
+
+        this._parH2 = (b2[0] << 4) | (b2[1] >> 4);
+        this._parH1 = (b2[2] << 4) | (b2[1] & 0x0F);
+        this._parH3 = b2.readInt8(3);
+        this._parH4 = b2.readInt8(4);
+        this._parH5 = b2.readInt8(5);
+        this._parH6 = b2[6];
+        this._parH7 = b2.readInt8(7);
+        this._parT1 = b2.readUInt16LE(8);
+        this._parG2 = b2.readInt16LE(10);
+        this._parG1 = b2.readInt8(12);
+        this._parG3 = b2.readInt8(13);
+
+        this._resHeatVal = s1.readInt8(0);
+        this._resHeatRange = (s2[0] >> 4) & 0x03;
+    }
+
+
+    _calcHeaterResistance(targetTemp, ambientTemp) {
+        const parG1 = this._parG1;
+        const parG2 = this._parG2;
+        const parG3 = this._parG3;
+        const rhr = this._resHeatRange;
+        const rhv = this._resHeatVal;
+
+        const var1 = ((ambientTemp * parG3) / 10 | 0) << 8;
+        const var2 = (parG1 + 784) * ((((parG2 + 154009) * targetTemp * 5 / 100 | 0) + 3276800) / 10 | 0);
+        const var3 = var1 + (var2 >> 1);
+        const var4 = var3 / (rhr + 4) | 0;
+        const var5 = (131 * rhv) + 65536;
+        const resHeatX100 = ((var4 / var5 | 0) - 250) * 34;
+        const resHeatX = (resHeatX100 + 50) / 100 | 0;
+        return resHeatX & 0xFF;
+    }
+
+    _calcGasWait(targetMs) {
+        if (targetMs <= 0x3F) return targetMs;
+        if (targetMs <= 0x3F * 4) return (1 << 6) | (targetMs / 4 | 0);
+        if (targetMs <= 0x3F * 16) return (2 << 6) | (targetMs / 16 | 0);
+        return (3 << 6) | Math.min(targetMs / 64 | 0, 0x3F);
+    }
+
+    async _setupHeater(index, tempC, durMs) {
+        const res = this._calcHeaterResistance(tempC, this._ambientTemp);
+        const gw = this._calcGasWait(durMs);
+        await this._conn.writeReg(0x5A + index, res);
+        await this._conn.writeReg(0x64 + index, gw);
+    }
+
+    static _parseField(raw, off = 0) {
+        const pressAdc = (raw[off + 2] << 12) | (raw[off + 3] << 4) | (raw[off + 4] >> 4);
+        const tempAdc  = (raw[off + 5] << 12) | (raw[off + 6] << 4) | (raw[off + 7] >> 4);
+        const humAdc   = (raw[off + 8] << 8) | raw[off + 9];
+        const gasAdc   = (raw[off + 15] << 2) | (raw[off + 16] >> 6);
+        const gasRange = raw[off + 16] & 0x0F;
+        const gasValid = (raw[off + 16] >> 5) & 1;
+        const heatStab = (raw[off + 16] >> 4) & 1;
+        return { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab };
+    }
+
+    async _triggerAndRead() {
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
+        await this._conn.writeReg(_REG_CTRL_MEAS, ctrl);
+        const start = Date.now();
+        for (;;) {
+            const st = (await this._conn.readReg(_REG_MEAS_STATUS, 1))[0];
+            if ((st & 0x80) && !(st & 0x20)) break;
+            if (Date.now() - start > this._heatDur + 500) throw new Error('BME688 measurement timeout');
+            await new Promise((r) => setTimeout(r, 5));
+        }
+        const raw = await this._conn.readReg(_REG_MEAS_STATUS, _FIELD_LEN);
+        return BME688Minimal._parseField(raw);
+    }
+
+    _compensateTemp(adcT) {
+        const parT1 = this._parT1;
+        const parT2 = this._parT2;
+        const parT3 = this._parT3;
+        const var1 = (adcT >> 3) - (parT1 << 1);
+        const var2 = (var1 * parT2) >> 11;
+        const var3 = (((var1 >> 1) * (var1 >> 1)) >> 12) * (parT3 << 4) >> 14;
+        this._tFine = var2 + var3;
+        return ((this._tFine * 5 + 128) >> 8) / 100.0;
+    }
+
+    _compensatePressure(adcP) {
+        const tFine = this._tFine;
+        const parP1 = this._parP1;
+        const parP2 = this._parP2;
+        const parP3 = this._parP3;
+        const parP4 = this._parP4;
+        const parP5 = this._parP5;
+        const parP6 = this._parP6;
+        const parP7 = this._parP7;
+        const parP8 = this._parP8;
+        const parP9 = this._parP9;
+        const parP10 = this._parP10;
+
+        let var1 = (tFine >> 1) - 64000;
+        let var2 = ((((var1 >> 2) * (var1 >> 2)) >> 11) * parP6) >> 2;
+        var2 = var2 + ((var1 * parP5) << 1);
+        var2 = (var2 >> 2) + (parP4 << 16);
+        var1 = (((((var1 >> 2) * (var1 >> 2)) >> 13) * (parP3 << 5)) >> 3) + ((parP2 * var1) >> 1);
+        var1 = var1 >> 18;
+        var1 = ((32768 + var1) * parP1) >> 15;
+        let pressComp = 1048576 - adcP;
+        pressComp = ((pressComp - (var2 >> 12)) * 3125);
+        if (pressComp >= (1 << 30)) {
+            pressComp = (pressComp / var1 | 0) << 1;
+        } else {
+            pressComp = (pressComp << 1) / var1 | 0;
+        }
+        var1 = (parP9 * (((pressComp >> 3) * (pressComp >> 3)) >> 13)) >> 12;
+        var2 = ((pressComp >> 2) * parP8) >> 13;
+        const var3 = ((pressComp >> 8) * (pressComp >> 8) * (pressComp >> 8) * parP10) >> 17;
+        pressComp = pressComp + ((var1 + var2 + var3 + (parP7 << 7)) >> 4);
+        return pressComp / 100.0;
+    }
+
+    _compensateHumidity(humAdc) {
+        const tempScaled = this._tFine;
+        const parH1 = this._parH1;
+        const parH2 = this._parH2;
+        const parH3 = this._parH3;
+        const parH4 = this._parH4;
+        const parH5 = this._parH5;
+        const parH6 = this._parH6;
+        const parH7 = this._parH7;
+
+        const var1 = humAdc - ((parH1 << 4) + (Math.floor((tempScaled * parH3) / 100) >> 1));
+        const h5   = Math.floor(tempScaled * Math.floor((tempScaled * parH5) / 100) / 64);
+        const var2 = Math.floor(parH2 * (Math.floor((tempScaled * parH4) / 100) +
+                                         Math.floor(h5 / 100) + (1 << 14)) / 1024);
+        const var3 = var1 * var2;
+        const var4 = Math.floor(((parH6 << 7) + Math.floor((tempScaled * parH7) / 100)) / 16);
+        const var5 = Math.floor(Math.floor(var3 / 16384) * Math.floor(var3 / 16384) / 1024);
+        const var6 = Math.floor(var4 * var5 / 2);
+        let humComp = Math.floor(Math.floor((var3 + var6) / 1024) * 1000 / 4096);
+        if (humComp < 0) humComp = 0;
+        if (humComp > 100000) humComp = 100000;
+        return humComp / 1000.0;
+    }
+
+    _compensateGas(gasAdc, gasRange) {
+        const var1 = 262144 >> gasRange;
+        const var2 = 4096 + 3 * (gasAdc - 512);
+        if (var2 <= 0) return NaN;
+        return Math.floor(10000 * var1 / var2) * 100;
+    }
+
+    /**
+     * Read calibrated temperature.
+     * @returns {Promise<number>} Temperature in degrees Celsius.
+     */
+    async temperature() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
+        const t = this._compensateTemp(tempAdc);
+        this._ambientTemp = t;
+        return t;
+    }
+
+    /**
+     * Read calibrated pressure.
+     * @returns {Promise<number>} Pressure in hPa.
+     */
+    async pressure() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
+        this._compensateTemp(tempAdc);
+        return this._compensatePressure(pressAdc);
+    }
+
+    /**
+     * Read calibrated humidity.
+     * @returns {Promise<number>} Relative humidity in %RH.
+     */
+    async humidity() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
+        this._compensateTemp(tempAdc);
+        return this._compensateHumidity(humAdc);
+    }
+
+    /**
+     * Read gas sensor resistance.
+     * @returns {Promise<number>} Gas resistance in Ohms, or NaN on invalid reading.
+     */
+    async gasResistance() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
+        this._compensateTemp(tempAdc);
+        if (!gasValid || !heatStab) return NaN;
+        return this._compensateGas(gasAdc, gasRange);
+    }
+}
+
+/**
+ * BME688 full interface — extends BME688Minimal with configuration, multi-profile heater, status and parallel mode.
+ *
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
+ */
+class BME688Full extends BME688Minimal {
+    static OSRS_SKIP = 0;
+    static OSRS_X1   = 1;
+    static OSRS_X2   = 2;
+    static OSRS_X4   = 3;
+    static OSRS_X8   = 4;
+    static OSRS_X16  = 5;
+
+    static MODE_SLEEP  = 0;
+    static MODE_FORCED = 1;
+    static MODE_PARALLEL = 2;
+
+    static FILTER_0   = 0;
+    static FILTER_1   = 1;
+    static FILTER_3   = 2;
+    static FILTER_7   = 3;
+    static FILTER_15  = 4;
+    static FILTER_31  = 5;
+    static FILTER_63  = 6;
+    static FILTER_127 = 7;
+
+    static STATUS_NEW_DATA      = 0x80;
+    static STATUS_GAS_MEASURING = 0x40;
+    static STATUS_MEASURING     = 0x20;
+    static STATUS_GAS_VALID     = 0x20;
+    static STATUS_HEATER_STABLE = 0x10;
+
+    constructor(connection) {
+        super(connection);
+    }
+
+    /**
+     * Write ctrl_hum, ctrl_meas, and config registers in the correct order.
+     * @param {number} osrsT - Temperature oversampling (0–5).
+     * @param {number} osrsP - Pressure oversampling (0–5).
+     * @param {number} osrsH - Humidity oversampling (0–5).
+     * @param {number} mode - Power mode (0=sleep, 1=forced, 2=parallel).
+     * @param {number} filter - IIR filter coefficient (0–7).
+     * @returns {Promise<void>}
+     */
+    async configure(osrsT, osrsP, osrsH, mode, filter) {
+        this._osrsT = osrsT;
+        this._osrsP = osrsP;
+        this._osrsH = osrsH;
+        this._filter = filter;
+        await this._conn.writeReg(_REG_CTRL_HUM, osrsH);
+        await this._conn.writeReg(_REG_CONFIG, filter << 2);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
+    }
+
+    /**
+     * Update oversampling for all three TPH channels.
+     * @param {number} osrsT - Temperature oversampling (0–5).
+     * @param {number} osrsP - Pressure oversampling (0–5).
+     * @param {number} osrsH - Humidity oversampling (0–5).
+     * @returns {Promise<void>}
+     */
+    async setOversampling(osrsT, osrsP, osrsH) {
+        this._osrsT = osrsT;
+        this._osrsP = osrsP;
+        this._osrsH = osrsH;
+        await this._conn.writeReg(_REG_CTRL_HUM, osrsH);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | 0);
+    }
+
+    /**
+     * Update IIR filter coefficient.
+     * @param {number} coeff - Filter coefficient (0–7).
+     * @returns {Promise<void>}
+     */
+    async setFilter(coeff) {
+        this._filter = coeff;
+        await this._conn.writeReg(_REG_CONFIG, coeff << 2);
+    }
+
+    /**
+     * Configure heater profile 0 and activate it.
+     * @param {number} tempC - Target heater temperature in degrees Celsius.
+     * @param {number} durationMs - Heater on-time in milliseconds (1–4032).
+     * @returns {Promise<void>}
+     */
+    async setHeater(tempC, durationMs) {
+        this._heatTemp = tempC;
+        this._heatDur = durationMs;
+        await this._setupHeater(0, tempC, durationMs);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, _RUN_GAS | 0);
+    }
+
+    /**
+     * Configure one of the 10 heater profiles.
+     * @param {number} index - Profile index (0–9).
+     * @param {number} tempC - Target heater temperature in degrees Celsius.
+     * @param {number} durationMs - Heater on-time in milliseconds (1–4032).
+     * @returns {Promise<void>}
+     */
+    async setHeaterProfile(index, tempC, durationMs) {
+        await this._setupHeater(index, tempC, durationMs);
+    }
+
+    /**
+     * Select which heater profile to use in the next forced cycle.
+     * @param {number} index - Profile index (0–9).
+     * @returns {Promise<void>}
+     */
+    async selectHeaterProfile(index) {
+        this._nbConv = index;
+        const gas1 = this._gasEnabled ? (_RUN_GAS | index) : index;
+        await this._conn.writeReg(_REG_CTRL_GAS_1, gas1);
+    }
+
+    /**
+     * Enable or disable gas conversion.
+     * @param {boolean} enabled - True to enable gas measurement.
+     * @returns {Promise<void>}
+     */
+    async setGasEnabled(enabled) {
+        this._gasEnabled = enabled;
+        const gas1 = enabled ? (_RUN_GAS | this._nbConv) : this._nbConv;
+        await this._conn.writeReg(_REG_CTRL_GAS_1, gas1);
+    }
+
+    /**
+     * Turn the heater off or on via ctrl_gas_0.
+     * @param {boolean} off - True to disable the heater.
+     * @returns {Promise<void>}
+     */
+    async setHeaterOff(off) {
+        await this._conn.writeReg(_REG_CTRL_GAS_0, off ? 0x08 : 0x00);
+    }
+
+    /**
+     * Override the ambient temperature used for heater-resistance calculation.
+     * @param {number} tempC - Ambient temperature in degrees Celsius.
+     * @returns {Promise<void>}
+     */
+    async setAmbientTemperature(tempC) {
+        this._ambientTemp = tempC;
+        await this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
+    }
+
+    /**
+     * Read all four sensor values from a single TPHG cycle.
+     * @returns {Promise<{ temperature: number, pressure: number, humidity: number, gasResistance: number }>}
+     */
+    async readAll() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
+        const t = this._compensateTemp(tempAdc);
+        this._ambientTemp = t;
+        const p = this._compensatePressure(pressAdc);
+        const h = this._compensateHumidity(humAdc);
+        const g = (gasValid && heatStab) ? this._compensateGas(gasAdc, gasRange) : NaN;
+        return { temperature: t, pressure: p, humidity: h, gasResistance: g };
+    }
+
+    /**
+     * Check if the most recent gas reading is valid.
+     * @returns {Promise<boolean>} True if gas_valid_r was set.
+     */
+    async gasValid() {
+        const raw = await this._conn.readReg(0x2D, 1);
+        return ((raw[0] >> 5) & 1) === 1;
+    }
+
+    /**
+     * Check if the heater reached its target temperature.
+     * @returns {Promise<boolean>} True if heat_stab_r was set.
+     */
+    async heaterStable() {
+        const raw = await this._conn.readReg(0x2D, 1);
+        return ((raw[0] >> 4) & 1) === 1;
+    }
+
+    /**
+     * Read the measurement status register.
+     * @returns {Promise<number>} Status byte with flags.
+     */
+    async status() {
+        const raw = await this._conn.readReg(_REG_MEAS_STATUS, 1);
+        return raw[0];
+    }
+
+    /**
+     * Read the chip ID register.
+     * @returns {Promise<number>} Chip ID; expect 0x61.
+     */
+    async chipId() {
+        const raw = await this._conn.readReg(_REG_ID, 1);
+        return raw[0];
+    }
+
+    /**
+     * Read the variant ID register.
+     * @returns {Promise<number>} Variant ID; 0x01 for the BME688.
+     */
+    async variantId() {
+        const raw = await this._conn.readReg(_REG_VARIANT_ID, 1);
+        return raw[0];
+    }
+
+    /**
+     * Start parallel mode: the chip cycles TPHG through a heater profile on its own.
+     * Programs res_heat_x, gas_wait_x (repetitions), gas_wait_shared, nb_conv and
+     * run_gas, then sets mode = parallel. At least one of the T/P/H oversamplings
+     * must not be OSRS_SKIP.
+     * @param {Array<[number, number]>} steps - 1–10 entries of [tempC, repeats (1–255)].
+     * @param {number} [sharedWaitMs=100] - Wait before every TPHG sequence in ms (0.477 ms resolution).
+     * @returns {Promise<void>}
+     */
+    async startParallel(steps, sharedWaitMs = 100) {
+        if (steps.length < 1 || steps.length > 10) throw new RangeError('1-10 heater steps required');
+        for (let i = 0; i < steps.length; i++) {
+            const [tempC, repeats] = steps[i];
+            if (repeats < 1 || repeats > 255) throw new RangeError('repeats must be 1-255');
+            await this._conn.writeReg(0x5A + i, this._calcHeaterResistance(tempC, this._ambientTemp));
+            await this._conn.writeReg(0x64 + i, repeats);
+        }
+        await this._conn.writeReg(0x6E, BME688Full._calcSharedWait(sharedWaitMs));
+        await this._conn.writeReg(_REG_CTRL_GAS_1, _RUN_GAS | steps.length);
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CONFIG, this._filter << 2);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | BME688Full.MODE_PARALLEL);
+    }
+
+    static _calcSharedWait(ms) {
+        const units = Math.floor(ms / 0.477 + 0.5);
+        if (units <= 0x3F) return units;
+        if (units <= 0x3F * 4) return (1 << 6) | (units >> 2);
+        if (units <= 0x3F * 16) return (2 << 6) | (units >> 4);
+        return (3 << 6) | Math.min(units >> 6, 0x3F);
+    }
+
+    /**
+     * Burst-read the three data fields and return the ones holding new data.
+     * @returns {Promise<Array<{step: number, subIndex: number, temperature: number, pressure: number, humidity: number, gasResistance: number, gasValid: boolean, heaterStable: boolean}>>}
+     *   gasResistance is NaN when the gas reading is not valid.
+     */
+    async readParallel() {
+        const raw = await this._conn.readReg(_REG_MEAS_STATUS, 3 * _FIELD_LEN);
+        const out = [];
+        for (let n = 0; n < 3; n++) {
+            const off = n * _FIELD_LEN;
+            if (!(raw[off] & 0x80)) continue;
+            const f = BME688Minimal._parseField(raw, off);
+            const t = this._compensateTemp(f.tempAdc);
+            out.push({
+                step: raw[off] & 0x0F,
+                subIndex: raw[off + 1],
+                temperature: t,
+                pressure: this._compensatePressure(f.pressAdc),
+                humidity: this._compensateHumidity(f.humAdc),
+                gasResistance: (f.gasValid && f.heatStab) ? this._compensateGas(f.gasAdc, f.gasRange) : NaN,
+                gasValid: !!f.gasValid,
+                heaterStable: !!f.heatStab,
+            });
+        }
+        return out;
+    }
+
+    /**
+     * Leave parallel mode (mode = sleep).
+     * @returns {Promise<void>}
+     */
+    async stopParallel() {
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | BME688Full.MODE_SLEEP);
+    }
+
+    /**
+     * Perform a soft reset, re-read calibration, and re-apply configuration.
+     * @returns {Promise<void>}
+     */
+    async reset() {
+        await this._conn.writeReg(_REG_RESET, _RESET_CMD);
+        _delay(2);
+        await this._readCalibration();
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CONFIG, this._filter << 2);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
+        await this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
+        const gas1 = this._gasEnabled ? (_RUN_GAS | this._nbConv) : this._nbConv;
+        await this._conn.writeReg(_REG_CTRL_GAS_1, gas1);
+    }
+}
+
+module.exports = { BME688Minimal, BME688Full };

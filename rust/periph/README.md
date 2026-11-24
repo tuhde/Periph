@@ -78,6 +78,7 @@ Each chip exposes two structs:
 | BMA180 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor (Bosch Sensortec). |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec). |
+| BME688 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec). |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
 | BMP180 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
 | BMP280 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |

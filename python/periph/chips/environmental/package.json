@@ -33,6 +33,10 @@
       "github:tuhde/Periph/python/periph/chips/environmental/bme680.py"
     ],
     [
+      "periph/chips/environmental/bme688.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/bme688.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

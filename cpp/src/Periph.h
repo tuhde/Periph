@@ -87,6 +87,7 @@
 #include "chips/environmental/AM2320.h"
 #include "chips/environmental/BME280.h"
 #include "chips/environmental/BME680.h"
+#include "chips/environmental/BME688.h"
 #include "chips/gas/ENS160.h"
 #include "chips/gnss/NEO6.h"
 #include "chips/gyroscope/L3G4200D.h"

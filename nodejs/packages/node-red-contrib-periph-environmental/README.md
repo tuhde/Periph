@@ -1,8 +1,8 @@
 # node-red-contrib-periph-environmental
 
-Node-RED nodes for environmental sensor chips: AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for environmental sensor chips: AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680, BME688 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (7):** AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680.
+**Supported chips (8):** AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680, BME688.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-environmental/examples).
 
@@ -34,6 +34,8 @@ npm install node-red-contrib-periph-environmental
 | `bme280` | input | Reads temperature, pressure, humidity, altitude, and dew point from a BME280 combined humidity + pressure + temperature sensor. |
 | `bme680-device` | config | Bus configuration for a BME680 |
 | `bme680` | input | Reads temperature, pressure, humidity, gas resistance, altitude, and dew point from a BME680 4-in-1 environmental sensor. |
+| `bme688-device` | config | Bus configuration for a BME688 |
+| `bme688` | input | Reads temperature, pressure, humidity, gas resistance, altitude, and dew point from a BME688 4-in-1 environmental sensor. |
 
 ## Links
 

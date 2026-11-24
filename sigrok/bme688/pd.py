@@ -1,0 +1,508 @@
+import sigrokdecode as srd
+
+ADDRS = {0x76, 0x77}
+
+REGS = {
+    0x00: 'res_heat_val',
+    0x02: 'res_heat_range',
+    0x1D: 'meas_status_0',
+    0x2C: 'gas_r_msb',
+    0x2D: 'gas_r_lsb',
+    0x6E: 'gas_wait_shared',
+    0x70: 'ctrl_gas_0',
+    0x71: 'ctrl_gas_1',
+    0x72: 'ctrl_hum',
+    0x74: 'ctrl_meas',
+    0x75: 'config',
+    0xD0: 'id',
+    0xE0: 'reset',
+    0xF0: 'variant_id',
+}
+
+OSRS_NAMES = {
+    0: 'skip', 1: 'x1', 2: 'x2', 3: 'x4', 4: 'x8',
+    5: 'x16', 6: 'x16', 7: 'x16',
+}
+MODE_NAMES = {0: 'Sleep', 1: 'Forced', 2: 'Parallel', 3: 'Sleep'}
+FILTER_NAMES = {
+    0: 'off', 1: '1', 2: '3', 3: '7',
+    4: '15', 5: '31', 6: '63', 7: '127',
+}
+
+ANN_REG_WRITE = 0
+ANN_REG_READ  = 1
+ANN_CAL_READ  = 2
+ANN_DATA_READ = 3
+ANN_PTR_WRITE = 4
+ANN_WARNING   = 5
+
+# Named start/end annotation pair for the measurement_trigger conformance
+# check (see specs/environmental/bme688.md, Timing Constraints: forced-cycle
+# TPHG measurement time). Appended additively after the original six
+# annotation classes above so existing PulseView manual verification is
+# unaffected.
+ANN_MEASUREMENT_TRIGGER_START = 6
+ANN_MEASUREMENT_TRIGGER_DONE  = 7
+ANN_STATUS = 8
+
+
+def _s8(raw):
+    return raw if raw < 0x80 else raw - 0x100
+
+
+def _s16(raw):
+    return raw if raw < 0x8000 else raw - 0x10000
+
+
+def _decode_ctrl_meas(raw):
+    osrs_t = (raw >> 5) & 7
+    osrs_p = (raw >> 2) & 7
+    mode   = raw & 3
+    return ('ctrl_meas 0x%02X: osrs_t=%s osrs_p=%s mode=%s'
+            % (raw, OSRS_NAMES[osrs_t], OSRS_NAMES[osrs_p], MODE_NAMES[mode]))
+
+
+def _decode_ctrl_hum(raw):
+    osrs_h = raw & 7
+    return 'ctrl_hum 0x%02X: osrs_h=%s' % (raw, OSRS_NAMES[osrs_h])
+
+
+def _decode_config(raw):
+    filt = (raw >> 2) & 7
+    spi3w = raw & 1
+    return 'config 0x%02X: filter=%s spi3w_en=%d' % (raw, FILTER_NAMES[filt], spi3w)
+
+
+def _decode_ctrl_gas_1(raw):
+    run_gas = (raw >> 5) & 1
+    run_gas_l = (raw >> 4) & 1
+    nb_conv = raw & 0x0F
+    text = 'ctrl_gas_1 0x%02X: run_gas=%d nb_conv=%d' % (raw, run_gas, nb_conv)
+    if run_gas_l and not run_gas:
+        text += ' (BME680 layout: bit 4 only)'
+    return text
+
+
+def _decode_ctrl_gas_0(raw):
+    heat_off = (raw >> 3) & 1
+    return 'ctrl_gas_0 0x%02X: heat_off=%d' % (raw, heat_off)
+
+
+def _decode_meas_status(raw):
+    new_data = (raw >> 7) & 1
+    gas_meas = (raw >> 6) & 1
+    measuring = (raw >> 5) & 1
+    gas_idx = raw & 0x0F
+    parts = []
+    if new_data:
+        parts.append('new_data')
+    if gas_meas:
+        parts.append('gas_measuring')
+    if measuring:
+        parts.append('measuring')
+    parts.append('idx=%d' % gas_idx)
+    detail = ', '.join(parts)
+    return 'meas_status 0x%02X: %s' % (raw, detail)
+
+
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
+class Decoder(srd.Decoder):
+    api_version = 3
+    id = 'bme688'
+    name = 'BME688'
+    longname = 'BME688 4-in-1 environmental sensor'
+    desc = 'Decode BME688 I2C temperature/pressure/humidity/gas sensor register transactions.'
+    license = 'gplv2+'
+    inputs = ['i2c']
+    outputs = ['bme688']
+    tags = ['IC', 'Sensor']
+
+    annotations = (
+        ('reg-write', 'Register write'),
+        ('reg-read',  'Register read'),
+        ('cal-read',  'Calibration read'),
+        ('data-read', 'ADC data read'),
+        ('ptr-write', 'Register pointer write'),
+        ('warning',   'Warning'),
+        ('measurement-trigger-start', 'Measurement trigger start'),
+        ('measurement-trigger-done',  'Measurement trigger done'),
+        ('status', 'Status flags'),
+    )
+    annotation_rows = (
+        ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_CAL_READ,
+                                  ANN_DATA_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
+        ('timing',   'Timing',   (ANN_MEASUREMENT_TRIGGER_START, ANN_MEASUREMENT_TRIGGER_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
+    )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.state    = 'IDLE'
+        self.addr     = None
+        self.is_read  = False
+        self.reg_ptr  = None
+        self.databuf  = []
+        self.ss_block = None
+        self.ss       = None
+        self.es       = None
+
+    def start(self):
+        self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
+
+    def _warn(self, ss, es, msg):
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
+
+    def _reg_name(self, reg):
+        if reg in REGS:
+            return REGS[reg]
+        if 0x50 <= reg <= 0x59:
+            return 'idac_heat_%d' % (reg - 0x50)
+        if 0x5A <= reg <= 0x63:
+            return 'res_heat_%d' % (reg - 0x5A)
+        if 0x64 <= reg <= 0x6D:
+            return 'gas_wait_%d' % (reg - 0x64)
+        if 0x8A <= reg <= 0xA0:
+            return 'cal[0x%02X]' % reg
+        if 0xE1 <= reg <= 0xEE:
+            return 'cal[0x%02X]' % reg
+        return 'reg[0x%02X]' % reg
+
+    def _finish_transaction(self):
+        if self.state not in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_REG_PTR'):
+            return
+        reg = self.reg_ptr
+        if reg is None:
+            return
+        if self.is_read:
+            self._finish_read(reg)
+        else:
+            self._finish_write(reg)
+
+    def _emit_status(self, text, raw, ss, es):
+        # text is e.g. 'status 0x03: measuring' -> flags after the colon
+        flags = text.split(': ', 1)[1]
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['meas_status %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
+
+    def _finish_read(self, reg):
+        buf = self.databuf
+        ss, es = self.ss_block, self.es
+
+        if reg == 0x8A and len(buf) >= 2:
+            parts = []
+            if len(buf) >= 3:
+                par_t2 = _s16(buf[0] | (buf[1] << 8))
+                parts.append('par_T2=%d' % par_t2)
+            if len(buf) >= 3:
+                par_t3 = _s8(buf[2])
+                parts.append('par_T3=%d' % par_t3)
+            if len(buf) >= 6:
+                par_p1 = buf[4] | (buf[5] << 8)
+                parts.append('par_P1=%d' % par_p1)
+            if len(buf) >= 8:
+                par_p2 = _s16(buf[6] | (buf[7] << 8))
+                parts.append('par_P2=%d' % par_p2)
+            self.put(ss, es, self.out_ann,
+                     [ANN_CAL_READ,
+                      ['Cal block1: %s' % ', '.join(parts),
+                       'CAL1']])
+            return
+
+        if reg == 0xE1 and len(buf) >= 2:
+            parts = []
+            if len(buf) >= 2:
+                par_h2 = (buf[0] << 4) | (buf[1] >> 4)
+                par_h1 = (buf[2] << 4) | (buf[1] & 0x0F) if len(buf) >= 3 else 0
+                parts.append('par_H2=%d' % par_h2)
+                if len(buf) >= 3:
+                    parts.append('par_H1=%d' % par_h1)
+            if len(buf) >= 10:
+                par_t1 = buf[8] | (buf[9] << 8)
+                parts.append('par_T1=%d' % par_t1)
+            self.put(ss, es, self.out_ann,
+                     [ANN_CAL_READ,
+                      ['Cal block2: %s' % ', '.join(parts),
+                       'CAL2']])
+            return
+
+        if reg == 0x1D and len(buf) >= 17:
+            for n in range(len(buf) // 17):
+                f = buf[n * 17:(n + 1) * 17]
+                press_adc = (f[2] << 12) | (f[3] << 4) | (f[4] >> 4)
+                temp_adc  = (f[5] << 12) | (f[6] << 4) | (f[7] >> 4)
+                hum_adc   = (f[8] << 8) | f[9]
+                gas_adc   = (f[15] << 2) | (f[16] >> 6)
+                gas_range = f[16] & 0x0F
+                gas_valid = (f[16] >> 5) & 1
+                heat_stab = (f[16] >> 4) & 1
+                gas_ohm = (10000 * (262144 >> gas_range) // (4096 + 3 * (gas_adc - 512))) * 100 \
+                    if 4096 + 3 * (gas_adc - 512) > 0 else 0
+                self.put(ss, es, self.out_ann,
+                         [ANN_DATA_READ,
+                          ['Field %d: %s sub=%d P=%d T=%d H=%d G=%d range=%d valid=%d stab=%d R=%d Ohm'
+                           % (n, _decode_meas_status(f[0]), f[1], press_adc, temp_adc, hum_adc, gas_adc,
+                              gas_range, gas_valid, heat_stab, gas_ohm),
+                           'P=%d T=%d H=%d G=%d' % (press_adc, temp_adc, hum_adc, gas_adc)]])
+            self._emit_status(_decode_meas_status(buf[0]), buf[0], ss, es)
+            self.put(ss, es, self.out_ann,
+                     [ANN_MEASUREMENT_TRIGGER_DONE,
+                      ['measurement_trigger_done: field burst read', 'measurement_trigger_done', 'MEAS_DONE']])
+            return
+
+        if reg == 0xD0 and len(buf) == 1:
+            chip_id = buf[0]
+            if chip_id == 0x61:
+                label = 'BME68x'
+            else:
+                label = 'unknown'
+                self._warn(ss, es, 'Unexpected chip ID: 0x%02X' % chip_id)
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_READ,
+                      ['Chip ID: 0x%02X (%s)' % (chip_id, label),
+                        'ID 0x%02X' % chip_id]])
+            return
+
+        if reg == 0x1D and len(buf) == 1:
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_READ,
+                      [_decode_meas_status(buf[0]), 'status 0x%02X' % buf[0]]])
+            self._emit_status(_decode_meas_status(buf[0]), buf[0], ss, es)
+            return
+
+        if reg == 0x00 and len(buf) == 1:
+            val = _s8(buf[0])
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_READ,
+                      ['res_heat_val=%d' % val, 'rhv=%d' % val]])
+            return
+
+        if reg == 0x02 and len(buf) == 1:
+            rhr = (buf[0] >> 4) & 0x03
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_READ,
+                      ['res_heat_range=%d' % rhr, 'rhr=%d' % rhr]])
+            return
+
+        if reg == 0xF0 and len(buf) == 1:
+            label = 'BME688' if buf[0] == 0x01 else 'unknown'
+            if buf[0] != 0x01:
+                self._warn(ss, es, 'Unexpected variant ID: 0x%02X' % buf[0])
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_READ, ['Variant ID: 0x%02X (%s)' % (buf[0], label), 'VAR 0x%02X' % buf[0]]])
+            return
+
+        hex_bytes = ' '.join('0x%02X' % b for b in buf)
+        self.put(ss, es, self.out_ann,
+                 [ANN_REG_READ,
+                  ['Read %s: %s' % (self._reg_name(reg), hex_bytes),
+                   'R 0x%02X' % reg]])
+
+    def _finish_write(self, reg):
+        buf = self.databuf
+        ss, es = self.ss_block, self.es
+        name = self._reg_name(reg)
+
+        if not buf:
+            self.put(ss, es, self.out_ann,
+                     [ANN_PTR_WRITE,
+                      ['Pointer -> %s (0x%02X)' % (name, reg), 'PTR 0x%02X' % reg]])
+            return
+
+        if reg == 0x74 and len(buf) == 1:
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE, [_decode_ctrl_meas(buf[0]), 'ctrl 0x%02X' % buf[0]]])
+            if (buf[0] & 0x03) in (0x01, 0x02):  # mode == Forced / Parallel
+                self.put(ss, es, self.out_ann,
+                         [ANN_MEASUREMENT_TRIGGER_START,
+                          ['measurement_trigger_start: ctrl_meas mode=Forced/Parallel written', 'measurement_trigger_start', 'MEAS_START']])
+            return
+
+        if reg == 0x72 and len(buf) == 1:
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE, [_decode_ctrl_hum(buf[0]), 'hum 0x%02X' % buf[0]]])
+            return
+
+        if reg == 0x75 and len(buf) == 1:
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE, [_decode_config(buf[0]), 'cfg 0x%02X' % buf[0]]])
+            return
+
+        if reg == 0x71 and len(buf) == 1:
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE, [_decode_ctrl_gas_1(buf[0]), 'gas1 0x%02X' % buf[0]]])
+            return
+
+        if reg == 0x70 and len(buf) == 1:
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE, [_decode_ctrl_gas_0(buf[0]), 'gas0 0x%02X' % buf[0]]])
+            return
+
+        if reg == 0xE0 and len(buf) == 1:
+            if buf[0] == 0xB6:
+                note = ' (soft reset)'
+            else:
+                note = ' (unexpected 0x%02X, expected 0xB6)' % buf[0]
+                self._warn(ss, es, 'Unexpected reset value: 0x%02X' % buf[0])
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE,
+                      ['reset <- 0x%02X%s' % (buf[0], note), 'RESET']])
+            return
+
+        if 0x5A <= reg <= 0x63 and len(buf) == 1:
+            idx = reg - 0x5A
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE,
+                      ['res_heat_%d <- 0x%02X' % (idx, buf[0]),
+                       'rh_%d 0x%02X' % (idx, buf[0])]])
+            return
+
+        if 0x64 <= reg <= 0x6D and len(buf) == 1:
+            idx = reg - 0x64
+            mult = (buf[0] >> 6) & 3
+            timer = buf[0] & 0x3F
+            mult_names = ['x1', 'x4', 'x16', 'x64']
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE,
+                      ['gas_wait_%d <- 0x%02X (forced: %s, %d ms; parallel: %d repetitions)'
+                       % (idx, buf[0], mult_names[mult], timer * (1, 4, 16, 64)[mult], buf[0]),
+                       'gw_%d 0x%02X' % (idx, buf[0])]])
+            return
+
+        if reg == 0x6E and len(buf) == 1:
+            mult = (buf[0] >> 6) & 3
+            units = buf[0] & 0x3F
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE,
+                      ['gas_wait_shared <- 0x%02X (%.1f ms)' % (buf[0], units * (1, 4, 16, 64)[mult] * 0.477),
+                       'gws 0x%02X' % buf[0]]])
+            return
+
+        hex_bytes = ' '.join('0x%02X' % b for b in buf)
+        self.put(ss, es, self.out_ann,
+                 [ANN_REG_WRITE,
+                  ['Write %s: %s' % (name, hex_bytes), 'W 0x%02X' % reg]])
+
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
+
+        if ptype in ('START', 'START REPEAT'):
+            if ptype == 'START REPEAT' and self.state == 'GET_REG_PTR':
+                pass
+            else:
+                self._finish_transaction()
+                self.databuf = []
+                self.is_read = False
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
+
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr not in ADDRS:
+                self.state = 'IDLE'
+                return
+            self.is_read = (ptype == 'ADDRESS READ')
+            if self.is_read:
+                self.databuf = []
+                self.state   = 'GET_DATA_READ'
+            else:
+                self.state = 'GET_REG_PTR'
+
+        elif ptype == 'DATA WRITE':
+            byte = pdata
+            if self.state == 'GET_REG_PTR':
+                self.reg_ptr = byte
+                self.databuf = []
+                self.state   = 'GET_DATA_WRITE'
+            elif self.state == 'GET_DATA_WRITE':
+                self.databuf.append(byte)
+
+        elif ptype == 'DATA READ':
+            if self.state == 'GET_DATA_READ':
+                self.databuf.append(pdata)
+
+        elif ptype == 'STOP':
+            self._finish_transaction()
+            self.state   = 'IDLE'
+            self.databuf = []

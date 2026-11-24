@@ -1,0 +1,487 @@
+package it.uhde.periph.chips.environmental
+
+import it.uhde.periph.connection.RegisterConnection
+import java.io.IOException
+
+/**
+ * BME688 — full driver. Extends [Bme688Minimal] with oversampling control
+ * for all three TPH channels, IIR filter configuration, multi-profile heater
+ * management, ambient-temperature override, combined read-all, gas-validity
+ * and heater-stability flags, status polling, chip ID read-back, and soft
+ * reset.
+ *
+ * ## Oversampling constants
+ * [OSRS_SKIP], [OSRS_X1], [OSRS_X2], [OSRS_X4], [OSRS_X8], [OSRS_X16]
+ *
+ * ## Mode constants
+ * [MODE_SLEEP], [MODE_FORCED], [MODE_PARALLEL]
+ *
+ * ## Filter constants
+ * [FILTER_0], [FILTER_1], [FILTER_3], [FILTER_7], [FILTER_15], [FILTER_31],
+ * [FILTER_63], [FILTER_127]
+ *
+ * ## Status flags
+ * [STATUS_NEW_DATA], [STATUS_GAS_MEASURING], [STATUS_MEASURING],
+ * [STATUS_GAS_VALID], [STATUS_HEATER_STABLE]
+ */
+class Bme688Full @JvmOverloads constructor(
+    connection: RegisterConnection,
+    addr: Int = 0x76
+) : Bme688Minimal(connection, addr) {
+
+    /**
+     * Combined reading from a single TPHG cycle.
+     *
+     * @property temperatureC temperature in °C
+     * @property pressureHpa pressure in hPa
+     * @property humidityPct humidity in %RH
+     * @property gasResistanceOhm gas resistance in Ω, or NaN if invalid
+     */
+    data class Reading(
+        val temperatureC: Double,
+        val pressureHpa: Double,
+        val humidityPct: Double,
+        val gasResistanceOhm: Double
+    )
+
+    companion object {
+        const val OSRS_SKIP = 0
+        const val OSRS_X1   = 1
+        const val OSRS_X2   = 2
+        const val OSRS_X4   = 3
+        const val OSRS_X8   = 4
+        const val OSRS_X16  = 5
+
+        const val MODE_SLEEP  = 0
+        const val MODE_FORCED = 1
+        const val MODE_PARALLEL = 2
+
+        const val FILTER_0   = 0
+        const val FILTER_1   = 1
+        const val FILTER_3   = 2
+        const val FILTER_7   = 3
+        const val FILTER_15  = 4
+        const val FILTER_31  = 5
+        const val FILTER_63  = 6
+        const val FILTER_127 = 7
+
+        const val STATUS_NEW_DATA      = 0x80
+        const val STATUS_GAS_MEASURING = 0x40
+        const val STATUS_MEASURING     = 0x20
+        const val STATUS_GAS_VALID     = 0x20
+        const val STATUS_HEATER_STABLE = 0x10
+
+        private const val REG_MEAS_STATUS = 0x1D
+        private const val DEFAULT_SEA_LEVEL_HPA = 1013.25
+    }
+
+    private var activeProfile: Int = 0
+    private val heaterProfileTempC = IntArray(10) { 320 }
+    private val heaterProfileDurationMs = IntArray(10) { 150 }
+
+    /**
+     * Configure oversampling, operating mode, and IIR filter in one call.
+     *
+     * Writes ctrl_hum before ctrl_meas as required by the chip. The mode
+     * should be [MODE_SLEEP] or [MODE_FORCED].
+     *
+     * @param osrsT temperature oversampling (0–5, use OSRS_* constants)
+     * @param osrsP pressure oversampling (0–5, use OSRS_* constants)
+     * @param osrsH humidity oversampling (0–5, use OSRS_* constants)
+     * @param mode operating mode (use MODE_* constants)
+     * @param filter IIR filter coefficient (0–7, use FILTER_* constants)
+     * @throws IOException on I²C error
+     */
+    fun configure(osrsT: Int, osrsP: Int, osrsH: Int, mode: Int, filter: Int) {
+        this.osrsT = osrsT
+        this.osrsP = osrsP
+        this.osrsH = osrsH
+        this.filterCoeff = filter
+        connection.write(REG_CTRL_HUM, byteArrayOf((osrsH and 0x07).toByte()))
+        val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (mode and 0x03)
+        connection.write(REG_CTRL_MEAS, byteArrayOf(meas.toByte()))
+        connection.write(REG_CONFIG, byteArrayOf(((filter and 0x07) shl 2).toByte()))
+    }
+
+    /**
+     * Update the temperature, pressure, and humidity oversampling settings.
+     *
+     * Writes ctrl_hum then ctrl_meas to ensure humidity oversampling latches.
+     *
+     * @param osrsT temperature oversampling (0–5, use OSRS_* constants)
+     * @param osrsP pressure oversampling (0–5, use OSRS_* constants)
+     * @param osrsH humidity oversampling (0–5, use OSRS_* constants)
+     * @throws IOException on I²C error
+     */
+    fun setOversampling(osrsT: Int, osrsP: Int, osrsH: Int) {
+        this.osrsT = osrsT
+        this.osrsP = osrsP
+        this.osrsH = osrsH
+        connection.write(REG_CTRL_HUM, byteArrayOf((osrsH and 0x07).toByte()))
+        val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x00
+        connection.write(REG_CTRL_MEAS, byteArrayOf(meas.toByte()))
+    }
+
+    /**
+     * Set the IIR filter coefficient.
+     *
+     * Applies to temperature and pressure only (not humidity or gas).
+     *
+     * @param coeff filter coefficient (0–7, use FILTER_* constants)
+     * @throws IOException on I²C error
+     */
+    fun setFilter(coeff: Int) {
+        this.filterCoeff = coeff
+        connection.write(REG_CONFIG, byteArrayOf(((coeff and 0x07) shl 2).toByte()))
+    }
+
+    /**
+     * Configure heater profile 0 and activate it.
+     *
+     * Computes the heater resistance from the target temperature and the
+     * current ambient temperature estimate, encodes the gas wait duration,
+     * writes both registers, and selects profile 0 in ctrl_gas_1.
+     *
+     * @param tempC target heater temperature in °C
+     * @param durationMs heater on-time in ms (1–4032)
+     * @throws IOException on I²C error
+     */
+    fun setHeater(tempC: Int, durationMs: Int) {
+        setHeaterProfile(0, tempC, durationMs)
+        selectHeaterProfile(0)
+    }
+
+    /**
+     * Configure one of the 10 heater profiles with a target temperature
+     * and duration.
+     *
+     * Does not activate the profile — call [selectHeaterProfile] to use it.
+     *
+     * @param index heater profile index (0–9)
+     * @param tempC target heater temperature in °C
+     * @param durationMs heater on-time in ms (1–4032)
+     * @throws IOException on I²C error
+     */
+    fun setHeaterProfile(index: Int, tempC: Int, durationMs: Int) {
+        heaterProfileTempC[index] = tempC
+        heaterProfileDurationMs[index] = durationMs
+        configureHeaterProfile(index, tempC, durationMs)
+    }
+
+    /**
+     * Select which heater profile to use in the next forced-mode cycle.
+     *
+     * Updates nb_conv in ctrl_gas_1 and sets the active profile index.
+     *
+     * @param index heater profile index (0–9)
+     * @throws IOException on I²C error
+     */
+    fun selectHeaterProfile(index: Int) {
+        activeProfile = index
+        ctrlGas1 = (ctrlGas1 and 0xF0) or (index and 0x0F)
+        connection.write(REG_CTRL_GAS_1, byteArrayOf(ctrlGas1.toByte()))
+    }
+
+    /**
+     * Enable or disable the gas conversion in the next forced-mode cycle.
+     *
+     * @param enabled true to enable gas measurement, false to skip it
+     * @throws IOException on I²C error
+     */
+    fun setGasEnabled(enabled: Boolean) {
+        ctrlGas1 = if (enabled) ctrlGas1 or RUN_GAS else ctrlGas1 and RUN_GAS.inv()
+        connection.write(REG_CTRL_GAS_1, byteArrayOf(ctrlGas1.toByte()))
+    }
+
+    /**
+     * Turn the heater off or re-enable it.
+     *
+     * When off, the heater override bit in ctrl_gas_0 prevents any heater
+     * activation regardless of the heater profile settings.
+     *
+     * @param off true to disable the heater, false to re-enable
+     * @throws IOException on I²C error
+     */
+    fun setHeaterOff(off: Boolean) {
+        val value = if (off) 0x08 else 0x00
+        connection.write(REG_CTRL_GAS_0, byteArrayOf(value.toByte()))
+    }
+
+    /**
+     * Override the ambient temperature used for heater-resistance calculation.
+     *
+     * Also recomputes and rewrites the active heater profile's resistance
+     * register using the new ambient temperature.
+     *
+     * @param tempC ambient temperature in °C
+     * @throws IOException on I²C error
+     */
+    fun setAmbientTemperature(tempC: Double) {
+        ambientTemp = tempC
+        val resHeat = calcHeaterResistance(
+            heaterProfileTempC[activeProfile],
+            tempC
+        )
+        connection.write(
+            REG_RES_HEAT_BASE + activeProfile,
+            byteArrayOf(resHeat.toByte())
+        )
+    }
+
+    /**
+     * Read all four sensor values from a single TPHG cycle.
+     *
+     * More efficient than calling [temperature], [pressure], [humidity], and
+     * [gasResistance] separately, which each trigger their own cycle.
+     *
+     * @return [Reading] containing temperature, pressure, humidity, and gas resistance
+     * @throws IOException on I²C error
+     */
+    fun readAll(): Reading {
+        val raw = readRawData()
+        val adcP = adcPress(raw)
+        val adcT = adcTemp(raw)
+        val humAdc = adcHum(raw)
+        val gasAdc = adcGas(raw)
+        val gasRange = raw[16].toInt() and 0x0F
+        lastGasValid = (raw[16].toInt() shr 5) and 1 == 1
+        lastHeatStable = (raw[16].toInt() shr 4) and 1 == 1
+
+        val t = compensateTemperature(adcT)
+        ambientTemp = t
+        val p = compensatePressure(adcP)
+        val h = compensateHumidity(humAdc)
+        val g = if (lastGasValid && lastHeatStable) {
+            compensateGasResistance(gasAdc, gasRange)
+        } else {
+            Double.NaN
+        }
+        return Reading(t, p, h, g)
+    }
+
+    /**
+     * Check whether the most recent gas measurement was valid.
+     *
+     * The gas_valid_r flag in gas_r_lsb is set when the measurement slot
+     * produced a real result (not a dummy slot).
+     *
+     * @return true if the last gas reading was valid
+     */
+    fun gasValid(): Boolean = lastGasValid
+
+    /**
+     * Check whether the heater reached its target temperature in the most
+     * recent gas measurement.
+     *
+     * The heat_stab_r flag in gas_r_lsb is set when the heater stabilized
+     * within the configured gas_wait duration.
+     *
+     * @return true if the heater stabilized during the last measurement
+     */
+    fun heaterStable(): Boolean = lastHeatStable
+
+    /**
+     * Read the measurement status register (0x1D).
+     *
+     * Bit 7 ([STATUS_NEW_DATA]) is set when new TPH data is available.
+     * Bit 6 ([STATUS_GAS_MEASURING]) is set during gas conversion.
+     * Bit 5 ([STATUS_MEASURING]) is set during any conversion.
+     *
+     * @return raw status byte
+     * @throws IOException on I²C error
+     */
+    fun status(): Int {
+        val b = connection.read(REG_MEAS_STATUS, 1)
+        return b[0].toInt() and 0xFF
+    }
+
+    /**
+     * Compute altitude using the default sea-level pressure (1013.25 hPa).
+     *
+     * @return altitude in m
+     * @throws IOException on I²C error
+     */
+    fun altitude(): Double = altitude(DEFAULT_SEA_LEVEL_HPA)
+
+    /**
+     * Compute altitude for a given sea-level reference pressure.
+     *
+     * Uses the barometric formula:
+     * `altitude_m = 44330 × (1 − (pressure / seaLevelHpa)^(1/5.255))`
+     *
+     * @param seaLevelHpa reference sea-level pressure in hPa
+     * @return altitude in m
+     * @throws IOException on I²C error
+     */
+    fun altitude(seaLevelHpa: Double): Double {
+        val p = pressure()
+        return 44330.0 * (1.0 - Math.pow(p / seaLevelHpa, 1.0 / 5.255))
+    }
+
+    /**
+     * Compute the dew point from the current temperature and humidity using
+     * the Magnus-Tetens approximation.
+     *
+     * @return dew point in °C
+     * @throws IOException on I²C error
+     */
+    fun dewPoint(): Double {
+        val raw = readRawData()
+        val adcT = adcTemp(raw)
+        val humAdc = adcHum(raw)
+        val t = compensateTemperature(adcT)
+        val h = compensateHumidity(humAdc)
+        val a = 17.625
+        val b = 243.04
+        val gamma = Math.log(h / 100.0) + (a * t) / (b + t)
+        return (b * gamma) / (a - gamma)
+    }
+
+    /**
+     * Read the chip ID register (0xD0).
+     *
+     * Expected value is 0x61 for BME688.
+     *
+     * @return chip ID byte
+     * @throws IOException on I²C error
+     */
+    fun chipId(): Int {
+        val b = connection.read(REG_CHIP_ID, 1)
+        return b[0].toInt() and 0xFF
+    }
+
+    /**
+     * Read the variant ID register (0xF0).
+     *
+     * Expected value is 0x01 for BME688 (tells it apart from the BME680).
+     *
+     * @return variant ID byte
+     * @throws IOException on I²C error
+     */
+    fun variantId(): Int {
+        val b = connection.read(REG_VARIANT_ID, 1)
+        return b[0].toInt() and 0xFF
+    }
+
+    /**
+     * One data field returned by [readParallel].
+     *
+     * @property step heater step index (gas_meas_index)
+     * @property subIndex sub_meas_index counter
+     * @property temperatureC temperature in °C
+     * @property pressureHpa pressure in hPa
+     * @property humidityPct humidity in %RH
+     * @property gasResistanceOhm gas resistance in Ω, NaN when not valid
+     * @property gasValid gas_valid_r flag
+     * @property heaterStable heat_stab_r flag
+     */
+    data class Field(
+        val step: Int,
+        val subIndex: Int,
+        val temperatureC: Double,
+        val pressureHpa: Double,
+        val humidityPct: Double,
+        val gasResistanceOhm: Double,
+        val gasValid: Boolean,
+        val heaterStable: Boolean
+    )
+
+    private fun calcSharedWait(ms: Double): Int {
+        val units = Math.floor(ms / 0.477 + 0.5).toInt()
+        return when {
+            units <= 0x3F -> units
+            units <= 0x3F * 4 -> (1 shl 6) or (units / 4)
+            units <= 0x3F * 16 -> (2 shl 6) or (units / 16)
+            else -> (3 shl 6) or minOf(units / 64, 0x3F)
+        }
+    }
+
+    /**
+     * Start parallel mode: the chip cycles TPHG through a heater profile on its own.
+     *
+     * Programs res_heat_x, gas_wait_x (repetitions), gas_wait_shared, nb_conv
+     * and run_gas, then sets mode = parallel. At least one of the T/P/H
+     * oversamplings must not be [OSRS_SKIP].
+     *
+     * @param tempsC heater step temperatures in °C (1–10 entries)
+     * @param repeats repetitions per step (1–255 each, same length as [tempsC])
+     * @param sharedWaitMs wait before every TPHG sequence in ms (0.477 ms resolution)
+     * @throws IOException on I²C error
+     */
+    fun startParallel(tempsC: IntArray, repeats: IntArray, sharedWaitMs: Double = 100.0) {
+        require(tempsC.size in 1..10 && repeats.size == tempsC.size) { "1-10 heater steps with matching repeats required" }
+        for (i in tempsC.indices) {
+            require(repeats[i] in 1..255) { "repeats must be 1-255" }
+            connection.write(REG_RES_HEAT_BASE + i, byteArrayOf(calcHeaterResistance(tempsC[i], ambientTemp).toByte()))
+            connection.write(REG_GAS_WAIT_BASE + i, byteArrayOf(repeats[i].toByte()))
+        }
+        connection.write(0x6E, byteArrayOf(calcSharedWait(sharedWaitMs).toByte()))
+        ctrlGas1 = RUN_GAS or tempsC.size
+        connection.write(REG_CTRL_GAS_1, byteArrayOf(ctrlGas1.toByte()))
+        connection.write(REG_CTRL_HUM, byteArrayOf((osrsH and 0x07).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf(((filterCoeff and 0x07) shl 2).toByte()))
+        val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or MODE_PARALLEL
+        connection.write(REG_CTRL_MEAS, byteArrayOf(meas.toByte()))
+    }
+
+    /**
+     * Burst-read the three data fields and return those holding new data.
+     *
+     * @return one [Field] per field with new_data set, in field order
+     * @throws IOException on I²C error
+     */
+    fun readParallel(): List<Field> {
+        val raw = connection.read(REG_DATA, 3 * FIELD_LEN)
+        val out = ArrayList<Field>()
+        for (n in 0 until 3) {
+            val off = n * FIELD_LEN
+            if ((raw[off].toInt() and 0x80) == 0) continue
+            val t = compensateTemperature(adcTemp(raw, off))
+            val p = compensatePressure(adcPress(raw, off))
+            val h = compensateHumidity(adcHum(raw, off))
+            val valid = (raw[off + 16].toInt() shr 5) and 1 == 1
+            val stable = (raw[off + 16].toInt() shr 4) and 1 == 1
+            val g = if (valid && stable) compensateGasResistance(adcGas(raw, off), raw[off + 16].toInt() and 0x0F) else Double.NaN
+            out.add(Field(raw[off].toInt() and 0x0F, raw[off + 1].toInt() and 0xFF, t, p, h, g, valid, stable))
+        }
+        return out
+    }
+
+    /**
+     * Leave parallel mode (mode = sleep).
+     *
+     * @throws IOException on I²C error
+     */
+    fun stopParallel() {
+        val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or MODE_SLEEP
+        connection.write(REG_CTRL_MEAS, byteArrayOf(meas.toByte()))
+    }
+
+    /**
+     * Perform a soft reset, reload calibration, and re-apply the current
+     * configuration including the active heater profile.
+     *
+     * Writes 0xB6 to register 0xE0, waits 2 ms for the chip to complete
+     * its power-on sequence, re-reads calibration NVM, and restores all
+     * control registers and the active heater profile.
+     *
+     * @throws IOException on I²C error
+     */
+    fun reset() {
+        connection.write(REG_SOFT_RESET, byteArrayOf(0xB6.toByte()))
+        Thread.sleep(2)
+        readCalibration()
+        connection.write(REG_CTRL_HUM, byteArrayOf((osrsH and 0x07).toByte()))
+        connection.write(
+            REG_CTRL_MEAS,
+            byteArrayOf((((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2)).toByte())
+        )
+        connection.write(REG_CONFIG, byteArrayOf(((filterCoeff and 0x07) shl 2).toByte()))
+        configureHeaterProfile(
+            activeProfile,
+            heaterProfileTempC[activeProfile],
+            heaterProfileDurationMs[activeProfile]
+        )
+        connection.write(REG_CTRL_GAS_1, byteArrayOf(ctrlGas1.toByte()))
+    }
+}
