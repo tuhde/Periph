@@ -1,0 +1,111 @@
+[
+  {
+    "id": "tab-saa1064-demo",
+    "type": "tab",
+    "label": "SAA1064 4-digit counter",
+    "disabled": false,
+    "info": "Counts up on a 4-digit 7-segment display driven by an SAA1064: an inject node fires every second, a function node produces an incrementing counter 0-9999, and the saa1064 node shows it. A second inject node triggers the segment test (all segments on). Debug nodes show the applied values."
+  },
+  {
+    "id": "cfg-saa1064",
+    "type": "saa1064-device",
+    "name": "SAA1064",
+    "bus": "1",
+    "address": "38",
+    "current": "12",
+    "mode": "dynamic"
+  },
+  {
+    "id": "inj-count",
+    "type": "inject",
+    "name": "every 1 s",
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "z": "tab-saa1064-demo",
+    "x": 120,
+    "y": 120,
+    "wires": [
+      [
+        "fn-count"
+      ]
+    ]
+  },
+  {
+    "id": "fn-count",
+    "type": "function",
+    "name": "counter 0-9999",
+    "func": "let n = context.get('n') || 0;\ncontext.set('n', (n + 1) % 10000);\nmsg.payload = n;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "z": "tab-saa1064-demo",
+    "x": 300,
+    "y": 120,
+    "wires": [
+      [
+        "display"
+      ]
+    ]
+  },
+  {
+    "id": "inj-test",
+    "type": "inject",
+    "name": "segment test",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"test\":true}",
+    "payloadType": "json",
+    "z": "tab-saa1064-demo",
+    "x": 130,
+    "y": 200,
+    "wires": [
+      [
+        "display"
+      ]
+    ]
+  },
+  {
+    "id": "display",
+    "type": "saa1064",
+    "name": "SAA1064",
+    "device": "cfg-saa1064",
+    "z": "tab-saa1064-demo",
+    "x": 500,
+    "y": 160,
+    "wires": [
+      [
+        "dbg-out"
+      ]
+    ]
+  },
+  {
+    "id": "dbg-out",
+    "type": "debug",
+    "name": "applied",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "z": "tab-saa1064-demo",
+    "x": 680,
+    "y": 160,
+    "wires": []
+  }
+]

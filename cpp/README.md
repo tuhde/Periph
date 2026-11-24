@@ -161,6 +161,7 @@ Each chip exposes two classes:
 | QMI8658A | IMU | `chips/imu/QMI8658A.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
+| SAA1064 | LED driver | `chips/led/SAA1064.h` |
 | SD_SPI | Memory | `chips/memory/SD_SPI.h` |
 | SH1106 | Display driver | `chips/display/SH1106.h` |
 | SHT31 | Humidity sensor | `chips/humidity/SHT31.h` |

@@ -122,6 +122,7 @@
 #include "chips/led/NeoPixelRGBBase.h"
 #include "chips/led/NeoPixelRGBWBase.h"
 #include "chips/led/Pca9685.h"
+#include "chips/led/SAA1064.h"
 #include "chips/led/SK6812RGBW.h"
 #include "chips/led/WS2812B.h"
 #include "chips/led/WS2814.h"

@@ -1,0 +1,338 @@
+{
+  "category": "SAA1064",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SAA1064_LANGUAGES = {\n  \"CUSTOM_SAA1064_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_SAA1064_CLEAR\": {\n    \"en\": \"%1 clear\"\n  },\n  \"CUSTOM_SAA1064_SHOW_NUMBER\": {\n    \"en\": \"%1 show number %2\"\n  },\n  \"CUSTOM_SAA1064_SHOW_DIGIT\": {\n    \"en\": \"%1 show digit %2 %3 %4\"\n  },\n  \"CUSTOM_SAA1064_SET_DECIMAL_POINT\": {\n    \"en\": \"%1 set decimal point %2 %3\"\n  },\n  \"CUSTOM_SAA1064_SET_MODE\": {\n    \"en\": \"%1 set dynamic mode %2\"\n  },\n  \"CUSTOM_SAA1064_BLANK\": {\n    \"en\": \"%1 blank %2 %3\"\n  },\n  \"CUSTOM_SAA1064_SET_CURRENT\": {\n    \"en\": \"%1 set current %2\"\n  },\n  \"CUSTOM_SAA1064_SEGMENT_TEST\": {\n    \"en\": \"%1 segment test %2\"\n  },\n  \"CUSTOM_SAA1064_WRITE_CONTROL\": {\n    \"en\": \"%1 write control %2\"\n  },\n  \"CUSTOM_SAA1064_READ_STATUS\": {\n    \"en\": \"%1 read status\"\n  },\n  \"CUSTOM_SAA1064_POWER_RESET_FLAG\": {\n    \"en\": \"%1 power reset flag\"\n  }\n};\n\nconst initType = 'custom_saa1064_init';\nBlockly.BlockRegExpList['custom_saa1064'] = {\n  regexp: new RegExp(/^custom_saa1064_/),\n  code: \"from SAA1064 import SAA1064\",\n  initBlockType: initType,\n  categoryId: 'custom_saa1064',\n}\nBlockly.utils.registerLanguages(CUSTOM_SAA1064_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SAA1064_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SAA1064 = 'SAA1064'\n\nBlockly.utils.getcustom_saa1064Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['saa1064_0', 'saa1064_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_saa1064_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_saa1064Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'saa1064_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = SAA1064(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_show_number\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_SHOW_NUMBER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_show_number\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.show_number(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_show_digit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_SHOW_DIGIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n        {\n          'type': 'input_value',\n          'name': 'dp'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_show_digit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  var dp = Blockly.Python.valueToCode(block, 'dp', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.show_digit(${position}, ${value}, ${dp})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_set_decimal_point\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_SET_DECIMAL_POINT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_set_decimal_point\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_decimal_point(${position}, ${on})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'dynamic'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var dynamic = Blockly.Python.valueToCode(block, 'dynamic', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${dynamic})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_blank\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_BLANK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'digits_13'\n        },\n        {\n          'type': 'input_value',\n          'name': 'digits_24'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_blank\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var digits_13 = Blockly.Python.valueToCode(block, 'digits_13', Blockly.Python.ORDER_FUNCTION_CALL);\n  var digits_24 = Blockly.Python.valueToCode(block, 'digits_24', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.blank(${digits_13}, ${digits_24})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_set_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_SET_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ma'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_set_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ma = Blockly.Python.valueToCode(block, 'ma', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_current(${ma})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_segment_test\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_SEGMENT_TEST,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_segment_test\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.segment_test(${on})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_write_control\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_WRITE_CONTROL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_write_control\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_control(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_saa1064_read_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_READ_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_read_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_saa1064_power_reset_flag\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SAA1064_POWER_RESET_FLAG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_saa1064Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_saa1064_power_reset_flag\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.power_reset_flag()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"SAA1064\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_saa1064\">\n<title text=\"SAA1064\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_saa1064_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">56</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_clear\"/><block type=\"custom_saa1064_show_number\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_show_digit\">\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"dp\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_set_decimal_point\">\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_set_mode\">\n  <value name=\"dynamic\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_blank\">\n  <value name=\"digits_13\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"digits_24\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_set_current\">\n  <value name=\"ma\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">12</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_segment_test\">\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_write_control\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_saa1064_read_status\"/><block type=\"custom_saa1064_power_reset_flag\"/>\n</category>\n",
+    "toolboxitemid": "custom_saa1064",
+    "block_type": [
+      "custom_saa1064___init__",
+      "custom_saa1064_clear",
+      "custom_saa1064_show_number",
+      "custom_saa1064_show_digit",
+      "custom_saa1064_set_decimal_point",
+      "custom_saa1064_set_mode",
+      "custom_saa1064_blank",
+      "custom_saa1064_set_current",
+      "custom_saa1064_segment_test",
+      "custom_saa1064_write_control",
+      "custom_saa1064_read_status",
+      "custom_saa1064_power_reset_flag"
+    ]
+  },
+  "data": {
+    "name": "SAA1064",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "SAA1064",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.saa1064 import SAA1064Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "56",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = SAA1064Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show_number",
+        "note": {},
+        "label": {
+          "en": "%1 show number %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.show_number(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show_digit",
+        "note": {},
+        "label": {
+          "en": "%1 show digit %2 %3 %4"
+        },
+        "params": [
+          {
+            "name": "position",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "dp",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.show_digit(position, None if value < 0 else value, bool(dp))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_decimal_point",
+        "note": {},
+        "label": {
+          "en": "%1 set decimal point %2 %3"
+        },
+        "params": [
+          {
+            "name": "position",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "on",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_decimal_point(position, bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set dynamic mode %2"
+        },
+        "params": [
+          {
+            "name": "dynamic",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(bool(dynamic))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "blank",
+        "note": {},
+        "label": {
+          "en": "%1 blank %2 %3"
+        },
+        "params": [
+          {
+            "name": "digits_13",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "digits_24",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.blank(bool(digits_13), bool(digits_24))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_current",
+        "note": {},
+        "label": {
+          "en": "%1 set current %2"
+        },
+        "params": [
+          {
+            "name": "ma",
+            "type": "int",
+            "default": "12",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_current(ma)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "segment_test",
+        "note": {},
+        "label": {
+          "en": "%1 segment test %2"
+        },
+        "params": [
+          {
+            "name": "on",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.segment_test(bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_control",
+        "note": {},
+        "label": {
+          "en": "%1 write control %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_control(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_status",
+        "note": {},
+        "label": {
+          "en": "%1 read status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_status()",
+        "ast_return": {
+          "code": "self._driver.read_status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_reset_flag",
+        "note": {},
+        "label": {
+          "en": "%1 power reset flag"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.power_reset_flag())",
+        "ast_return": {
+          "code": "int(self._driver.power_reset_flag())",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "saa1064"
+  },
+  "pyCode": "\"\"\"\nfile     SAA1064\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.saa1064 import SAA1064Full\n\n\nclass SAA1064:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 56):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '56'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = SAA1064Full(connection)\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear'\n        \"\"\"\n        self._driver.clear()\n\n    def show_number(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 show number %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.show_number(value)\n\n    def show_digit(self, position: int, value: int, dp: int):\n        \"\"\"\n        label:\n            en: '%1 show digit %2 %3 %4'\n        params:\n            position:\n                name: position\n                type: int\n                default: '1'\n                field: number\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n            dp:\n                name: dp\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.show_digit(position, None if value < 0 else value, bool(dp))\n\n    def set_decimal_point(self, position: int, on: int):\n        \"\"\"\n        label:\n            en: '%1 set decimal point %2 %3'\n        params:\n            position:\n                name: position\n                type: int\n                default: '1'\n                field: number\n            'on':\n                name: 'on'\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_decimal_point(position, bool(on))\n\n    def set_mode(self, dynamic: int):\n        \"\"\"\n        label:\n            en: '%1 set dynamic mode %2'\n        params:\n            dynamic:\n                name: dynamic\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_mode(bool(dynamic))\n\n    def blank(self, digits_13: int, digits_24: int):\n        \"\"\"\n        label:\n            en: '%1 blank %2 %3'\n        params:\n            digits_13:\n                name: digits_13\n                type: int\n                default: '0'\n                field: number\n            digits_24:\n                name: digits_24\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.blank(bool(digits_13), bool(digits_24))\n\n    def set_current(self, ma: int):\n        \"\"\"\n        label:\n            en: '%1 set current %2'\n        params:\n            ma:\n                name: ma\n                type: int\n                default: '12'\n                field: number\n        \"\"\"\n        self._driver.set_current(ma)\n\n    def segment_test(self, on: int):\n        \"\"\"\n        label:\n            en: '%1 segment test %2'\n        params:\n            'on':\n                name: 'on'\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.segment_test(bool(on))\n\n    def write_control(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 write control %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.write_control(value)\n\n    def read_status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read status'\n        \"\"\"\n        return self._driver.read_status()\n\n    def power_reset_flag(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 power reset flag'\n        \"\"\"\n        return int(self._driver.power_reset_flag())\n",
+  "version": "alpha2"
+}

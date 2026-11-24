@@ -1,0 +1,238 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "saa1064_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init SAA1064",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_clear",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 clear",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_show_number",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 show number",
+          "type": "label"
+        },
+        {
+          "name": "value (0-9999)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_show_digit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 show digit",
+          "type": "label"
+        },
+        {
+          "name": "position (1-4)",
+          "type": "label"
+        },
+        {
+          "name": "_position",
+          "type": "number"
+        },
+        {
+          "name": "value (0-9, -1 blank)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        },
+        {
+          "name": "decimal point (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_dp",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_set_decimal_point",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 set decimal point",
+          "type": "label"
+        },
+        {
+          "name": "position (1-4)",
+          "type": "label"
+        },
+        {
+          "name": "_position",
+          "type": "number"
+        },
+        {
+          "name": "on (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 set dynamic mode",
+          "type": "label"
+        },
+        {
+          "name": "dynamic (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_dynamic",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_blank",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 blank",
+          "type": "label"
+        },
+        {
+          "name": "digits 1+3 (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_digits_13",
+          "type": "number"
+        },
+        {
+          "name": "digits 2+4 (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_digits_24",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_set_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 set current",
+          "type": "label"
+        },
+        {
+          "name": "mA (0,3,..,21)",
+          "type": "label"
+        },
+        {
+          "name": "_ma",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_segment_test",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 segment test",
+          "type": "label"
+        },
+        {
+          "name": "on (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_write_control",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SAA1064 write control",
+          "type": "label"
+        },
+        {
+          "name": "value (0-127)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_read_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "SAA1064 read status",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "saa1064_power_reset_flag",
+      "type": "value",
+      "params": [
+        {
+          "name": "SAA1064 power reset flag",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
