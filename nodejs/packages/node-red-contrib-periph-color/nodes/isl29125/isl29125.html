@@ -1,0 +1,85 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('isl29125-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            range:      { value: '10000' },
+            resolution: { value: '16' }
+        },
+        label: function() {
+            return this.name || ('ISL29125 @ 0x44 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="isl29125-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ISL29125">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, address 0x44)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-range">Range</label>
+        <select id="node-config-input-range" style="width:160px">
+            <option value="375">375 lux</option><option value="10000">10 000 lux</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resolution">Resolution</label>
+        <select id="node-config-input-resolution" style="width:160px">
+            <option value="12">12 bit</option><option value="16">16 bit (100 ms)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('isl29125', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'isl29125-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-adjust',
+        label:   function() { return this.name || 'ISL29125'; },
+        paletteLabel: 'ISL29125'
+    });
+</script>
+
+<script type="text/html" data-template-name="isl29125">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ISL29125">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="isl29125">
+    <p>Reads the red, green and blue channels of an ISL29125 digital RGB colour light sensor with IR-blocking filter (I²C 0x44, 12/16 bit).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any message triggers a read of the latest conversion.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.red, payload.green, payload.blue <span class="property-type">number</span></dt>
+        <dd>Unsigned 16-bit channel counts (12-bit counts when the resolution is 12 bit).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number (the address is fixed at 0x44). <b>Range</b> selects the full-scale illuminance (375 lux or 10 000 lux) and <b>Resolution</b> the ADC resolution (16 bit integrates for 100 ms and rejects 50/60 Hz flicker). The chip is not 5 V tolerant (VDD 2.25–3.63 V). Counts are not lux; calibrate against the intended light source.</p>
+</script>
