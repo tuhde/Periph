@@ -1,8 +1,8 @@
 # node-red-contrib-periph-light
 
-Node-RED nodes for light sensor chips: APDS-9930, APDS9960, MAX44009 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, MAX44009 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (3):** APDS9930, APDS9960, MAX44009.
+**Supported chips (4):** APDS9930, APDS9250, APDS9960, MAX44009.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-light/examples).
 
@@ -22,6 +22,8 @@ npm install node-red-contrib-periph-light
 |------|------|-------------|
 | `apds9930-device` | config | I²C bus and address for an APDS9930 |
 | `apds9930` | input | Reads ambient illuminance and proximity from an APDS-9930 sensor over I²C. |
+| `apds9250-device` | config | Bus configuration for an APDS9250 |
+| `apds9250` | input | Reads the red, green, blue and infrared channels of an APDS-9250 digital RGB, IR and ambient light sensor (I²C 0x52, 13–20 bit). |
 | `apds9960-device` | config | I²C bus and address for an APDS9960 |
 | `apds9960` | input | Reads ambient light and color (RGBC) from an APDS-9960 sensor over I²C. |
 | `max44009-device` | config | I²C bus and address for a MAX44009 |

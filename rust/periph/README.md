@@ -66,6 +66,7 @@ Each chip exposes two structs:
 | AM2320 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
 | APA102 | LED driver | Addressable RGB LED strip driver. |
 | APDS-9930 | Light sensor | Digital ambient light and proximity sensor (Broadcom/Avago). |
+| APDS9250 | Light sensor | Digital RGB, IR and ambient light sensor (Broadcom). |
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor (AMS OSRAM). |
 | AS7262 | Color sensor | 6-channel visible spectral sensor (ams OSRAM), I²C address `0x49`. |

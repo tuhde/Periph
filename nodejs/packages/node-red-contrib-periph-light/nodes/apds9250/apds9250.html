@@ -1,0 +1,98 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('apds9250-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            resolution: { value: '18' },
+            rate:       { value: '100' },
+            gain:       { value: '3' }
+        },
+        label: function() {
+            return this.name || ('APDS-9250 @ 0x52 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="apds9250-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="APDS-9250">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, address 0x52)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resolution">Resolution</label>
+        <select id="node-config-input-resolution" style="width:160px">
+            <option value="20">20 bit (400 ms)</option><option value="19">19 bit (200 ms)</option>
+            <option value="18">18 bit (100 ms)</option><option value="17">17 bit (50 ms)</option>
+            <option value="16">16 bit (25 ms)</option><option value="13">13 bit (3.125 ms)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rate">Rate</label>
+        <select id="node-config-input-rate" style="width:160px">
+            <option value="25">25 ms</option><option value="50">50 ms</option>
+            <option value="100">100 ms</option><option value="200">200 ms</option>
+            <option value="500">500 ms</option><option value="1000">1000 ms</option>
+            <option value="2000">2000 ms</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gain">Gain</label>
+        <select id="node-config-input-gain" style="width:160px">
+            <option value="1">×1</option><option value="3">×3</option><option value="6">×6</option>
+            <option value="9">×9</option><option value="18">×18</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('apds9250', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'apds9250-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sun-o',
+        label:   function() { return this.name || 'APDS-9250'; },
+        paletteLabel: 'APDS-9250'
+    });
+</script>
+
+<script type="text/html" data-template-name="apds9250">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="APDS-9250">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="apds9250">
+    <p>Reads the red, green, blue and infrared channels of an APDS-9250 digital RGB, IR and ambient light sensor (I²C 0x52, 13–20 bit).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any message triggers a read of the latest conversion.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.red, payload.green, payload.blue, payload.ir <span class="property-type">number</span></dt>
+        <dd>Unsigned channel counts (up to 20 bit). The green channel doubles as the ambient-light channel.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number (the address is fixed at 0x52). <b>Resolution</b> sets the ADC resolution and with it the integration time (13 bit 3.125 ms to 20 bit 400 ms), <b>Rate</b> the measurement period (25 ms to 2 s) and <b>Gain</b> the analog gain (×1 to ×18). The chip is not 5 V tolerant (VDD 1.7–3.6 V). Counts are not lux; normalise with <code>counts / (gain × integration time)</code> to compare settings.</p>
+</script>
