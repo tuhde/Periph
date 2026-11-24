@@ -1,0 +1,95 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpl3115a2-device', {
+        category: 'config',
+        defaults: {
+            name:               { value: '' },
+            bus:                { value: '1', required: true, validate: RED.validators.number() },
+            address:            { value: '0x60' },
+            oversample:         { value: '128' },
+            seaLevel:           { value: '101325' }
+        },
+        label: function() {
+            return this.name || ('MPL3115A2 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mpl3115a2-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MPL3115A2">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x60"> &nbsp;(fixed address)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-oversample"><i class="fa fa-cog"></i> Oversample ratio</label>
+        <select id="node-config-input-oversample" style="width:120px">
+            <option value="1">1</option><option value="2">2</option><option value="4">4</option>
+            <option value="8">8</option><option value="16">16</option><option value="32">32</option>
+            <option value="64">64</option><option value="128" selected>128</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-seaLevel"><i class="fa fa-globe"></i> Sea-level pressure</label>
+        <input type="number" id="node-config-input-seaLevel" style="width:120px" min="0"> &nbsp;Pa (for altitude readings)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpl3115a2', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mpl3115a2-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'MPL3115A2'; },
+        paletteLabel: 'MPL3115A2'
+    });
+</script>
+
+<script type="text/html" data-template-name="mpl3115a2">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MPL3115A2">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="mpl3115a2">
+    <p>Reads absolute pressure (or altitude) and temperature from an NXP MPL3115A2 over I²C (address 0x60)
+    with one conversion per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+        <dt class="optional">altitude <span class="property-type">boolean</span></dt>
+        <dd>If <code>true</code>, the chip is switched to altimeter mode and the altitude is returned.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pressure_pa <span class="property-type">number</span></dt>
+        <dd>Pressure in Pa (barometer reading).</dd>
+        <dt>payload.altitude_m <span class="property-type">number</span></dt>
+        <dd>Altitude in metres relative to the configured sea-level pressure (when <code>msg.altitude</code> is true).</dd>
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x60), the oversample ratio (1 to 128) and the sea-level pressure in Pa,
+    set in the <b>mpl3115a2-device</b> config node.</p>
+</script>

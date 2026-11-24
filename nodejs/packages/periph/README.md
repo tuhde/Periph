@@ -128,6 +128,7 @@ Each chip exposes two classes:
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MMA8451Q | Accelerometer | `periph/src/chips/accelerometer/mma8451q` |
 | MPL115A2 | Pressure sensor | `periph/src/chips/pressure/mpl115a2` |
+| MPL3115A2 | Pressure sensor | `periph/src/chips/pressure/mpl3115a2` |
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
