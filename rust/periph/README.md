@@ -116,6 +116,7 @@ Each chip exposes two structs:
 | INA260 | Power monitor | 36 V, 16-bit current/voltage/power monitor with integrated 2 mΩ shunt (Texas Instruments). |
 | INA3221 | Power monitor | Three-channel 26 V current/voltage/power monitor (Texas Instruments). |
 | IS31FL3731 | LED driver | 144-LED matrix driver, CharliePlex (Lumissil / ISSI). |
+| ISL29125 | Color sensor | Digital red, green and blue colour light sensor (Renesas / Intersil). |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
 | L3GD20H | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
 | LC709203F | Power monitor | 1-cell lithium-ion / polymer battery fuel gauge ("Smart LiB Gauge", onsemi). |

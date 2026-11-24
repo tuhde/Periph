@@ -210,7 +210,7 @@ var registry = []Chip{
 	{ID: "max31341", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x69}, Probe: &IdProbe{Register: 0x59, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xF0, Expected: []uint32{0x10}}},
 	{ID: "veml6075", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x10}, Probe: &IdProbe{Register: 0x0C, RegBytes: 1, Length: 2, LittleEndian: true, Mask: 0x0FFF, Expected: []uint32{0x0026}}},
 	{ID: "sgp40", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x59}, Probe: nil},
-	{ID: "isl29125", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x44}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x7D}}},
+	{ID: "isl29125", Driver: "isl29125", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x44}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x7D}}},
 	{ID: "ccs811", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5A, 0x5B}, Probe: &IdProbe{Register: 0x20, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x81}}},
 	{ID: "vcnl4040", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x60}, Probe: &IdProbe{Register: 0x0C, RegBytes: 1, Length: 2, LittleEndian: true, Mask: 0xFFFF, Expected: []uint32{0x0186}}},
 	{ID: "veml6070", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39}, Probe: nil},
