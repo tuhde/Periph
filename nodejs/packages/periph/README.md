@@ -66,6 +66,7 @@ Each chip exposes two classes:
 | BMA180 | Accelerometer | `periph/src/chips/accelerometer/bma180` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
+| BME688 | Environmental sensor | `periph/src/chips/environmental/bme688` |
 | BMP085 | Pressure sensor | `periph/src/chips/pressure/bmp085` |
 | BMP180 | Pressure sensor | `periph/src/chips/pressure/bmp180` |
 | BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |

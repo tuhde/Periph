@@ -84,6 +84,7 @@ Each chip exposes two classes:
 | BMA180 | Accelerometer | 3-axis accelerometer |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance. |
+| BME688 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance. |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor |
 | BMP180 | Pressure sensor | Piezo-resistive pressure + temperature sensor |
 | BMP280 | Pressure sensor | Piezo-resistive pressure + temperature sensor |
