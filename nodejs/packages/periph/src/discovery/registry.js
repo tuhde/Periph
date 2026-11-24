@@ -169,7 +169,7 @@ const CHIPS = [
     {"id":"as7262","driver":"as7262","writeSensitive":true,"aliased":false,"addresses":[73],"probe":null},
     {"id":"hts221","driver":"hts221","writeSensitive":false,"aliased":false,"addresses":[95],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[188]}},
     {"id":"htu31d","driver":"htu31d","writeSensitive":true,"aliased":false,"addresses":[64,65],"probe":null},
-    {"id":"bh1750","driver":null,"writeSensitive":true,"aliased":false,"addresses":[35,92],"probe":null},
+    {"id":"bh1750","driver":"bh1750","writeSensitive":true,"aliased":false,"addresses":[35,92],"probe":null},
     {"id":"ms5607","driver":null,"writeSensitive":true,"aliased":false,"addresses":[118,119],"probe":null},
     {"id":"ms5611","driver":null,"writeSensitive":true,"aliased":false,"addresses":[118,119],"probe":null},
     {"id":"pca9685","driver":"pca9685","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,113,114,115,116,117,118,119],"probe":null},

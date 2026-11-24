@@ -1,0 +1,92 @@
+[
+  {
+    "id": "bh1750-tab",
+    "type": "tab",
+    "label": "BH1750 light meter",
+    "disabled": false,
+    "info": "Measures the illuminance with a BH1750 every 2 s and formats it as \"350 lx\". Each message triggers one one-time measurement; change the mode (H 1 lx, H2 0.5 lx, L 4 lx) or the measurement time register in the BH1750 device node to trade resolution, range and measurement time."
+  },
+  {
+    "id": "bh1750-inject",
+    "type": "inject",
+    "z": "bh1750-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "bh1750-node"
+      ]
+    ]
+  },
+  {
+    "id": "bh1750-device-1",
+    "type": "bh1750-device",
+    "name": "BH1750",
+    "bus": "1",
+    "address": "0x23",
+    "mode": "0",
+    "mtreg": "69"
+  },
+  {
+    "id": "bh1750-node",
+    "type": "bh1750",
+    "z": "bh1750-tab",
+    "name": "BH1750",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "bh1750-format"
+      ]
+    ],
+    "device": "bh1750-device-1"
+  },
+  {
+    "id": "bh1750-format",
+    "type": "function",
+    "z": "bh1750-tab",
+    "name": "Format",
+    "func": "msg.payload = Math.round(msg.payload.lux) + ' lx';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "bh1750-debug"
+      ]
+    ]
+  },
+  {
+    "id": "bh1750-debug",
+    "type": "debug",
+    "z": "bh1750-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

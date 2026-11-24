@@ -1,0 +1,1 @@
+_periph_bh1750.get_measurement_time_register()

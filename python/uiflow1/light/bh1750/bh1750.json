@@ -1,0 +1,136 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "bh1750_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init BH1750",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_lux",
+      "type": "value",
+      "params": [
+        {
+          "name": "BH1750 illuminance (lx)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_lux_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "BH1750 illuminance (lx), mode (0=H 1=H2 2=L)",
+          "type": "label"
+        },
+        {
+          "name": "mode",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_set_mtreg",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BH1750 measurement time register (31-254)",
+          "type": "label"
+        },
+        {
+          "name": "MTreg",
+          "type": "label"
+        },
+        {
+          "name": "_mtreg",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_mtreg",
+      "type": "value",
+      "params": [
+        {
+          "name": "BH1750 measurement time register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_set_sensitivity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BH1750 sensitivity (0.45-3.68)",
+          "type": "label"
+        },
+        {
+          "name": "factor",
+          "type": "label"
+        },
+        {
+          "name": "_factor",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BH1750 power down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_power_on",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BH1750 power on",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "bh1750_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "BH1750 reset data register",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

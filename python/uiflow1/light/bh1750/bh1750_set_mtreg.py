@@ -1,0 +1,1 @@
+_periph_bh1750.set_measurement_time(int(${_mtreg}))
