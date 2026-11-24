@@ -1,0 +1,91 @@
+[
+  {
+    "id": "ms5607-tab",
+    "type": "tab",
+    "label": "MS5607 barometer",
+    "disabled": false,
+    "info": "Reads temperature and pressure from an MS5607 every 5 s, computes the altitude relative to the standard sea-level pressure (101325 Pa) and formats it as \"25.0 °C / 101325 Pa / 0.0 m\". Each message triggers one measurement at the configured oversampling ratio."
+  },
+  {
+    "id": "ms5607-inject",
+    "type": "inject",
+    "z": "ms5607-tab",
+    "name": "5 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "ms5607-node"
+      ]
+    ]
+  },
+  {
+    "id": "ms5607-device-1",
+    "type": "ms5607-device",
+    "name": "MS5607",
+    "bus": "1",
+    "address": "0x77",
+    "oversampling": "4096"
+  },
+  {
+    "id": "ms5607-node",
+    "type": "ms5607",
+    "z": "ms5607-tab",
+    "name": "MS5607",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "ms5607-format"
+      ]
+    ],
+    "device": "ms5607-device-1"
+  },
+  {
+    "id": "ms5607-format",
+    "type": "function",
+    "z": "ms5607-tab",
+    "name": "Format",
+    "func": "const p = msg.payload.pressure_pa;\nconst alt = 44330 * (1 - Math.pow(p / 101325, 1 / 5.255));\nmsg.payload = msg.payload.temperature_c.toFixed(1) + ' °C / ' + p.toFixed(0) + ' Pa / ' + alt.toFixed(1) + ' m';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "ms5607-debug"
+      ]
+    ]
+  },
+  {
+    "id": "ms5607-debug",
+    "type": "debug",
+    "z": "ms5607-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

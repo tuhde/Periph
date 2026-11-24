@@ -1,0 +1,90 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ms5607-device', {
+        category: 'config',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '1', required: true, validate: RED.validators.number() },
+            address:      { value: '0x77' },
+            oversampling: { value: '4096' }
+        },
+        label: function() {
+            return this.name || ('MS5607 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ms5607-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MS5607">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="0x77">0x77 (CSB = GND)</option>
+            <option value="0x76">0x76 (CSB = VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-oversampling"><i class="fa fa-cog"></i> Oversampling</label>
+        <select id="node-config-input-oversampling" style="width:100px">
+            <option value="256">256</option>
+            <option value="512">512</option>
+            <option value="1024">1024</option>
+            <option value="2048">2048</option>
+            <option value="4096">4096</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('ms5607', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ms5607-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'MS5607'; },
+        paletteLabel: 'MS5607'
+    });
+</script>
+
+<script type="text/html" data-template-name="ms5607">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MS5607">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ms5607">
+    <p>Reads temperature and barometric pressure from a TE Connectivity MS5607 over I²C (address 0x77, or 0x76 with CSB
+    high). Each message converts the temperature and then the pressure and applies the first- and second-order compensation.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.pressure_pa <span class="property-type">number</span></dt>
+        <dd>Pressure in pascals (1 Pa = 0.01 mbar).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x76 / 0x77) and the oversampling ratio (256 to 4096), set in the <b>ms5607-device</b> config node.</p>
+</script>

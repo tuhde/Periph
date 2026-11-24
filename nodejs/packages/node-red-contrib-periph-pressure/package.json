@@ -20,7 +20,8 @@
     "lps28dfw",
     "lps33hw",
     "mpl115a2",
-    "mpl3115a2"
+    "mpl3115a2",
+    "ms5607"
   ],
   "node-red": {
     "version": ">=3.0.0",
@@ -35,7 +36,8 @@
       "lps22hb": "nodes/lps22hb/lps22hb.js",
       "lps22df": "nodes/lps22df/lps22df.js",
       "mpl115a2": "nodes/mpl115a2/mpl115a2.js",
-      "mpl3115a2": "nodes/mpl3115a2/mpl3115a2.js"
+      "mpl3115a2": "nodes/mpl3115a2/mpl3115a2.js",
+      "ms5607": "nodes/ms5607/ms5607.js"
     }
   },
   "dependencies": {
