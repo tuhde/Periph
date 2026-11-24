@@ -401,6 +401,10 @@
       "github:tuhde/Periph/python/periph/chips/led/ws2814.py"
     ],
     [
+      "periph/chips/light/apds9250.py",
+      "github:tuhde/Periph/python/periph/chips/light/apds9250.py"
+    ],
+    [
       "periph/chips/light/apds9960.py",
       "github:tuhde/Periph/python/periph/chips/light/apds9960.py"
     ],

@@ -72,6 +72,7 @@ Each chip exposes two classes:
 | AM2320 | Environmental sensor | Humidity and temperature sensor |
 | APA102 | LED driver | Addressable RGB LED strip |
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
+| APDS9250 | Light sensor | APDS-9250 colour sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor |
 | AS7262 | Color sensor | 6-channel visible spectral sensor |
