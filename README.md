@@ -174,7 +174,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HS40xx | Humidity and temperature sensor (CRC, periodic mode, alert pin; HS4001/HS4003 only — HS4002 and HS401x are physical variants without a separate alias) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | ✓ | | | | | | | |
+| HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | ✓ | | ✓ | ✓ | | | | |
 | HTU21D-F | Humidity + temperature sensor (±2 %RH, ±0.3 °C, heater, CRC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HTU31D | Digital humidity and temperature sensor (16-bit, OSR 0–3, CRC-8, heater, diagnostic) | | | | | | | | |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |

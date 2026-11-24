@@ -88,6 +88,7 @@ Each chip exposes two classes:
 | HS30XX | Humidity sensor | `periph/src/chips/humidity/hs30xx` |
 | HS40XX | Humidity sensor | `periph/src/chips/humidity/hs40xx` |
 | HT16K33 | LED driver | `periph/src/chips/led/ht16k33` |
+| HTS221 | Humidity sensor | `periph/src/chips/humidity/hts221` |
 | HTU21DF | Humidity sensor | `periph/src/chips/humidity/htu21df` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
 | HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |

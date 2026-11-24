@@ -1,8 +1,8 @@
 # node-red-contrib-periph-humidity
 
-Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTU21DF, SHT31, SI7021 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, SHT31, SI7021 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (8):** DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTU21DF, SHT31, SI7021.
+**Supported chips (9):** DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, SHT31, SI7021.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-humidity/examples).
 
@@ -30,6 +30,8 @@ npm install node-red-contrib-periph-humidity
 | `hs30xx` | input | Reads temperature and relative humidity from a Renesas HS3001, HS3002 or HS3003 (the HS30xx family, one protocol) over I²C (fixed address 0x44) with one measurement per message. |
 | `hs40xx-device` | config | I²C bus and address for a HS40XX |
 | `hs40xx` | input | Reads temperature and relative humidity from a Renesas HS4001 or HS4003 (the HS40xx family, one protocol) over I²C (fixed address 0x54) with one no-hold measurement per message. HS4002 and the HS401x variants are physically different versions of the same part and are not offered separately. |
+| `hts221-device` | config | I²C bus and address for a HTS221 |
+| `hts221` | input | Reads temperature and relative humidity from an STMicroelectronics HTS221 over I²C (address 0x5F) with one factory-calibrated one-shot measurement per message. |
 | `htu21df-device` | config | I²C bus and address for a HTU21DF |
 | `htu21df` | input | Reads temperature and relative humidity from a Measurement Specialties HTU21D-F over I²C (fixed address 0x40) with one temperature and one humidity measurement per message. The CRC of both results is verified. |
 | `sht31-device` | config | I²C bus and address for a SHT31 |
