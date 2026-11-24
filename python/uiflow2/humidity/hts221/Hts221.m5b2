@@ -1,0 +1,301 @@
+{
+  "category": "Hts221",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HTS221_LANGUAGES = {\n  \"CUSTOM_HTS221_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_HTS221_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_HTS221_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%rH)\"\n  },\n  \"CUSTOM_HTS221_DEW_POINT\": {\n    \"en\": \"%1 dew point (°C)\"\n  },\n  \"CUSTOM_HTS221_WHO_AM_I\": {\n    \"en\": \"%1 WHO_AM_I\"\n  },\n  \"CUSTOM_HTS221_DATA_READY\": {\n    \"en\": \"%1 data ready (1=yes 0=no)\"\n  },\n  \"CUSTOM_HTS221_SET_OUTPUT_DATA_RATE\": {\n    \"en\": \"%1 output data rate (0, 1, 7, 12.5 Hz) %2\"\n  },\n  \"CUSTOM_HTS221_SET_AVERAGING\": {\n    \"en\": \"%1 averaging T samples (2-256) %2 RH samples (4-512) %3\"\n  },\n  \"CUSTOM_HTS221_SET_HEATER\": {\n    \"en\": \"%1 heater (1=on 0=off) %2\"\n  },\n  \"CUSTOM_HTS221_HEATER_ON\": {\n    \"en\": \"%1 heater on (1=yes 0=no)\"\n  },\n  \"CUSTOM_HTS221_POWER_DOWN\": {\n    \"en\": \"%1 power down\"\n  },\n  \"CUSTOM_HTS221_POWER_UP\": {\n    \"en\": \"%1 power up\"\n  },\n  \"CUSTOM_HTS221_REBOOT\": {\n    \"en\": \"%1 reload calibration (reboot)\"\n  }\n};\n\nconst initType = 'custom_hts221_init';\nBlockly.BlockRegExpList['custom_hts221'] = {\n  regexp: new RegExp(/^custom_hts221_/),\n  code: \"from Hts221 import Hts221\",\n  initBlockType: initType,\n  categoryId: 'custom_hts221',\n}\nBlockly.utils.registerLanguages(CUSTOM_HTS221_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HTS221_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HTS221 = 'Hts221'\n\nBlockly.utils.getcustom_hts221Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hts221_0', 'hts221_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hts221_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hts221Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hts221_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Hts221(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_hts221_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hts221_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hts221_dew_point\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_DEW_POINT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_dew_point\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.dew_point()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hts221_who_am_i\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_WHO_AM_I,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_who_am_i\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.who_am_i()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hts221_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hts221_set_output_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_SET_OUTPUT_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_set_output_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var hz = Blockly.Python.valueToCode(block, 'hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_output_data_rate(${hz})\\n`\n}\n\nBlockly.Blocks[\"custom_hts221_set_averaging\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_SET_AVERAGING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'temperature_samples'\n        },\n        {\n          'type': 'input_value',\n          'name': 'humidity_samples'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_set_averaging\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var temperature_samples = Blockly.Python.valueToCode(block, 'temperature_samples', Blockly.Python.ORDER_FUNCTION_CALL);\n  var humidity_samples = Blockly.Python.valueToCode(block, 'humidity_samples', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_averaging(${temperature_samples}, ${humidity_samples})\\n`\n}\n\nBlockly.Blocks[\"custom_hts221_set_heater\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_SET_HEATER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_set_heater\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_heater(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_hts221_heater_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_HEATER_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_heater_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.heater_on()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hts221_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_down()\\n`\n}\n\nBlockly.Blocks[\"custom_hts221_power_up\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_POWER_UP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_power_up\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_up()\\n`\n}\n\nBlockly.Blocks[\"custom_hts221_reboot\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HTS221_REBOOT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hts221Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hts221_reboot\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reboot()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Hts221\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hts221\">\n<title text=\"Hts221\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hts221_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">95</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hts221_temperature\"/><block type=\"custom_hts221_humidity\"/><block type=\"custom_hts221_dew_point\"/><block type=\"custom_hts221_who_am_i\"/><block type=\"custom_hts221_data_ready\"/><block type=\"custom_hts221_set_output_data_rate\">\n  <value name=\"hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hts221_set_averaging\">\n  <value name=\"temperature_samples\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"humidity_samples\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">32</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hts221_set_heater\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hts221_heater_on\"/><block type=\"custom_hts221_power_down\"/><block type=\"custom_hts221_power_up\"/><block type=\"custom_hts221_reboot\"/>\n</category>\n",
+    "toolboxitemid": "custom_hts221",
+    "block_type": [
+      "custom_hts221___init__",
+      "custom_hts221_temperature",
+      "custom_hts221_humidity",
+      "custom_hts221_dew_point",
+      "custom_hts221_who_am_i",
+      "custom_hts221_data_ready",
+      "custom_hts221_set_output_data_rate",
+      "custom_hts221_set_averaging",
+      "custom_hts221_set_heater",
+      "custom_hts221_heater_on",
+      "custom_hts221_power_down",
+      "custom_hts221_power_up",
+      "custom_hts221_reboot"
+    ]
+  },
+  "data": {
+    "name": "Hts221",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Hts221",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.hts221 import HTS221Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "95",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = HTS221Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%rH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "dew_point",
+        "note": {},
+        "label": {
+          "en": "%1 dew point (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.dew_point()",
+        "ast_return": {
+          "code": "self._driver.dew_point()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "who_am_i",
+        "note": {},
+        "label": {
+          "en": "%1 WHO_AM_I"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.who_am_i()",
+        "ast_return": {
+          "code": "self._driver.who_am_i()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready (1=yes 0=no)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.data_ready())",
+        "ast_return": {
+          "code": "int(self._driver.data_ready())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_output_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 output data rate (0, 1, 7, 12.5 Hz) %2"
+        },
+        "params": [
+          {
+            "name": "hz",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "13",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_output_data_rate(hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_averaging",
+        "note": {},
+        "label": {
+          "en": "%1 averaging T samples (2-256) %2 RH samples (4-512) %3"
+        },
+        "params": [
+          {
+            "name": "temperature_samples",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "256",
+            "min": "2"
+          },
+          {
+            "name": "humidity_samples",
+            "type": "int",
+            "default": "32",
+            "note": {},
+            "field": "number",
+            "max": "512",
+            "min": "4"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_averaging(temperature_samples, humidity_samples)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_heater",
+        "note": {},
+        "label": {
+          "en": "%1 heater (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_heater(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "heater_on",
+        "note": {},
+        "label": {
+          "en": "%1 heater on (1=yes 0=no)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.is_heater_on())",
+        "ast_return": {
+          "code": "int(self._driver.is_heater_on())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_up",
+        "note": {},
+        "label": {
+          "en": "%1 power up"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_up()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reboot",
+        "note": {},
+        "label": {
+          "en": "%1 reload calibration (reboot)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reboot()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hts221"
+  },
+  "pyCode": "\"\"\"\nfile     Hts221\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.hts221 import HTS221Full\n\n\nclass Hts221:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 95):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '95'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = HTS221Full(connection)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%rH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def dew_point(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 dew point (°C)'\n        \"\"\"\n        return self._driver.dew_point()\n\n    def who_am_i(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 WHO_AM_I'\n        \"\"\"\n        return self._driver.who_am_i()\n\n    def data_ready(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 data ready (1=yes 0=no)'\n        \"\"\"\n        return int(self._driver.data_ready())\n\n    def set_output_data_rate(self, hz: float = 0):\n        \"\"\"\n        label:\n            en: '%1 output data rate (0, 1, 7, 12.5 Hz) %2'\n        params:\n            hz:\n                name: hz\n                type: float\n                default: '0'\n                field: number\n                max: '13'\n                min: '0'\n        \"\"\"\n        self._driver.set_output_data_rate(hz)\n\n    def set_averaging(self, temperature_samples: int = 16, humidity_samples: int = 32):\n        \"\"\"\n        label:\n            en: '%1 averaging T samples (2-256) %2 RH samples (4-512) %3'\n        params:\n            temperature_samples:\n                name: temperature_samples\n                type: int\n                default: '16'\n                field: number\n                max: '256'\n                min: '2'\n            humidity_samples:\n                name: humidity_samples\n                type: int\n                default: '32'\n                field: number\n                max: '512'\n                min: '4'\n        \"\"\"\n        self._driver.set_averaging(temperature_samples, humidity_samples)\n\n    def set_heater(self, enabled: int = 0):\n        \"\"\"\n        label:\n            en: '%1 heater (1=on 0=off) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_heater(bool(enabled))\n\n    def heater_on(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 heater on (1=yes 0=no)'\n        \"\"\"\n        return int(self._driver.is_heater_on())\n\n    def power_down(self):\n        \"\"\"\n        label:\n            en: '%1 power down'\n        \"\"\"\n        self._driver.power_down()\n\n    def power_up(self):\n        \"\"\"\n        label:\n            en: '%1 power up'\n        \"\"\"\n        self._driver.power_up()\n\n    def reboot(self):\n        \"\"\"\n        label:\n            en: '%1 reload calibration (reboot)'\n        \"\"\"\n        self._driver.reboot()\n",
+  "version": "alpha2"
+}

@@ -1,0 +1,1 @@
+_periph_hts221.set_heater(bool(int(${_on})))
