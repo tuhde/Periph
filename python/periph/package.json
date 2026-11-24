@@ -149,6 +149,10 @@
       "github:tuhde/Periph/python/periph/chips/color/as7262.py"
     ],
     [
+      "periph/chips/color/isl29125.py",
+      "github:tuhde/Periph/python/periph/chips/color/isl29125.py"
+    ],
+    [
       "periph/chips/comms/mcp2515.py",
       "github:tuhde/Periph/python/periph/chips/comms/mcp2515.py"
     ],
