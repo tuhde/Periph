@@ -101,6 +101,7 @@ Each chip exposes two classes:
 | HT16K33 | LED driver | `chips/led/HT16K33.h` |
 | Hts221 | Humidity sensor | `chips/humidity/Hts221.h` |
 | HTU21DF | Humidity sensor | `chips/humidity/HTU21DF.h` |
+| Htu31d | Humidity sensor | `chips/humidity/Htu31d.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
 | HX710B | ADC/DAC | `chips/adc_dac/HX710B.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |

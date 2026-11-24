@@ -109,6 +109,7 @@ Each chip exposes two classes:
 | HT16K33 | LED driver | 16x8 LED matrix driver |
 | HTS221 | Humidity sensor | Relative humidity and temperature sensor |
 | HTU21DF | Humidity sensor | HTU21D-F humidity and temperature sensor |
+| HTU31D | Humidity sensor | Humidity and temperature sensor |
 | HX710A | ADC/DAC | 24-bit ADC |
 | HX710B | ADC/DAC | 24-bit ADC |
 | HX711 | ADC/DAC | 24-bit ADC |

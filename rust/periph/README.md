@@ -103,7 +103,7 @@ Each chip exposes two structs:
 | HT16K33 | LED driver | 16 × 8 LED matrix driver with key scan (Holtek). |
 | HTS221 | Humidity sensor | Capacitive digital relative-humidity and temperature sensor (STMicroelectronics). |
 | HTU21DF | Humidity sensor | Relative humidity and temperature sensor (Measurement Specialties). |
-| HTU31D | Humidity sensor | Capacitive digital relative-humidity and temperature sensor (STMicroelectronics). |
+| HTU31D | Humidity sensor | Relative humidity and temperature sensor (TE Connectivity). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
