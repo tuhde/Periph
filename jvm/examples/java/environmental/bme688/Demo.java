@@ -8,126 +8,44 @@ import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.environmental.Bme688Full;
 
 /**
- * Room air quality probe: 5-minute run at 0.2 Hz with gas sensor for VOC detection.
+ * Room air probe with parallel mode.
  *
- * Polls all four BME688 channels (temperature, pressure, humidity, gas resistance)
- * every 5 seconds for 60 ticks. At tick 30 the user is prompted to expose the
- * sensor to a VOC source (e.g. a marker pen or breath). After the run, prints
- * min/max/mean for all channels and the VOC response ratio (baseline vs exposed
- * gas resistance).
+ * Part 1: ten forced-mode readings (T, RH, hPa, Ω, dew point), one per 5 s.
+ * Part 2: parallel mode with a 3-step heater profile (320, 250 and 180 °C;
+ * repeats 1, 2, 1; shared wait 100 ms) for one minute, printing the gas
+ * resistance of every heater step, then back to sleep.
  */
 public class Demo {
-
-    private static final int    SAMPLES     = 60;
-    private static final long   INTERVAL_MS = 5000;
-    private static final int    VOC_TICK    = 30;
 
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
         int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
         try (var connection = new I2CConnection(bus, addr)) {      // open I²C bus, (bus, address=0x76) → I2CConnection
             var sensor = new Bme688Full(connection);                     // construct driver, verifies chip ID, reads calibration, (connection) → Bme688Full
-
-            // --- Configure for room air quality monitoring ---
-            // ×4 oversampling on temperature and pressure gives good SNR for
-            // environmental logging. ×2 humidity oversampling balances accuracy
-            // with conversion time. IIR filter ×3 smooths pressure steps from
-            // doors and windows without lagging behind real weather changes.
-            sensor.configure(                                           // configure oversampling, mode, filter, (osrsT, osrsP, osrsH, mode, filter) → void
-                Bme688Full.OSRS_X4,
-                Bme688Full.OSRS_X4,
-                Bme688Full.OSRS_X2,
-                Bme688Full.MODE_FORCED,
-                Bme688Full.FILTER_3);
-
-            // --- Configure heater for gas sensing ---
-            // 320 °C for 150 ms is the Bosch-recommended default for indoor
-            // air quality. The heater burns off residual contaminants on the
-            // MOx surface so the resistance reading reflects current VOC levels.
+            sensor.configure(Bme688Full.OSRS_X2, Bme688Full.OSRS_X16, Bme688Full.OSRS_X1,
+                    Bme688Full.MODE_SLEEP, Bme688Full.FILTER_15);       // configure oversampling, mode, filter, (osrsT, osrsP, osrsH, mode, filter) → void
             sensor.setHeater(320, 150);                                 // configure heater profile 0, (tempC=320 °C, durationMs=150 ms) → void
 
-            double[] temps = new double[SAMPLES];
-            double[] pressures = new double[SAMPLES];
-            double[] humidities = new double[SAMPLES];
-            double[] gasValues = new double[SAMPLES];
-
-            double baselineGas = 0;
-            double exposedGas  = 0;
-            int baselineCount  = 0;
-            int exposedCount   = 0;
-
-            // --- 60-tick sampling loop at 5-second intervals ---
-            // Each iteration triggers a single TPHG cycle and records all four
-            // values. At tick 30 the user is prompted to introduce a VOC source
-            // so the gas resistance drop can be observed in the second half.
-            for (int i = 0; i < SAMPLES; i++) {
-                if (i == VOC_TICK) {
-                    System.out.println("\n>>> Expose sensor to VOC source now (e.g. marker pen, breath) <<<\n");
-                }
-
+            System.out.println("--- forced mode ---");
+            for (int i = 0; i < 10; i++) {
                 double[] all = sensor.readAll();                        // read all four values from one TPHG cycle, () → double[4]
-                double t = all[0];
-                double p = all[1];
-                double h = all[2];
-                double g = all[3];
+                double gm = Math.log(Math.max(all[2], 0.01) / 100.0) + 17.62 * all[0] / (243.12 + all[0]);
+                double dew = 243.12 * gm / (17.62 - gm);                // Magnus dew point, °C
+                System.out.printf("%d: %.1f C, %.1f %%RH, %.1f hPa, %.0f Ohm, dew %.1f C%n",
+                        i, all[0], all[2], all[1], all[3], dew);
+                Thread.sleep(5000);
+            }
 
-                temps[i]       = t;
-                pressures[i]   = p;
-                humidities[i]  = h;
-                gasValues[i]   = g;
-
-                if (!Double.isNaN(g)) {
-                    if (i < VOC_TICK) {
-                        baselineGas += g;
-                        baselineCount++;
-                    } else {
-                        exposedGas += g;
-                        exposedCount++;
-                    }
+            System.out.println("--- parallel mode ---");
+            sensor.startParallel(new int[]{320, 250, 180}, new int[]{1, 2, 1}, 100); // start parallel mode, (tempsC, repeats, sharedWaitMs) → void
+            for (int i = 0; i < 60; i++) {
+                for (Bme688Full.Field f : sensor.readParallel()) {      // read the new data fields, () → List<Field>
+                    System.out.printf("step %d #%d: %.1f C, %.1f %%RH, %.0f Ohm (valid=%b, stable=%b)%n",
+                            f.step, f.subIndex, f.temperature, f.humidity, f.gasResistance, f.gasValid, f.heaterStable);
                 }
-
-                String gasStr = Double.isNaN(g) ? "invalid" : String.format("%.0f Ω", g);
-                System.out.printf("[%2d] temperature=%.2f °C  pressure=%.2f hPa  humidity=%.1f %%RH  gas=%s%n",
-                        i + 1, t, p, h, gasStr);
-
-                Thread.sleep(INTERVAL_MS);
+                Thread.sleep(1000);
             }
-
-            // --- Print summary statistics ---
-            // After the run, report the full range and mean for each channel so
-            // the user can see how the environment changed during the session.
-            double minT = temps[0], maxT = temps[0], sumT = 0;
-            double minP = pressures[0], maxP = pressures[0], sumP = 0;
-            double minH = humidities[0], maxH = humidities[0], sumH = 0;
-            for (int i = 0; i < SAMPLES; i++) {
-                minT = Math.min(minT, temps[i]);       maxT = Math.max(maxT, temps[i]);       sumT += temps[i];
-                minP = Math.min(minP, pressures[i]);   maxP = Math.max(maxP, pressures[i]);   sumP += pressures[i];
-                minH = Math.min(minH, humidities[i]);  maxH = Math.max(maxH, humidities[i]);  sumH += humidities[i];
-            }
-            System.out.printf("%n--- Summary (%d samples) ---%n", SAMPLES);
-            System.out.printf("Temperature: min=%.2f °C  max=%.2f °C  mean=%.2f °C%n",
-                    minT, maxT, sumT / SAMPLES);
-            System.out.printf("Pressure:    min=%.2f hPa  max=%.2f hPa  mean=%.2f hPa%n",
-                    minP, maxP, sumP / SAMPLES);
-            System.out.printf("Humidity:    min=%.1f %%RH  max=%.1f %%RH  mean=%.1f %%RH%n",
-                    minH, maxH, sumH / SAMPLES);
-
-            // --- VOC response analysis ---
-            // Compare the mean gas resistance before and after VOC exposure.
-            // A significant drop indicates the MOx sensor detected VOCs; the
-            // ratio quantifies the sensor's response magnitude.
-            if (baselineCount > 0 && exposedCount > 0) {
-                double meanBaseline = baselineGas / baselineCount;
-                double meanExposed  = exposedGas / exposedCount;
-                double ratio        = meanBaseline / meanExposed;
-                System.out.printf("%n--- VOC Response ---%n");
-                System.out.printf("Baseline gas resistance: %.0f Ω (mean of %d readings)%n", meanBaseline, baselineCount);
-                System.out.printf("Exposed gas resistance:  %.0f Ω (mean of %d readings)%n", meanExposed, exposedCount);
-                System.out.printf("Response ratio:          %.2f× (>1 = VOC detected)%n", ratio);
-            } else {
-                System.out.printf("%n--- VOC Response ---%n");
-                System.out.println("Insufficient valid gas readings for VOC analysis.");
-            }
+            sensor.stopParallel();                                      // back to sleep, () → void
         }
     }
 }

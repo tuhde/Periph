@@ -5,18 +5,10 @@ ADDRS = {0x76, 0x77}
 REGS = {
     0x00: 'res_heat_val',
     0x02: 'res_heat_range',
-    0x04: 'range_sw_err',
     0x1D: 'meas_status_0',
-    0x1F: 'press_msb',
-    0x20: 'press_lsb',
-    0x21: 'press_xlsb',
-    0x22: 'temp_msb',
-    0x23: 'temp_lsb',
-    0x24: 'temp_xlsb',
-    0x25: 'hum_msb',
-    0x26: 'hum_lsb',
-    0x2A: 'gas_r_msb',
-    0x2B: 'gas_r_lsb',
+    0x2C: 'gas_r_msb',
+    0x2D: 'gas_r_lsb',
+    0x6E: 'gas_wait_shared',
     0x70: 'ctrl_gas_0',
     0x71: 'ctrl_gas_1',
     0x72: 'ctrl_hum',
@@ -24,13 +16,14 @@ REGS = {
     0x75: 'config',
     0xD0: 'id',
     0xE0: 'reset',
+    0xF0: 'variant_id',
 }
 
 OSRS_NAMES = {
     0: 'skip', 1: 'x1', 2: 'x2', 3: 'x4', 4: 'x8',
     5: 'x16', 6: 'x16', 7: 'x16',
 }
-MODE_NAMES = {0: 'Sleep', 1: 'Forced', 2: 'Forced', 3: 'Sleep'}
+MODE_NAMES = {0: 'Sleep', 1: 'Forced', 2: 'Parallel', 3: 'Sleep'}
 FILTER_NAMES = {
     0: 'off', 1: '1', 2: '3', 3: '7',
     4: '15', 5: '31', 6: '63', 7: '127',
@@ -81,9 +74,13 @@ def _decode_config(raw):
 
 
 def _decode_ctrl_gas_1(raw):
-    run_gas = (raw >> 4) & 1
+    run_gas = (raw >> 5) & 1
+    run_gas_l = (raw >> 4) & 1
     nb_conv = raw & 0x0F
-    return 'ctrl_gas_1 0x%02X: run_gas=%d nb_conv=%d' % (raw, run_gas, nb_conv)
+    text = 'ctrl_gas_1 0x%02X: run_gas=%d nb_conv=%d' % (raw, run_gas, nb_conv)
+    if run_gas_l and not run_gas:
+        text += ' (BME680 layout: bit 4 only)'
+    return text
 
 
 def _decode_ctrl_gas_0(raw):
@@ -309,28 +306,34 @@ class Decoder(srd.Decoder):
                        'CAL2']])
             return
 
-        if reg == 0x1F and len(buf) >= 13:
-            press_adc = (buf[0] << 12) | (buf[1] << 4) | (buf[2] >> 4)
-            temp_adc  = (buf[3] << 12) | (buf[4] << 4) | (buf[5] >> 4)
-            hum_adc   = (buf[6] << 8) | buf[7]
-            gas_adc   = (buf[11] << 2) | (buf[12] >> 6)
-            gas_range = buf[12] & 0x0F
-            gas_valid = (buf[12] >> 5) & 1
-            heat_stab = (buf[12] >> 4) & 1
-            self.put(ss, es, self.out_ann,
-                     [ANN_DATA_READ,
-                      ['ADC: P=%d T=%d H=%d G=%d range=%d valid=%d stab=%d'
-                       % (press_adc, temp_adc, hum_adc, gas_adc, gas_range, gas_valid, heat_stab),
-                        'P=%d T=%d H=%d G=%d' % (press_adc, temp_adc, hum_adc, gas_adc)]])
+        if reg == 0x1D and len(buf) >= 17:
+            for n in range(len(buf) // 17):
+                f = buf[n * 17:(n + 1) * 17]
+                press_adc = (f[2] << 12) | (f[3] << 4) | (f[4] >> 4)
+                temp_adc  = (f[5] << 12) | (f[6] << 4) | (f[7] >> 4)
+                hum_adc   = (f[8] << 8) | f[9]
+                gas_adc   = (f[15] << 2) | (f[16] >> 6)
+                gas_range = f[16] & 0x0F
+                gas_valid = (f[16] >> 5) & 1
+                heat_stab = (f[16] >> 4) & 1
+                gas_ohm = (10000 * (262144 >> gas_range) // (4096 + 3 * (gas_adc - 512))) * 100 \
+                    if 4096 + 3 * (gas_adc - 512) > 0 else 0
+                self.put(ss, es, self.out_ann,
+                         [ANN_DATA_READ,
+                          ['Field %d: %s sub=%d P=%d T=%d H=%d G=%d range=%d valid=%d stab=%d R=%d Ohm'
+                           % (n, _decode_meas_status(f[0]), f[1], press_adc, temp_adc, hum_adc, gas_adc,
+                              gas_range, gas_valid, heat_stab, gas_ohm),
+                           'P=%d T=%d H=%d G=%d' % (press_adc, temp_adc, hum_adc, gas_adc)]])
+            self._emit_status(_decode_meas_status(buf[0]), buf[0], ss, es)
             self.put(ss, es, self.out_ann,
                      [ANN_MEASUREMENT_TRIGGER_DONE,
-                      ['measurement_trigger_done: ADC burst read', 'measurement_trigger_done', 'MEAS_DONE']])
+                      ['measurement_trigger_done: field burst read', 'measurement_trigger_done', 'MEAS_DONE']])
             return
 
         if reg == 0xD0 and len(buf) == 1:
             chip_id = buf[0]
             if chip_id == 0x61:
-                label = 'BME688'
+                label = 'BME68x'
             else:
                 label = 'unknown'
                 self._warn(ss, es, 'Unexpected chip ID: 0x%02X' % chip_id)
@@ -361,12 +364,12 @@ class Decoder(srd.Decoder):
                       ['res_heat_range=%d' % rhr, 'rhr=%d' % rhr]])
             return
 
-        if reg == 0x04 and len(buf) == 1:
-            rse = (buf[0] >> 4) & 0x0F
-            rse_s = rse if rse < 8 else rse - 16
+        if reg == 0xF0 and len(buf) == 1:
+            label = 'BME688' if buf[0] == 0x01 else 'unknown'
+            if buf[0] != 0x01:
+                self._warn(ss, es, 'Unexpected variant ID: 0x%02X' % buf[0])
             self.put(ss, es, self.out_ann,
-                     [ANN_REG_READ,
-                      ['range_switching_error=%d' % rse_s, 'rse=%d' % rse_s]])
+                     [ANN_REG_READ, ['Variant ID: 0x%02X (%s)' % (buf[0], label), 'VAR 0x%02X' % buf[0]]])
             return
 
         hex_bytes = ' '.join('0x%02X' % b for b in buf)
@@ -389,10 +392,10 @@ class Decoder(srd.Decoder):
         if reg == 0x74 and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE, [_decode_ctrl_meas(buf[0]), 'ctrl 0x%02X' % buf[0]]])
-            if (buf[0] & 0x03) == 0x01:  # mode == Forced
+            if (buf[0] & 0x03) in (0x01, 0x02):  # mode == Forced / Parallel
                 self.put(ss, es, self.out_ann,
                          [ANN_MEASUREMENT_TRIGGER_START,
-                          ['measurement_trigger_start: ctrl_meas mode=Forced written', 'measurement_trigger_start', 'MEAS_START']])
+                          ['measurement_trigger_start: ctrl_meas mode=Forced/Parallel written', 'measurement_trigger_start', 'MEAS_START']])
             return
 
         if reg == 0x72 and len(buf) == 1:
@@ -441,8 +444,18 @@ class Decoder(srd.Decoder):
             mult_names = ['x1', 'x4', 'x16', 'x64']
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE,
-                      ['gas_wait_%d <- 0x%02X (%s, %d ms)' % (idx, buf[0], mult_names[mult], timer),
+                      ['gas_wait_%d <- 0x%02X (forced: %s, %d ms; parallel: %d repetitions)'
+                       % (idx, buf[0], mult_names[mult], timer * (1, 4, 16, 64)[mult], buf[0]),
                        'gw_%d 0x%02X' % (idx, buf[0])]])
+            return
+
+        if reg == 0x6E and len(buf) == 1:
+            mult = (buf[0] >> 6) & 3
+            units = buf[0] & 0x3F
+            self.put(ss, es, self.out_ann,
+                     [ANN_REG_WRITE,
+                      ['gas_wait_shared <- 0x%02X (%.1f ms)' % (buf[0], units * (1, 4, 16, 64)[mult] * 0.477),
+                       'gws 0x%02X' % buf[0]]])
             return
 
         hex_bytes = ' '.join('0x%02X' % b for b in buf)

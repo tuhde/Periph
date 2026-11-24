@@ -86,6 +86,10 @@ fun main() {
         sensor.setAmbientTemperature(25.0)                          // override ambient temperature for heater calc, (tempC °C) → Unit
                                                                     // recomputes heater resistance register using the new ambient value
 
+        val variant = sensor.variantId()                              // read variant ID register 0xF0, () → Int (0x01 for the BME688)
+        sensor.startParallel(intArrayOf(320, 250), intArrayOf(1, 2), 100.0)  // start parallel mode, (tempsC, repeats, sharedWaitMs) → Unit
+        val fields = sensor.readParallel()                               // read new data fields, () → List<Field>
+        sensor.stopParallel()                                            // leave parallel mode, () → Unit
         sensor.reset()                                              // soft-reset the chip and reload calibration, () → Unit
                                                                     // writes 0xB6 to 0xE0, waits 2 ms, re-reads NVM, restores all registers
 

@@ -87,6 +87,10 @@ public class Complete {
             sensor.setAmbientTemperature(25.0);                          // override ambient temperature for heater calc, (tempC °C) → void
                                                                          // recomputes heater resistance register using the new ambient value
 
+            int variant = sensor.variantId();                              // read variant ID register 0xF0, () → int (0x01 for the BME688)
+            sensor.startParallel(new int[]{320, 250}, new int[]{1, 2}, 100);   // start parallel mode, (tempsC, repeats, sharedWaitMs) → void
+            var fields = sensor.readParallel();                              // read new data fields, () → List<Field>
+            sensor.stopParallel();                                           // leave parallel mode, () → void
             sensor.reset();                                              // soft-reset the chip and reload calibration, () → void
                                                                          // writes 0xB6 to 0xE0, waits 2 ms, re-reads NVM, restores all registers
 

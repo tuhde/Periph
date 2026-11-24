@@ -90,6 +90,7 @@ BME280Full	KEYWORD1
 BME280Minimal	KEYWORD1
 BME680Full	KEYWORD1
 BME680Minimal	KEYWORD1
+BME688Field	KEYWORD1
 BME688Full	KEYWORD1
 BME688Minimal	KEYWORD1
 BMP085Full	KEYWORD1
@@ -1290,6 +1291,7 @@ read_orientation	KEYWORD2
 read_otp	KEYWORD2
 read_packet	KEYWORD2
 read_page	KEYWORD2
+read_parallel	KEYWORD2
 read_peak	KEYWORD2
 read_periodic	KEYWORD2
 read_port	KEYWORD2
@@ -1967,6 +1969,7 @@ start_continuous_als	KEYWORD2
 start_continuous_range	KEYWORD2
 start_conversion	KEYWORD2
 start_counter	KEYWORD2
+start_parallel	KEYWORD2
 start_periodic	KEYWORD2
 stats	KEYWORD2
 status	KEYWORD2
@@ -1989,6 +1992,7 @@ stop_continuous	KEYWORD2
 stop_continuous_als	KEYWORD2
 stop_continuous_range	KEYWORD2
 stop_crypto	KEYWORD2
+stop_parallel	KEYWORD2
 stop_periodic	KEYWORD2
 stop_receive	KEYWORD2
 store	KEYWORD2
@@ -2029,6 +2033,7 @@ usesInternalReference	KEYWORD2
 utcDate	KEYWORD2
 utcTime	KEYWORD2
 valid	KEYWORD2
+variant_id	KEYWORD2
 vbusPresent	KEYWORD2
 vbusVoltage	KEYWORD2
 vcselPulsePeriod	KEYWORD2
@@ -2669,6 +2674,7 @@ MODE_NEW_SAMPLE_READY	LITERAL1
 MODE_NORMAL	LITERAL1
 MODE_OUT_OF_WINDOW	LITERAL1
 MODE_PAGE	LITERAL1
+MODE_PARALLEL	LITERAL1
 MODE_POWERDOWN	LITERAL1
 MODE_POWER_DOWN	LITERAL1
 MODE_PWM_ANALOG	LITERAL1

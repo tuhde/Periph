@@ -70,6 +70,13 @@ public class Bme688Test {
                       all[2] >= 0.0 && all[2] <= 100.0);
 
             // reset — must complete without exception and keep sensor functional
+            checkTrue("variant_id: variantId() == 0x01", sensor.variantId() == 0x01);
+            sensor.startParallel(new int[]{320, 250}, new int[]{1, 1}, 100);
+            Thread.sleep(2000);
+            var fields = sensor.readParallel();
+            sensor.stopParallel();
+            checkTrue("parallel_mode: at least one valid field",
+                    !fields.isEmpty() && fields.get(0).temperature >= -40 && fields.get(0).temperature <= 85);
             sensor.reset();
             checkTrue("reset: reset() accepted", true);
 
