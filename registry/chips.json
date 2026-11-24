@@ -2729,7 +2729,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "apds9250",
       "datasheet": "datasheets/light/apds9250.pdf"
     },
     {

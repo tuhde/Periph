@@ -534,7 +534,7 @@ CHIPS = (
     {"id": "st25dv", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x57,),
      "probe": {"register": 0x17, "reg_bytes": 2, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x24, 0x26,)}},
-    {"id": "apds9250", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "apds9250", "driver": "apds9250", "write_sensitive": False, "aliased": False,
      "addresses": (0x52,),
      "probe": {"register": 0x06, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xF0, "expected": (0xB0,)}},
     {"id": "rrh62000", "driver": None, "write_sensitive": True, "aliased": False,
