@@ -185,7 +185,7 @@ var registry = []Chip{
 	{ID: "max17048", Driver: "max17048", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x36}, Probe: &IdProbe{Register: 0x08, RegBytes: 1, Length: 2, LittleEndian: false, Mask: 0xFFF0, Expected: []uint32{0x0010}}},
 	{ID: "is31fl3731", Driver: "is31fl3731", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x74, 0x75, 0x76, 0x77}, Probe: nil},
 	{ID: "as7262", Driver: "as7262", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x49}, Probe: nil},
-	{ID: "hts221", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5F}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xBC}}},
+	{ID: "hts221", Driver: "hts221", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x5F}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xBC}}},
 	{ID: "htu31d", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x40, 0x41}, Probe: nil},
 	{ID: "bh1750", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x23, 0x5C}, Probe: nil},
 	{ID: "ms5607", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x76, 0x77}, Probe: nil},
