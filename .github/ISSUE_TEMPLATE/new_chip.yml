@@ -32,7 +32,6 @@ body:
         - Environmental (temperature + humidity + pressure)
         - Gas sensor
         - GNSS / GPS module
-        - GPIO expander
         - Gyroscope
         - Humidity sensor
         - IMU (accelerometer + gyroscope)
