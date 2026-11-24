@@ -99,6 +99,7 @@
 #include "chips/humidity/Hts221.h"
 #include "chips/humidity/Htu31d.h"
 #include "chips/humidity/SHT31.h"
+#include "chips/humidity/Shtc3.h"
 #include "chips/humidity/Si7021.h"
 #include "chips/imu/BNO055.h"
 #include "chips/imu/ICM20948.h"

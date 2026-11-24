@@ -175,6 +175,7 @@ Each chip exposes two classes:
 | SD_SPI | Memory | SD card in SPI mode |
 | SH1106 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
 | SHT31 | Humidity sensor | Temperature and humidity sensor |
+| SHTC3 | Humidity sensor | Humidity and temperature sensor |
 | SI7021 | Humidity sensor | Humidity and temperature sensor |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1305 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |

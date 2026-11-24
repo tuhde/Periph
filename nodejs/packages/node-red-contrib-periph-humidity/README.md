@@ -1,8 +1,8 @@
 # node-red-contrib-periph-humidity
 
-Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, HTU31D, SHT31, SI7021 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, HTU31D, SHT31, SHTC3, SI7021 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (10):** DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, HTU31D, SHT31, SI7021.
+**Supported chips (11):** DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, HTU31D, SHT31, SHTC3, SI7021.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-humidity/examples).
 
@@ -38,6 +38,8 @@ npm install node-red-contrib-periph-humidity
 | `htu31d` | input | Reads temperature and relative humidity from a TE Connectivity HTU31D over I²C (address 0x40 or 0x41) with one CRC-checked conversion per message. |
 | `sht31-device` | config | I²C bus and address for a SHT31 |
 | `sht31` | input | Reads temperature and relative humidity from a Sensirion SHT31 over I²C (0x44 with ADDR low, 0x45 with ADDR high) with one single-shot measurement per message. Both CRC bytes are verified. |
+| `shtc3-device` | config | I²C bus and address for a SHTC3 |
+| `shtc3` | input | Reads temperature and relative humidity from a Sensirion SHTC3 over I²C (address 0x70). Each message wakes the sensor, runs one CRC-checked measurement and puts it back to sleep. |
 | `si7021-device` | config | I²C bus and address for a SI7021 |
 | `si7021` | input | Reads relative humidity and temperature from a Silicon Labs Si7021 over I²C (fixed address 0x40) with one relative-humidity measurement per message; the temperature comes from the same conversion. The CRC of the humidity result is verified. |
 

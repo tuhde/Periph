@@ -1,0 +1,1 @@
+_periph_shtc3.set_sleep_between(bool(int(${_on})))

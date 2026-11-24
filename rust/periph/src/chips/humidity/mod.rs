@@ -27,5 +27,8 @@ pub use htu31d::{HTU31DMinimal, HTU31DFull, Error as HTU31DError};
 pub mod sht31;
 pub use sht31::{Sht31Minimal, Sht31Full, Repeatability, Error as Sht31Error};
 
+pub mod shtc3;
+pub use shtc3::{SHTC3Minimal, SHTC3Full, Error as SHTC3Error};
+
 pub mod si7021;
 pub use si7021::{Si7021Minimal, Si7021Full, Error as Si7021Error};

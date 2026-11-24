@@ -159,6 +159,7 @@ Each chip exposes two classes:
 | SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
 | SH1106 | Display driver | `periph/src/chips/display/sh1106` |
 | SHT31 | Humidity sensor | `periph/src/chips/humidity/sht31` |
+| SHTC3 | Humidity sensor | `periph/src/chips/humidity/shtc3` |
 | SI7021 | Humidity sensor | `periph/src/chips/humidity/si7021` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | SSD1305 | Display driver | `periph/src/chips/display/ssd1305` |
