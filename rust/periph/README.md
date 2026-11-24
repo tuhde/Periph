@@ -140,6 +140,7 @@ Each chip exposes two structs:
 | MFRC522 | RFID/NFC | 13.56 MHz contactless reader/writer (NXP). |
 | MMA8451Q | Accelerometer | 3-axis MEMS accelerometer (NXP / Freescale). |
 | MPL115A2 | Pressure sensor | Miniature I²C digital barometer, 50–115 kPa (NXP Semiconductors). |
+| MPL3115A2 | Pressure sensor | Barometric pressure, altitude and temperature sensor (NXP). |
 | MPR121 | Other | Proximity capacitive touch sensor controller (Freescale/NXP). |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope). |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
