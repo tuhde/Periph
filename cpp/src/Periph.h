@@ -96,6 +96,7 @@
 #include "chips/humidity/HS30xx.h"
 #include "chips/humidity/HS40xx.h"
 #include "chips/humidity/HTU21DF.h"
+#include "chips/humidity/Hts221.h"
 #include "chips/humidity/SHT31.h"
 #include "chips/humidity/Si7021.h"
 #include "chips/imu/BNO055.h"
