@@ -71,6 +71,7 @@ Each chip exposes two classes:
 | AT24C02N | Memory | `chips/memory/AT24C02N.h` |
 | AT24C64 | Memory | `chips/memory/AT24C64.h` |
 | AXP2101 | Power monitor | `chips/power/AXP2101.h` |
+| Bh1750 | Light sensor | `chips/light/Bh1750.h` |
 | BMA150 | Accelerometer | `chips/accelerometer/BMA150.h` |
 | BMA180 | Accelerometer | `chips/accelerometer/BMA180.h` |
 | BME280 | Environmental sensor | `chips/environmental/BME280.h` |

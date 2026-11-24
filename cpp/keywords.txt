@@ -80,6 +80,8 @@ AlertPolarity	KEYWORD1
 Apds9250Counts	KEYWORD1
 Apds9250Full	KEYWORD1
 Apds9250Minimal	KEYWORD1
+BH1750Full	KEYWORD1
+BH1750Minimal	KEYWORD1
 BMA150Full	KEYWORD1
 BMA150Minimal	KEYWORD1
 BMA180Full	KEYWORD1
@@ -873,6 +875,7 @@ get_gyro_gains	KEYWORD2
 get_hibernate_thresholds	KEYWORD2
 get_integration_time	KEYWORD2
 get_limits	KEYWORD2
+get_measurement_time_register	KEYWORD2
 get_mic_gain	KEYWORD2
 get_mode	KEYWORD2
 get_nv_wiper	KEYWORD2
@@ -1009,6 +1012,7 @@ longitude	KEYWORD2
 low	KEYWORD2
 lsb	KEYWORD2
 lux	KEYWORD2
+lux_per_count	KEYWORD2
 mag	KEYWORD2
 magDataReady	KEYWORD2
 mag_data_ready	KEYWORD2
@@ -1024,6 +1028,8 @@ max_chunk	KEYWORD2
 max_position	KEYWORD2
 measure	KEYWORD2
 measureMagOnce	KEYWORD2
+measure_once	KEYWORD2
+measurement_time	KEYWORD2
 microstepPosition	KEYWORD2
 midscale	KEYWORD2
 mode	KEYWORD2
@@ -1096,6 +1102,7 @@ powerOffSource	KEYWORD2
 powerOnSource	KEYWORD2
 power_avg	KEYWORD2
 power_down	KEYWORD2
+power_on	KEYWORD2
 power_peak	KEYWORD2
 power_reset_flag	KEYWORD2
 power_up	KEYWORD2
@@ -1771,6 +1778,7 @@ set_max_angle	KEYWORD2
 set_max_chunk	KEYWORD2
 set_max_convergence_time	KEYWORD2
 set_max_position	KEYWORD2
+set_measurement_time	KEYWORD2
 set_measurement_wait	KEYWORD2
 set_mic_gain	KEYWORD2
 set_min_interval_ms	KEYWORD2
@@ -1852,6 +1860,7 @@ set_sdp_mute	KEYWORD2
 set_sea_level_pressure	KEYWORD2
 set_segment_map	KEYWORD2
 set_sense_resistor	KEYWORD2
+set_sensitivity	KEYWORD2
 set_sensors	KEYWORD2
 set_sequential	KEYWORD2
 set_shadow	KEYWORD2
@@ -2611,6 +2620,8 @@ MODE_EXTERNAL_EDGE	LITERAL1
 MODE_EXTERNAL_LEVEL	LITERAL1
 MODE_FORCED	LITERAL1
 MODE_GYROONLY	LITERAL1
+MODE_H	LITERAL1
+MODE_H2	LITERAL1
 MODE_HIGH_RESOLUTION	LITERAL1
 MODE_HYBRID	LITERAL1
 MODE_IMU	LITERAL1
@@ -2618,6 +2629,7 @@ MODE_INTERNAL_TRIGGER	LITERAL1
 MODE_INVERSE	LITERAL1
 MODE_KW	LITERAL1
 MODE_KWR	LITERAL1
+MODE_L	LITERAL1
 MODE_LEVEL_HIGH	LITERAL1
 MODE_LEVEL_LOW	LITERAL1
 MODE_LOW_POWER	LITERAL1
