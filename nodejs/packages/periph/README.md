@@ -61,6 +61,7 @@ Each chip exposes two classes:
 | AT24C02N | Memory | `periph/src/chips/memory/at24c02n` |
 | AT24C64 | Memory | `periph/src/chips/memory/at24c64` |
 | AXP2101 | Power monitor | `periph/src/chips/power/axp2101` |
+| BH1750 | Light sensor | `periph/src/chips/light/bh1750` |
 | BMA150 | Accelerometer | `periph/src/chips/accelerometer/bma150` |
 | BMA180 | Accelerometer | `periph/src/chips/accelerometer/bma180` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |

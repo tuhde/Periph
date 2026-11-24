@@ -1,0 +1,91 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('bh1750-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x23' },
+            mode:    { value: '0' },
+            mtreg:   { value: '69', validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('BH1750 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="bh1750-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="BH1750">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x23"> &nbsp;(0x23 or 0x5C, ADDR pin)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mode"><i class="fa fa-cog"></i> Mode</label>
+        <select id="node-config-input-mode" style="width:200px">
+            <option value="0" selected>H-resolution (1 lx)</option>
+            <option value="1">H-resolution 2 (0.5 lx)</option>
+            <option value="2">L-resolution (4 lx, 16 ms)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mtreg"><i class="fa fa-cog"></i> Measurement time register</label>
+        <input type="number" id="node-config-input-mtreg" min="31" max="254" style="width:80px"> &nbsp;(31-254, default 69)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('bh1750', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'bh1750-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'BH1750'; },
+        paletteLabel: 'BH1750'
+    });
+</script>
+
+<script type="text/html" data-template-name="bh1750">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BH1750">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="bh1750">
+    <p>Reads the illuminance from a ROHM BH1750FVI ambient light sensor over I²C (address 0x23 or 0x5C)
+    with one one-time measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement; the node waits for the full measurement time (180 ms in the
+        H modes, 24 ms in L mode, scaled with the measurement time register).</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.lux <span class="property-type">number</span></dt>
+        <dd>Illuminance in lux.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x23 or 0x5C), the measurement mode (H-resolution 1 lx, H-resolution 2 0.5 lx or
+    L-resolution 4 lx) and the measurement time register (31 to 254, default 69; a larger value raises the sensitivity
+    and lengthens the measurement), set in the <b>bh1750-device</b> config node.</p>
+</script>
