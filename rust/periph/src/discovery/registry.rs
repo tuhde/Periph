@@ -177,7 +177,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "hs40xx", driver: Some("hs40xx"), write_sensitive: true, aliased: false, addresses: &[0x54], probe: None },
     ChipEntry { id: "si7021", driver: Some("si7021"), write_sensitive: true, aliased: false, addresses: &[0x40], probe: Some(IdProbe { register: 0xFCC9, reg_bytes: 2, length: 4, little_endian: false, mask: 0xFF000000, expected: &[0x15000000] }) },
     ChipEntry { id: "lps22hb", driver: Some("lps22hb"), write_sensitive: false, aliased: false, addresses: &[0x5C, 0x5D], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xB1] }) },
-    ChipEntry { id: "saa1064", driver: None, write_sensitive: true, aliased: false, addresses: &[0x38, 0x39, 0x3A, 0x3B], probe: None },
+    ChipEntry { id: "saa1064", driver: Some("saa1064"), write_sensitive: true, aliased: false, addresses: &[0x38, 0x39, 0x3A, 0x3B], probe: None },
     ChipEntry { id: "pcf8563", driver: None, write_sensitive: false, aliased: false, addresses: &[0x51], probe: None },
     ChipEntry { id: "mcp7940n", driver: None, write_sensitive: false, aliased: false, addresses: &[0x6F], probe: None },
     ChipEntry { id: "pcf8573", driver: None, write_sensitive: true, aliased: false, addresses: &[0x68, 0x69, 0x6A, 0x6B], probe: None },

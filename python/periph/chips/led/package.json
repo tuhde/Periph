@@ -33,6 +33,10 @@
       "github:tuhde/Periph/python/periph/chips/led/pca9685.py"
     ],
     [
+      "periph/chips/led/saa1064.py",
+      "github:tuhde/Periph/python/periph/chips/led/saa1064.py"
+    ],
+    [
       "periph/chips/led/sk6812rgbw.py",
       "github:tuhde/Periph/python/periph/chips/led/sk6812rgbw.py"
     ],

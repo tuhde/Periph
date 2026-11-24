@@ -2366,7 +2366,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "saa1064",
       "datasheet": "datasheets/led/saa1064.pdf"
     },
     {
