@@ -384,6 +384,8 @@ SH1106SpiFull	KEYWORD1
 SH1106SpiMinimal	KEYWORD1
 SHT31Full	KEYWORD1
 SHT31Minimal	KEYWORD1
+SHTC3Full	KEYWORD1
+SHTC3Minimal	KEYWORD1
 SK6812RGBWFull	KEYWORD1
 SK6812RGBWMinimal	KEYWORD1
 SMBusConnection	KEYWORD1
@@ -1865,6 +1867,7 @@ set_sensors	KEYWORD2
 set_sequential	KEYWORD2
 set_shadow	KEYWORD2
 set_sleep	KEYWORD2
+set_sleep_between	KEYWORD2
 set_slope	KEYWORD2
 set_soc_change_alert	KEYWORD2
 set_soft_start	KEYWORD2
