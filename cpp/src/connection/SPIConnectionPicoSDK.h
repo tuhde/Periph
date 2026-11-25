@@ -1,5 +1,6 @@
 #pragma once
 #include <hardware/spi.h>
+#include <string.h>
 #include <hardware/gpio.h>
 #include "RegisterConnection.h"
 #include "SPIExtensions.h"
@@ -106,8 +107,9 @@ protected:
      */
     void _write(const uint8_t* data, size_t len) override {
         if (!_held) gpio_put(_cs, 0);
-        spi_write_blocking(_spi, data, len);
+        int n = spi_write_blocking(_spi, data, len);
         if (!_held) gpio_put(_cs, 1);
+        _setOk(n == static_cast<int>(len));
     }
 
     /** @brief Read bytes from the device (dummy `0x00` clocked out on MOSI).
@@ -116,8 +118,11 @@ protected:
      */
     void _read(uint8_t* buf, size_t len) override {
         if (!_held) gpio_put(_cs, 0);
-        spi_read_blocking(_spi, 0xFF, buf, len);   // MOSI idles high (SD cards read other levels as commands)
+        int n = spi_read_blocking(_spi, 0xFF, buf, len);   // MOSI idles high (SD cards read other levels as commands)
         if (!_held) gpio_put(_cs, 1);
+        bool good = (n == static_cast<int>(len));
+        if (!good) memset(buf, 0, len);
+        _setOk(good);
     }
 
     /** @brief Write then read with CS held across both phases.
@@ -144,9 +149,11 @@ protected:
         // clocked out on MOSI during the read phase.
         uint8_t rx_buf[256];
         if (!_held) gpio_put(_cs, 0);
-        spi_write_read_blocking(_spi, tx_buf, rx_buf, data_len + buf_len);
+        int n = spi_write_read_blocking(_spi, tx_buf, rx_buf, data_len + buf_len);
         if (!_held) gpio_put(_cs, 1);
-        for (size_t i = 0; i < buf_len; i++) buf[i] = rx_buf[data_len + i];
+        bool good = (n == static_cast<int>(data_len + buf_len));
+        for (size_t i = 0; i < buf_len; i++) buf[i] = good ? rx_buf[data_len + i] : 0;
+        _setOk(good);
     }
 
 private:
