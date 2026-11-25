@@ -47,7 +47,7 @@
 - **SPI** (`SPIConnection{Zephyr,ESPIDF,PicoSDK,STM32Cube}.h`): call `_setOk(...)` from the platform result: `spi_write` / `spi_transceive` (`== 0`), `spi_device_polling_transmit` (`== ESP_OK`), `spi_write_blocking` / `spi_read_blocking` / `spi_write_read_blocking` (count `== len`), `HAL_SPI_*` (`== HAL_OK`). Zero-fill the destination on a failed read so drivers never consume stale data (matches `Connection::read` for a disabled connection).
 - **UART** (`UARTConnection{ESPIDF,STM32Cube}.h`): `uart_write_bytes` / `uart_read_bytes` count, `HAL_UART_*` status → `_setOk`. Zephyr and Pico are ISR / poll based; `ok()` is `false` only when a read times out with fewer bytes than requested.
 - **SMBus** (`SMBusConnection{Zephyr,ESPIDF,PicoSDK,STM32Cube}.h` and Arduino): Zephyr drops the `i2c_write` / `i2c_read` return values; ESP-IDF, Pico and STM32Cube inherit the I²C result but overwrite state with `_valid`. Make a PEC mismatch call `_setOk(false)` in addition to the existing `valid()`, which stays as an alias so no driver changes.
-- **GPIO** (`InputPin*` / `OutputPin*`): check `gpio_pin_configure_dt`, `gpio_add_callback`, `gpio_pin_interrupt_configure_dt` (Zephyr), `gpio_isr_handler_add`, `gpio_set_intr_type`, `gpio_install_isr_service` (ESP-IDF; tolerate `ESP_ERR_INVALID_STATE`). Pins have no `Connection`, so a failure cannot use `ok()`: either add a `bool ok()` to `InputPin` / `OutputPin` (matching the Connection contract) or leave GPIO setup failures as a documented limitation. Decision in §6.
+- **GPIO** (`InputPin*` / `OutputPin*`): check `gpio_pin_configure_dt`, `gpio_add_callback`, `gpio_pin_interrupt_configure_dt` (Zephyr), `gpio_isr_handler_add`, `gpio_set_intr_type`, `gpio_install_isr_service` (ESP-IDF; tolerate `ESP_ERR_INVALID_STATE`). Pins have no `Connection`, so **`InputPin` / `OutputPin` get a `bool ok()`** mirroring `Connection::ok()` (decided, §6); setup calls set it, no chip-driver change.
 - NeoPixel / SiPo writers propagate through the same `_setOk` on SPI-based variants.
 - Doxygen on `Connection::ok()` documents the contract and which connections report it; `specs/feature_connection_design.md` gets a short addendum and each `transport_*.md` Error Handling table gains the embedded `ok()` row.
 
@@ -67,7 +67,7 @@
 
 - `I2CConnection._write` / `_read` and `UARTConnection._write`: error when `n != len` (UART: loop or fail), not only `n < 0`.
 - `I2CBus` already captures `errno` through `Linker.Option.captureCallState("errno")`. Factor that into one helper in `AbstractConnection` and apply it to the `I2CConnection`, `SPIConnection`, `UARTConnection`, `NeoPixelConnection`, `SiPoConnection`, `SMBusConnection` and pin downcalls so the `IOException` message carries `errno`.
-- `I2CConnection._writeRead` is still two separate transactions (stop then start, documented in the class Javadoc). Recommended: implement a true repeated start with `I2C_RDWR` (already used in `I2CBus` for probing, so the ioctl plumbing exists).
+- `I2CConnection._writeRead` is still two separate transactions (stop then start, documented in the class Javadoc). **Decided:** implement a true repeated start with `I2C_RDWR` (already used in `I2CBus` for probing, so the ioctl plumbing exists).
 
 ### 3.5 Node.js
 
@@ -85,7 +85,7 @@
 ### 3.7 Rust
 
 - `neopixel.rs` `encode`: `resize_default(...).ok()` leaves an empty buffer when the payload exceeds the 768-byte `heapless::Vec`, so nothing is sent without an error. Return an error (`NeoPixelError::TooLong`) from `write` / `write_ext`, or size the buffer by const generic.
-- `hx711.rs::new`: `let _ = pd_sck.set_low()` — return `Result` (breaking constructor change: decide, or document and keep). Every other `set_low` in the file already maps to `HX711Error::Clock`.
+- `hx711.rs::new`: `let _ = pd_sck.set_low()` — return `Result` (**decided:** return `Result`; breaking constructor change — update the HX711 / HX710A Rust drivers, examples and tests). Every other `set_low` in the file already maps to `HX711Error::Clock`.
 
 ## 4. Order of work
 
@@ -102,10 +102,26 @@
 - C++ host build compiles with `-Wunused-result`; embedded targets are build-checked in CI (Arduino, Zephyr, ESP-IDF, Pico SDK, STM32Cube).
 - Run the existing unit suites for Python, Node, JVM, Go and Rust; no chip-driver test should change.
 
-## 6. Open questions for the maintainer
+## 6. Decisions
 
-1. ~~C++ embedded: sticky `lastError()` vs. changing the public API.~~ **Resolved:** the existing `ok()` is the mechanism; no API break.
-2. GPIO setup failures on embedded C++ (`InputPin` / `OutputPin` have no `Connection`): add `ok()` to the pin classes, or leave as a documented limitation?
-3. Rust `HX711::new` returning `Result`: accept the breaking change?
-4. JVM `_writeRead`: implement true repeated start now (recommended, `I2C_RDWR` is already used in `I2CBus`), or leave as a documented limitation?
-5. Issue tracking: one umbrella issue plus one sub-issue per language, or a single PR per language?
+1. ~~Sticky `lastError()` vs. changing the public API.~~ The existing `ok()` is the mechanism; no API break.
+2. **GPIO on embedded C++:** add `bool ok()` to `InputPin` / `OutputPin`.
+3. **Rust `HX711::new`:** returns `Result` (accepted breaking change).
+4. **JVM `_writeRead`:** true repeated start via `I2C_RDWR`.
+5. **Delivery:** one umbrella issue plus one PR per language / platform (table below).
+
+## 7. Delivery plan
+
+| # | PR | Scope | Verification |
+|---|---|---|---|
+| 1 | Contract + C++ base | Doxygen on `Connection::ok()`; `ok()` on `InputPin` / `OutputPin`; addendum in `feature_connection_design.md`; error rows in `transport_*.md` | docs + pin base classes |
+| 2 | C++ Linux | §3.2 | Linux unit tests |
+| 3a–3e | C++ embedded, one PR per platform: Pico SDK, Zephyr, ESP-IDF, STM32Cube, Arduino | §3.1: SPI, UART, SMBus PEC, GPIO via `_setOk`; zero-fill on failed read | `build-all.sh` on that platform's SDK + on-device tests where they exist |
+| 4 | JVM | §3.4 | `mvn test`, all three modules |
+| 5 | Node.js | §3.5 | Node unit tests |
+| 6 | Go | §3.6 | `go test`, TinyGo build |
+| 7 | Rust | §3.7 (breaking `HX711::new`) | `cargo test`, ESP32-S3 build |
+| 8 | Python (optional) | §3.3 | Python tests |
+| 9 | Fault injection + conformance tests | Python SPI mock, Go and Rust mocks (§5); independent of the others | each language's unit suite |
+
+Ordering: PR 1 first (the embedded PRs need pin `ok()`); PR 9 can start anytime. PR 4 changes behaviour for chips that relied on the stop between write and read; PR 7 is API-breaking.
