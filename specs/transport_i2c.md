@@ -33,6 +33,8 @@ Address is set at construction time — a connection instance represents one dev
 | No ACK from device | Raise `OSError` / return error code |
 | Bus timeout | Raise `OSError` / return error code |
 
+**C++ without exceptions** (Arduino, Zephyr, ESP-IDF, Pico SDK, STM32Cube): the connection never throws; a failure sets `Connection::ok()` to `false` for that transfer (a short transfer counts as a failure) and a failed read zero-fills the buffer. See `specs/feature_connection_design.md` §9.
+
 ## Platform Notes
 
 ### MicroPython
