@@ -91,6 +91,8 @@ For Linux and Node.js, the connection opens and configures the serial port itsel
 | Write failure | Raise `OSError` / return error code |
 | RS-485 TX drain fails | Implementation must confirm TX FIFO empty before deasserting DE; premature deassert corrupts the last transmitted bytes |
 
+**C++ without exceptions** (Arduino, Zephyr, ESP-IDF, Pico SDK, STM32Cube): the connection never throws; a failure sets `Connection::ok()` to `false` for that transfer (a short write or a read that returns fewer bytes than requested counts as a failure) and a failed read zero-fills the buffer. See `specs/feature_connection_design.md` §9.
+
 ## Platform Notes
 
 ### MicroPython

@@ -95,6 +95,17 @@ are the starting point; the implementing PR confirms each against hardware.
 
 CS idles high. Asserted low for the duration of each operation.
 
+## Error Handling
+
+| Condition | Behaviour |
+|-----------|-----------|
+| Bus / driver transfer fails | Raise `OSError` / return error code |
+| Short transfer | Treated as a failure |
+
+**C++ without exceptions** (Zephyr, ESP-IDF, Pico SDK, STM32Cube): the connection never throws; a failure sets `Connection::ok()` to `false` for that transfer (a short transfer counts as a failure) and a failed read zero-fills the buffer. See `specs/feature_connection_design.md` §9.
+
+Arduino `SPIClass` returns no status, so `ok()` is always `true` there.
+
 ## Platform Notes
 
 ### MicroPython

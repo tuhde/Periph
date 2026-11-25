@@ -55,7 +55,19 @@ public:
      */
     virtual bool isHigh() = 0;
 
+    /** @brief True if the most recent onEdge(), offEdge() or isHigh() succeeded.
+     *
+     *  Mirrors Connection::ok(). Platforms whose GPIO / interrupt API reports failures (a rejected
+     *  callback, a bad ISR service, an unconfigurable line) set it from the call's result in every
+     *  operation, so a later success clears an earlier failure. Pins that cannot detect failures
+     *  always report true.
+     */
+    bool ok() const { return _ok; }
+
 protected:
+    /** @brief Subclass helper: record whether the operation in progress succeeded (see ok()). */
+    void _setOk(bool ok) { _ok = ok; }
+
     /** @brief Shared fan-out helper: appends to a fixed-size handler array.
      *  @return true if there was a free slot, false if the array was full.
      */
@@ -84,4 +96,7 @@ protected:
             if (handlers[i] != nullptr) handlers[i]();
         }
     }
+
+private:
+    bool _ok = true;
 };

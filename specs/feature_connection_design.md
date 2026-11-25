@@ -848,6 +848,10 @@ public:
     virtual void onEdge(void (*handler)(), uint8_t trigger = kFalling) = 0;
     virtual void offEdge(void (*handler)()) = 0;
     virtual ~InputPin() = default;
+
+    bool ok() const;          // most recent onEdge / offEdge / isHigh succeeded (see §9)
+protected:
+    void _setOk(bool ok);
 };
 ```
 
@@ -975,6 +979,10 @@ class OutputPin {
 public:
     virtual void set(bool high) = 0;
     virtual ~OutputPin() = default;
+
+    bool ok() const;          // most recent set() succeeded (see §9)
+protected:
+    void _setOk(bool ok);
 };
 ```
 
@@ -1606,3 +1614,24 @@ Previously tracked as open questions; all resolved before implementation.
    against one passed to a hypothetical `OffEdge(handler)`, the pattern every other
    language uses. The closure-return shape is idiomatic Go (the same shape as
    `context.CancelFunc`).
+
+---
+
+## 9. Error reporting (C++ without exceptions)
+
+Embedded C++ targets build without exceptions, so a failed transfer is reported through a flag instead:
+
+- `Connection::ok()` — true if the most recent `write` / `read` / `write_read` completed. Reset at the start of every call; set by subclasses through `_setOk()` from the platform return value.
+- `InputPin::ok()` / `OutputPin::ok()` — the same for the most recent pin operation (`onEdge`, `offEdge`, `isHigh`, `set`). Pins have no `Connection`, so they carry their own flag.
+
+Rules for implementations:
+
+1. Set the flag exactly once per operation, from the platform's result. A short transfer (fewer bytes than requested) is a failure, not only a negative return code.
+2. On a failed read, zero-fill the destination so a driver that ignores `ok()` never consumes stale bytes.
+3. Hosts with exceptions (Linux) throw for unrecoverable faults (open / ioctl failure) but report a NACK or timeout through `ok()`, so a chip driver's retry logic behaves identically on every platform.
+4. Connections whose platform returns no status (Arduino `SPIClass`, `digitalWrite`) always report `true`; this is documented, not a defect.
+5. Chip drivers never need to change: those that care (retry on NACK) already call `ok()`; the others keep ignoring it.
+
+SMBus keeps `valid()` for PEC results (an alias of "PEC matched"); a PEC mismatch also clears `ok()`.
+
+Other languages raise / return errors natively (see each `transport_*.md` Error Handling table). The per-language gap list and rollout is in `specs/feature_connection_error_handling.md`.

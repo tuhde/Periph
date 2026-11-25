@@ -90,9 +90,21 @@ public:
 
     /** @brief True if the most recent write(), read() or write_read() was acknowledged / completed.
      *
-     *  Connections whose platform reports bus errors (a NACK, a timeout) set this to false for the
-     *  failed transfer; drivers that need to survive an occasional NACK check it after each call and
-     *  retry. Connections that cannot detect failures, and disabled connections, always report true.
+     *  Connections whose platform reports bus errors (a NACK, a timeout, a short transfer, a failed
+     *  HAL / driver call) set this to false for the failed transfer; drivers that need to survive an
+     *  occasional NACK check it after each call and retry. Connections that cannot detect failures
+     *  (for example Arduino `SPIClass`, which returns no status), and disabled connections, always
+     *  report true.
+     *
+     *  Contract for implementations of _write / _read / _write_read:
+     *  - call _setOk() exactly once per transfer from the platform's return value, and treat a short
+     *    transfer (fewer bytes than requested) as a failure, not only a negative return;
+     *  - on a failed read, zero-fill the destination so a driver that ignores ok() never consumes
+     *    stale bytes;
+     *  - host connections that throw on unrecoverable faults (open / ioctl failure) may do so in
+     *    addition, but a NACK or timeout reports through ok(), not an exception.
+     *
+     *  The flag describes only the most recent call; it is reset at the start of the next one.
      */
     bool ok() const { return _ok; }
 

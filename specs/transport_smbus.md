@@ -41,6 +41,16 @@ CRC-8 using polynomial `x⁸ + x² + x + 1` (0x07), initial value 0x00.
 
 On a PEC mismatch, raise `OSError("SMBus PEC error")` (MicroPython) or return `false` from a `valid()` check (Arduino — exceptions not available).
 
+## Error Handling
+
+| Condition | Behaviour |
+|-----------|-----------|
+| No ACK from device | As I²C: raise `OSError` / return error code |
+| Address outside 0x08–0x77 | Raise / return an error at construction (C++ Arduino and embedded: `valid()` is `false`) |
+| PEC mismatch on read | Raise / return an error |
+
+**C++ without exceptions** (Arduino, Zephyr, ESP-IDF, Pico SDK, STM32Cube): the connection never throws; a failure sets `Connection::ok()` to `false` for that transfer (a PEC mismatch also clears it; `valid()` stays as an alias) (a short transfer counts as a failure) and a failed read zero-fills the buffer. See `specs/feature_connection_design.md` §9.
+
 ## Platform Notes
 
 ### MicroPython
