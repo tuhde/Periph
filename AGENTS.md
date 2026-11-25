@@ -142,6 +142,7 @@ Run these locally before pushing a chip branch; each has failed a chip PR before
 - **Kotlin:** one `companion object` per class; Float vs Double constants must match their users; use `org.junit.jupiter.api.Assertions.*` like sibling tests.
 - **Groovy:** `@CompileStatic` needs `import groovy.transform.CompileStatic` and goes on the class, not before `package`.
 - **Disk:** `rust/target` can grow past 10 GB; delete it after a local workspace build (it is gitignored).
+- **Never commit `target/`:** the ESP32-S3 test crates and examples are outside the workspace and each builds its own `target/` (~900 MB). `.gitignore` covers `rust/**/target/`; run `git ls-files | grep '/target/'` before pushing — it must print nothing.
 - **C++ end-to-end:** `cpp/scripts/build-all.sh linux <chip>` and `... discovery`; also `go test ./periph/discovery/` and `cargo test -p periph --features std discovery`. Revert any `rust/Cargo.lock` churn.
 
 ## Connection interface
