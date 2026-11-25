@@ -18,12 +18,24 @@ class NeoPixelConnectionLinux : public Connection {
 public:
     NeoPixelConnectionLinux(int bus_num, int device_num,
                             InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true);
+
+    /** @brief Tag selecting the constructor that adopts an already-open file descriptor. */
+    struct AdoptFd {};
+
+    /** @brief Adopt an already-open descriptor (closed by the destructor) instead of opening spidev.
+     *
+     *  No mode or speed ioctl is issued. Intended for unit tests that stand in a socketpair for the
+     *  device; every SPI_IOC_MESSAGE on such a descriptor fails, which exercises the error path.
+     */
+    NeoPixelConnectionLinux(AdoptFd, int fd, uint32_t speed_hz = 2400000,
+                            InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true);
     ~NeoPixelConnectionLinux();
 
 protected:
     /** @brief Encode and transmit pixel data, then hold MOSI low for reset.
      *  @param data Pointer to the pixel data buffer.
      *  @param len  Number of bytes to send (3 per RGB pixel, 4 per RGBW pixel).
+     *  @throws std::runtime_error if the SPI transfer fails (matches the SPI / SiPo / UART connections).
      */
     void _write(const uint8_t* data, size_t len) override;
 

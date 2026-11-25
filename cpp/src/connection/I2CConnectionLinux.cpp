@@ -25,6 +25,10 @@ I2CConnectionLinux::I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin, 
     }
 }
 
+I2CConnectionLinux::I2CConnectionLinux(AdoptFd, int fd, uint8_t addr, InputPin* intPin, OutputPin* enPin,
+                                       uint8_t regBytes, bool enActiveHigh)
+    : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _fd(fd), _addr(addr) {}
+
 I2CConnectionLinux::~I2CConnectionLinux() {
     if (_fd >= 0) close(_fd);
 }
@@ -38,7 +42,9 @@ void I2CConnectionLinux::_write(const uint8_t* data, size_t len) {
 void I2CConnectionLinux::_read(uint8_t* buf, size_t len) {
     ssize_t r = ::read(_fd, buf, len);
     if (r < 0) perror("I2C read");
-    _setOk(r == static_cast<ssize_t>(len));
+    bool good = r == static_cast<ssize_t>(len);
+    if (!good) memset(buf, 0, len);   // a short or failed read must not leave stale bytes behind
+    _setOk(good);
 }
 
 void I2CConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
@@ -59,7 +65,10 @@ void I2CConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
     rdwr.nmsgs = 2;
 
     bool failed = ioctl(_fd, I2C_RDWR, &rdwr) < 0;
-    if (failed) perror("ioctl I2C_RDWR");
+    if (failed) {
+        perror("ioctl I2C_RDWR");
+        memset(buf, 0, buf_len);
+    }
     _setOk(!failed);
 }
 #endif // __linux__
