@@ -1,0 +1,1 @@
+_periph_qmi8658a.set_power_down(bool(${_down}))

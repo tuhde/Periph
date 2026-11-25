@@ -16,6 +16,8 @@ type SPIConnection struct {
 	cs           machine.Pin
 	readBit      byte
 	multiByteBit byte // 0 = chip has no such bit
+	held         bool // Select() active: CS low across calls
+	cfg          *machine.SPIConfig
 }
 
 // NewSPIConnection binds the given configured machine.SPI to the given
@@ -48,6 +50,76 @@ func NewSPIConnectionWithConvention(spi *machine.SPI, cs machine.Pin, readBit, m
 	}
 }
 
+// EnableSpeedChange allows SetSpeed: cfg is the machine.SPIConfig the SPI
+// was configured with; SetSpeed re-runs Configure with Frequency replaced.
+func (t *SPIConnection) EnableSpeedChange(cfg machine.SPIConfig) {
+	t.cfg = &cfg
+}
+
+// SetSpeed re-configures the SPI at hz. It needs EnableSpeedChange;
+// otherwise it returns ErrSPIExtensionUnsupported.
+func (t *SPIConnection) SetSpeed(hz uint32) error {
+	if t.cfg == nil {
+		return ErrSPIExtensionUnsupported
+	}
+	c := *t.cfg
+	c.Frequency = hz
+	return t.spi.Configure(c)
+}
+
+// IdleClocks clocks n bits of 0xFF with CS high.
+func (t *SPIConnection) IdleClocks(n int) error {
+	t.cs.High()
+	tx := make([]byte, (n+7)/8)
+	for i := range tx {
+		tx[i] = 0xFF
+	}
+	err := t.spi.Tx(tx, nil)
+	if t.held {
+		t.cs.Low()
+	}
+	return err
+}
+
+// Select asserts CS and holds it low across following calls until Deselect.
+func (t *SPIConnection) Select() error {
+	t.cs.Low()
+	t.held = true
+	return nil
+}
+
+// Deselect releases CS asserted by Select.
+func (t *SPIConnection) Deselect() error {
+	t.held = false
+	t.cs.High()
+	return nil
+}
+
+// ReadInto fills buf with len(buf) bytes read from the device, clocking 0xFF on MOSI.
+func (t *SPIConnection) ReadInto(buf []byte) error {
+	if !t.IsEnabled() {
+		for i := range buf {
+			buf[i] = 0
+		}
+		return nil
+	}
+	if len(buf) == 0 {
+		return nil
+	}
+	tx := make([]byte, len(buf))
+	for i := range tx {
+		tx[i] = 0xFF
+	}
+	if !t.held {
+		t.cs.Low()
+	}
+	err := t.spi.Tx(tx, buf)
+	if !t.held {
+		t.cs.High()
+	}
+	return err
+}
+
 // Close is a no-op on TinyGo: machine.SPI has no explicit release.
 func (t *SPIConnection) Close() error {
 	return nil
@@ -58,9 +130,13 @@ func (t *SPIConnection) Write(data []byte) error {
 	if !t.IsEnabled() {
 		return nil
 	}
-	t.cs.Low()
+	if !t.held {
+		t.cs.Low()
+	}
 	err := t.spi.Tx(data, nil)
-	t.cs.High()
+	if !t.held {
+		t.cs.High()
+	}
 	return err
 }
 
@@ -74,10 +150,7 @@ func (t *SPIConnection) Read(n int) ([]byte, error) {
 		return []byte{}, nil
 	}
 	buf := make([]byte, n)
-	t.cs.Low()
-	err := t.spi.Tx(nil, buf)
-	t.cs.High()
-	if err != nil {
+	if err := t.ReadInto(buf); err != nil {
 		return nil, err
 	}
 	return buf, nil
@@ -96,13 +169,20 @@ func (t *SPIConnection) WriteRead(data []byte, n int) ([]byte, error) {
 		return nil, nil
 	}
 	tx := make([]byte, len(data)+n)
+	for i := len(data); i < len(tx); i++ {
+		tx[i] = 0xFF // MOSI idles high during the read phase
+	}
 	copy(tx, data)
 	// Build a single combined RX buffer of len(data)+n; discard the
 	// first len(data) bytes (response during the command phase).
 	rx := make([]byte, len(data)+n)
-	t.cs.Low()
+	if !t.held {
+		t.cs.Low()
+	}
 	err := t.spi.Tx(tx, rx)
-	t.cs.High()
+	if !t.held {
+		t.cs.High()
+	}
 	if err != nil {
 		return nil, err
 	}

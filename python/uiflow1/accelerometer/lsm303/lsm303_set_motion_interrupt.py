@@ -1,0 +1,1 @@
+_periph_lsm303.set_motion_interrupt(int(${_generator}), int(${_events}), float(${_threshold_g}), float(${_duration_ms}))

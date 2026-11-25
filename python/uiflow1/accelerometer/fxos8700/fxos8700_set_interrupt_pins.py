@@ -1,0 +1,1 @@
+_periph_fxos8700.set_interrupt_pins(bool(int(${_active_high})), bool(int(${_open_drain})))

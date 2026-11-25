@@ -1,0 +1,212 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "max44009_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MAX44009",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max44009_lux",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 illuminance (lx)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_is_overrange",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 overrange",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_resolution",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 resolution (lx per LSB)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_set_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 continuous mode (1 = yes)",
+          "type": "label"
+        },
+        {
+          "name": "_continuous",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max44009_set_automatic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 automatic range",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_set_manual",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 manual range",
+          "type": "label"
+        },
+        {
+          "name": "integration (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_integration_ms",
+          "type": "number"
+        },
+        {
+          "name": "divide by 8 (1 = yes)",
+          "type": "label"
+        },
+        {
+          "name": "_divide_by_8",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max44009_set_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 interrupt window",
+          "type": "label"
+        },
+        {
+          "name": "low (lx)",
+          "type": "label"
+        },
+        {
+          "name": "_low_lux",
+          "type": "number"
+        },
+        {
+          "name": "high (lx)",
+          "type": "label"
+        },
+        {
+          "name": "_high_lux",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max44009_get_low_threshold",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 lower threshold (lx)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_get_high_threshold",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 upper threshold (lx)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_set_threshold_delay",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 threshold delay (s)",
+          "type": "label"
+        },
+        {
+          "name": "_seconds",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "max44009_get_threshold_delay",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 threshold delay (s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 enable interrupt",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MAX44009 disable interrupt",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "max44009_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "MAX44009 interrupt status",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

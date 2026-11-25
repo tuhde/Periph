@@ -1,0 +1,524 @@
+{
+  "category": "PCF8579",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCF8579_LANGUAGES = {\n  \"CUSTOM_PCF8579_INIT\": {\n    \"en\": \"%1 init bus %2 address %3 subaddress (0-15) %4 rows (8/16/24/32) %5 PCF8578 mixed mode (0/1) %6\"\n  },\n  \"CUSTOM_PCF8579_CLEAR\": {\n    \"en\": \"%1 clear display\"\n  },\n  \"CUSTOM_PCF8579_SET_PIXEL\": {\n    \"en\": \"%1 set pixel x %2 y %3 state (0/1) %4\"\n  },\n  \"CUSTOM_PCF8579_GET_PIXEL\": {\n    \"en\": \"%1 pixel x %2 y %3 set?\"\n  },\n  \"CUSTOM_PCF8579_WRITE_COLUMN\": {\n    \"en\": \"%1 write column byte x %2 bank %3 value %4\"\n  },\n  \"CUSTOM_PCF8579_FILL\": {\n    \"en\": \"%1 fill display (0/1) %2\"\n  },\n  \"CUSTOM_PCF8579_DRAW_LINE\": {\n    \"en\": \"%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 state (0/1) %6\"\n  },\n  \"CUSTOM_PCF8579_DRAW_RECT\": {\n    \"en\": \"%1 draw rectangle x %2 y %3 width %4 height %5 state (0/1) %6 fill (0/1) %7\"\n  },\n  \"CUSTOM_PCF8579_SET_DISPLAY\": {\n    \"en\": \"%1 set display status (0=blank 1=normal 2=all on 3=inverse) %2\"\n  },\n  \"CUSTOM_PCF8579_SET_MODE\": {\n    \"en\": \"%1 set rows (8/16/24/32) %2 PCF8578 mixed mode (0/1) %3\"\n  },\n  \"CUSTOM_PCF8579_SET_START_BANK\": {\n    \"en\": \"%1 set start bank %2\"\n  },\n  \"CUSTOM_PCF8579_SCROLL\": {\n    \"en\": \"%1 scroll by banks %2\"\n  },\n  \"CUSTOM_PCF8579_RESET\": {\n    \"en\": \"%1 reset display\"\n  }\n};\n\nconst initType = 'custom_pcf8579_init';\nBlockly.BlockRegExpList['custom_pcf8579'] = {\n  regexp: new RegExp(/^custom_pcf8579_/),\n  code: \"from PCF8579 import PCF8579\",\n  initBlockType: initType,\n  categoryId: 'custom_pcf8579',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCF8579_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCF8579_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCF8579 = 'PCF8579'\n\nBlockly.utils.getcustom_pcf8579Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pcf8579_0', 'pcf8579_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pcf8579_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pcf8579Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pcf8579_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'subaddress'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rows'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mixed'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var subaddress = Blockly.Python.valueToCode(block, 'subaddress', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rows = Blockly.Python.valueToCode(block, 'rows', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mixed = Blockly.Python.valueToCode(block, 'mixed', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = PCF8579(${bus}, ${address}, ${subaddress}, ${rows}, ${mixed})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${x}, ${y}, ${state})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_get_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_GET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_get_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_pixel(${x}, ${y})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf8579_write_column\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_WRITE_COLUMN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bank'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_write_column\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bank = Blockly.Python.valueToCode(block, 'bank', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_column(${x}, ${bank}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${state})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_draw_line\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_DRAW_LINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'x1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_draw_line\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x0 = Blockly.Python.valueToCode(block, 'x0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y0 = Blockly.Python.valueToCode(block, 'y0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var x1 = Blockly.Python.valueToCode(block, 'x1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y1 = Blockly.Python.valueToCode(block, 'y1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.draw_line(${x0}, ${y0}, ${x1}, ${y1}, ${state})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_draw_rect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_DRAW_RECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'w'\n        },\n        {\n          'type': 'input_value',\n          'name': 'h'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fill'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_draw_rect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var w = Blockly.Python.valueToCode(block, 'w', Blockly.Python.ORDER_FUNCTION_CALL);\n  var h = Blockly.Python.valueToCode(block, 'h', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fill = Blockly.Python.valueToCode(block, 'fill', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.draw_rect(${x}, ${y}, ${w}, ${h}, ${state}, ${fill})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_set_display\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_SET_DISPLAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'status'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_set_display\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var status = Blockly.Python.valueToCode(block, 'status', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_display(${status})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'rows'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mixed'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rows = Blockly.Python.valueToCode(block, 'rows', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mixed = Blockly.Python.valueToCode(block, 'mixed', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${rows}, ${mixed})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_set_start_bank\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_SET_START_BANK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'bank'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_set_start_bank\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bank = Blockly.Python.valueToCode(block, 'bank', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_start_bank(${bank})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_scroll\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_SCROLL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'banks'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_scroll\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var banks = Blockly.Python.valueToCode(block, 'banks', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.scroll(${banks})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8579_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8579_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8579Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8579_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"PCF8579\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pcf8579\">\n<title text=\"PCF8579\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pcf8579_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">60</field>\n    </shadow>\n  </value>\n  <value name=\"subaddress\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"rows\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"mixed\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_clear\"/><block type=\"custom_pcf8579_set_pixel\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_get_pixel\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_write_column\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"bank\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">255</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_fill\">\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_draw_line\">\n  <value name=\"x0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"x1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_draw_rect\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"w\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"h\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"fill\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_set_display\">\n  <value name=\"status\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_set_mode\">\n  <value name=\"rows\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"mixed\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_set_start_bank\">\n  <value name=\"bank\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_scroll\">\n  <value name=\"banks\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8579_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_pcf8579",
+    "block_type": [
+      "custom_pcf8579___init__",
+      "custom_pcf8579_clear",
+      "custom_pcf8579_set_pixel",
+      "custom_pcf8579_get_pixel",
+      "custom_pcf8579_write_column",
+      "custom_pcf8579_fill",
+      "custom_pcf8579_draw_line",
+      "custom_pcf8579_draw_rect",
+      "custom_pcf8579_set_display",
+      "custom_pcf8579_set_mode",
+      "custom_pcf8579_set_start_bank",
+      "custom_pcf8579_scroll",
+      "custom_pcf8579_reset"
+    ]
+  },
+  "data": {
+    "name": "PCF8579",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "PCF8579",
+      "time": "2026-11-05",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.display.pcf8579 import PCF8579Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3 subaddress (0-15) %4 rows (8/16/24/32) %5 PCF8578 mixed mode (0/1) %6"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "60",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "subaddress",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "0"
+          },
+          {
+            "name": "rows",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "32",
+            "min": "8"
+          },
+          {
+            "name": "mixed",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF8579Full(connection, subaddress, rows, bool(mixed))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear display"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel x %2 y %3 state (0/1) %4"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "39",
+            "min": "0"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(x, y, bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 pixel x %2 y %3 set?"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "39",
+            "min": "0"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_pixel(x, y)",
+        "ast_return": {
+          "code": "self._driver.get_pixel(x, y)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_column",
+        "note": {},
+        "label": {
+          "en": "%1 write column byte x %2 bank %3 value %4"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "39",
+            "min": "0"
+          },
+          {
+            "name": "bank",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "255",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_columns(x, bank, bytes([value & 0xFF]))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill display (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "draw_line",
+        "note": {},
+        "label": {
+          "en": "%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 state (0/1) %6"
+        },
+        "params": [
+          {
+            "name": "x0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "39",
+            "min": "0"
+          },
+          {
+            "name": "y0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          },
+          {
+            "name": "x1",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "39",
+            "min": "0"
+          },
+          {
+            "name": "y1",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.draw_line(x0, y0, x1, y1, bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "draw_rect",
+        "note": {},
+        "label": {
+          "en": "%1 draw rectangle x %2 y %3 width %4 height %5 state (0/1) %6 fill (0/1) %7"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "39",
+            "min": "0"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          },
+          {
+            "name": "w",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "40",
+            "min": "1"
+          },
+          {
+            "name": "h",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "32",
+            "min": "1"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "fill",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.draw_rect(x, y, w, h, bool(state), bool(fill))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_display",
+        "note": {},
+        "label": {
+          "en": "%1 set display status (0=blank 1=normal 2=all on 3=inverse) %2"
+        },
+        "params": [
+          {
+            "name": "status",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_display(status)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set rows (8/16/24/32) %2 PCF8578 mixed mode (0/1) %3"
+        },
+        "params": [
+          {
+            "name": "rows",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "32",
+            "min": "8"
+          },
+          {
+            "name": "mixed",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(rows, bool(mixed))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_start_bank",
+        "note": {},
+        "label": {
+          "en": "%1 set start bank %2"
+        },
+        "params": [
+          {
+            "name": "bank",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_start_bank(bank)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "scroll",
+        "note": {},
+        "label": {
+          "en": "%1 scroll by banks %2"
+        },
+        "params": [
+          {
+            "name": "banks",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "-3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.scroll(banks)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset display"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pcf8579"
+  },
+  "pyCode": "\"\"\"\nfile     PCF8579\ntime     2026-11-05\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.display.pcf8579 import PCF8579Full\n\n\nclass PCF8579:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 60, subaddress: int = 0, rows: int = 16, mixed: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3 subaddress (0-15) %4 rows (8/16/24/32) %5 PCF8578 mixed mode (0/1) %6'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '60'\n                field: number\n            subaddress:\n                name: subaddress\n                type: int\n                default: '0'\n                field: number\n                max: '15'\n                min: '0'\n            rows:\n                name: rows\n                type: int\n                default: '16'\n                field: number\n                max: '32'\n                min: '8'\n            mixed:\n                name: mixed\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF8579Full(connection, subaddress, rows, bool(mixed))\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear display'\n        \"\"\"\n        self._driver.clear()\n\n    def set_pixel(self, x: int, y: int, state: int):\n        \"\"\"\n        label:\n            en: '%1 set pixel x %2 y %3 state (0/1) %4'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n                max: '39'\n                min: '0'\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n                max: '31'\n                min: '0'\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_pixel(x, y, bool(state))\n\n    def get_pixel(self, x: int, y: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 pixel x %2 y %3 set?'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n                max: '39'\n                min: '0'\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n                max: '31'\n                min: '0'\n        \"\"\"\n        return self._driver.get_pixel(x, y)\n\n    def write_column(self, x: int, bank: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write column byte x %2 bank %3 value %4'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n                max: '39'\n                min: '0'\n            bank:\n                name: bank\n                type: int\n                default: '0'\n                field: number\n                max: '3'\n                min: '0'\n            value:\n                name: value\n                type: int\n                default: '255'\n                field: number\n                max: '255'\n                min: '0'\n        \"\"\"\n        self._driver.write_columns(x, bank, bytes([value & 0xFF]))\n\n    def fill(self, state: int):\n        \"\"\"\n        label:\n            en: '%1 fill display (0/1) %2'\n        params:\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.fill(bool(state))\n\n    def draw_line(self, x0: int, y0: int, x1: int, y1: int, state: int):\n        \"\"\"\n        label:\n            en: '%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 state (0/1) %6'\n        params:\n            x0:\n                name: x0\n                type: int\n                default: '0'\n                field: number\n                max: '39'\n                min: '0'\n            y0:\n                name: y0\n                type: int\n                default: '0'\n                field: number\n                max: '31'\n                min: '0'\n            x1:\n                name: x1\n                type: int\n                default: '0'\n                field: number\n                max: '39'\n                min: '0'\n            y1:\n                name: y1\n                type: int\n                default: '0'\n                field: number\n                max: '31'\n                min: '0'\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.draw_line(x0, y0, x1, y1, bool(state))\n\n    def draw_rect(self, x: int, y: int, w: int, h: int, state: int, fill: int):\n        \"\"\"\n        label:\n            en: '%1 draw rectangle x %2 y %3 width %4 height %5 state (0/1) %6 fill (0/1) %7'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n                max: '39'\n                min: '0'\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n                max: '31'\n                min: '0'\n            w:\n                name: w\n                type: int\n                default: '1'\n                field: number\n                max: '40'\n                min: '1'\n            h:\n                name: h\n                type: int\n                default: '1'\n                field: number\n                max: '32'\n                min: '1'\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n            fill:\n                name: fill\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.draw_rect(x, y, w, h, bool(state), bool(fill))\n\n    def set_display(self, status: int):\n        \"\"\"\n        label:\n            en: '%1 set display status (0=blank 1=normal 2=all on 3=inverse) %2'\n        params:\n            status:\n                name: status\n                type: int\n                default: '1'\n                field: number\n                max: '3'\n                min: '0'\n        \"\"\"\n        self._driver.set_display(status)\n\n    def set_mode(self, rows: int, mixed: int):\n        \"\"\"\n        label:\n            en: '%1 set rows (8/16/24/32) %2 PCF8578 mixed mode (0/1) %3'\n        params:\n            rows:\n                name: rows\n                type: int\n                default: '16'\n                field: number\n                max: '32'\n                min: '8'\n            mixed:\n                name: mixed\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_mode(rows, bool(mixed))\n\n    def set_start_bank(self, bank: int):\n        \"\"\"\n        label:\n            en: '%1 set start bank %2'\n        params:\n            bank:\n                name: bank\n                type: int\n                default: '0'\n                field: number\n                max: '3'\n                min: '0'\n        \"\"\"\n        self._driver.set_start_bank(bank)\n\n    def scroll(self, banks: int):\n        \"\"\"\n        label:\n            en: '%1 scroll by banks %2'\n        params:\n            banks:\n                name: banks\n                type: int\n                default: '1'\n                field: number\n                max: '3'\n                min: '-3'\n        \"\"\"\n        self._driver.scroll(banks)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset display'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

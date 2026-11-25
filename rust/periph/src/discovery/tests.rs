@@ -147,10 +147,10 @@ fn scan_errors_when_every_address_fails() {
 
 #[test]
 fn identifies_chips_by_single_byte_register() {
-    let table: [(&str, u32, u8, u8); 11] = [
+    let table: [(&str, u32, u8, u8); 10] = [
         ("bme280", 0xD0, 0x60, 0x76), ("bmp280", 0xD0, 0x58, 0x76), ("bme680", 0xD0, 0x61, 0x77),
         ("bmp384", 0x00, 0x50, 0x76), ("mpu6050", 0x75, 0x68, 0x68), ("mpu9250", 0x75, 0x71, 0x68),
-        ("mpu9255", 0x75, 0x73, 0x69), ("l3g4200d", 0x0F, 0xD3, 0x68), ("lps33hw", 0x0F, 0xB1, 0x5C),
+        ("mpu9255", 0x75, 0x73, 0x69), ("l3g4200d", 0x0F, 0xD3, 0x68),
         ("adxl345", 0x00, 0xE5, 0x53), ("vl53l0x", 0xC0, 0xEE, 0x29),
     ];
     for (id, reg, value, addr) in table {
@@ -158,14 +158,15 @@ fn identifies_chips_by_single_byte_register() {
         assert_eq!(d.identified, Some(id), "{id}");
     }
     assert_eq!(one_active(0x28, &[(0x37, 0x92)]).identified, Some("mfrc522"));
-    assert_eq!(one(0x76, &[(0xD0, 0x60)]).driver, Some("bme280"));
+    // HT16K33 (0x70-0x77) is write-sensitive, so identification at 0x76 needs active probing.
+    assert_eq!(one_active(0x76, &[(0xD0, 0x60)]).driver, Some("bme280"));
 }
 
 #[test]
 fn identifies_multi_byte_and_masked_identity_registers() {
     assert_eq!(one(0x52, &[(0x00, 0x60), (0x01, 0x01)]).identified, Some("ens160"));
-    assert_eq!(one(0x40, &[(0xFF, 0x22), (0x100, 0x60)]).identified, Some("ina226"));
-    assert_eq!(one(0x40, &[(0xFF, 0x32), (0x100, 0x20)]).identified, Some("ina3221"));
+    assert_eq!(one(0x43, &[(0xFF, 0x22), (0x100, 0x60)]).identified, Some("ina226"));
+    assert_eq!(one(0x43, &[(0xFF, 0x32), (0x100, 0x20)]).identified, Some("ina3221"));
     assert_eq!(one(0x18, &[(0x07, 0x04), (0x08, 0x01)]).identified, Some("mcp9808"));
     let mut bus = FakeI2c::with(&[(0x29, &[(0x010F, 0xEA), (0x0110, 0xCC)])]);
     assert_eq!(only(&mut bus, true).identified, Some("vl53l1x"));
@@ -207,25 +208,32 @@ fn write_sensitive_candidates_block_probing_unless_active() {
 
 #[test]
 fn ambiguity_is_a_final_answer() {
-    let d = one(0x5C, &[(0x0F, 0xB4)]);
+    let d = one_active(0x5C, &[(0x0F, 0xB4)]);
     assert_eq!(d.identified, None);
     assert_eq!(d.candidates, vec!["lps22df", "lps28dfw"]);
-    let d = one(0x77, &[(0xD0, 0x55)]);
+    // LPS22HB and LPS33HW both answer WHO_AM_I = 0xB1 (registry/known_ambiguities.json).
+    let d = one_active(0x5C, &[(0x0F, 0xB1)]);
+    assert_eq!((d.identified, d.candidates), (None, vec!["lps22hb", "lps33hw"]));
+    let d = one_active(0x77, &[(0xD0, 0x55)]);
     assert_eq!((d.identified, d.candidates), (None, vec!["bmp085", "bmp180"]));
 }
 
 #[test]
 fn falls_back_to_id_less_candidates() {
-    assert_eq!(one(0x68, &[]).candidates, vec!["drv8830", "ds3231", "pcf8523"]);
-    assert_eq!(one(0x40, &[]).candidates, vec!["ina219"]);
+    // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
+    let d = one(0x68, &[]);
+    assert_eq!(d.candidates, vec!["bq32000", "drv8830", "ds1307", "ds1371", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"]);
+    assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
+    assert_eq!(one(0x40, &[]).candidates, vec!["bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"]);
     let d = one(0x36, &[]);
     assert_eq!((d.identified, d.candidates), (None, vec!["as5600"]));
     let d = one(0x0B, &[]);
-    assert!(d.candidates.is_empty() && d.identified.is_none());
+    assert!(d.candidates == vec!["lc709203f"] && d.identified.is_none());
     let mut bus = FakeI2c::with(&[(0x38, &[])]);
     let d = only(&mut bus, false);
-    assert_eq!(d.candidates, vec!["ade7953", "aht21", "pcf8574", "pcf8576"]);
-    assert!(d.probe_skipped_reason.is_none() && bus.writes.is_empty());
+    assert_eq!(d.candidates, vec!["ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s", "veml6070"]);
+    assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
+    assert!(bus.writes.is_empty());
 }
 
 #[test]
@@ -265,9 +273,13 @@ fn kernel_bound_address_is_reported_not_probed() {
 fn failed_identity_read_is_no_match() {
     let mut bus = FakeI2c::with(&[(0x76, &[(0xD0, 0x60)])]);
     bus.read_error = true;
-    let d = only(&mut bus, false);
+    let d = only(&mut bus, true);
     assert_eq!(d.identified, None);
-    assert!(d.candidates.is_empty());
+    // Chips without an identity register stay candidates: nothing can rule them out.
+    assert!(d
+        .candidates
+        .iter()
+        .all(|c| CHIPS.iter().any(|e| e.id == *c && e.probe.is_none())));
 }
 
 #[test]
@@ -275,7 +287,7 @@ fn aliased_24aa02uid_block_is_merged_only_when_complete() {
     let all: Vec<(u8, &[(u32, u8)])> = (0x50u8..=0x57).map(|a| (a, &[][..])).collect();
     let devs = discover(&mut FakeI2c::with(&all), false).unwrap();
     assert_eq!(devs.len(), 1);
-    assert_eq!((devs[0].address, devs[0].candidates.clone()), (0x50, vec!["24aa025uid", "24aa02uid", "mb85rc"]));
+    assert_eq!((devs[0].address, devs[0].candidates.clone()), (0x50, vec!["24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc", "pca9685"]));
     assert_eq!(devs[0].aliases, (0x51u8..=0x57).collect::<Vec<_>>());
     let devs = discover(&mut FakeI2c::with(&[(0x50, &[]), (0x51, &[])]), false).unwrap();
     assert_eq!(devs.iter().map(|d| d.address).collect::<Vec<_>>(), vec![0x50, 0x51]);

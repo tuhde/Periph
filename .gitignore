@@ -7,6 +7,7 @@ nodejs/testconfig
 cpp/testconfig_zephyr
 cpp/testconfig_espidf
 cpp/testconfig_picosdk
+cpp/testconfig_stm32cube
 .claude/
 rust/testconfig
 rust/testconfig_esp32s3
@@ -16,8 +17,10 @@ jvm/testconfig
 go/testconfig
 go/testconfig_tinygo
 go/testconfig_wiring
-rust/target/
-rust/tests/power/ina226_test_esp32s3/target/
+rust/**/target/
 jvm/**/target/
 sigrok/CONFIGS.md
 uiflow/
+
+# git worktrees
+/worktrees/

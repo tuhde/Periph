@@ -30,6 +30,28 @@ class SPIConnectionMock:
         self._registers = {}
         self._writes = []
         self._read_queue = []
+        self.events = []
+
+    def idle_clocks(self, n):
+        """Record an ``idle_clocks`` call on ``events``."""
+        self.events.append(("idle_clocks", n))
+
+    def set_speed(self, hz):
+        """Record a ``set_speed`` call on ``events``; returns True."""
+        self.events.append(("set_speed", hz))
+        return True
+
+    def select(self):
+        """Record a ``select`` call on ``events``."""
+        self.events.append(("select",))
+
+    def deselect(self):
+        """Record a ``deselect`` call on ``events``."""
+        self.events.append(("deselect",))
+
+    def read_into(self, buf):
+        """Fill ``buf`` like ``read(len(buf))``."""
+        buf[:] = self.read(len(buf))
 
     def set_register(self, reg, values):
         """Preload consecutive register bytes starting at ``reg``.

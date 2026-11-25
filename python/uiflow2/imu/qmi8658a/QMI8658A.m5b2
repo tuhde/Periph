@@ -1,0 +1,551 @@
+{
+  "category": "QMI8658A",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_QMI8658A_LANGUAGES = {\n  \"CUSTOM_QMI8658A_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_QMI8658A_ACCEL_X\": {\n    \"en\": \"%1 acceleration X (m/s²)\"\n  },\n  \"CUSTOM_QMI8658A_ACCEL_Y\": {\n    \"en\": \"%1 acceleration Y (m/s²)\"\n  },\n  \"CUSTOM_QMI8658A_ACCEL_Z\": {\n    \"en\": \"%1 acceleration Z (m/s²)\"\n  },\n  \"CUSTOM_QMI8658A_GYRO_X\": {\n    \"en\": \"%1 angular rate X (rad/s)\"\n  },\n  \"CUSTOM_QMI8658A_GYRO_Y\": {\n    \"en\": \"%1 angular rate Y (rad/s)\"\n  },\n  \"CUSTOM_QMI8658A_GYRO_Z\": {\n    \"en\": \"%1 angular rate Z (rad/s)\"\n  },\n  \"CUSTOM_QMI8658A_TEMPERATURE\": {\n    \"en\": \"%1 die temperature (°C)\"\n  },\n  \"CUSTOM_QMI8658A_DATA_READY\": {\n    \"en\": \"%1 new data ready?\"\n  },\n  \"CUSTOM_QMI8658A_TIMESTAMP\": {\n    \"en\": \"%1 sample counter\"\n  },\n  \"CUSTOM_QMI8658A_CONFIGURE_ACCEL\": {\n    \"en\": \"%1 set accel range (0=±2 1=±4 2=±8 3=±16 g) %2 ODR code (5=224 Hz) %3\"\n  },\n  \"CUSTOM_QMI8658A_CONFIGURE_GYRO\": {\n    \"en\": \"%1 set gyro range (0=±16 … 7=±2048 dps) %2 ODR code (5=224 Hz) %3\"\n  },\n  \"CUSTOM_QMI8658A_SET_SENSORS\": {\n    \"en\": \"%1 enable accel (0/1) %2 gyro (0/1) %3\"\n  },\n  \"CUSTOM_QMI8658A_SET_POWER_DOWN\": {\n    \"en\": \"%1 power down (1) or wake (0) %2\"\n  },\n  \"CUSTOM_QMI8658A_FIFO_COUNT\": {\n    \"en\": \"%1 FIFO bytes available\"\n  },\n  \"CUSTOM_QMI8658A_RESET_FIFO\": {\n    \"en\": \"%1 reset FIFO\"\n  },\n  \"CUSTOM_QMI8658A_ENABLE_PEDOMETER\": {\n    \"en\": \"%1 pedometer on (1) or off (0) %2\"\n  },\n  \"CUSTOM_QMI8658A_STEP_COUNT\": {\n    \"en\": \"%1 step count\"\n  },\n  \"CUSTOM_QMI8658A_RESET_STEP_COUNT\": {\n    \"en\": \"%1 reset step count\"\n  },\n  \"CUSTOM_QMI8658A_ENABLE_TAP\": {\n    \"en\": \"%1 tap detection on (1) or off (0) %2\"\n  },\n  \"CUSTOM_QMI8658A_TAP_COUNT\": {\n    \"en\": \"%1 last tap count (0 none, 1 single, 2 double)\"\n  },\n  \"CUSTOM_QMI8658A_TAP_AXIS\": {\n    \"en\": \"%1 last tap axis (0 none, 1 X, 2 Y, 3 Z)\"\n  },\n  \"CUSTOM_QMI8658A_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status flags\"\n  },\n  \"CUSTOM_QMI8658A_SET_WAKE_ON_MOTION\": {\n    \"en\": \"%1 wake-on-motion threshold mg (0 = off) %2\"\n  },\n  \"CUSTOM_QMI8658A_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_qmi8658a_init';\nBlockly.BlockRegExpList['custom_qmi8658a'] = {\n  regexp: new RegExp(/^custom_qmi8658a_/),\n  code: \"from QMI8658A import QMI8658A\",\n  initBlockType: initType,\n  categoryId: 'custom_qmi8658a',\n}\nBlockly.utils.registerLanguages(CUSTOM_QMI8658A_LANGUAGES)\n\nBlockly.Msg.CUSTOM_QMI8658A_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_QMI8658A = 'QMI8658A'\n\nBlockly.utils.getcustom_qmi8658aOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['qmi8658a_0', 'qmi8658a_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_qmi8658a_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_qmi8658aOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'qmi8658a_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = QMI8658A(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_accel_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_ACCEL_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_accel_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_accel_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_ACCEL_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_accel_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_accel_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_ACCEL_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_accel_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_gyro_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_GYRO_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_gyro_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_gyro_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_GYRO_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_gyro_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_gyro_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_GYRO_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_gyro_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_timestamp\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_TIMESTAMP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_timestamp\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.timestamp()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_configure_accel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_CONFIGURE_ACCEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'full_scale'\n        },\n        {\n          'type': 'input_value',\n          'name': 'odr'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_configure_accel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var full_scale = Blockly.Python.valueToCode(block, 'full_scale', Blockly.Python.ORDER_FUNCTION_CALL);\n  var odr = Blockly.Python.valueToCode(block, 'odr', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_accel(${full_scale}, ${odr})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_configure_gyro\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_CONFIGURE_GYRO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'full_scale'\n        },\n        {\n          'type': 'input_value',\n          'name': 'odr'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_configure_gyro\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var full_scale = Blockly.Python.valueToCode(block, 'full_scale', Blockly.Python.ORDER_FUNCTION_CALL);\n  var odr = Blockly.Python.valueToCode(block, 'odr', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_gyro(${full_scale}, ${odr})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_set_sensors\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_SET_SENSORS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'accel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'gyro'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_set_sensors\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var accel = Blockly.Python.valueToCode(block, 'accel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var gyro = Blockly.Python.valueToCode(block, 'gyro', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sensors(${accel}, ${gyro})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_set_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_SET_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'down'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_set_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var down = Blockly.Python.valueToCode(block, 'down', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_power_down(${down})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_fifo_count\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_FIFO_COUNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_fifo_count\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_count()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_reset_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_RESET_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_reset_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset_fifo()\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_enable_pedometer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_ENABLE_PEDOMETER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_enable_pedometer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_pedometer(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_step_count\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_STEP_COUNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_step_count\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.step_count()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_reset_step_count\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_RESET_STEP_COUNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_reset_step_count\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset_step_count()\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_enable_tap\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_ENABLE_TAP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_enable_tap\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_tap(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_tap_count\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_TAP_COUNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_tap_count\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.tap_count()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_tap_axis\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_TAP_AXIS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_tap_axis\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.tap_axis()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_qmi8658a_set_wake_on_motion\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_SET_WAKE_ON_MOTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_mg'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_set_wake_on_motion\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var threshold_mg = Blockly.Python.valueToCode(block, 'threshold_mg', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wake_on_motion(${threshold_mg})\\n`\n}\n\nBlockly.Blocks[\"custom_qmi8658a_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_QMI8658A_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_qmi8658aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_qmi8658a_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"QMI8658A\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_qmi8658a\">\n<title text=\"QMI8658A\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_qmi8658a_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">107</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_accel_x\"/><block type=\"custom_qmi8658a_accel_y\"/><block type=\"custom_qmi8658a_accel_z\"/><block type=\"custom_qmi8658a_gyro_x\"/><block type=\"custom_qmi8658a_gyro_y\"/><block type=\"custom_qmi8658a_gyro_z\"/><block type=\"custom_qmi8658a_temperature\"/><block type=\"custom_qmi8658a_data_ready\"/><block type=\"custom_qmi8658a_timestamp\"/><block type=\"custom_qmi8658a_configure_accel\">\n  <value name=\"full_scale\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"odr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_configure_gyro\">\n  <value name=\"full_scale\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"odr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_set_sensors\">\n  <value name=\"accel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"gyro\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_set_power_down\">\n  <value name=\"down\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_fifo_count\"/><block type=\"custom_qmi8658a_reset_fifo\"/><block type=\"custom_qmi8658a_enable_pedometer\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_step_count\"/><block type=\"custom_qmi8658a_reset_step_count\"/><block type=\"custom_qmi8658a_enable_tap\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_tap_count\"/><block type=\"custom_qmi8658a_tap_axis\"/><block type=\"custom_qmi8658a_poll_interrupt\"/><block type=\"custom_qmi8658a_set_wake_on_motion\">\n  <value name=\"threshold_mg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_qmi8658a_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_qmi8658a",
+    "block_type": [
+      "custom_qmi8658a___init__",
+      "custom_qmi8658a_accel_x",
+      "custom_qmi8658a_accel_y",
+      "custom_qmi8658a_accel_z",
+      "custom_qmi8658a_gyro_x",
+      "custom_qmi8658a_gyro_y",
+      "custom_qmi8658a_gyro_z",
+      "custom_qmi8658a_temperature",
+      "custom_qmi8658a_data_ready",
+      "custom_qmi8658a_timestamp",
+      "custom_qmi8658a_configure_accel",
+      "custom_qmi8658a_configure_gyro",
+      "custom_qmi8658a_set_sensors",
+      "custom_qmi8658a_set_power_down",
+      "custom_qmi8658a_fifo_count",
+      "custom_qmi8658a_reset_fifo",
+      "custom_qmi8658a_enable_pedometer",
+      "custom_qmi8658a_step_count",
+      "custom_qmi8658a_reset_step_count",
+      "custom_qmi8658a_enable_tap",
+      "custom_qmi8658a_tap_count",
+      "custom_qmi8658a_tap_axis",
+      "custom_qmi8658a_poll_interrupt",
+      "custom_qmi8658a_set_wake_on_motion",
+      "custom_qmi8658a_reset"
+    ]
+  },
+  "data": {
+    "name": "QMI8658A",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "QMI8658A",
+      "time": "2026-11-08",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.qmi8658a import QMI8658AFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "107",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = QMI8658AFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[0]",
+        "ast_return": {
+          "code": "self._driver.accel()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[1]",
+        "ast_return": {
+          "code": "self._driver.accel()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[2]",
+        "ast_return": {
+          "code": "self._driver.accel()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_x",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate X (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[0]",
+        "ast_return": {
+          "code": "self._driver.gyro()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_y",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate Y (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[1]",
+        "ast_return": {
+          "code": "self._driver.gyro()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_z",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate Z (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[2]",
+        "ast_return": {
+          "code": "self._driver.gyro()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 die temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 new data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "timestamp",
+        "note": {},
+        "label": {
+          "en": "%1 sample counter"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.timestamp()",
+        "ast_return": {
+          "code": "self._driver.timestamp()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_accel",
+        "note": {},
+        "label": {
+          "en": "%1 set accel range (0=±2 1=±4 2=±8 3=±16 g) %2 ODR code (5=224 Hz) %3"
+        },
+        "params": [
+          {
+            "name": "full_scale",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "odr",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_accel(full_scale, odr)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_gyro",
+        "note": {},
+        "label": {
+          "en": "%1 set gyro range (0=±16 … 7=±2048 dps) %2 ODR code (5=224 Hz) %3"
+        },
+        "params": [
+          {
+            "name": "full_scale",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "odr",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number",
+            "max": "8",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_gyro(full_scale, odr)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sensors",
+        "note": {},
+        "label": {
+          "en": "%1 enable accel (0/1) %2 gyro (0/1) %3"
+        },
+        "params": [
+          {
+            "name": "accel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "gyro",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sensors(bool(accel), bool(gyro))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down (1) or wake (0) %2"
+        },
+        "params": [
+          {
+            "name": "down",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_power_down(bool(down))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_count",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO bytes available"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.fifo_count()",
+        "ast_return": {
+          "code": "self._driver.fifo_count()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 reset FIFO"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset_fifo()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_pedometer",
+        "note": {},
+        "label": {
+          "en": "%1 pedometer on (1) or off (0) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_pedometer(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "step_count",
+        "note": {},
+        "label": {
+          "en": "%1 step count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.step_count()",
+        "ast_return": {
+          "code": "self._driver.step_count()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset_step_count",
+        "note": {},
+        "label": {
+          "en": "%1 reset step count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset_step_count()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_tap",
+        "note": {},
+        "label": {
+          "en": "%1 tap detection on (1) or off (0) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_tap(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tap_count",
+        "note": {},
+        "label": {
+          "en": "%1 last tap count (0 none, 1 single, 2 double)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.tap_status()[0]",
+        "ast_return": {
+          "code": "self._driver.tap_status()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tap_axis",
+        "note": {},
+        "label": {
+          "en": "%1 last tap axis (0 none, 1 X, 2 Y, 3 Z)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.tap_status()[1]",
+        "ast_return": {
+          "code": "self._driver.tap_status()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status flags"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wake_on_motion",
+        "note": {},
+        "label": {
+          "en": "%1 wake-on-motion threshold mg (0 = off) %2"
+        },
+        "params": [
+          {
+            "name": "threshold_mg",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wake_on_motion(threshold_mg)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "qmi8658a"
+  },
+  "pyCode": "\"\"\"\nfile     QMI8658A\ntime     2026-11-08\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.qmi8658a import QMI8658AFull\n\n\nclass QMI8658A:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 107):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '107'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = QMI8658AFull(connection)\n\n    def accel_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (m/s²)'\n        \"\"\"\n        return self._driver.accel()[0]\n\n    def accel_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (m/s²)'\n        \"\"\"\n        return self._driver.accel()[1]\n\n    def accel_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (m/s²)'\n        \"\"\"\n        return self._driver.accel()[2]\n\n    def gyro_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate X (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[0]\n\n    def gyro_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate Y (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[1]\n\n    def gyro_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate Z (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[2]\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 die temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 new data ready?'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def timestamp(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 sample counter'\n        \"\"\"\n        return self._driver.timestamp()\n\n    def configure_accel(self, full_scale: int = 0, odr: int = 5):\n        \"\"\"\n        label:\n            en: '%1 set accel range (0=±2 1=±4 2=±8 3=±16 g) %2 ODR code (5=224 Hz) %3'\n        params:\n            full_scale:\n                name: full_scale\n                type: int\n                default: '0'\n                field: number\n                max: '3'\n                min: '0'\n            odr:\n                name: odr\n                type: int\n                default: '5'\n                field: number\n                max: '15'\n                min: '0'\n        \"\"\"\n        self._driver.configure_accel(full_scale, odr)\n\n    def configure_gyro(self, full_scale: int = 4, odr: int = 5):\n        \"\"\"\n        label:\n            en: '%1 set gyro range (0=±16 … 7=±2048 dps) %2 ODR code (5=224 Hz) %3'\n        params:\n            full_scale:\n                name: full_scale\n                type: int\n                default: '4'\n                field: number\n                max: '7'\n                min: '0'\n            odr:\n                name: odr\n                type: int\n                default: '5'\n                field: number\n                max: '8'\n                min: '0'\n        \"\"\"\n        self._driver.configure_gyro(full_scale, odr)\n\n    def set_sensors(self, accel: int = 1, gyro: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable accel (0/1) %2 gyro (0/1) %3'\n        params:\n            accel:\n                name: accel\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n            gyro:\n                name: gyro\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_sensors(bool(accel), bool(gyro))\n\n    def set_power_down(self, down: int = 1):\n        \"\"\"\n        label:\n            en: '%1 power down (1) or wake (0) %2'\n        params:\n            down:\n                name: down\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_power_down(bool(down))\n\n    def fifo_count(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO bytes available'\n        \"\"\"\n        return self._driver.fifo_count()\n\n    def reset_fifo(self):\n        \"\"\"\n        label:\n            en: '%1 reset FIFO'\n        \"\"\"\n        self._driver.reset_fifo()\n\n    def enable_pedometer(self, enabled: int = 1):\n        \"\"\"\n        label:\n            en: '%1 pedometer on (1) or off (0) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.enable_pedometer(bool(enabled))\n\n    def step_count(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 step count'\n        \"\"\"\n        return self._driver.step_count()\n\n    def reset_step_count(self):\n        \"\"\"\n        label:\n            en: '%1 reset step count'\n        \"\"\"\n        self._driver.reset_step_count()\n\n    def enable_tap(self, enabled: int = 1):\n        \"\"\"\n        label:\n            en: '%1 tap detection on (1) or off (0) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.enable_tap(bool(enabled))\n\n    def tap_count(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 last tap count (0 none, 1 single, 2 double)'\n        \"\"\"\n        return self._driver.tap_status()[0]\n\n    def tap_axis(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 last tap axis (0 none, 1 X, 2 Y, 3 Z)'\n        \"\"\"\n        return self._driver.tap_status()[1]\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status flags'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def set_wake_on_motion(self, threshold_mg: int = 100):\n        \"\"\"\n        label:\n            en: '%1 wake-on-motion threshold mg (0 = off) %2'\n        params:\n            threshold_mg:\n                name: threshold_mg\n                type: int\n                default: '100'\n                field: number\n                max: '255'\n                min: '0'\n        \"\"\"\n        self._driver.set_wake_on_motion(threshold_mg)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

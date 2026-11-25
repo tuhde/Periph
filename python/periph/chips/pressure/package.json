@@ -29,12 +29,32 @@
       "github:tuhde/Periph/python/periph/chips/pressure/lps22df.py"
     ],
     [
+      "periph/chips/pressure/lps22hb.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/lps22hb.py"
+    ],
+    [
       "periph/chips/pressure/lps28dfw.py",
       "github:tuhde/Periph/python/periph/chips/pressure/lps28dfw.py"
     ],
     [
       "periph/chips/pressure/lps33hw.py",
       "github:tuhde/Periph/python/periph/chips/pressure/lps33hw.py"
+    ],
+    [
+      "periph/chips/pressure/mpl115a2.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/mpl115a2.py"
+    ],
+    [
+      "periph/chips/pressure/mpl3115a2.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/mpl3115a2.py"
+    ],
+    [
+      "periph/chips/pressure/ms5607.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/ms5607.py"
+    ],
+    [
+      "periph/chips/pressure/ms5611.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/ms5611.py"
     ],
     [
       "periph/connection/__init__.py",
@@ -83,5 +103,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

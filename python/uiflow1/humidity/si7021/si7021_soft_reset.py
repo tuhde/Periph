@@ -1,0 +1,1 @@
+_periph_si7021.software_reset()

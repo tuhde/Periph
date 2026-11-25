@@ -1,0 +1,1 @@
+_periph_lis3dh.disable_interrupt(int(${_source}), pin=int(${_pin}))

@@ -1,0 +1,1 @@
+_periph_qmi8658a.poll_interrupt()

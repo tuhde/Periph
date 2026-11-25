@@ -1,0 +1,789 @@
+{
+  "category": "Is31fl3731",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_IS31FL3731_LANGUAGES = {\n  \"CUSTOM_IS31FL3731_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_IS31FL3731_SET_PIXEL\": {\n    \"en\": \"%1 set pixel row %2 col %3 brightness %4\"\n  },\n  \"CUSTOM_IS31FL3731_CLEAR\": {\n    \"en\": \"%1 clear\"\n  },\n  \"CUSTOM_IS31FL3731_FILL\": {\n    \"en\": \"%1 fill brightness %2\"\n  },\n  \"CUSTOM_IS31FL3731_GET_PIXEL\": {\n    \"en\": \"%1 get pixel row %2 col %3\"\n  },\n  \"CUSTOM_IS31FL3731_SET_LED_ENABLED\": {\n    \"en\": \"%1 set LED enabled row %2 col %3 on %4\"\n  },\n  \"CUSTOM_IS31FL3731_SET_BLINK\": {\n    \"en\": \"%1 set blink row %2 col %3 on %4\"\n  },\n  \"CUSTOM_IS31FL3731_SET_BLINK_ALL\": {\n    \"en\": \"%1 set blink all on %2\"\n  },\n  \"CUSTOM_IS31FL3731_ENABLE_BLINK\": {\n    \"en\": \"%1 enable blink enabled %2 period %3\"\n  },\n  \"CUSTOM_IS31FL3731_SELECT_FRAME\": {\n    \"en\": \"%1 select frame frame %2\"\n  },\n  \"CUSTOM_IS31FL3731_SHOW_FRAME\": {\n    \"en\": \"%1 show frame frame %2\"\n  },\n  \"CUSTOM_IS31FL3731_CLEAR_FRAME\": {\n    \"en\": \"%1 clear frame frame %2\"\n  },\n  \"CUSTOM_IS31FL3731_CLEAR_ALL_FRAMES\": {\n    \"en\": \"%1 clear all frames\"\n  },\n  \"CUSTOM_IS31FL3731_COPY_FRAME\": {\n    \"en\": \"%1 copy frame source %2 destination %3\"\n  },\n  \"CUSTOM_IS31FL3731_SET_PICTURE_MODE\": {\n    \"en\": \"%1 set picture mode\"\n  },\n  \"CUSTOM_IS31FL3731_START_AUTO_PLAY\": {\n    \"en\": \"%1 start auto play frames %2 loops %3 delay ms %4 start frame %5\"\n  },\n  \"CUSTOM_IS31FL3731_STOP_AUTO_PLAY\": {\n    \"en\": \"%1 stop auto play\"\n  },\n  \"CUSTOM_IS31FL3731_SET_AUDIO_MODE\": {\n    \"en\": \"%1 set audio mode enabled %2\"\n  },\n  \"CUSTOM_IS31FL3731_SET_AUDIO_SYNC\": {\n    \"en\": \"%1 set audio sync enabled %2\"\n  },\n  \"CUSTOM_IS31FL3731_SET_AUDIO_GAIN\": {\n    \"en\": \"%1 set audio gain gain dB %2 AGC %3 fast AGC %4\"\n  },\n  \"CUSTOM_IS31FL3731_SET_AUDIO_RATE\": {\n    \"en\": \"%1 set audio rate rate %2\"\n  },\n  \"CUSTOM_IS31FL3731_SET_BREATH\": {\n    \"en\": \"%1 set breath enabled %2 fade in %3 fade out %4 extinguish %5\"\n  },\n  \"CUSTOM_IS31FL3731_SET_INTENSITY_CONTROL\": {\n    \"en\": \"%1 set intensity control use frame 1 %2\"\n  },\n  \"CUSTOM_IS31FL3731_SHUTDOWN\": {\n    \"en\": \"%1 shutdown on %2\"\n  },\n  \"CUSTOM_IS31FL3731_FRAME_STATE\": {\n    \"en\": \"%1 frame state\"\n  },\n  \"CUSTOM_IS31FL3731_CURRENT_FRAME\": {\n    \"en\": \"%1 current frame\"\n  },\n  \"CUSTOM_IS31FL3731_MOVIE_FINISHED\": {\n    \"en\": \"%1 movie finished\"\n  },\n  \"CUSTOM_IS31FL3731_READ_FUNCTION_REGISTER\": {\n    \"en\": \"%1 read function register register %2\"\n  },\n  \"CUSTOM_IS31FL3731_WRITE_FUNCTION_REGISTER\": {\n    \"en\": \"%1 write function register register %2 value %3\"\n  },\n  \"CUSTOM_IS31FL3731_POLL_INTERRUPT\": {\n    \"en\": \"%1 poll interrupt\"\n  }\n};\n\nconst initType = 'custom_is31fl3731_init';\nBlockly.BlockRegExpList['custom_is31fl3731'] = {\n  regexp: new RegExp(/^custom_is31fl3731_/),\n  code: \"from Is31fl3731 import Is31fl3731\",\n  initBlockType: initType,\n  categoryId: 'custom_is31fl3731',\n}\nBlockly.utils.registerLanguages(CUSTOM_IS31FL3731_LANGUAGES)\n\nBlockly.Msg.CUSTOM_IS31FL3731_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_IS31FL3731 = 'Is31fl3731'\n\nBlockly.utils.getcustom_is31fl3731Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['is31fl3731_0', 'is31fl3731_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_is31fl3731_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_is31fl3731Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'is31fl3731_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Is31fl3731(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n        {\n          'type': 'input_value',\n          'name': 'col'\n        },\n        {\n          'type': 'input_value',\n          'name': 'brightness'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  var col = Blockly.Python.valueToCode(block, 'col', Blockly.Python.ORDER_FUNCTION_CALL);\n  var brightness = Blockly.Python.valueToCode(block, 'brightness', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${row}, ${col}, ${brightness})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'brightness'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var brightness = Blockly.Python.valueToCode(block, 'brightness', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${brightness})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_get_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_GET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n        {\n          'type': 'input_value',\n          'name': 'col'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_get_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  var col = Blockly.Python.valueToCode(block, 'col', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_pixel(${row}, ${col})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_led_enabled\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_LED_ENABLED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n        {\n          'type': 'input_value',\n          'name': 'col'\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_led_enabled\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  var col = Blockly.Python.valueToCode(block, 'col', Blockly.Python.ORDER_FUNCTION_CALL);\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_led_enabled(${row}, ${col}, ${on})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_blink\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_BLINK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n        {\n          'type': 'input_value',\n          'name': 'col'\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_blink\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  var col = Blockly.Python.valueToCode(block, 'col', Blockly.Python.ORDER_FUNCTION_CALL);\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_blink(${row}, ${col}, ${on})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_blink_all\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_BLINK_ALL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_blink_all\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_blink_all(${on})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_enable_blink\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_ENABLE_BLINK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'period'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_enable_blink\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var period = Blockly.Python.valueToCode(block, 'period', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_blink(${enabled}, ${period})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_select_frame\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SELECT_FRAME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'frame'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_select_frame\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frame = Blockly.Python.valueToCode(block, 'frame', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.select_frame(${frame})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_show_frame\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SHOW_FRAME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'frame'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_show_frame\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frame = Blockly.Python.valueToCode(block, 'frame', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.show_frame(${frame})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_clear_frame\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_CLEAR_FRAME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'frame'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_clear_frame\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frame = Blockly.Python.valueToCode(block, 'frame', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.clear_frame(${frame})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_clear_all_frames\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_CLEAR_ALL_FRAMES,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_clear_all_frames\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.clear_all_frames()\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_copy_frame\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_COPY_FRAME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'src'\n        },\n        {\n          'type': 'input_value',\n          'name': 'dst'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_copy_frame\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var src = Blockly.Python.valueToCode(block, 'src', Blockly.Python.ORDER_FUNCTION_CALL);\n  var dst = Blockly.Python.valueToCode(block, 'dst', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.copy_frame(${src}, ${dst})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_picture_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_PICTURE_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_picture_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.set_picture_mode()\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_start_auto_play\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_START_AUTO_PLAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'frames'\n        },\n        {\n          'type': 'input_value',\n          'name': 'loops'\n        },\n        {\n          'type': 'input_value',\n          'name': 'delay_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'start_frame'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_start_auto_play\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frames = Blockly.Python.valueToCode(block, 'frames', Blockly.Python.ORDER_FUNCTION_CALL);\n  var loops = Blockly.Python.valueToCode(block, 'loops', Blockly.Python.ORDER_FUNCTION_CALL);\n  var delay_ms = Blockly.Python.valueToCode(block, 'delay_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var start_frame = Blockly.Python.valueToCode(block, 'start_frame', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_auto_play(${frames}, ${loops}, ${delay_ms}, ${start_frame})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_stop_auto_play\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_STOP_AUTO_PLAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_stop_auto_play\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.stop_auto_play()\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_audio_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_AUDIO_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_audio_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_audio_mode(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_audio_sync\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_AUDIO_SYNC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_audio_sync\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_audio_sync(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_audio_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_AUDIO_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gain_db'\n        },\n        {\n          'type': 'input_value',\n          'name': 'agc'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fast'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_audio_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gain_db = Blockly.Python.valueToCode(block, 'gain_db', Blockly.Python.ORDER_FUNCTION_CALL);\n  var agc = Blockly.Python.valueToCode(block, 'agc', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fast = Blockly.Python.valueToCode(block, 'fast', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_audio_gain(${gain_db}, ${agc}, ${fast})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_audio_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_AUDIO_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'a'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_audio_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var a = Blockly.Python.valueToCode(block, 'a', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_audio_rate(${a})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_breath\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_BREATH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fade_in'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fade_out'\n        },\n        {\n          'type': 'input_value',\n          'name': 'extinguish'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_breath\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fade_in = Blockly.Python.valueToCode(block, 'fade_in', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fade_out = Blockly.Python.valueToCode(block, 'fade_out', Blockly.Python.ORDER_FUNCTION_CALL);\n  var extinguish = Blockly.Python.valueToCode(block, 'extinguish', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_breath(${enabled}, ${fade_in}, ${fade_out}, ${extinguish})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_set_intensity_control\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SET_INTENSITY_CONTROL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'use_frame1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_set_intensity_control\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var use_frame1 = Blockly.Python.valueToCode(block, 'use_frame1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_intensity_control(${use_frame1})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.shutdown(${on})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_frame_state\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_FRAME_STATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_frame_state\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.frame_state()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_is31fl3731_current_frame\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_CURRENT_FRAME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_current_frame\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.current_frame()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_is31fl3731_movie_finished\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_MOVIE_FINISHED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_movie_finished\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.movie_finished()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_is31fl3731_read_function_register\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_READ_FUNCTION_REGISTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'reg'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_read_function_register\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var reg = Blockly.Python.valueToCode(block, 'reg', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_function_register(${reg})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_is31fl3731_write_function_register\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_WRITE_FUNCTION_REGISTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'reg'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_write_function_register\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var reg = Blockly.Python.valueToCode(block, 'reg', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_function_register(${reg}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_is31fl3731_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_IS31FL3731_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_is31fl3731Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_is31fl3731_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"Is31fl3731\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_is31fl3731\"><title text=\"Is31fl3731\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_is31fl3731_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">116</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_pixel\">\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"col\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"brightness\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_clear\"/><block type=\"custom_is31fl3731_fill\">\n  <value name=\"brightness\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_get_pixel\">\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"col\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_led_enabled\">\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"col\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_blink\">\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"col\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_blink_all\">\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_enable_blink\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"period\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_select_frame\">\n  <value name=\"frame\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_show_frame\">\n  <value name=\"frame\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_clear_frame\">\n  <value name=\"frame\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_clear_all_frames\"/><block type=\"custom_is31fl3731_copy_frame\">\n  <value name=\"src\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"dst\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_picture_mode\"/><block type=\"custom_is31fl3731_start_auto_play\">\n  <value name=\"frames\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"loops\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"delay_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"start_frame\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_stop_auto_play\"/><block type=\"custom_is31fl3731_set_audio_mode\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_audio_sync\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_audio_gain\">\n  <value name=\"gain_db\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"agc\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"fast\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_audio_rate\">\n  <value name=\"a\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_breath\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"fade_in\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"fade_out\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"extinguish\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_set_intensity_control\">\n  <value name=\"use_frame1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_shutdown\">\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_frame_state\"/><block type=\"custom_is31fl3731_current_frame\"/><block type=\"custom_is31fl3731_movie_finished\"/><block type=\"custom_is31fl3731_read_function_register\">\n  <value name=\"reg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_write_function_register\">\n  <value name=\"reg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_is31fl3731_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_is31fl3731",
+    "block_type": [
+      "custom_is31fl3731___init__",
+      "custom_is31fl3731_set_pixel",
+      "custom_is31fl3731_clear",
+      "custom_is31fl3731_fill",
+      "custom_is31fl3731_get_pixel",
+      "custom_is31fl3731_set_led_enabled",
+      "custom_is31fl3731_set_blink",
+      "custom_is31fl3731_set_blink_all",
+      "custom_is31fl3731_enable_blink",
+      "custom_is31fl3731_select_frame",
+      "custom_is31fl3731_show_frame",
+      "custom_is31fl3731_clear_frame",
+      "custom_is31fl3731_clear_all_frames",
+      "custom_is31fl3731_copy_frame",
+      "custom_is31fl3731_set_picture_mode",
+      "custom_is31fl3731_start_auto_play",
+      "custom_is31fl3731_stop_auto_play",
+      "custom_is31fl3731_set_audio_mode",
+      "custom_is31fl3731_set_audio_sync",
+      "custom_is31fl3731_set_audio_gain",
+      "custom_is31fl3731_set_audio_rate",
+      "custom_is31fl3731_set_breath",
+      "custom_is31fl3731_set_intensity_control",
+      "custom_is31fl3731_shutdown",
+      "custom_is31fl3731_frame_state",
+      "custom_is31fl3731_current_frame",
+      "custom_is31fl3731_movie_finished",
+      "custom_is31fl3731_read_function_register",
+      "custom_is31fl3731_write_function_register",
+      "custom_is31fl3731_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "Is31fl3731",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Is31fl3731",
+      "time": "2026-11-18",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.is31fl3731 import IS31FL3731Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "116",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = IS31FL3731Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel row %2 col %3 brightness %4"
+        },
+        "params": [
+          {
+            "name": "row",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "col",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "brightness",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(row, col, brightness)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill brightness %2"
+        },
+        "params": [
+          {
+            "name": "brightness",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(brightness)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 get pixel row %2 col %3"
+        },
+        "params": [
+          {
+            "name": "row",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "col",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_pixel(row, col)",
+        "ast_return": {
+          "code": "self._driver.get_pixel(row, col)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_led_enabled",
+        "note": {},
+        "label": {
+          "en": "%1 set LED enabled row %2 col %3 on %4"
+        },
+        "params": [
+          {
+            "name": "row",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "col",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "on",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_led_enabled(row, col, bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_blink",
+        "note": {},
+        "label": {
+          "en": "%1 set blink row %2 col %3 on %4"
+        },
+        "params": [
+          {
+            "name": "row",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "col",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "on",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_blink(row, col, bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_blink_all",
+        "note": {},
+        "label": {
+          "en": "%1 set blink all on %2"
+        },
+        "params": [
+          {
+            "name": "on",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_blink_all(bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_blink",
+        "note": {},
+        "label": {
+          "en": "%1 enable blink enabled %2 period %3"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "period",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_blink(bool(enabled), period)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "select_frame",
+        "note": {},
+        "label": {
+          "en": "%1 select frame frame %2"
+        },
+        "params": [
+          {
+            "name": "frame",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.select_frame(frame)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show_frame",
+        "note": {},
+        "label": {
+          "en": "%1 show frame frame %2"
+        },
+        "params": [
+          {
+            "name": "frame",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.show_frame(frame)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_frame",
+        "note": {},
+        "label": {
+          "en": "%1 clear frame frame %2"
+        },
+        "params": [
+          {
+            "name": "frame",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.clear_frame(frame)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_all_frames",
+        "note": {},
+        "label": {
+          "en": "%1 clear all frames"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_all_frames()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "copy_frame",
+        "note": {},
+        "label": {
+          "en": "%1 copy frame source %2 destination %3"
+        },
+        "params": [
+          {
+            "name": "src",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "dst",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.copy_frame(src, dst)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_picture_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set picture mode"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.set_picture_mode()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_auto_play",
+        "note": {},
+        "label": {
+          "en": "%1 start auto play frames %2 loops %3 delay ms %4 start frame %5"
+        },
+        "params": [
+          {
+            "name": "frames",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "loops",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "delay_ms",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "start_frame",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_auto_play(frames, loops, delay_ms, start_frame)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_auto_play",
+        "note": {},
+        "label": {
+          "en": "%1 stop auto play"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_auto_play()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_audio_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set audio mode enabled %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_audio_mode(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_audio_sync",
+        "note": {},
+        "label": {
+          "en": "%1 set audio sync enabled %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_audio_sync(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_audio_gain",
+        "note": {},
+        "label": {
+          "en": "%1 set audio gain gain dB %2 AGC %3 fast AGC %4"
+        },
+        "params": [
+          {
+            "name": "gain_db",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "agc",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "fast",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_audio_gain(gain_db, bool(agc), bool(fast))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_audio_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set audio rate rate %2"
+        },
+        "params": [
+          {
+            "name": "a",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_audio_rate(a)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_breath",
+        "note": {},
+        "label": {
+          "en": "%1 set breath enabled %2 fade in %3 fade out %4 extinguish %5"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "fade_in",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "fade_out",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "extinguish",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_breath(bool(enabled), fade_in, fade_out, extinguish)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_intensity_control",
+        "note": {},
+        "label": {
+          "en": "%1 set intensity control use frame 1 %2"
+        },
+        "params": [
+          {
+            "name": "use_frame1",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_intensity_control(bool(use_frame1))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 shutdown on %2"
+        },
+        "params": [
+          {
+            "name": "on",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.shutdown(bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "frame_state",
+        "note": {},
+        "label": {
+          "en": "%1 frame state"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.frame_state()",
+        "ast_return": {
+          "code": "self._driver.frame_state()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "current_frame",
+        "note": {},
+        "label": {
+          "en": "%1 current frame"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.current_frame()",
+        "ast_return": {
+          "code": "self._driver.current_frame()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "movie_finished",
+        "note": {},
+        "label": {
+          "en": "%1 movie finished"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.movie_finished()",
+        "ast_return": {
+          "code": "self._driver.movie_finished()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_function_register",
+        "note": {},
+        "label": {
+          "en": "%1 read function register register %2"
+        },
+        "params": [
+          {
+            "name": "reg",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_function_register(reg)",
+        "ast_return": {
+          "code": "self._driver.read_function_register(reg)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_function_register",
+        "note": {},
+        "label": {
+          "en": "%1 write function register register %2 value %3"
+        },
+        "params": [
+          {
+            "name": "reg",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_function_register(reg, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 poll interrupt"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "is31fl3731"
+  },
+  "pyCode": "\"\"\"\nfile     Is31fl3731\ntime     2026-11-18\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.is31fl3731 import IS31FL3731Full\n\n\nclass Is31fl3731:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 116):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '116'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = IS31FL3731Full(connection)\n\n    def set_pixel(self, row: int, col: int, brightness: int):\n        \"\"\"\n        label:\n            en: '%1 set pixel row %2 col %3 brightness %4'\n        params:\n            row:\n                name: row\n                type: int\n                field: number\n            col:\n                name: col\n                type: int\n                field: number\n            brightness:\n                name: brightness\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_pixel(row, col, brightness)\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear'\n        \"\"\"\n        self._driver.clear()\n\n    def fill(self, brightness: int):\n        \"\"\"\n        label:\n            en: '%1 fill brightness %2'\n        params:\n            brightness:\n                name: brightness\n                type: int\n                field: number\n        \"\"\"\n        self._driver.fill(brightness)\n\n    def get_pixel(self, row: int, col: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 get pixel row %2 col %3'\n        params:\n            row:\n                name: row\n                type: int\n                field: number\n            col:\n                name: col\n                type: int\n                field: number\n        \"\"\"\n\n        return self._driver.get_pixel(row, col)\n\n    def set_led_enabled(self, row: int, col: int, on: int):\n        \"\"\"\n        label:\n            en: '%1 set LED enabled row %2 col %3 on %4'\n        params:\n            row:\n                name: row\n                type: int\n                field: number\n            col:\n                name: col\n                type: int\n                field: number\n            on:\n                name: on\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_led_enabled(row, col, bool(on))\n\n    def set_blink(self, row: int, col: int, on: int):\n        \"\"\"\n        label:\n            en: '%1 set blink row %2 col %3 on %4'\n        params:\n            row:\n                name: row\n                type: int\n                field: number\n            col:\n                name: col\n                type: int\n                field: number\n            on:\n                name: on\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_blink(row, col, bool(on))\n\n    def set_blink_all(self, on: int):\n        \"\"\"\n        label:\n            en: '%1 set blink all on %2'\n        params:\n            on:\n                name: on\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_blink_all(bool(on))\n\n    def enable_blink(self, enabled: int, period: int):\n        \"\"\"\n        label:\n            en: '%1 enable blink enabled %2 period %3'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n            period:\n                name: period\n                type: int\n                field: number\n        \"\"\"\n        self._driver.enable_blink(bool(enabled), period)\n\n    def select_frame(self, frame: int):\n        \"\"\"\n        label:\n            en: '%1 select frame frame %2'\n        params:\n            frame:\n                name: frame\n                type: int\n                field: number\n        \"\"\"\n        self._driver.select_frame(frame)\n\n    def show_frame(self, frame: int):\n        \"\"\"\n        label:\n            en: '%1 show frame frame %2'\n        params:\n            frame:\n                name: frame\n                type: int\n                field: number\n        \"\"\"\n        self._driver.show_frame(frame)\n\n    def clear_frame(self, frame: int):\n        \"\"\"\n        label:\n            en: '%1 clear frame frame %2'\n        params:\n            frame:\n                name: frame\n                type: int\n                field: number\n        \"\"\"\n        self._driver.clear_frame(frame)\n\n    def clear_all_frames(self):\n        \"\"\"\n        label:\n            en: '%1 clear all frames'\n        \"\"\"\n        self._driver.clear_all_frames()\n\n    def copy_frame(self, src: int, dst: int):\n        \"\"\"\n        label:\n            en: '%1 copy frame source %2 destination %3'\n        params:\n            src:\n                name: src\n                type: int\n                field: number\n            dst:\n                name: dst\n                type: int\n                field: number\n        \"\"\"\n        self._driver.copy_frame(src, dst)\n\n    def set_picture_mode(self):\n        \"\"\"\n        label:\n            en: '%1 set picture mode'\n        \"\"\"\n        self._driver.set_picture_mode()\n\n    def start_auto_play(self, frames: int, loops: int, delay_ms: int, start_frame: int):\n        \"\"\"\n        label:\n            en: '%1 start auto play frames %2 loops %3 delay ms %4 start frame %5'\n        params:\n            frames:\n                name: frames\n                type: int\n                field: number\n            loops:\n                name: loops\n                type: int\n                field: number\n            delay_ms:\n                name: delay_ms\n                type: int\n                field: number\n            start_frame:\n                name: start_frame\n                type: int\n                field: number\n        \"\"\"\n        self._driver.start_auto_play(frames, loops, delay_ms, start_frame)\n\n    def stop_auto_play(self):\n        \"\"\"\n        label:\n            en: '%1 stop auto play'\n        \"\"\"\n        self._driver.stop_auto_play()\n\n    def set_audio_mode(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set audio mode enabled %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_audio_mode(bool(enabled))\n\n    def set_audio_sync(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set audio sync enabled %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_audio_sync(bool(enabled))\n\n    def set_audio_gain(self, gain_db: int, agc: int, fast: int):\n        \"\"\"\n        label:\n            en: '%1 set audio gain gain dB %2 AGC %3 fast AGC %4'\n        params:\n            gain_db:\n                name: gain_db\n                type: int\n                field: number\n            agc:\n                name: agc\n                type: int\n                field: number\n            fast:\n                name: fast\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_audio_gain(gain_db, bool(agc), bool(fast))\n\n    def set_audio_rate(self, a: int):\n        \"\"\"\n        label:\n            en: '%1 set audio rate rate %2'\n        params:\n            a:\n                name: a\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_audio_rate(a)\n\n    def set_breath(self, enabled: int, fade_in: int, fade_out: int, extinguish: int):\n        \"\"\"\n        label:\n            en: '%1 set breath enabled %2 fade in %3 fade out %4 extinguish %5'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n            fade_in:\n                name: fade_in\n                type: int\n                field: number\n            fade_out:\n                name: fade_out\n                type: int\n                field: number\n            extinguish:\n                name: extinguish\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_breath(bool(enabled), fade_in, fade_out, extinguish)\n\n    def set_intensity_control(self, use_frame1: int):\n        \"\"\"\n        label:\n            en: '%1 set intensity control use frame 1 %2'\n        params:\n            use_frame1:\n                name: use_frame1\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_intensity_control(bool(use_frame1))\n\n    def shutdown(self, on: int):\n        \"\"\"\n        label:\n            en: '%1 shutdown on %2'\n        params:\n            on:\n                name: on\n                type: int\n                field: number\n        \"\"\"\n        self._driver.shutdown(bool(on))\n\n    def frame_state(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 frame state'\n        \"\"\"\n\n        return self._driver.frame_state()\n\n    def current_frame(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 current frame'\n        \"\"\"\n\n        return self._driver.current_frame()\n\n    def movie_finished(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 movie finished'\n        \"\"\"\n\n        return self._driver.movie_finished()\n\n    def read_function_register(self, reg: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read function register register %2'\n        params:\n            reg:\n                name: reg\n                type: int\n                field: number\n        \"\"\"\n\n        return self._driver.read_function_register(reg)\n\n    def write_function_register(self, reg: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write function register register %2 value %3'\n        params:\n            reg:\n                name: reg\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_function_register(reg, value)\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 poll interrupt'\n        \"\"\"\n\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}

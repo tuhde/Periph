@@ -1,0 +1,1 @@
+_periph_cat24c512.wait_ready(${_timeout})

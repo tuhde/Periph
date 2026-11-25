@@ -31,7 +31,7 @@
     },
     {
         "id": "read-hmc5883l",
-        "type": "periph-hmc5883l",
+        "type": "hmc5883l",
         "name": "HMC5883L",
         "device": "cfg-hmc5883l",
         "z": "tab-hmc5883l-demo",

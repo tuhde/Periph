@@ -14,32 +14,51 @@ void SPIConnection::write(uint32_t reg, const uint8_t* data, size_t len) {
     Connection::write(payload, len + 1);
 }
 
-void SPIConnection::_write(const uint8_t* data, size_t len) {
+void SPIConnection::idle_clocks(uint32_t n) {
+    bool wasHeld = _held;
+    if (wasHeld) deselect();
+    _bus.beginTransaction(_settings);
+    digitalWrite(_cs_pin, HIGH);
+    for (uint32_t i = 0; i < (n + 7) / 8; i++)
+        _bus.transfer(0xFF);
+    _bus.endTransaction();
+    if (wasHeld) select();
+}
+
+void SPIConnection::select() {
+    if (_held) return;
     _bus.beginTransaction(_settings);
     digitalWrite(_cs_pin, LOW);
-    for (size_t i = 0; i < len; i++)
-        _bus.transfer(data[i]);
+    _held = true;
+}
+
+void SPIConnection::deselect() {
+    if (!_held) return;
     digitalWrite(_cs_pin, HIGH);
     _bus.endTransaction();
+    _held = false;
+}
+
+void SPIConnection::_write(const uint8_t* data, size_t len) {
+    if (!_held) { _bus.beginTransaction(_settings); digitalWrite(_cs_pin, LOW); }
+    for (size_t i = 0; i < len; i++)
+        _bus.transfer(data[i]);
+    if (!_held) { digitalWrite(_cs_pin, HIGH); _bus.endTransaction(); }
 }
 
 void SPIConnection::_read(uint8_t* buf, size_t len) {
-    _bus.beginTransaction(_settings);
-    digitalWrite(_cs_pin, LOW);
+    if (!_held) { _bus.beginTransaction(_settings); digitalWrite(_cs_pin, LOW); }
     for (size_t i = 0; i < len; i++)
-        buf[i] = _bus.transfer(0x00);
-    digitalWrite(_cs_pin, HIGH);
-    _bus.endTransaction();
+        buf[i] = _bus.transfer(0xFF);   // MOSI idles high (SD cards read other levels as commands)
+    if (!_held) { digitalWrite(_cs_pin, HIGH); _bus.endTransaction(); }
 }
 
 void SPIConnection::_write_read(const uint8_t* data, size_t data_len,
                                  uint8_t* buf, size_t buf_len) {
-    _bus.beginTransaction(_settings);
-    digitalWrite(_cs_pin, LOW);
+    if (!_held) { _bus.beginTransaction(_settings); digitalWrite(_cs_pin, LOW); }
     for (size_t i = 0; i < data_len; i++)
         _bus.transfer(data[i]);
     for (size_t i = 0; i < buf_len; i++)
-        buf[i] = _bus.transfer(0x00);
-    digitalWrite(_cs_pin, HIGH);
-    _bus.endTransaction();
+        buf[i] = _bus.transfer(0xFF);
+    if (!_held) { digitalWrite(_cs_pin, HIGH); _bus.endTransaction(); }
 }

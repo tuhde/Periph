@@ -1,0 +1,1 @@
+_periph_shtc3.soft_reset()

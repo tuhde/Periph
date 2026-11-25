@@ -1,0 +1,234 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ht16k33_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HT16K33",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_clear",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 clear",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_set_pixel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 set pixel",
+          "type": "label"
+        },
+        {
+          "name": "COM (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_com",
+          "type": "number"
+        },
+        {
+          "name": "ROW (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        },
+        {
+          "name": "on (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_show",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 show",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_set_brightness",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 set brightness",
+          "type": "label"
+        },
+        {
+          "name": "level (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_display_on",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 display on",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_display_off",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 display off",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_set_blink",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 set blink",
+          "type": "label"
+        },
+        {
+          "name": "frequency Hz (0, 0.5, 1, 2)",
+          "type": "label"
+        },
+        {
+          "name": "_frequency",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_standby",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 standby",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 wake",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_set_int_output",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HT16K33 set INT output",
+          "type": "label"
+        },
+        {
+          "name": "enable (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enable",
+          "type": "number"
+        },
+        {
+          "name": "active high (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_active_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_read_keys",
+      "type": "value",
+      "params": [
+        {
+          "name": "HT16K33 read keys",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_key_pressed",
+      "type": "value",
+      "params": [
+        {
+          "name": "HT16K33 key pressed",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ht16k33_get_pixel",
+      "type": "value",
+      "params": [
+        {
+          "name": "HT16K33 get pixel",
+          "type": "label"
+        },
+        {
+          "name": "COM (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_com",
+          "type": "number"
+        },
+        {
+          "name": "ROW (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

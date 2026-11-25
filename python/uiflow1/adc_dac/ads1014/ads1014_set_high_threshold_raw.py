@@ -1,0 +1,1 @@
+_periph_ads1014.set_high_threshold_raw(${_raw})

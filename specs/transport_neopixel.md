@@ -95,6 +95,7 @@ def encode(data: bytes) -> bytes:
 | `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0, via the Go Linux SPI connection's raw-ioctl path |
 | `spi` | Go TinyGo | `machine.SPI` | SPI peripheral configured at 2.4 MHz, mode 0 |
 | `spi` | Pico SDK | `spi_inst_t*` | SPI controller (`spi0` or `spi1`), configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()` |
+| `hspi` | STM32Cube | `SPI_HandleTypeDef*` | SPI peripheral, initialised for 2.4 MHz, mode 0, MSB first via `HAL_SPI_Init()` |
 
 | `dev` | ESP-IDF (SPI mode) | `spi_device_handle_t` | SPI device, already added to a bus via `spi_bus_add_device()`, configured at 2.4 MHz, mode 0 |
 | `rmt_chan`, `encoder` | ESP-IDF (RMT mode) | `rmt_channel_handle_t`, `rmt_encoder_handle_t` | RMT TX channel and a bytes encoder configured with WS2812 T0H/T0L/T1H/T1L timing (see [Bit Timing](#bit-timing)) |
@@ -164,6 +165,14 @@ Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured at 2.
 Uses `hardware_spi` directly (bare-metal `pico-sdk`, no Arduino core, no RTOS) rather than the RP2040/RP2350 PIO block; see the note in [Overview](#overview) on why this connection does not use PIO.
 
 File: `cpp/src/connection/NeoPixelConnectionPicoSDK.h` (header-only)
+
+### STM32Cube
+
+Constructor accepts an `SPI_HandleTypeDef*` already initialised for 2.4 MHz, mode 0 via `HAL_SPI_Init()`. `write()` encodes the buffer with the same 3-bit SPI encoding as every other platform and shifts it out with `HAL_SPI_Transmit(hspi, encoded, 3 * len + 16, 1000)`, the trailing 16 zero bytes giving the reset pulse. Strips longer than the 64-byte stack buffer covers are sent in chunks, as in `NeoPixelConnectionPicoSDK`, to avoid heap allocation. No CS pin is used; DIN connects to SPI MOSI.
+
+Uses the SPI peripheral rather than a TIM+DMA scheme, for identical timing behaviour on every platform.
+
+File: `cpp/src/connection/NeoPixelConnectionSTM32Cube.h` (header-only)
 
 ### Node.js
 
@@ -251,6 +260,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/NeoPixelConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/connection/neopixel.js` — JSDoc on class and every exported method

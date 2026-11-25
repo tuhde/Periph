@@ -15,7 +15,7 @@
  * to the chips in the generated registry (DiscoveryRegistry.h, built from
  * registry/chips.json) and confirms a chip only when an identity-register read
  * matches exactly one candidate. Everything else is reported as candidates.
- * Host-only: not part of the Arduino / Zephyr / ESP-IDF / Pico SDK builds.
+ * Host-only: not part of the Arduino / Zephyr / ESP-IDF / Pico SDK / STM32Cube builds.
  */
 namespace periph {
 namespace discovery {

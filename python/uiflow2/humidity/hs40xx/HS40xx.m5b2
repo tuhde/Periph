@@ -1,0 +1,291 @@
+{
+  "category": "HS40xx",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HS40XX_LANGUAGES = {\n  \"CUSTOM_HS40XX_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_HS40XX_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_HS40XX_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%RH)\"\n  },\n  \"CUSTOM_HS40XX_DEW_POINT\": {\n    \"en\": \"%1 dew point (°C)\"\n  },\n  \"CUSTOM_HS40XX_RAW_HUMIDITY\": {\n    \"en\": \"%1 raw humidity (14 bit)\"\n  },\n  \"CUSTOM_HS40XX_RAW_TEMPERATURE\": {\n    \"en\": \"%1 raw temperature (14 bit)\"\n  },\n  \"CUSTOM_HS40XX_SENSOR_ID\": {\n    \"en\": \"%1 sensor ID\"\n  },\n  \"CUSTOM_HS40XX_SET_RESOLUTION\": {\n    \"en\": \"%1 resolution humidity %2 bits temperature %3 bits\"\n  },\n  \"CUSTOM_HS40XX_START_PERIODIC\": {\n    \"en\": \"%1 start periodic mode, period %2 (0=0.5 s, 1=1 s, 2=2.5 s)\"\n  },\n  \"CUSTOM_HS40XX_STOP_PERIODIC\": {\n    \"en\": \"%1 stop periodic mode\"\n  },\n  \"CUSTOM_HS40XX_PERIODIC_HUMIDITY\": {\n    \"en\": \"%1 periodic relative humidity (%RH)\"\n  },\n  \"CUSTOM_HS40XX_PERIODIC_TEMPERATURE\": {\n    \"en\": \"%1 periodic temperature (°C)\"\n  },\n  \"CUSTOM_HS40XX_SOFT_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_hs40xx_init';\nBlockly.BlockRegExpList['custom_hs40xx'] = {\n  regexp: new RegExp(/^custom_hs40xx_/),\n  code: \"from HS40xx import HS40xx\",\n  initBlockType: initType,\n  categoryId: 'custom_hs40xx',\n}\nBlockly.utils.registerLanguages(CUSTOM_HS40XX_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HS40XX_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HS40XX = 'HS40xx'\n\nBlockly.utils.getcustom_hs40xxOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hs40xx_0', 'hs40xx_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hs40xx_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hs40xxOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hs40xx_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HS40xx(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_hs40xx_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_dew_point\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_DEW_POINT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_dew_point\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.dew_point()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_raw_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_RAW_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_raw_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.raw_humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_raw_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_RAW_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_raw_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.raw_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_sensor_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_SENSOR_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_sensor_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.sensor_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'humidity_bits'\n        },\n        {\n          'type': 'input_value',\n          'name': 'temperature_bits'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var humidity_bits = Blockly.Python.valueToCode(block, 'humidity_bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  var temperature_bits = Blockly.Python.valueToCode(block, 'temperature_bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(${humidity_bits}, ${temperature_bits})\\n`\n}\n\nBlockly.Blocks[\"custom_hs40xx_start_periodic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_START_PERIODIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'period'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_start_periodic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var period = Blockly.Python.valueToCode(block, 'period', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_periodic(${period})\\n`\n}\n\nBlockly.Blocks[\"custom_hs40xx_stop_periodic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_STOP_PERIODIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_stop_periodic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_periodic()\\n`\n}\n\nBlockly.Blocks[\"custom_hs40xx_periodic_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_PERIODIC_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_periodic_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.periodic_humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_periodic_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_PERIODIC_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_periodic_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.periodic_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hs40xx_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HS40XX_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hs40xxOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hs40xx_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"HS40xx\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hs40xx\">\n<title text=\"HS40xx\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hs40xx_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">84</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hs40xx_temperature\"/><block type=\"custom_hs40xx_humidity\"/><block type=\"custom_hs40xx_dew_point\"/><block type=\"custom_hs40xx_raw_humidity\"/><block type=\"custom_hs40xx_raw_temperature\"/><block type=\"custom_hs40xx_sensor_id\"/><block type=\"custom_hs40xx_set_resolution\">\n  <value name=\"humidity_bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">14</field>\n    </shadow>\n  </value>\n  <value name=\"temperature_bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">14</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hs40xx_start_periodic\">\n  <value name=\"period\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hs40xx_stop_periodic\"/><block type=\"custom_hs40xx_periodic_humidity\"/><block type=\"custom_hs40xx_periodic_temperature\"/><block type=\"custom_hs40xx_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_hs40xx",
+    "block_type": [
+      "custom_hs40xx___init__",
+      "custom_hs40xx_temperature",
+      "custom_hs40xx_humidity",
+      "custom_hs40xx_dew_point",
+      "custom_hs40xx_raw_humidity",
+      "custom_hs40xx_raw_temperature",
+      "custom_hs40xx_sensor_id",
+      "custom_hs40xx_set_resolution",
+      "custom_hs40xx_start_periodic",
+      "custom_hs40xx_stop_periodic",
+      "custom_hs40xx_periodic_humidity",
+      "custom_hs40xx_periodic_temperature",
+      "custom_hs40xx_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "HS40xx",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HS40xx",
+      "time": "2026-11-19",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.hs40xx import HS40xxFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "84",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = HS40xxFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "dew_point",
+        "note": {},
+        "label": {
+          "en": "%1 dew point (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.dew_point()",
+        "ast_return": {
+          "code": "self._driver.dew_point()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "raw_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 raw humidity (14 bit)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[0]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "raw_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 raw temperature (14 bit)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[1]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sensor_id",
+        "note": {},
+        "label": {
+          "en": "%1 sensor ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_id()",
+        "ast_return": {
+          "code": "self._driver.read_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 resolution humidity %2 bits temperature %3 bits"
+        },
+        "params": [
+          {
+            "name": "humidity_bits",
+            "type": "int",
+            "default": "14",
+            "note": {},
+            "field": "number",
+            "max": "14",
+            "min": "8"
+          },
+          {
+            "name": "temperature_bits",
+            "type": "int",
+            "default": "14",
+            "note": {},
+            "field": "number",
+            "max": "14",
+            "min": "8"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(humidity_bits, temperature_bits)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_periodic",
+        "note": {},
+        "label": {
+          "en": "%1 start periodic mode, period %2 (0=0.5 s, 1=1 s, 2=2.5 s)"
+        },
+        "params": [
+          {
+            "name": "period",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_periodic((0.5, 1, 2.5)[period])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_periodic",
+        "note": {},
+        "label": {
+          "en": "%1 stop periodic mode"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_periodic()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "periodic_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 periodic relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_periodic()['humidity_pct']",
+        "ast_return": {
+          "code": "self._driver.read_periodic()['humidity_pct']",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "periodic_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 periodic temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_periodic()['temperature_c']",
+        "ast_return": {
+          "code": "self._driver.read_periodic()['temperature_c']",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hs40xx"
+  },
+  "pyCode": "\"\"\"\nfile     HS40xx\ntime     2026-11-19\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.hs40xx import HS40xxFull\n\n\nclass HS40xx:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 84):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '84'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = HS40xxFull(connection)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def dew_point(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 dew point (°C)'\n        \"\"\"\n        return self._driver.dew_point()\n\n    def raw_humidity(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw humidity (14 bit)'\n        \"\"\"\n        return self._driver.read_raw()[0]\n\n    def raw_temperature(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw temperature (14 bit)'\n        \"\"\"\n        return self._driver.read_raw()[1]\n\n    def sensor_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 sensor ID'\n        \"\"\"\n        return self._driver.read_id()\n\n    def set_resolution(self, humidity_bits: int = 14, temperature_bits: int = 14):\n        \"\"\"\n        label:\n            en: '%1 resolution humidity %2 bits temperature %3 bits'\n        params:\n            humidity_bits:\n                name: humidity_bits\n                type: int\n                default: '14'\n                field: number\n                max: '14'\n                min: '8'\n            temperature_bits:\n                name: temperature_bits\n                type: int\n                default: '14'\n                field: number\n                max: '14'\n                min: '8'\n        \"\"\"\n        self._driver.set_resolution(humidity_bits, temperature_bits)\n\n    def start_periodic(self, period: int = 1):\n        \"\"\"\n        label:\n            en: '%1 start periodic mode, period %2 (0=0.5 s, 1=1 s, 2=2.5 s)'\n        params:\n            period:\n                name: period\n                type: int\n                default: '1'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        self._driver.start_periodic((0.5, 1, 2.5)[period])\n\n    def stop_periodic(self):\n        \"\"\"\n        label:\n            en: '%1 stop periodic mode'\n        \"\"\"\n        self._driver.stop_periodic()\n\n    def periodic_humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 periodic relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_periodic()['humidity_pct']\n\n    def periodic_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 periodic temperature (°C)'\n        \"\"\"\n        return self._driver.read_periodic()['temperature_c']\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.soft_reset()\n",
+  "version": "alpha2"
+}

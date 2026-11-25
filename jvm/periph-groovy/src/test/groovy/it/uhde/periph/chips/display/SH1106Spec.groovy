@@ -1,0 +1,293 @@
+package it.uhde.periph.chips.display
+
+import it.uhde.periph.connection.MockConnection
+import it.uhde.periph.connection.MockDisplayConnection
+import spock.lang.Specification
+
+class SH1106Spec extends Specification {
+
+    private static byte[] bytes(int... v) {
+        byte[] b = new byte[v.length]
+        for (int i = 0; i < v.length; i++) b[i] = (byte) v[i]
+        b
+    }
+
+    private static byte[] last(MockConnection c) {
+        c.writes()[c.writes().size() - 1]
+    }
+
+    private static final byte[] SETUP = bytes(0x00, 0xAE, 0xD5, 0x50, 0xA8, 0x3F, 0xD3, 0x00, 0x40, 0xA0, 0xC0, 0xDA,
+            0x12, 0x81, 0x80, 0xD9, 0x22, 0xDB, 0x35, 0x30, 0xA4, 0xA6)
+
+    def "init sequence"() {
+        given:
+        def c = new MockConnection()
+
+        when:
+        def lcd = new SH1106Minimal(c)
+
+        then:
+        lcd.width() == 128
+        lcd.height() == 64
+        c.writes()[0] == SETUP
+        c.writes()[1] == bytes(0x00, 0xAD, 0x8B)
+        c.writes()[2] == bytes(0x00, 0xB0, 0x00, 0x10)
+        (3..7).every { int i -> c.writes()[i][0] == 0x40 && c.writes()[i].length - 1 == [31, 31, 31, 31, 8][i - 3] && c.writes()[i][1..-1].every { it == 0 } }
+        c.writes().size() == 2 + 8 * 6 + 1
+        c.writes()[2 + 7 * 6] == bytes(0x00, 0xB7, 0x00, 0x10)
+        last(c) == bytes(0x00, 0xAF)
+    }
+
+    def "pixels and show"() {
+        given:
+        def c = new MockConnection()
+        def lcd = new SH1106Minimal(c)
+        int n0 = c.writes().size()
+
+        when:
+        lcd.setPixel(3, 10, true)
+        lcd.setPixel(127, 63, true)
+        lcd.setPixel(128, 0, true)
+        lcd.setPixel(-1, 5, true)
+
+        then: "framebuffer only"
+        c.writes().size() == n0
+
+        when:
+        lcd.show()
+
+        then:
+        c.writes().size() - n0 == 48
+        c.writes()[n0 + 6] == bytes(0x00, 0xB1, 0x02, 0x10)
+        c.writes()[n0 + 7][1 + 3] == 0x04
+        c.writes()[n0 + 47][-1] == (byte) 0x80
+
+        when:
+        lcd.clear()
+        n0 = c.writes().size()
+        lcd.show()
+
+        then:
+        c.writes().subList(n0, c.writes().size()).every { byte[] w -> w[0] != 0x40 || w[1..-1].every { it == 0 } }
+    }
+
+    def "options and validation"() {
+        when:
+        def o = new MockConnection()
+        new SH1106Minimal(o, 128, 32, 0, false)
+
+        then:
+        o.writes()[1] == bytes(0x00, 0xAD, 0x8A)
+        o.writes()[0][4] == (byte) 0xA8
+        o.writes()[0][5] == 0x1F
+
+        when:
+        def o2 = new MockConnection()
+        def narrow = new SH1106Minimal(o2, 100, 64, 16, true)
+        int n0 = o2.writes().size()
+        narrow.show()
+
+        then:
+        o2.writes()[n0] == bytes(0x00, 0xB0, 0x00, 0x11)
+
+        when:
+        def bad = new MockConnection()
+        new SH1106Minimal(bad, w, h, off, true)
+
+        then:
+        thrown(IllegalArgumentException)
+        bad.writes().isEmpty()
+
+        where:
+        w   | h  | off
+        133 | 64 | 0
+        128 | 60 | 0
+        128 | 72 | 0
+        128 | 64 | 5
+        0   | 64 | 0
+    }
+
+    def "commands"() {
+        given:
+        def fc = new MockConnection()
+        def f = new SH1106Full(fc)
+        def cases = [
+            [{ SH1106Full chip -> chip.setContrast(0x55) }, bytes(0x00, 0x81, 0x55)],
+            [{ SH1106Full chip -> chip.setDisplay(false) }, bytes(0x00, 0xAE)],
+            [{ SH1106Full chip -> chip.setDisplay(true) }, bytes(0x00, 0xAF)],
+            [{ SH1106Full chip -> chip.sleep() }, bytes(0x00, 0xAE)],
+            [{ SH1106Full chip -> chip.wake() }, bytes(0x00, 0xAF)],
+            [{ SH1106Full chip -> chip.setInvert(true) }, bytes(0x00, 0xA7)],
+            [{ SH1106Full chip -> chip.setInvert(false) }, bytes(0x00, 0xA6)],
+            [{ SH1106Full chip -> chip.setAllOn(true) }, bytes(0x00, 0xA5)],
+            [{ SH1106Full chip -> chip.setAllOn(false) }, bytes(0x00, 0xA4)],
+            [{ SH1106Full chip -> chip.setFlip(true, true) }, bytes(0x00, 0xA1, 0xC8)],
+            [{ SH1106Full chip -> chip.setFlip(false, true) }, bytes(0x00, 0xA0, 0xC8)],
+            [{ SH1106Full chip -> chip.setFlip(false, false) }, bytes(0x00, 0xA0, 0xC0)],
+            [{ SH1106Full chip -> chip.setStartLine(40) }, bytes(0x00, 0x68)],
+            [{ SH1106Full chip -> chip.setDisplayOffset(12) }, bytes(0x00, 0xD3, 12)],
+            [{ SH1106Full chip -> chip.setMultiplex(48) }, bytes(0x00, 0xA8, 47)],
+            [{ SH1106Full chip -> chip.setClock(3, 8) }, bytes(0x00, 0xD5, 0x82)],
+            [{ SH1106Full chip -> chip.setPrecharge(2, 5) }, bytes(0x00, 0xD9, 0x52)],
+            [{ SH1106Full chip -> chip.setComConfig(false) }, bytes(0x00, 0xDA, 0x02)],
+            [{ SH1106Full chip -> chip.setComConfig(true) }, bytes(0x00, 0xDA, 0x12)],
+            [{ SH1106Full chip -> chip.setVcomDeselect(0x40) }, bytes(0x00, 0xDB, 0x40)],
+            [{ SH1106Full chip -> chip.setPumpVoltage(3) }, bytes(0x00, 0x33)],
+            [{ SH1106Full chip -> chip.setDcdc(false) }, bytes(0x00, 0xAD, 0x8A)],
+            [{ SH1106Full chip -> chip.setDcdc(true) }, bytes(0x00, 0xAD, 0x8B)],
+            [{ SH1106Full chip -> chip.sendCommand(0xE3, 0xE3) }, bytes(0x00, 0xE3, 0xE3)],
+        ]
+
+        expect:
+        cases.every { List c ->
+            ((Closure) c[0]).call(f)
+            last(fc) == (byte[]) c[1]
+        }
+    }
+
+    def "show page"() {
+        given:
+        def fc = new MockConnection()
+        def f = new SH1106Full(fc)
+        int n0 = fc.writes().size()
+
+        when:
+        f.showPage(2)
+
+        then:
+        fc.writes()[n0] == bytes(0x00, 0xB2, 0x02, 0x10)
+        fc.writes().size() - n0 == 6
+
+        when:
+        f.showPage(8)
+
+        then:
+        fc.writes().size() - n0 == 6
+    }
+
+    def "drawing"() {
+        given:
+        def f = new SH1106Full(new MockConnection())
+
+        when:
+        f.fill(true)
+
+        then:
+        f.getPixel(0, 0) && f.getPixel(127, 63)
+
+        when:
+        f.fill(false)
+
+        then:
+        !f.getPixel(0, 0) && !f.getPixel(-1, 0) && !f.getPixel(0, 64)
+
+        when:
+        f.drawLine(0, 0, 9, 9, true)
+
+        then:
+        f.getPixel(0, 0) && f.getPixel(5, 5) && f.getPixel(9, 9) && !f.getPixel(5, 6)
+
+        when:
+        f.fill(false)
+        f.drawRect(10, 20, 5, 4, true, false)
+
+        then:
+        f.getPixel(10, 20) && f.getPixel(14, 23) && f.getPixel(12, 20) && !f.getPixel(12, 21)
+
+        when:
+        f.fill(false)
+        f.drawRect(10, 20, 3, 3, true, true)
+
+        then:
+        f.getPixel(11, 21) && f.getPixel(12, 22) && !f.getPixel(13, 22)
+
+        when:
+        f.fill(false)
+        f.blit(4, 8, bytes(0xFF, 0x0F, 0x01, 0x80), 2)
+
+        then:
+        f.getPixel(4, 8) && f.getPixel(4, 15) && f.getPixel(5, 8) && !f.getPixel(5, 12) &&
+                f.getPixel(5, 11) && f.getPixel(4, 16) && f.getPixel(5, 23) && !f.getPixel(4, 17)
+
+        when:
+        f.blit(4, 3, bytes(1, 2), 1)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "reads"() {
+        given:
+        def rc = new MockConnection()
+        def c = new SH1106Full(rc)
+
+        when:
+        rc.queueRead(bytes(0x40))
+        def status = c.readStatus()
+
+        then:
+        status == 0x40
+        last(rc) == bytes(0x00)
+
+        when:
+        rc.queueRead(bytes(0xEE, 0x11, 0x22, 0x33))
+        int k = rc.writes().size()
+        def ram = c.readPage(2, 5, 3)
+
+        then:
+        ram == bytes(0x11, 0x22, 0x33)
+        rc.writes()[k] == bytes(0x00, 0xB2, 0x05, 0x10)
+        rc.writes()[k + 1] == bytes(0x40)
+    }
+
+    def "spi"() {
+        given:
+        def dc = new MockDisplayConnection()
+
+        when:
+        def lcd = new SH1106SpiMinimal(dc)
+        def cmds = dc.commands()
+
+        then:
+        dc.events()[0] == 'reset'
+        (0..<21).every { int i -> cmds[i] == (SETUP[i + 1] & 0xFF) }
+        cmds.subList(21, 23) == [0xAD, 0x8B]
+        cmds[-1] == 0xAF
+        (0..<cmds.size()).every { int i -> dc.commandData(i).length == 0 }
+        dc.events().count { it.startsWith('data:') } == 8
+
+        when:
+        int n = dc.events().size()
+        lcd.setPixel(5, 0, true)
+        lcd.show()
+        def shown = dc.events().subList(n, dc.events().size())
+
+        then:
+        shown[0].startsWith('command:b0')
+        shown[1].startsWith('command:02')
+        shown[2].startsWith('command:10')
+        shown[3].startsWith('data:')
+        shown[3].length() - 'data:'.length() == 128 * 2
+
+        when:
+        def dc2 = new MockDisplayConnection()
+        def c = new SH1106SpiFull(dc2)
+        c.readStatus()
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        c.readPage(0, 0, 2)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        int m = dc2.commands().size()
+        c.setContrast(0x20)
+
+        then:
+        dc2.commands().subList(m, dc2.commands().size()) == [0x81, 0x20]
+    }
+}

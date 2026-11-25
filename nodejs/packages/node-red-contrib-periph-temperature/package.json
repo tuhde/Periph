@@ -1,23 +1,41 @@
 {
   "name": "node-red-contrib-periph-temperature",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for temperature sensor chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for temperature sensor chips: MCP9808, TMP102, TMP117",
   "keywords": [
     "node-red",
     "temperature",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "mcp9808",
+    "tmp102",
+    "tmp117"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "mcp9808": "nodes/mcp9808/mcp9808.js",
+      "tmp102": "nodes/tmp102/tmp102.js",
       "tmp117": "nodes/tmp117/tmp117.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-temperature#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-temperature"
+  }
 }

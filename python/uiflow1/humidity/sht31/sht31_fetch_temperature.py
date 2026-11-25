@@ -1,0 +1,1 @@
+(lambda r: r[0] if r else -999.0)(_periph_sht31.fetch())

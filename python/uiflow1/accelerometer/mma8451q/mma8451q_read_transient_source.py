@@ -1,0 +1,1 @@
+_periph_mma8451q.read_transient_source()

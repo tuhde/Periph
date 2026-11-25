@@ -95,7 +95,7 @@
     },
     {
         "id": "mcp4725",
-        "type": "periph-mcp4725",
+        "type": "mcp4725",
         "name": "MCP4725",
         "device": "cfg-mcp4725",
         "inputMode": "fraction",

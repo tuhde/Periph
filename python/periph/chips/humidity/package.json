@@ -9,6 +9,46 @@
       "github:tuhde/Periph/python/periph/chips/humidity/dht11.py"
     ],
     [
+      "periph/chips/humidity/hdc1008.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hdc1008.py"
+    ],
+    [
+      "periph/chips/humidity/hdc1080.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hdc1080.py"
+    ],
+    [
+      "periph/chips/humidity/hs30xx.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hs30xx.py"
+    ],
+    [
+      "periph/chips/humidity/hs40xx.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hs40xx.py"
+    ],
+    [
+      "periph/chips/humidity/hts221.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/hts221.py"
+    ],
+    [
+      "periph/chips/humidity/htu21df.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/htu21df.py"
+    ],
+    [
+      "periph/chips/humidity/htu31d.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/htu31d.py"
+    ],
+    [
+      "periph/chips/humidity/sht31.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/sht31.py"
+    ],
+    [
+      "periph/chips/humidity/shtc3.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/shtc3.py"
+    ],
+    [
+      "periph/chips/humidity/si7021.py",
+      "github:tuhde/Periph/python/periph/chips/humidity/si7021.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
@@ -23,6 +63,14 @@
     [
       "periph/connection/dhtxx_micropython.py",
       "github:tuhde/Periph/python/periph/connection/dhtxx_micropython.py"
+    ],
+    [
+      "periph/connection/i2c_auto.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_auto.py"
+    ],
+    [
+      "periph/connection/i2c_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_micropython.py"
     ],
     [
       "periph/connection/input_pin.py",
@@ -47,5 +95,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

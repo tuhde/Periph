@@ -17,6 +17,9 @@ constexpr float MPU9250Minimal::GYRO_SENSITIVITY[4];
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
+#elif __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+#define DELAY_MS(ms) HAL_Delay(ms)
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 #define DELAY_MS(ms) sleep_ms(ms)

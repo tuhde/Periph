@@ -42,5 +42,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-hmc5883l', HMC5883LReadNode);
+    RED.nodes.registerType('hmc5883l', HMC5883LReadNode);
 };

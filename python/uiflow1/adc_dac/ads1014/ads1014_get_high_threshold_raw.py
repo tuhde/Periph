@@ -1,0 +1,1 @@
+_periph_ads1014.get_thresholds_raw()[1]

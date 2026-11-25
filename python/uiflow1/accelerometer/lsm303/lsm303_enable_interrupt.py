@@ -1,0 +1,1 @@
+_periph_lsm303.enable_interrupt(int(${_source}), int(${_pin}))

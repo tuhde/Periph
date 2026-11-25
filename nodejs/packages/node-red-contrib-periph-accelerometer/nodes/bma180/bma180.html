@@ -1,0 +1,98 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('bma180-device', {
+        category: 'config',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            address:   { value: '40', required: true },
+            range:     { value: '2', required: true, validate: RED.validators.number() },
+            bandwidth: { value: '150', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('BMA180 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="bma180-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="BMA180">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="40" style="width:80px"> &nbsp;default: 40 (0x40) or 41 (0x41)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-range">Range</label>
+        <select id="node-config-input-range" style="width:150px">
+            <option value="1">±1 g</option>
+            <option value="1.5">±1.5 g</option>
+            <option value="2" selected>±2 g</option>
+            <option value="3">±3 g</option>
+            <option value="4">±4 g</option>
+            <option value="8">±8 g</option>
+            <option value="16">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bandwidth">Bandwidth (Hz)</label>
+        <input type="number" id="node-config-input-bandwidth" min="10" max="1200" step="1" style="width:100px"> &nbsp;10–1200
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('bma180', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'bma180-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-alt',
+        label:   function() { return this.name || 'BMA180'; },
+        paletteLabel: 'BMA180'
+    });
+</script>
+
+<script type="text/html" data-template-name="bma180">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BMA180">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="bma180">
+    <p>Reads 3-axis acceleration and on-chip temperature from a BMA180 3-axis accelerometer over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>bma180-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X acceleration in *g*.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y acceleration in *g*.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z acceleration in *g*.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>On-chip temperature in °C (or <code>null</code> if read failed).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x40</code>, alternate
+    <code>0x41</code> set by SDO), the measurement range (±1/±1.5/±2/±3/±4/±8/±16 *g*), and the
+    digital bandwidth (10–1200 Hz low-pass, or 1 Hz high-pass / 0.2–300 Hz band-pass via a separate
+    setting) in the device config node.</p>
+</script>

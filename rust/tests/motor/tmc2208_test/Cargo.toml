@@ -1,0 +1,8 @@
+[package]
+name = "tmc2208_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true, features = ["uart-linux"] }
+linux-embedded-hal = { workspace = true }

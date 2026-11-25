@@ -135,6 +135,15 @@ class UARTConnection extends Connection {
     }
 
     /**
+     * Discard any bytes received but not yet read. Chip drivers call this
+     * after a framing error before retrying a transaction.
+     * @returns {Promise<void>}
+     */
+    async flush() {
+        this._rxBuf = Buffer.alloc(0);
+    }
+
+    /**
      * Close the serial port and release the DE GPIO if applicable.
      * @returns {Promise<void>}
      */

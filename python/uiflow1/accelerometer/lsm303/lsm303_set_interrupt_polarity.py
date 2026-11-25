@@ -1,0 +1,1 @@
+_periph_lsm303.set_interrupt_polarity(bool(int(${_active_low})))

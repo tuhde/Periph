@@ -1,0 +1,200 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "pca6416a_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init PCA6416A",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_set_pin_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A set pin (0-15) mode: IN=0, OUT=1",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_write_pin",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A write pin (0-15) value (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_read_pin",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA6416A read pin (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_read_port",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA6416A read port (8 pins), port 0/1",
+          "type": "label"
+        },
+        {
+          "name": "_port",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_write_port",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A write port 0/1",
+          "type": "label"
+        },
+        {
+          "name": "_port",
+          "type": "number"
+        },
+        {
+          "name": "mask (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_read_all",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA6416A read all 16 pins",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_write_all",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A write all 16 outputs (0-65535)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_configure_polarity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A input polarity mask (0-65535)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_set_direction",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A direction mask, 1=input (0-65535)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_get_direction",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA6416A read direction mask (16 bits)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA6416A poll changed-pin mask, 16 bits (clears INT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca6416a_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA6416A reset registers to defaults",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,516 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mcp4xxx_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MCP4XXX",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "part number (4531 ... 4662)",
+          "type": "label"
+        },
+        {
+          "name": "_part",
+          "type": "number"
+        },
+        {
+          "name": "RAB (ohms)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        },
+        {
+          "name": "HVC pin GPIO (-1 = none, non-volatile parts)",
+          "type": "label"
+        },
+        {
+          "name": "_hvc",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set wiper (code, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX wiper code (network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_resistance",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set W-B resistance (ohms, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_resistance",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX W-B resistance in ohms (network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_ratio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set ratio (0.0-1.0, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_ratio",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX ratio (network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_resistance_wa",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX W-A resistance in ohms (potentiometer parts, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_resistance_wa",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set W-A resistance (potentiometer parts, ohms, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_resistance_step",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX resistance of one step in ohms",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_both",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set both wipers (dual parts, code 0, code 1)",
+          "type": "label"
+        },
+        {
+          "name": "_code0",
+          "type": "number"
+        },
+        {
+          "name": "_code1",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_increment",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX increment wiper (steps, network 0-1) returns new code",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_decrement",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX decrement wiper (steps, network 0-1) returns new code",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX shutdown (network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_resume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX resume (network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_is_shutdown",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX is shut down 1/0 (network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_terminals",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX connect terminals (A 1/0, W 1/0, B 1/0, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_a",
+          "type": "number"
+        },
+        {
+          "name": "_w",
+          "type": "number"
+        },
+        {
+          "name": "_b",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_tcon",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX raw TCON register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_general_call",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX General Call enabled (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX reset to power-up state",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_rab",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set resistance model (RAB ohms, RW ohms)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        },
+        {
+          "name": "_r_wiper",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_wait_ready",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX wait for EEPROM write (non-volatile parts, timeout ms)",
+          "type": "label"
+        },
+        {
+          "name": "_timeout_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_get_nv_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX EEPROM wiper (non-volatile parts, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_nv_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set EEPROM wiper (non-volatile parts, code, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_store_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX store wiper in EEPROM (non-volatile parts, network 0-1) returns code",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_read_data",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX EEPROM data register (non-volatile parts, index 0-9)",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_write_data",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX write EEPROM data register (non-volatile parts, index 0-9, value 0-511)",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_is_wiper_locked",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX WiperLock active 1/0 (non-volatile parts, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_is_write_protected",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP4XXX EEPROM write protected 1/0 (non-volatile parts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_wiper_lock",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set WiperLock (non-volatile parts, needs HVC pin, locked 1/0, network 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_locked",
+          "type": "number"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp4xxx_set_write_protect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP4XXX set write protect (non-volatile parts, needs HVC pin, enabled 1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

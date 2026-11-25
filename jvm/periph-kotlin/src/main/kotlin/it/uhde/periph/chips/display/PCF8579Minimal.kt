@@ -1,0 +1,169 @@
+package it.uhde.periph.chips.display
+
+import it.uhde.periph.connection.Connection
+
+/**
+ * PCF8579 — LCD column driver (minimal driver).
+ *
+ * The PCF8579 is the column-driver companion of the PCF8578 and cannot run alone: the clock, frame
+ * sync and row waveforms come from a PCF8578 (or an equivalent source). This driver writes the
+ * display RAM of one PCF8579 (4 banks x 40 columns, X = n drives output Cn). The chip has no
+ * register map; this driver streams command bytes and display data with the plain [Connection]
+ * `write` / `writeRead` calls. The I2C address is 0x3C (SA0 = VSS) or 0x3D (SA0 = VDD); the chip
+ * supports 100 kHz at most.
+ *
+ * The constructor waits for the internal reset, clears this device's RAM, then switches the
+ * display on (normal video, start bank 0). If the subaddress pins A3:A0 do not match, the data
+ * bytes are not acknowledged and the connection reports an error. A shadow copy of the 4 x 40
+ * byte RAM is kept so single-pixel updates need only one byte on the bus. One RAM byte is 8
+ * vertical pixels of one column; bit 0 is the top row of the bank.
+ *
+ * `device-select`, `set-mode` and `set-start-bank` reach every device on the I2C address, so all
+ * drivers on one bus must use the same `rows` / `mixed` settings.
+ *
+ * @param connection I2C connection bound to the PCF8579 address (100 kHz maximum)
+ * @param subaddress hardware subaddress set on pins A3:A0, 0 .. 15
+ * @param rows display rows: 8, 16 (default), 24 or 32
+ * @param mixed `true` if the PCF8578 in the system runs in mixed mode (T bit); default `false`
+ */
+open class PCF8579Minimal(
+    protected val connection: Connection,
+    protected val subaddress: Int = 0,
+    rows: Int = 16,
+    mixed: Boolean = false,
+) {
+
+    companion object {
+        const val ADDR_SA0_LOW  = 0x3C
+        const val ADDR_SA0_HIGH = 0x3D
+
+        const val CMD_SET_MODE       = 0x40
+        const val CMD_DEVICE_SELECT  = 0x60
+        const val CMD_RAM_ACCESS     = 0x70
+        const val CMD_SET_START_BANK = 0x7C
+        const val CONT               = 0x80
+
+        const val STATUS_BLANK   = 0
+        const val STATUS_NORMAL  = 1
+        const val STATUS_ALL_ON  = 2
+        const val STATUS_INVERSE = 3
+
+        const val ACCESS_CHARACTER    = 0
+        const val ACCESS_HALF_GRAPHIC = 1
+        const val ACCESS_FULL_GRAPHIC = 2
+
+        const val RAM_COLUMNS = 40
+        const val RAM_BANKS   = 4
+        val PER_COL = intArrayOf(1, 2, 4)
+
+        fun muxCode(rows: Int): Int = when (rows) {
+            8 -> 1
+            16 -> 2
+            24 -> 3
+            32 -> 0
+            else -> throw IllegalArgumentException("rows must be 8, 16, 24 or 32")
+        }
+    }
+
+    protected var rows: Int = rows
+    protected var mixed: Boolean = mixed
+    protected var status: Int = STATUS_NORMAL
+    protected var topBank: Int = 0
+    protected val shadow: Array<ByteArray> = Array(RAM_BANKS) { ByteArray(RAM_COLUMNS) }
+
+    init {
+        muxCode(rows)
+        require(subaddress in 0..15) { "subaddress must be in 0..15" }
+        try {
+            Thread.sleep(2) // >= 1 ms for the internal power-on reset
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
+        doInit()
+    }
+
+    /** The set-mode command byte for the given display status. */
+    protected fun modeByte(status: Int, cont: Boolean): Int =
+        (if (cont) CONT else 0) or CMD_SET_MODE or ((if (mixed) 1 else 0) shl 4) or
+            (status shl 2) or muxCode(rows)
+
+    protected fun selectByte(): Int = CONT or CMD_DEVICE_SELECT or subaddress
+
+    protected fun ramAccessByte(access: Int, bank: Int): Int =
+        CONT or CMD_RAM_ACCESS or (access shl 2) or bank
+
+    /** Clear the RAM with one full-graphic write, then switch the display on. */
+    protected fun doInit() {
+        topBank = 0
+        val buf = ByteArray(5 + RAM_COLUMNS * RAM_BANKS)
+        buf[0] = selectByte().toByte()
+        buf[1] = modeByte(STATUS_BLANK, true).toByte()
+        buf[2] = (CONT or CMD_SET_START_BANK).toByte()
+        buf[3] = ramAccessByte(ACCESS_FULL_GRAPHIC, 0).toByte()
+        buf[4] = 0x00 // load-X 0 (C = 0); the 160 data bytes stay zero
+        connection.write(buf)
+        zeroShadow()
+        status = STATUS_NORMAL
+        connection.write(byteArrayOf(modeByte(STATUS_NORMAL, false).toByte()))
+    }
+
+    private fun zeroShadow() {
+        for (bank in shadow) bank.fill(0)
+    }
+
+    /** Write data at RAM column [x] / bank [bank] and mirror it in the shadow. */
+    protected fun ramWrite(x: Int, bank: Int, data: ByteArray, access: Int) {
+        val buf = ByteArray(3 + data.size)
+        buf[0] = selectByte().toByte()
+        buf[1] = ramAccessByte(access, bank).toByte()
+        buf[2] = (x and 0x3F).toByte()
+        data.copyInto(buf, 3)
+        connection.write(buf)
+        val perCol = PER_COL[access]
+        for (i in data.indices) {
+            val col = x + i / perCol
+            if (col < RAM_COLUMNS) shadow[bank + (i % perCol)][col] = data[i]
+        }
+    }
+
+    /** Zero this device's whole display RAM (4 banks x 40 columns) and the shadow. */
+    fun clear() {
+        val buf = ByteArray(3 + RAM_COLUMNS * RAM_BANKS)
+        buf[0] = selectByte().toByte()
+        buf[1] = ramAccessByte(ACCESS_FULL_GRAPHIC, 0).toByte()
+        buf[2] = 0x00
+        connection.write(buf)
+        zeroShadow()
+    }
+
+    /**
+     * Set or clear one pixel. Out-of-range coordinates are ignored. Writes exactly one RAM byte.
+     *
+     * @param x column, 0 .. 39
+     * @param y row, 0 .. rows - 1
+     * @param on `true` lights the pixel, `false` clears it
+     */
+    fun setPixel(x: Int, y: Int, on: Boolean = true) {
+        if (x < 0 || x >= RAM_COLUMNS || y < 0 || y >= rows) return
+        val bank = y / 8
+        val bit = 1 shl (y % 8)
+        var v = shadow[bank][x].toInt() and 0xFF
+        v = if (on) (v or bit) else (v and bit.inv() and 0xFF)
+        ramWrite(x, bank, byteArrayOf(v.toByte()), ACCESS_CHARACTER)
+    }
+
+    /**
+     * Write consecutive column bytes in character access mode.
+     *
+     * @param x first column, 0 .. 39
+     * @param bank bank (8-row band), 0 .. rows/8 - 1
+     * @param data column bytes; bit 0 is the top row of the bank. Truncated at column 39
+     */
+    fun writeColumns(x: Int, bank: Int, data: ByteArray) {
+        require(bank >= 0 && bank < rows / 8) { "bank out of range for the configured rows" }
+        if (x < 0 || x >= RAM_COLUMNS) return
+        val n = minOf(data.size, RAM_COLUMNS - x)
+        if (n == 0) return
+        ramWrite(x, bank, data.copyOf(n), ACCESS_CHARACTER)
+    }
+}

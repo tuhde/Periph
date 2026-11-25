@@ -1,0 +1,1 @@
+_periph_icm20948.set_wake_on_motion(float(${_threshold_mg}))

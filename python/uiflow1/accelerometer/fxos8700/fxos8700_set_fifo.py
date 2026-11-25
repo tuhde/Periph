@@ -1,0 +1,1 @@
+_periph_fxos8700.set_fifo(int(${_mode}), int(${_watermark}))

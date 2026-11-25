@@ -1,22 +1,47 @@
 {
   "name": "node-red-contrib-periph-motor",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for motor driver chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for motor driver chips: DRV2605, DRV8830, TMC2130, TMC2208, TMC2209, TMC5160",
   "keywords": [
     "node-red",
     "motor",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "drv2605",
+    "drv8830",
+    "tmc2130",
+    "tmc2208",
+    "tmc2209",
+    "tmc5160"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
-      "drv8830": "nodes/drv8830/drv8830.js"
+      "drv2605": "nodes/drv2605/drv2605.js",
+      "drv8830": "nodes/drv8830/drv8830.js",
+      "tmc2208": "nodes/tmc2208/tmc2208.js",
+      "tmc2209": "nodes/tmc2209/tmc2209.js",
+      "tmc2130": "nodes/tmc2130/tmc2130.js",
+      "tmc5160": "nodes/tmc5160/tmc5160.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-motor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-motor"
+  }
 }

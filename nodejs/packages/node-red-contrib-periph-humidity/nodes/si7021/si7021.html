@@ -1,0 +1,93 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('si7021-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '0x40' },
+            resolution: { value: '12/14' },
+            heater:     { value: false }
+        },
+        label: function() {
+            return this.name || ('SI7021 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="si7021-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="SI7021">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x40"> &nbsp;(fixed, 0x40)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resolution"><i class="fa fa-cog"></i> Resolution</label>
+        <select id="node-config-input-resolution" style="width:200px">
+            <option value="12/14" selected>RH 12 bit / T 14 bit</option>
+            <option value="10/13">RH 10 bit / T 13 bit</option>
+            <option value="11/11">RH 11 bit / T 11 bit</option>
+            <option value="8/12">RH 8 bit / T 12 bit</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-heater"><i class="fa fa-fire"></i> Heater</label>
+        <input type="checkbox" id="node-config-input-heater" style="width:auto"> &nbsp;on-chip heater (3.1 mA)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('si7021', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device: { value: '', type: 'si7021-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'SI7021'; },
+        paletteLabel: 'SI7021'
+    });
+</script>
+
+<script type="text/html" data-template-name="si7021">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SI7021">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="si7021">
+    <p>Reads relative humidity and temperature from a Silicon Labs Si7021 over I²C (fixed address 0x40) with one
+    relative-humidity measurement per message; the temperature comes from the same conversion. The CRC of the
+    humidity result is verified.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH (0–100).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x40), measurement resolution (RH / temperature bits) and the on-chip heater.
+    With the heater on, readings drift upwards; use it only to drive off condensation.</p>
+</script>

@@ -36,7 +36,7 @@ protected:
      *  @param len  Number of bytes to send.
      */
     void _write(const uint8_t* data, size_t len) override {
-        i2c_write_blocking(_i2c, _addr, data, len, false);
+        _setOk(i2c_write_blocking(_i2c, _addr, data, len, false) == static_cast<int>(len));
     }
 
     /** @brief Read bytes from the device.
@@ -44,7 +44,7 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        i2c_read_blocking(_i2c, _addr, buf, len, false);
+        _setOk(i2c_read_blocking(_i2c, _addr, buf, len, false) == static_cast<int>(len));
     }
 
     /** @brief Write then read with a repeated start between phases.
@@ -60,8 +60,9 @@ protected:
      */
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
-        i2c_write_blocking(_i2c, _addr, data, data_len, true);
-        i2c_read_blocking(_i2c, _addr, buf, buf_len, false);
+        int w = i2c_write_blocking(_i2c, _addr, data, data_len, true);
+        int r = i2c_read_blocking(_i2c, _addr, buf, buf_len, false);
+        _setOk(w == static_cast<int>(data_len) && r == static_cast<int>(buf_len));
     }
 
     /** @brief Underlying I²C controller pointer, exposed so derived

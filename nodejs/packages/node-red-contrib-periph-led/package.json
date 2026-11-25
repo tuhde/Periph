@@ -1,23 +1,51 @@
 {
   "name": "node-red-contrib-periph-led",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for LED driver chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for LED driver chips: APA102, HT16K33, IS31FL3731, PCA9685, SAA1064, SK6812RGBW, WS2812B, WS2814",
   "keywords": [
     "node-red",
     "led",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "apa102",
+    "ht16k33",
+    "is31fl3731",
+    "pca9685",
+    "saa1064",
+    "sk6812rgbw",
+    "ws2812b",
+    "ws2814"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
+      "apa102": "nodes/apa102/apa102.js",
+      "ht16k33": "nodes/ht16k33/ht16k33.js",
+      "is31fl3731": "nodes/is31fl3731/is31fl3731.js",
+      "pca9685": "nodes/pca9685/pca9685.js",
+      "saa1064": "nodes/saa1064/saa1064.js",
+      "sk6812rgbw": "nodes/sk6812rgbw/sk6812rgbw.js",
       "ws2812b": "nodes/ws2812b/ws2812b.js",
-      "apa102": "nodes/apa102/apa102.js"
+      "ws2814": "nodes/ws2814/ws2814.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-led#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-led"
+  }
 }

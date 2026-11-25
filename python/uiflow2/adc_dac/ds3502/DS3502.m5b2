@@ -1,0 +1,385 @@
+{
+  "category": "DS3502",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_DS3502_LANGUAGES = {\n  \"CUSTOM_DS3502_INIT\": {\n    \"en\": \"%1 init bus %2 address %3 RH (V) %4 RL (V) %5\"\n  },\n  \"CUSTOM_DS3502_SET_WIPER\": {\n    \"en\": \"%1 set wiper code (0-127) %2\"\n  },\n  \"CUSTOM_DS3502_GET_WIPER\": {\n    \"en\": \"%1 wiper code\"\n  },\n  \"CUSTOM_DS3502_SET_VOLTAGE\": {\n    \"en\": \"%1 set output voltage (V) %2\"\n  },\n  \"CUSTOM_DS3502_GET_VOLTAGE\": {\n    \"en\": \"%1 output voltage (V)\"\n  },\n  \"CUSTOM_DS3502_SET_RATIO\": {\n    \"en\": \"%1 set ratio (0-1) %2\"\n  },\n  \"CUSTOM_DS3502_GET_RATIO\": {\n    \"en\": \"%1 ratio\"\n  },\n  \"CUSTOM_DS3502_GET_RESISTANCE_LOW\": {\n    \"en\": \"%1 wiper-to-RL resistance (ohm)\"\n  },\n  \"CUSTOM_DS3502_GET_RESISTANCE_HIGH\": {\n    \"en\": \"%1 wiper-to-RH resistance (ohm)\"\n  },\n  \"CUSTOM_DS3502_INCREMENT\": {\n    \"en\": \"%1 step wiper steps %2\"\n  },\n  \"CUSTOM_DS3502_STORE_WIPER\": {\n    \"en\": \"%1 store wiper code in EEPROM %2\"\n  },\n  \"CUSTOM_DS3502_SET_MODE\": {\n    \"en\": \"%1 EEPROM-backed writes (1 = yes) %2\"\n  },\n  \"CUSTOM_DS3502_GET_MODE\": {\n    \"en\": \"%1 EEPROM-backed writes\"\n  },\n  \"CUSTOM_DS3502_WAIT_READY\": {\n    \"en\": \"%1 wait until ready timeout (ms) %2\"\n  },\n  \"CUSTOM_DS3502_SET_ENDPOINTS\": {\n    \"en\": \"%1 set RH (V) %2 RL (V) %3\"\n  }\n};\n\nconst initType = 'custom_ds3502_init';\nBlockly.BlockRegExpList['custom_ds3502'] = {\n  regexp: new RegExp(/^custom_ds3502_/),\n  code: \"from DS3502 import DS3502\",\n  initBlockType: initType,\n  categoryId: 'custom_ds3502',\n}\nBlockly.utils.registerLanguages(CUSTOM_DS3502_LANGUAGES)\n\nBlockly.Msg.CUSTOM_DS3502_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_DS3502 = 'DS3502'\n\nBlockly.utils.getcustom_ds3502Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ds3502_0', 'ds3502_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ds3502_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ds3502Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ds3502_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'v_high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'v_low'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var v_high = Blockly.Python.valueToCode(block, 'v_high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var v_low = Blockly.Python.valueToCode(block, 'v_low', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = DS3502(${bus}, ${address}, ${v_high}, ${v_low})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_set_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_SET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_set_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wiper(${code})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_get_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_GET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_get_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_wiper()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_set_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_SET_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'volts'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_set_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var volts = Blockly.Python.valueToCode(block, 'volts', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_voltage(${volts})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_get_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_GET_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_get_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_set_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_SET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ratio'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_set_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ratio = Blockly.Python.valueToCode(block, 'ratio', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ratio(${ratio})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_get_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_GET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_get_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_ratio()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_get_resistance_low\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_GET_RESISTANCE_LOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_get_resistance_low\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resistance_low()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_get_resistance_high\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_GET_RESISTANCE_HIGH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_get_resistance_high\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resistance_high()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_increment\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_INCREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_increment\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.increment(${steps})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_store_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_STORE_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_store_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.store_wiper(${code})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'eeprom'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var eeprom = Blockly.Python.valueToCode(block, 'eeprom', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${eeprom})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_get_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_GET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_get_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3502_wait_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_WAIT_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_wait_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var timeout_ms = Blockly.Python.valueToCode(block, 'timeout_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.wait_ready(${timeout_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3502_set_endpoints\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3502_SET_ENDPOINTS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3502Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'v_high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'v_low'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3502_set_endpoints\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var v_high = Blockly.Python.valueToCode(block, 'v_high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var v_low = Blockly.Python.valueToCode(block, 'v_low', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_endpoints(${v_high}, ${v_low})\\n`\n}\n",
+    "toolbox": "\n<category name=\"DS3502\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ds3502\">\n<title text=\"DS3502\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ds3502_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">40</field>\n    </shadow>\n  </value>\n  <value name=\"v_high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.0</field>\n    </shadow>\n  </value>\n  <value name=\"v_low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_set_wiper\">\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_get_wiper\"/><block type=\"custom_ds3502_set_voltage\">\n  <value name=\"volts\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_get_voltage\"/><block type=\"custom_ds3502_set_ratio\">\n  <value name=\"ratio\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_get_ratio\"/><block type=\"custom_ds3502_get_resistance_low\"/><block type=\"custom_ds3502_get_resistance_high\"/><block type=\"custom_ds3502_increment\">\n  <value name=\"steps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_store_wiper\">\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_set_mode\">\n  <value name=\"eeprom\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_get_mode\"/><block type=\"custom_ds3502_wait_ready\">\n  <value name=\"timeout_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">30</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3502_set_endpoints\">\n  <value name=\"v_high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">15.0</field>\n    </shadow>\n  </value>\n  <value name=\"v_low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_ds3502",
+    "block_type": [
+      "custom_ds3502___init__",
+      "custom_ds3502_set_wiper",
+      "custom_ds3502_get_wiper",
+      "custom_ds3502_set_voltage",
+      "custom_ds3502_get_voltage",
+      "custom_ds3502_set_ratio",
+      "custom_ds3502_get_ratio",
+      "custom_ds3502_get_resistance_low",
+      "custom_ds3502_get_resistance_high",
+      "custom_ds3502_increment",
+      "custom_ds3502_store_wiper",
+      "custom_ds3502_set_mode",
+      "custom_ds3502_get_mode",
+      "custom_ds3502_wait_ready",
+      "custom_ds3502_set_endpoints"
+    ]
+  },
+  "data": {
+    "name": "DS3502",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "DS3502",
+      "time": "2026-11-13",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ds3502 import DS3502Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3 RH (V) %4 RL (V) %5"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "40",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "v_high",
+            "type": "float",
+            "default": "1.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "v_low",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = DS3502Full(connection, v_high, v_low)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 set wiper code (0-127) %2"
+        },
+        "params": [
+          {
+            "name": "code",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number",
+            "max": "127",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wiper(code)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 wiper code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_wiper()",
+        "ast_return": {
+          "code": "self._driver.get_wiper()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 set output voltage (V) %2"
+        },
+        "params": [
+          {
+            "name": "volts",
+            "type": "float",
+            "default": "1.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_voltage(volts)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 output voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_voltage()",
+        "ast_return": {
+          "code": "self._driver.get_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 set ratio (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "ratio",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ratio(ratio)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 ratio"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_ratio()",
+        "ast_return": {
+          "code": "self._driver.get_ratio()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance_low",
+        "note": {},
+        "label": {
+          "en": "%1 wiper-to-RL resistance (ohm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resistance('L')",
+        "ast_return": {
+          "code": "self._driver.get_resistance('L')",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance_high",
+        "note": {},
+        "label": {
+          "en": "%1 wiper-to-RH resistance (ohm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resistance('H')",
+        "ast_return": {
+          "code": "self._driver.get_resistance('H')",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "increment",
+        "note": {},
+        "label": {
+          "en": "%1 step wiper steps %2"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.increment(steps)",
+        "ast_return": {
+          "code": "self._driver.increment(steps)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "store_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 store wiper code in EEPROM %2"
+        },
+        "params": [
+          {
+            "name": "code",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number",
+            "max": "127",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.store_wiper(code)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 EEPROM-backed writes (1 = yes) %2"
+        },
+        "params": [
+          {
+            "name": "eeprom",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(bool(eeprom))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_mode",
+        "note": {},
+        "label": {
+          "en": "%1 EEPROM-backed writes"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_mode()",
+        "ast_return": {
+          "code": "self._driver.get_mode()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wait_ready",
+        "note": {},
+        "label": {
+          "en": "%1 wait until ready timeout (ms) %2"
+        },
+        "params": [
+          {
+            "name": "timeout_ms",
+            "type": "float",
+            "default": "30",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.wait_ready(timeout_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_endpoints",
+        "note": {},
+        "label": {
+          "en": "%1 set RH (V) %2 RL (V) %3"
+        },
+        "params": [
+          {
+            "name": "v_high",
+            "type": "float",
+            "default": "15.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "v_low",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_endpoints(v_high, v_low)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ds3502"
+  },
+  "pyCode": "\"\"\"\nfile     DS3502\ntime     2026-11-13\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ds3502 import DS3502Full\n\n\nclass DS3502:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 40, v_high: float = 1.0, v_low: float = 0.0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3 RH (V) %4 RL (V) %5'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '40'\n                field: number\n            v_high:\n                name: v_high\n                type: float\n                default: '1.0'\n                field: number\n            v_low:\n                name: v_low\n                type: float\n                default: '0.0'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = DS3502Full(connection, v_high, v_low)\n\n    def set_wiper(self, code: int):\n        \"\"\"\n        label:\n            en: '%1 set wiper code (0-127) %2'\n        params:\n            code:\n                name: code\n                type: int\n                default: '64'\n                field: number\n                max: '127'\n                min: '0'\n        \"\"\"\n        self._driver.set_wiper(code)\n\n    def get_wiper(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 wiper code'\n        \"\"\"\n        return self._driver.get_wiper()\n\n    def set_voltage(self, volts: float):\n        \"\"\"\n        label:\n            en: '%1 set output voltage (V) %2'\n        params:\n            volts:\n                name: volts\n                type: float\n                default: '1.0'\n                field: number\n        \"\"\"\n        self._driver.set_voltage(volts)\n\n    def get_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 output voltage (V)'\n        \"\"\"\n        return self._driver.get_voltage()\n\n    def set_ratio(self, ratio: float):\n        \"\"\"\n        label:\n            en: '%1 set ratio (0-1) %2'\n        params:\n            ratio:\n                name: ratio\n                type: float\n                default: '0.5'\n                field: number\n        \"\"\"\n        self._driver.set_ratio(ratio)\n\n    def get_ratio(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 ratio'\n        \"\"\"\n        return self._driver.get_ratio()\n\n    def get_resistance_low(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 wiper-to-RL resistance (ohm)'\n        \"\"\"\n        return self._driver.get_resistance('L')\n\n    def get_resistance_high(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 wiper-to-RH resistance (ohm)'\n        \"\"\"\n        return self._driver.get_resistance('H')\n\n    def increment(self, steps: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 step wiper steps %2'\n        params:\n            steps:\n                name: steps\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.increment(steps)\n\n    def store_wiper(self, code: int):\n        \"\"\"\n        label:\n            en: '%1 store wiper code in EEPROM %2'\n        params:\n            code:\n                name: code\n                type: int\n                default: '64'\n                field: number\n                max: '127'\n                min: '0'\n        \"\"\"\n        self._driver.store_wiper(code)\n\n    def set_mode(self, eeprom: int):\n        \"\"\"\n        label:\n            en: '%1 EEPROM-backed writes (1 = yes) %2'\n        params:\n            eeprom:\n                name: eeprom\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_mode(bool(eeprom))\n\n    def get_mode(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 EEPROM-backed writes'\n        \"\"\"\n        return self._driver.get_mode()\n\n    def wait_ready(self, timeout_ms: float):\n        \"\"\"\n        label:\n            en: '%1 wait until ready timeout (ms) %2'\n        params:\n            timeout_ms:\n                name: timeout_ms\n                type: float\n                default: '30'\n                field: number\n        \"\"\"\n        self._driver.wait_ready(timeout_ms)\n\n    def set_endpoints(self, v_high: float, v_low: float):\n        \"\"\"\n        label:\n            en: '%1 set RH (V) %2 RL (V) %3'\n        params:\n            v_high:\n                name: v_high\n                type: float\n                default: '15.0'\n                field: number\n            v_low:\n                name: v_low\n                type: float\n                default: '0.0'\n                field: number\n        \"\"\"\n        self._driver.set_endpoints(v_high, v_low)\n",
+  "version": "alpha2"
+}

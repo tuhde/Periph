@@ -28,6 +28,10 @@ void InputPinLinux::offEdge(Handler handler) {
     removeHandler(_handlers, handler);
 }
 
+bool InputPinLinux::isHigh() {
+    return _line.get() == 1;
+}
+
 void InputPinLinux::pollLoop() {
     while (_running) {
         int value = _line.get();

@@ -1,0 +1,1 @@
+int(_periph_hdc1080.battery_low())

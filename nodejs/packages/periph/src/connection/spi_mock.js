@@ -44,7 +44,19 @@ class SPIConnectionMock {
         this.registers = new Map();
         this.writes = [];
         this._readQueue = [];
+        this.events = [];
     }
+
+    /** Record an `idleClocks` call on `events`. */
+    async idleClocks(n) { this.events.push(['idleClocks', n]); }
+    /** Record a `setSpeed` call on `events`; resolves true. */
+    async setSpeed(hz) { this.events.push(['setSpeed', hz]); return true; }
+    /** Record a `select` call on `events`. */
+    async select() { this.events.push(['select']); }
+    /** Record a `deselect` call on `events`. */
+    async deselect() { this.events.push(['deselect']); }
+    /** Fill `buf` like `read(buf.length)`. */
+    async readInto(buf) { (await this.read(buf.length)).copy(buf); }
 
     /**
      * Preload consecutive register bytes starting at `reg`.

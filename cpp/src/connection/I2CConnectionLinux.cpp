@@ -30,11 +30,15 @@ I2CConnectionLinux::~I2CConnectionLinux() {
 }
 
 void I2CConnectionLinux::_write(const uint8_t* data, size_t len) {
-    if (::write(_fd, data, len) < 0) perror("I2C write");
+    ssize_t r = ::write(_fd, data, len);
+    if (r < 0) perror("I2C write");
+    _setOk(r == static_cast<ssize_t>(len));
 }
 
 void I2CConnectionLinux::_read(uint8_t* buf, size_t len) {
-    if (::read(_fd, buf, len) < 0) perror("I2C read");
+    ssize_t r = ::read(_fd, buf, len);
+    if (r < 0) perror("I2C read");
+    _setOk(r == static_cast<ssize_t>(len));
 }
 
 void I2CConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
@@ -54,6 +58,8 @@ void I2CConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
     rdwr.msgs  = msgs;
     rdwr.nmsgs = 2;
 
-    if (ioctl(_fd, I2C_RDWR, &rdwr) < 0) perror("ioctl I2C_RDWR");
+    bool failed = ioctl(_fd, I2C_RDWR, &rdwr) < 0;
+    if (failed) perror("ioctl I2C_RDWR");
+    _setOk(!failed);
 }
 #endif // __linux__

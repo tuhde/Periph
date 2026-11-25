@@ -1,0 +1,57 @@
+"""MicroPython hardware test for the ADS1013 — runs against real hardware.
+
+Checks the single-shot read, data-rate round-trips, continuous mode and reset.
+The input only needs to be a valid voltage; no particular level is asserted.
+"""
+
+import time
+import machine
+import _testconfig as cfg
+from periph.connection.i2c_micropython import I2CConnection
+from periph.chips.adc_dac.ads1013 import ADS1013Minimal, ADS1013Full, DR_250, DR_1600
+from machine import Pin
+
+passed = 0
+failed = 0
+
+
+def check_true(label, condition):
+    global passed, failed
+    if condition:
+        print('PASS', label)
+        passed += 1
+    else:
+        print('FAIL', label)
+        failed += 1
+
+i2c = machine.I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
+
+connection = I2CConnection(i2c, cfg.ADDR)
+adc = ADS1013Minimal(connection)
+check_true('construct_minimal', isinstance(adc, ADS1013Minimal))
+raw = adc.read_raw()
+check_true('raw_in_range', -2048 <= raw <= 2047)
+check_true('voltage_matches_raw', abs(adc.read_voltage() - 0.001 * raw) < 0.05)
+
+full = ADS1013Full(connection)
+full.reset()
+check_true('reset_config', full.read_config() & 0x7FFF == 0x0583)
+check_true('full_scale_fixed', full.full_scale() == 2.048 and full.lsb() == 0.001)
+
+full.set_data_rate(DR_250)
+check_true('dr_roundtrip', full.get_data_rate() == DR_250 and full.data_rate_sps() == 250)
+full.read_raw()
+check_true('config_dr_bits', (full.read_config() >> 5) & 0x7 == DR_250)
+full.set_data_rate(DR_1600)
+
+full.start_continuous()
+time.sleep(0.05)
+check_true('continuous_raw_in_range', -2048 <= full.read_continuous_raw() <= 2047)
+check_true('continuous_mode_bit', full.read_config() & 0x0100 == 0)
+full.stop_continuous()
+check_true('stop_mode_bit', full.read_config() & 0x0100 != 0)
+
+full.reset()
+check_true('final_reset', full.read_config() & 0x7FFF == 0x0583)
+
+print('===DONE: %d passed, %d failed===' % (passed, failed))

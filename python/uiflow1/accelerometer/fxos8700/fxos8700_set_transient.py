@@ -1,0 +1,1 @@
+_periph_fxos8700.set_transient(threshold_g=float(${_threshold_g}), debounce_ms=float(${_debounce_ms}))

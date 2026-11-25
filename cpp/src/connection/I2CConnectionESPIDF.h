@@ -42,7 +42,7 @@ protected:
      *  @param len  Number of bytes to send.
      */
     void _write(const uint8_t* data, size_t len) override {
-        i2c_master_transmit(_dev, data, len, -1);
+        _setOk(i2c_master_transmit(_dev, data, len, -1) == ESP_OK);
     }
 
     /** @brief Read bytes from the device via `i2c_master_receive`.
@@ -50,7 +50,7 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        i2c_master_receive(_dev, buf, len, -1);
+        _setOk(i2c_master_receive(_dev, buf, len, -1) == ESP_OK);
     }
 
     /** @brief Write then read with a repeated start via `i2c_master_transmit_receive`.
@@ -66,7 +66,7 @@ protected:
      */
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
-        i2c_master_transmit_receive(_dev, data, data_len, buf, buf_len, -1);
+        _setOk(i2c_master_transmit_receive(_dev, data, data_len, buf, buf_len, -1) == ESP_OK);
     }
 
     /** @brief Underlying I²C device handle, exposed so derived connections

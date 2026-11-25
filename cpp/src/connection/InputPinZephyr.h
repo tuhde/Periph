@@ -33,6 +33,11 @@ public:
         removeHandler(_handlers, handler);
     }
 
+    /** @brief Raw level via gpio_pin_get_raw() (ignores the devicetree active-low flag). */
+    bool isHigh() override {
+        return gpio_pin_get_raw(_pin.port, _pin.pin) > 0;
+    }
+
 private:
     static void isrTrampoline(const struct device*, struct gpio_callback* cb, gpio_port_pins_t) {
         InputPinZephyr* self = CONTAINER_OF(cb, InputPinZephyr, _cb);

@@ -1,0 +1,70 @@
+'use strict';
+
+module.exports = function(RED) {
+    const { I2CConnection } = require('periph/src/connection/i2c');
+    const { BME688Full }   = require('periph/src/chips/environmental/bme688');
+
+    function BME688DeviceNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        try {
+            const addr = parseInt(config.addr) || 0x76;
+            const connection = new I2CConnection(parseInt(config.bus), addr);
+            node.driver    = new BME688Full(connection);
+            node.driver.configure(
+                parseInt(config.osrsT) || 1,
+                parseInt(config.osrsP) || 1,
+                parseInt(config.osrsH) || 1,
+                1,
+                parseInt(config.filter) || 0
+            );
+            node.driver.setHeater(
+                parseInt(config.heaterTemp) || 320,
+                parseInt(config.heaterDur) || 150
+            );
+            node.connection = connection;
+        } catch (e) {
+            node.error('BME688 init failed: ' + e.message);
+        }
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('bme688-device', BME688DeviceNode);
+
+    function BME688ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        node.device = RED.nodes.getNode(config.device);
+
+        node.on('input', async function(msg, send, done) {
+            if (!node.device || !node.device.driver) {
+                node.error('No BME688 device configured', msg);
+                done();
+                return;
+            }
+            try {
+                const d = node.device.driver;
+                const r = await d.readAll();
+                const seaLevelHpa = parseFloat(config.seaLevelHpa) || 1013.25;
+                const altitude = 44330 * (1 - Math.pow(r.pressure / seaLevelHpa, 1 / 5.255));
+                const a = 17.62, b = 243.12;
+                const gamma = Math.log(r.humidity / 100) + (a * r.temperature) / (b + r.temperature);
+                const dewPoint = (b * gamma) / (a - gamma);
+                msg.payload = {
+                    temperature:      r.temperature,
+                    pressure:         r.pressure,
+                    humidity:         r.humidity,
+                    gas_resistance:   isNaN(r.gasResistance) ? null : r.gasResistance,
+                    altitude:         altitude,
+                    dew_point:        dewPoint
+                };
+                send(msg);
+                done();
+            } catch (e) {
+                done(e);
+            }
+        });
+    }
+    RED.nodes.registerType('bme688', BME688ReadNode);
+};

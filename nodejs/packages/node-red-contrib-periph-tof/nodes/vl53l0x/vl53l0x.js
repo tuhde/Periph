@@ -13,7 +13,7 @@ module.exports = function(RED) {
     const SOURCE_NAMES = {};
     for (const [name, value] of Object.entries(THRESHOLD_SOURCES)) SOURCE_NAMES[value] = name;
 
-    function VL53L0XNode(config) {
+    function VL53L0XDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const continuous = config.mode === 'continuous';
@@ -28,6 +28,8 @@ module.exports = function(RED) {
             queue = run.catch(() => {});
             return run;
         };
+        node.serial = serial;
+        node.continuous = continuous;
 
         try {
             const address = parseInt(config.address, 16) || VL53L0XFull.I2C_ADDRESS;
@@ -55,7 +57,7 @@ module.exports = function(RED) {
                     await node.driver.enableInterrupt(threshold);
                     await node.driver.onInterrupt((status) => serial(async () => {
                         const m = await node.driver.readMeasurement();
-                        node.send({ payload: { source: SOURCE_NAMES[status] || config.threshold, distance_mm: m.distanceMm } });
+                        node.emit('periph-data', { payload: { source: SOURCE_NAMES[status] || config.threshold, distance_mm: m.distanceMm } });
                     }).catch((e) => node.error('VL53L0X interrupt read failed: ' + e.message)));
                 }
                 if (continuous) await node.driver.startContinuous(periodMs);
@@ -67,22 +69,6 @@ module.exports = function(RED) {
         } catch (e) {
             node.error('VL53L0X init failed: ' + e.message);
         }
-
-        node.on('input', function(msg, send, done) {
-            if (!node.driver) { done(); return; }
-            serial(async () => {
-                if (!continuous) await node.driver.distance();
-                const m = await node.driver.readMeasurement();
-                msg.payload = {
-                    distance_mm: m.distanceMm,
-                    valid: m.rangeStatus === VL53L0XFull.RANGE_STATUS_VALID,
-                    range_status: m.rangeStatus,
-                    signal_rate_mcps: m.signalRateMcps,
-                    ambient_rate_mcps: m.ambientRateMcps,
-                };
-                send(msg);
-            }).then(() => done(), (e) => done(e));
-        });
 
         node.on('close', function(removed, done) {
             serial(async () => {
@@ -97,5 +83,33 @@ module.exports = function(RED) {
             }).finally(() => done());
         });
     }
-    RED.nodes.registerType('periph-vl53l0x', VL53L0XNode);
+    RED.nodes.registerType('vl53l0x-device', VL53L0XDeviceNode);
+
+    function VL53L0XReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
+        node.on('input', function(msg, send, done) {
+            if (!deviceNode.driver) { done(); return; }
+            deviceNode.serial(async () => {
+                if (!deviceNode.continuous) await deviceNode.driver.distance();
+                const m = await deviceNode.driver.readMeasurement();
+                msg.payload = {
+                    distance_mm: m.distanceMm,
+                    valid: m.rangeStatus === VL53L0XFull.RANGE_STATUS_VALID,
+                    range_status: m.rangeStatus,
+                    signal_rate_mcps: m.signalRateMcps,
+                    ambient_rate_mcps: m.ambientRateMcps,
+                };
+                send(msg);
+            }).then(() => done(), (e) => done(e));
+        });
+    }
+    RED.nodes.registerType('vl53l0x', VL53L0XReadNode);
 };

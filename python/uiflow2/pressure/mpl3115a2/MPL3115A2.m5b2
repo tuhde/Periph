@@ -1,0 +1,206 @@
+{
+  "category": "MPL3115A2",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MPL3115A2_LANGUAGES = {\n  \"CUSTOM_MPL3115A2_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MPL3115A2_PRESSURE\": {\n    \"en\": \"%1 pressure (Pa)\"\n  },\n  \"CUSTOM_MPL3115A2_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_MPL3115A2_ALTITUDE\": {\n    \"en\": \"%1 altitude (m)\"\n  },\n  \"CUSTOM_MPL3115A2_SET_OVERSAMPLE\": {\n    \"en\": \"%1 oversample ratio (1-128) %2\"\n  },\n  \"CUSTOM_MPL3115A2_SET_SEA_LEVEL_PRESSURE\": {\n    \"en\": \"%1 sea-level pressure (Pa) %2\"\n  },\n  \"CUSTOM_MPL3115A2_START_CONTINUOUS\": {\n    \"en\": \"%1 start continuous, step 2^n s, n = %2\"\n  },\n  \"CUSTOM_MPL3115A2_STOP_CONTINUOUS\": {\n    \"en\": \"%1 stop continuous\"\n  }\n};\n\nconst initType = 'custom_mpl3115a2_init';\nBlockly.BlockRegExpList['custom_mpl3115a2'] = {\n  regexp: new RegExp(/^custom_mpl3115a2_/),\n  code: \"from MPL3115A2 import MPL3115A2\",\n  initBlockType: initType,\n  categoryId: 'custom_mpl3115a2',\n}\nBlockly.utils.registerLanguages(CUSTOM_MPL3115A2_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MPL3115A2_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MPL3115A2 = 'MPL3115A2'\n\nBlockly.utils.getcustom_mpl3115a2Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mpl3115a2_0', 'mpl3115a2_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mpl3115a2Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mpl3115a2_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MPL3115A2(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_pressure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_PRESSURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_pressure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pressure()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_altitude\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_ALTITUDE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_altitude\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.altitude()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_set_oversample\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_SET_OVERSAMPLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ratio'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_set_oversample\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ratio = Blockly.Python.valueToCode(block, 'ratio', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_oversample(${ratio})\\n`\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_set_sea_level_pressure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_SET_SEA_LEVEL_PRESSURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pa'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_set_sea_level_pressure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pa = Blockly.Python.valueToCode(block, 'pa', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sea_level_pressure(${pa})\\n`\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_start_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_START_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'step_exp'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_start_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var step_exp = Blockly.Python.valueToCode(block, 'step_exp', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_continuous(${step_exp})\\n`\n}\n\nBlockly.Blocks[\"custom_mpl3115a2_stop_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPL3115A2_STOP_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpl3115a2Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpl3115a2_stop_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous()\\n`\n}\n",
+    "toolbox": "\n<category name=\"MPL3115A2\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mpl3115a2\">\n<title text=\"MPL3115A2\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mpl3115a2_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">96</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpl3115a2_pressure\"/><block type=\"custom_mpl3115a2_temperature\"/><block type=\"custom_mpl3115a2_altitude\"/><block type=\"custom_mpl3115a2_set_oversample\">\n  <value name=\"ratio\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">128</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpl3115a2_set_sea_level_pressure\">\n  <value name=\"pa\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">101325</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpl3115a2_start_continuous\">\n  <value name=\"step_exp\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpl3115a2_stop_continuous\"/>\n</category>\n",
+    "toolboxitemid": "custom_mpl3115a2",
+    "block_type": [
+      "custom_mpl3115a2___init__",
+      "custom_mpl3115a2_pressure",
+      "custom_mpl3115a2_temperature",
+      "custom_mpl3115a2_altitude",
+      "custom_mpl3115a2_set_oversample",
+      "custom_mpl3115a2_set_sea_level_pressure",
+      "custom_mpl3115a2_start_continuous",
+      "custom_mpl3115a2_stop_continuous"
+    ]
+  },
+  "data": {
+    "name": "MPL3115A2",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MPL3115A2",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.pressure.mpl3115a2 import MPL3115A2Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "96",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MPL3115A2Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pressure",
+        "note": {},
+        "label": {
+          "en": "%1 pressure (Pa)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_pressure()",
+        "ast_return": {
+          "code": "self._driver.read_pressure()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "altitude",
+        "note": {},
+        "label": {
+          "en": "%1 altitude (m)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_altitude()",
+        "ast_return": {
+          "code": "self._driver.read_altitude()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_oversample",
+        "note": {},
+        "label": {
+          "en": "%1 oversample ratio (1-128) %2"
+        },
+        "params": [
+          {
+            "name": "ratio",
+            "type": "int",
+            "default": "128",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_oversample(ratio)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sea_level_pressure",
+        "note": {},
+        "label": {
+          "en": "%1 sea-level pressure (Pa) %2"
+        },
+        "params": [
+          {
+            "name": "pa",
+            "type": "int",
+            "default": "101325",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sea_level_pressure(pa)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous, step 2^n s, n = %2"
+        },
+        "params": [
+          {
+            "name": "step_exp",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_continuous(step_exp)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mpl3115a2"
+  },
+  "pyCode": "\"\"\"\nfile     MPL3115A2\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.pressure.mpl3115a2 import MPL3115A2Full\n\n\nclass MPL3115A2:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 96):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '96'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MPL3115A2Full(connection)\n        self._driver.init()\n\n    def pressure(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 pressure (Pa)'\n        \"\"\"\n        return self._driver.read_pressure()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def altitude(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 altitude (m)'\n        \"\"\"\n        return self._driver.read_altitude()\n\n    def set_oversample(self, ratio: int = 128):\n        \"\"\"\n        label:\n            en: '%1 oversample ratio (1-128) %2'\n        params:\n            ratio:\n                name: ratio\n                type: int\n                default: '128'\n                field: number\n        \"\"\"\n        self._driver.set_oversample(ratio)\n\n    def set_sea_level_pressure(self, pa: int = 101325):\n        \"\"\"\n        label:\n            en: '%1 sea-level pressure (Pa) %2'\n        params:\n            pa:\n                name: pa\n                type: int\n                default: '101325'\n                field: number\n        \"\"\"\n        self._driver.set_sea_level_pressure(pa)\n\n    def start_continuous(self, step_exp: int = 0):\n        \"\"\"\n        label:\n            en: '%1 start continuous, step 2^n s, n = %2'\n        params:\n            step_exp:\n                name: step_exp\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.start_continuous(step_exp)\n\n    def stop_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous'\n        \"\"\"\n        self._driver.stop_continuous()\n",
+  "version": "alpha2"
+}

@@ -1,0 +1,86 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('is31fl3731-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '74', required: true }
+        },
+        label: function() {
+            return this.name || ('IS31FL3731 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="is31fl3731-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="IS31FL3731">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">I²C address (hex)</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="74">0x74</option>
+            <option value="75">0x75</option>
+            <option value="76">0x76</option>
+            <option value="77">0x77</option>
+        </select>
+    </div>
+</script>
+
+<!-- Node: pixels / fill / clear -->
+<script type="text/javascript">
+    RED.nodes.registerType('is31fl3731', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'is31fl3731-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-th',
+        label:   function() { return this.name || 'IS31FL3731'; },
+        paletteLabel: 'IS31FL3731'
+    });
+</script>
+
+<script type="text/html" data-template-name="is31fl3731">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="IS31FL3731">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="is31fl3731">
+    <p>Controls an IS31FL3731 144-LED matrix driver (9 × 16, 8-bit PWM per LED) over I²C. The node draws into frame 1 in Picture mode.</p>
+    <p>The device is configured via a <b>is31fl3731-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pixels <span class="property-type">[[row, col, brightness], ...]</span></dt>
+        <dd>Sets the listed pixels: row 0–8, column 0–15, PWM brightness 0–255.</dd>
+        <dt>payload.fill <span class="property-type">number</span></dt>
+        <dd>Sets every LED to the PWM brightness 0–255.</dd>
+        <dt>payload.clear <span class="property-type">true</span></dt>
+        <dd>Switches all LEDs off.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.ok <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> after the write succeeded.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's 7-bit address (0x74–0x77) in the device config node.</p>
+</script>

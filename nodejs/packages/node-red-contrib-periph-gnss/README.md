@@ -1,6 +1,10 @@
 # node-red-contrib-periph-gnss
 
-Node-RED nodes for GNSS/GPS peripheral chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for GNSS/GPS peripheral chips: NEO6 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (1):** NEO6.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-gnss/examples).
 
 ## Install
 
@@ -16,7 +20,8 @@ npm install node-red-contrib-periph-gnss
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-neo6` | input | Reads NMEA position, altitude, and fix status from a u-blox NEO-6 GNSS receiver over UART, I&sup2;C (DDC), or SPI. |
+| `neo6-device` | config | Bus configuration for a NEO6 |
+| `neo6` | input | Reads NMEA position, altitude, and fix status from a u-blox NEO-6 GNSS receiver over UART, I&sup2;C (DDC), or SPI. |
 
 ## Links
 

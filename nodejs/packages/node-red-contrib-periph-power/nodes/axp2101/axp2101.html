@@ -1,0 +1,103 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('axp2101-device', {
+        category: 'config',
+        defaults: {
+            name:          { value: '' },
+            bus:           { value: '1', required: true, validate: RED.validators.number() },
+            address:       { value: '34', required: true },
+            chargeVoltage: { value: '' },
+            chargeCurrent: { value: '', validate: function(v) { return v === '' || (!isNaN(parseFloat(v)) && parseFloat(v) >= 0 && parseFloat(v) <= 1.5); } }
+        },
+        label: function() {
+            return this.name || ('AXP2101 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="axp2101-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AXP2101">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="34" style="width:80px"> &nbsp;default: 34 (0x34)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-chargeVoltage">Charge voltage</label>
+        <select id="node-config-input-chargeVoltage" style="width:150px">
+            <option value="">keep chip default</option>
+            <option value="4.0">4.0 V</option>
+            <option value="4.1">4.1 V</option>
+            <option value="4.2">4.2 V</option>
+            <option value="4.35">4.35 V (HV cells)</option>
+            <option value="4.4">4.4 V (HV cells)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-chargeCurrent">Charge current (A)</label>
+        <input type="number" id="node-config-input-chargeCurrent" min="0" max="1.5" step="0.025" style="width:100px"> &nbsp;empty = keep chip default
+    </div>
+</script>
+
+<!-- Read node: trigger → battery and power state -->
+<script type="text/javascript">
+    RED.nodes.registerType('axp2101', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'axp2101-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-battery-half',
+        label:   function() { return this.name || 'AXP2101'; },
+        paletteLabel: 'AXP2101'
+    });
+</script>
+
+<script type="text/html" data-template-name="axp2101">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AXP2101">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="axp2101">
+    <p>Reads battery, charger and power-input state from an AXP2101 single-cell power-management IC over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>axp2101-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.battery_voltage <span class="property-type">number</span></dt>
+        <dd>Battery voltage in V.</dd>
+        <dt>payload.battery_percent <span class="property-type">number</span></dt>
+        <dd>State of charge from the fuel gauge, 0–100 %.</dd>
+        <dt>payload.charge_state <span class="property-type">string</span></dt>
+        <dd><code>trickle</code>, <code>pre</code>, <code>cc</code>, <code>cv</code>, <code>done</code> or <code>none</code>.</dd>
+        <dt>payload.vbus_present <span class="property-type">boolean</span></dt>
+        <dd>True when a good input source is connected.</dd>
+        <dt>payload.vbus_voltage <span class="property-type">number</span></dt>
+        <dd>VBUS voltage in V.</dd>
+        <dt>payload.system_voltage <span class="property-type">number</span></dt>
+        <dd>System (VSYS) voltage in V.</dd>
+        <dt>payload.die_temperature <span class="property-type">number</span></dt>
+        <dd>Die temperature in °C (vendor formula, not from the datasheet).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's 7-bit address (default <code>0x34</code>) in the device config
+    node. The optional charge voltage (4.0 / 4.1 / 4.2 / 4.35 / 4.4 V) and charge current (0–1.5 A) are written
+    once on deploy; leave them empty to keep the board's eFuse defaults. The 4.35 and 4.4 V settings are for
+    high-voltage Li-ion cells only.</p>
+</script>

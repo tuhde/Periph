@@ -71,6 +71,8 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `dePin` | Go TinyGo | `machine.Pin` | — | RS-485 DE pin; zero value disables RS-485 mode |
 | `uart` | Pico SDK | `uart_inst_t*` | — | UART peripheral (`uart0` or `uart1`), already configured via `uart_init()` |
 | `de_pin` | Pico SDK | `int` (GPIO pin number) | `-1` | RS-485 DE pin; `-1` disables RS-485 mode |
+| `huart` | STM32Cube | `UART_HandleTypeDef*` | — | UART peripheral, already initialised via `HAL_UART_Init()` |
+| `dePort`, `dePin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | `nullptr`, `0` | RS-485 DE pin; a `nullptr` port disables RS-485 mode |
 
 | `port` | ESP-IDF | `uart_port_t` | — | UART port number (`UART_NUM_0`, `UART_NUM_1`, `UART_NUM_2`), already installed via `uart_driver_install()` and configured via `uart_param_config()` |
 | `de_pin` | ESP-IDF | `int` (`gpio_num_t`) | `-1` | RS-485 DE pin; `-1` disables RS-485 mode |
@@ -216,6 +218,20 @@ pico-sdk exposes no TX-drain / TX-complete call and no RX byte-count API — onl
 `uart_read_blocking` already blocks until exactly `n` bytes have arrived, so `read()` needs no manual polling loop.
 
 File: `cpp/src/connection/UARTConnectionPicoSDK.h` (header-only)
+
+### STM32Cube
+
+Wraps the STM32 HAL (`stm32f4xx_hal_uart.h`, bare-metal, no RTOS). Constructor accepts a `UART_HandleTypeDef*` already initialised via `HAL_UART_Init()` (caller owns clock enable and GPIO alternate-function setup), plus an optional GPIO port/pin for RS-485 DE — same convention as the Arduino, Linux, ESP-IDF and Pico SDK connections.
+
+| Contract | STM32 HAL |
+|----------|-----------|
+| `write` | DE high (RS-485) → `HAL_UART_Transmit(huart, data, len, 1000)` → DE low (RS-485) |
+| `read` | `HAL_UART_Receive(huart, buf, n, 1000)` — blocks until exactly n bytes or the 1000 ms timeout |
+| `write_read` | `write(data, len)` → `read(buf, n)` |
+
+`HAL_UART_Transmit` returns only after the data has been clocked out, so DE is deasserted immediately afterwards with no baud-rate-derived delay (unlike Pico SDK). The connections are polling-only, so there is no background RX buffer: `available()` keeps `Connection`'s default (unknown, assume ready), not an exact count as on ESP-IDF.
+
+File: `cpp/src/connection/UARTConnectionSTM32Cube.h` (header-only)
 
 ### Linux GCC (C++)
 
@@ -381,6 +397,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/UARTConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/connection/uart.js` — JSDoc on class and every exported method

@@ -1,0 +1,161 @@
+package it.uhde.periph.chips.rtc;
+
+import it.uhde.periph.connection.RegisterConnection;
+
+import java.io.IOException;
+
+/**
+ * PCF85063A — low-power I²C real-time clock and calendar (NXP) — minimal
+ * interface.
+ *
+ * <p>Reads and sets the calendar clock with no configuration beyond the
+ * connection. The constructor forces 24-hour mode with the clock running
+ * ({@code STOP}=0); it writes no time register and does not reset the chip.
+ * Fixed I²C address 0x51. There is no battery switch-over — the chip is fed
+ * from a single {@code VDD} supply.
+ *
+ * <p>This driver always operates the {@code Hours} register in 24-hour mode.
+ * {@code weekday} follows the datasheet's suggested assignment,
+ * 0=Sunday…6=Saturday — the {@code Weekdays} register has no
+ * hardware-enforced meaning.
+ */
+public class PCF85063AMinimal {
+
+    /** Fixed I²C address — the PCF85063A has no address pins. */
+    public static final int DEFAULT_ADDRESS = 0x51;
+
+    // Register map.
+    protected static final int REG_CONTROL_1     = 0x00;
+    protected static final int REG_CONTROL_2     = 0x01;
+    protected static final int REG_OFFSET        = 0x02;
+    protected static final int REG_RAM           = 0x03;
+    protected static final int REG_SECONDS       = 0x04;
+    protected static final int REG_SECOND_ALARM  = 0x0B;
+    protected static final int REG_TIMER_VALUE   = 0x10;
+    protected static final int REG_TIMER_MODE    = 0x11;
+
+    // Control_1 (0x00) bits.
+    protected static final int C1_STOP    = 0x20;
+    protected static final int C1_SR      = 0x10;
+    protected static final int C1_CIE     = 0x04;
+    protected static final int C1_12_24   = 0x02;
+    protected static final int C1_CAP_SEL = 0x01;
+
+    protected final RegisterConnection connection;
+
+    /**
+     * Construct the driver. Confirms the device answers by reading
+     * {@code Control_1} (the PCF85063A has no identity register), then
+     * forces 24-hour mode with {@code STOP}=0 (read-modify-write, other bits
+     * preserved).
+     *
+     * @param connection configured I²C connection bound to address 0x51
+     * @throws IOException on bus error
+     */
+    public PCF85063AMinimal(RegisterConnection connection) throws IOException {
+        this.connection = connection;
+        readReg(REG_CONTROL_1);
+        writeReg(REG_CONTROL_1, readControl1() & ~(C1_STOP | C1_12_24));
+    }
+
+    // -------------------------------------------------------------------------
+    // Register helpers
+    // -------------------------------------------------------------------------
+
+    protected int readReg(int reg) throws IOException {
+        return connection.read(reg, 1)[0] & 0xFF;
+    }
+
+    protected byte[] readBurst(int reg, int n) throws IOException {
+        return connection.read(reg, n);
+    }
+
+    protected void writeReg(int reg, int value) throws IOException {
+        connection.write(reg, new byte[]{(byte) value});
+    }
+
+    protected void writeBurst(int reg, int... values) throws IOException {
+        byte[] out = new byte[values.length];
+        for (int i = 0; i < values.length; i++) out[i] = (byte) values[i];
+        connection.write(reg, out);
+    }
+
+    /** {@code Control_1} with {@code SR} masked, safe for read-modify-write. */
+    protected int readControl1() throws IOException {
+        return readReg(REG_CONTROL_1) & ~C1_SR & 0xFF;
+    }
+
+    protected static int bcdToInt(int b) {
+        return ((b >> 4) & 0x0F) * 10 + (b & 0x0F);
+    }
+
+    protected static int intToBcd(int v) {
+        return ((v / 10) << 4) | (v % 10);
+    }
+
+    // -------------------------------------------------------------------------
+    // Date/time
+    // -------------------------------------------------------------------------
+
+    /**
+     * Calendar clock reading.
+     *
+     * @param year    absolute year (2000–2099)
+     * @param month   1–12
+     * @param day     day of month, 1–31
+     * @param weekday day of week, 0 (Sunday) – 6 (Saturday)
+     * @param hour    0–23
+     * @param minute  0–59
+     * @param second  0–59
+     */
+    public record DateTime(int year, int month, int day, int weekday, int hour, int minute, int second) {}
+
+    /**
+     * Read the current calendar clock (one 7-byte burst).
+     *
+     * @return the current date and time
+     * @throws IOException on bus error
+     */
+    public DateTime getDatetime() throws IOException {
+        byte[] raw = readBurst(REG_SECONDS, 7);
+        int second = bcdToInt(raw[0] & 0x7F);
+        int minute = bcdToInt(raw[1] & 0x7F);
+        int hour = bcdToInt(raw[2] & 0x3F);
+        int day = bcdToInt(raw[3] & 0x3F);
+        int weekday = raw[4] & 0x07;
+        int month = bcdToInt(raw[5] & 0x1F);
+        int year = 2000 + bcdToInt(raw[6] & 0xFF);
+        return new DateTime(year, month, day, weekday, hour, minute, second);
+    }
+
+    /**
+     * Set the calendar clock using the {@code STOP}-bit precision start:
+     * freeze the divider chain ({@code STOP}=1), write all seven time/date
+     * registers in one transaction, then release {@code STOP}. Forces 24-hour
+     * mode and clears the {@code OS} flag (the time is now known-good).
+     *
+     * @param year    absolute year (2000–2099)
+     * @param month   1–12
+     * @param day     day of month, 1–31
+     * @param weekday day of week, 0 (Sunday) – 6 (Saturday)
+     * @param hour    0–23
+     * @param minute  0–59
+     * @param second  0–59
+     * @throws IllegalArgumentException if {@code year} is outside 2000–2099
+     * @throws IOException on bus error
+     */
+    public void setDatetime(int year, int month, int day, int weekday, int hour, int minute, int second) throws IOException {
+        if (year < 2000 || year > 2099) throw new IllegalArgumentException("year must be 2000-2099");
+        int ctrl1 = readControl1() & ~C1_12_24;
+        writeReg(REG_CONTROL_1, ctrl1 | C1_STOP);
+        writeBurst(REG_SECONDS,
+                intToBcd(second) & 0x7F,   // OS = 0
+                intToBcd(minute),
+                intToBcd(hour) & 0x3F,
+                intToBcd(day),
+                weekday & 0x07,
+                intToBcd(month),
+                intToBcd(year - 2000));
+        writeReg(REG_CONTROL_1, ctrl1 & ~C1_STOP);
+    }
+}

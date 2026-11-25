@@ -1,19 +1,103 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-tmp117', {
-        category:  'Peripheral',
-        color:     '#C084FC',
+    RED.nodes.registerType('tmp117-device', {
+        category: 'config',
         defaults: {
             name:          { value: '' },
             bus:           { value: '1', required: true, validate: RED.validators.number() },
             address:       { value: '0x48' },
             averaging:     { value: '8' },
             cycleSeconds:  { value: '1' },
-
             alertEnabled:  { value: false },
             highLimit:     { value: '30', validate: RED.validators.number() },
             lowLimit:      { value: '10', validate: RED.validators.number() },
             alertMode:     { value: 'alert' },
             polarity:      { value: 'active_low' }
+        },
+        label: function() {
+            return this.name || ('TMP117 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tmp117-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="TMP117">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:200px">
+            <option value="0x48">0x48 (ADD0 = GND)</option>
+            <option value="0x49">0x49 (ADD0 = V+)</option>
+            <option value="0x4A">0x4A (ADD0 = SDA)</option>
+            <option value="0x4B">0x4B (ADD0 = SCL)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-averaging"><i class="fa fa-sliders"></i> Averaging</label>
+        <select id="node-config-input-averaging" style="width:200px">
+            <option value="0">none</option>
+            <option value="8">8 conversions</option>
+            <option value="32">32 conversions</option>
+            <option value="64">64 conversions</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-cycleSeconds"><i class="fa fa-clock-o"></i> Cycle time</label>
+        <select id="node-config-input-cycleSeconds" style="width:200px">
+            <option value="0.0155">15.5 ms</option>
+            <option value="0.125">125 ms</option>
+            <option value="0.25">250 ms</option>
+            <option value="0.5">500 ms</option>
+            <option value="1">1 s</option>
+            <option value="4">4 s</option>
+            <option value="8">8 s</option>
+            <option value="16">16 s</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-alertEnabled"><i class="fa fa-bell"></i> Alert</label>
+        <input type="checkbox" id="node-config-input-alertEnabled" style="width:auto"> enabled (emits a <code>source</code> message when a limit trips)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-highLimit">&nbsp; THIGH °C</label>
+        <input type="text" id="node-config-input-highLimit" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lowLimit">&nbsp; TLOW °C</label>
+        <input type="text" id="node-config-input-lowLimit" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-alertMode">&nbsp; Mode</label>
+        <select id="node-config-input-alertMode" style="width:200px">
+            <option value="alert">Alert (window)</option>
+            <option value="therm">Therm (latching, TLOW resets)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-polarity">&nbsp; Polarity</label>
+        <select id="node-config-input-polarity" style="width:200px">
+            <option value="active_low">Active low</option>
+            <option value="active_high">Active high</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('tmp117', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:          { value: '' },
+            device: { value: '', type: 'tmp117-device', required: true },
+            averaging:     { value: '8' },
+            cycleSeconds:  { value: '1' }
         },
         inputs:  1,
         outputs: 1,
@@ -23,23 +107,14 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-tmp117">
+<script type="text/html" data-template-name="tmp117">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="TMP117">
     </div>
     <div class="form-row">
-        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
-        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
-    </div>
-    <div class="form-row">
-        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
-        <select id="node-input-address" style="width:200px">
-            <option value="0x48">0x48 (ADD0 = GND)</option>
-            <option value="0x49">0x49 (ADD0 = V+)</option>
-            <option value="0x4A">0x4A (ADD0 = SDA)</option>
-            <option value="0x4B">0x4B (ADD0 = SCL)</option>
-        </select>
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
     </div>
     <div class="form-row">
         <label for="node-input-averaging"><i class="fa fa-sliders"></i> Averaging</label>
@@ -63,37 +138,9 @@
             <option value="16">16 s</option>
         </select>
     </div>
-
-    <hr>
-    <div class="form-row">
-        <label for="node-input-alertEnabled"><i class="fa fa-bell"></i> Alert</label>
-        <input type="checkbox" id="node-input-alertEnabled" style="width:auto"> enabled (emits a <code>source</code> message when a limit trips)
-    </div>
-    <div class="form-row">
-        <label for="node-input-highLimit">&nbsp; THIGH °C</label>
-        <input type="text" id="node-input-highLimit" style="width:80px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-lowLimit">&nbsp; TLOW °C</label>
-        <input type="text" id="node-input-lowLimit" style="width:80px">
-    </div>
-    <div class="form-row">
-        <label for="node-input-alertMode">&nbsp; Mode</label>
-        <select id="node-input-alertMode" style="width:200px">
-            <option value="alert">Alert (window)</option>
-            <option value="therm">Therm (latching, TLOW resets)</option>
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-polarity">&nbsp; Polarity</label>
-        <select id="node-input-polarity" style="width:200px">
-            <option value="active_low">Active low</option>
-            <option value="active_high">Active high</option>
-        </select>
-    </div>
 </script>
 
-<script type="text/html" data-help-name="periph-tmp117">
+<script type="text/html" data-help-name="tmp117">
     <p>Reads the temperature from a TMP117 ±0.1 °C high-accuracy digital temperature sensor over I²C, and optionally reports its THIGH/TLOW limit alerts.</p>
 
     <h3>Inputs</h3>

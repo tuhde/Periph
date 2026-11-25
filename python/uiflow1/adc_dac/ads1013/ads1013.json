@@ -1,0 +1,180 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ads1013_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ADS1013",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x48-0x4B)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_read_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 raw code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_read_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_full_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 full scale (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_lsb",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 LSB (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_set_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1013 set data rate",
+          "type": "label"
+        },
+        {
+          "name": "code (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS)",
+          "type": "label"
+        },
+        {
+          "name": "_dr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_get_data_rate",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 data rate code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_data_rate_sps",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 data rate (SPS)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1013 start continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_read_continuous_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 continuous raw code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_read_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 continuous voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1013 stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_is_converting",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 is converting",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_read_config",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1013 CONFIG register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1013_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1013 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+_periph_fxos8700.reset_mag_min_max()

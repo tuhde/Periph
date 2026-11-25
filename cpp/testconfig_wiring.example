@@ -3,7 +3,7 @@
 # testconfig_wiring is gitignored — never commit it.
 #
 # Shared across every cpp platform script (test_linux.sh, test_arduino.sh,
-# test_zephyr.sh, test_espidf.sh, test_picosdk.sh) — the physical rig is the
+# test_zephyr.sh, test_espidf.sh, test_picosdk.sh, test_stm32cube.sh) — the physical rig is the
 # same board regardless of which firmware gets flashed onto it, so wiring
 # isn't duplicated per platform file. See specs/testing_framework.md,
 # "Chip Wiring & Sigrok Configuration" and "Test Scenarios".

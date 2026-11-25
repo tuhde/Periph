@@ -21,6 +21,7 @@ public:
 
     bool onEdge(Handler handler, uint8_t trigger = kFalling) override;
     void offEdge(Handler handler) override;
+    bool isHigh() override;
 
 private:
     void pollLoop();

@@ -1,0 +1,1 @@
+_periph_sht31.clear_status()

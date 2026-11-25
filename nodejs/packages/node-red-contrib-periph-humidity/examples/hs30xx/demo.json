@@ -1,0 +1,90 @@
+[
+  {
+    "id": "hs30xx-tab",
+    "type": "tab",
+    "label": "HS30xx humidity logger",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HS30xx (HS3001/HS3002/HS3003) every 2 s and formats them. Each message sends one measurement request, waits 40 ms and fetches the result."
+  },
+  {
+    "id": "hs30xx-inject",
+    "type": "inject",
+    "z": "hs30xx-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "hs30xx-node"
+      ]
+    ]
+  },
+  {
+    "id": "hs30xx-device-1",
+    "type": "hs30xx-device",
+    "name": "HS30XX",
+    "bus": "1",
+    "address": "0x44"
+  },
+  {
+    "id": "hs30xx-node",
+    "type": "hs30xx",
+    "z": "hs30xx-tab",
+    "name": "HS30xx",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "hs30xx-format"
+      ]
+    ],
+    "device": "hs30xx-device-1"
+  },
+  {
+    "id": "hs30xx-format",
+    "type": "function",
+    "z": "hs30xx-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(2) + ' °C, ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "hs30xx-debug"
+      ]
+    ]
+  },
+  {
+    "id": "hs30xx-debug",
+    "type": "debug",
+    "z": "hs30xx-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

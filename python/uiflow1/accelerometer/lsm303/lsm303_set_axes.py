@@ -1,0 +1,1 @@
+_periph_lsm303.set_axes(bool(int(${_x})), bool(int(${_y})), bool(int(${_z})))

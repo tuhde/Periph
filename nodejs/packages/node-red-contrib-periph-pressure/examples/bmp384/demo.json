@@ -37,7 +37,7 @@
   },
   {
     "id": "bmp384_read",
-    "type": "periph-bmp384",
+    "type": "bmp384",
     "z": "bmp384_demo_tab",
     "name": "BMP384",
     "device": "bmp384_device",

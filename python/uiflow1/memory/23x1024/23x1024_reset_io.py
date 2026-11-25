@@ -1,0 +1,1 @@
+_periph_23x1024.reset_io()

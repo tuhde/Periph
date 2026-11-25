@@ -1,0 +1,1 @@
+_periph_fxos8700.disable_interrupt(int(${_source}))

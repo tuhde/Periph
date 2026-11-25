@@ -1,0 +1,148 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "si7021_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init Si7021",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si7021_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si7021 resolution (0=12/14 1=8/12 2=10/13 3=11/11 bit RH/T)",
+          "type": "label"
+        },
+        {
+          "name": "level",
+          "type": "label"
+        },
+        {
+          "name": "_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si7021_set_heater",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si7021 heater (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si7021_heater_on",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 heater on (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_vdd_low",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 supply low (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_device_type",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 device type (0x15 = Si7021)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_firmware_revision",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si7021 firmware revision",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si7021_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si7021 soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

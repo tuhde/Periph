@@ -1,0 +1,82 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('lsm303-device', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            bus:  { value: '1', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('LSM303 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lsm303-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LSM303">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('lsm303', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'lsm303-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-alt',
+        label:   function() { return this.name || 'LSM303'; },
+        paletteLabel: 'LSM303'
+    });
+</script>
+
+<script type="text/html" data-template-name="lsm303">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LSM303">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="lsm303">
+    <p>Reads 3-axis acceleration, 3-axis magnetic flux density and the compass heading from an
+    LSM303 3-axis accelerometer + magnetometer e-compass over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via a
+    <b>lsm303-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.accel.x <span class="property-type">number</span></dt>
+        <dd>X acceleration in *g*.</dd>
+        <dt>payload.accel.y <span class="property-type">number</span></dt>
+        <dd>Y acceleration in *g*.</dd>
+        <dt>payload.accel.z <span class="property-type">number</span></dt>
+        <dd>Z acceleration in *g*.</dd>
+        <dt>payload.mag.x <span class="property-type">number</span></dt>
+        <dd>X magnetic flux density in µT.</dd>
+        <dt>payload.mag.y <span class="property-type">number</span></dt>
+        <dd>Y magnetic flux density in µT.</dd>
+        <dt>payload.mag.z <span class="property-type">number</span></dt>
+        <dd>Z magnetic flux density in µT.</dd>
+        <dt>payload.heading <span class="property-type">number</span></dt>
+        <dd>Compass heading in degrees, 0–360 (or <code>null</code> if the read failed).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number in the device config node. The LSM303 puts the accelerometer and
+    the magnetometer behind two independent slave addresses, <code>0x19</code> and
+    <code>0x1E</code>; both are opened on the configured bus automatically.</p>
+</script>

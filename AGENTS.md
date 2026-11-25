@@ -29,14 +29,13 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 When given an issue number, find the "Ready for implementation" comment on that issue. It contains:
 
 - **Spec** — path to the spec file (e.g. `specs/power/ina226.md`)
-- **Branch** — the base feature branch (e.g. `feature/ina226`)
 - **Stages** — which stages (Minimal, Full) are requested
 
 Only pick up issues labelled `needs-implementation`. An issue labelled `needs-spec` is still waiting on Claude Code; do not start coding against it. An issue labelled `in-progress` is already being worked on.
 
 ## Branch naming
 
-Do **not** commit directly to the feature branch. Create your own implementation branch from it:
+Do **not** commit directly to `main`. There is no `feature/<chip>` branch; the spec is already on `main`. Create your own implementation branch from `main`:
 
 ```
 impl/<chip>/OC-<model>
@@ -47,13 +46,26 @@ impl/<chip>/OC-<model>
 
 Example: `impl/ina226/OC-gpt-4o`
 
-Check out the base feature branch, rebase it to main, create your implementation branch from it, and open a PR targeting the main branch when done. The feature branch stays untouched for later reimplementation by another model.
+Create your implementation branch from the current `main` and open a PR targeting `main` (with CI enabled) when done. Implementation branches stay untouched for later reimplementation by another model.
 
 **Label the PR itself**, not just the issue: `gh pr edit <num> --add-label chip` (or `transport`), plus any `transport:*` labels the issue carries. GitHub's release-notes generator (`.github/release.yml`) groups the changelog by PR label, not issue label, so an unlabeled PR falls into the catch-all "Other Changes" section of the next release.
 
 ### Reimplementation by a different model
 
-If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `feature/<chip>` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.
+If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `main` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.
+
+## Pre-push checklist (CI failures seen in practice)
+
+CI runs far more than compilation, and the embedded jobs (Pico SDK, ESP-IDF, STM32Cube) take 10+ minutes each. Run these locally before every push; PR #494 (BMA150) failed 10 jobs by skipping them.
+
+1. **Regenerated files must be committed.** Run each generator without `--check`, then commit the result:
+   - `node registry/scripts/validate.js --check` and `node registry/scripts/generate.js` (regenerates `cpp/src/discovery/DiscoveryRegistry.h` and the other language tables)
+   - `node python/scripts/generate-readme.js`, `node rust/scripts/generate-readme.js`, `node cpp/scripts/generate-readme.js`, `node nodejs/scripts/generate-readmes.js`
+   - `python/uiflow1/generate.sh`
+2. **A new or changed registry entry needs the discovery tests updated in every language** (C++, Go, Rust, Node.js, Python, Java). Listing the chip as a candidate is not enough: decide whether the address now has an identity probe and whether a write-sensitive candidate sharing the address (e.g. PCF8574 at 0x38) makes the probe get skipped, and adjust the `no probes` / `ProbeSkipped` expectations. Run `go test ./periph/discovery/`, `cargo test --manifest-path rust/Cargo.toml -p periph --features std discovery`, and `cpp/scripts/build-all.sh linux`.
+3. **Compile every language you touched.** For the JVM run `mvn -q compile` in `jvm/` (Java, Kotlin, Groovy). Check imports of helpers such as `it.uhde.periph.connection.Register`; compare with a sibling driver (e.g. `Adxl345Full`). Never rely on CI to find a missing import.
+4. **C++ unit tests must not assert on the mock's whole write log.** Earlier writes (e.g. enabling a bit) make "bit not set" checks fail. Clear the log before the call under test, or assert on the last write.
+5. **Never rewrite `specs/<category>/<chip>_timing.conf` wholesale.** The sigrok conformance checker reads its keys (e.g. `wake_up_max_ms`, `wake_up_samplerate`, `wake_up_capture_ms`); dropping them silently disables the check. Keep every existing key and put prose in comments.
 
 ## Issue label workflow
 
@@ -86,6 +98,7 @@ Every chip is implemented across all six languages and every supported platform 
 | C++ Zephyr examples | `cpp/examples/zephyr/<category>/<Chip>/{minimal,complete,demo}/{main.cpp,CMakeLists.txt,prj.conf}` |
 | C++ ESP-IDF examples | `cpp/examples/espidf/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
 | C++ Pico SDK examples | `cpp/examples/picosdk/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,src/main.cpp}` |
+| C++ STM32Cube examples | `cpp/examples/stm32cube/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,Core/Src/main.cpp}` |
 | Node.js driver | `nodejs/packages/periph/src/chips/<category>/<chip>.js` |
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/{minimal,complete,demo}.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/{<chip>.js,<chip>.html}` |
@@ -110,6 +123,28 @@ Remove `.gitkeep` from a target directory when adding the first real file.
 
 For chips with I²C or SMBus transport, add the chip's default I²C address to `chip_defaults`.
 
+## Pre-push CI checklist (recurring failures)
+
+Run these locally before pushing a chip branch; each has failed a chip PR before (BMA150, PR #494).
+
+- **Generated files — regenerate, never hand-edit, then `--check`:** `node registry/scripts/generate.js` (also rewrites `cpp/src/discovery/DiscoveryRegistry.h`), `node {python,rust,cpp}/scripts/generate-readme.js`, `node nodejs/scripts/generate-readmes.js`, `python3 python/scripts/generate-mip-packages.py` (new `<chip>.json` + `package.json` files), `python/uiflow1/generate.sh`.
+- **Discovery tests:** adding a chip to `registry/chips.json` changes the candidate list at its I²C address. Update the expected candidates in all four `discovery` unit tests (C++, Go, Rust, Python). If another chip at that address is write-sensitive, probing is skipped (`write_sensitive_candidate`); assert that instead of "nothing to probe".
+- **Unit-test mocks accumulate writes:** a mock's `writes()` holds every write since construction. For "set X false/off" checks look at the *last* write to the register, not "any write has the bit set".
+- **CMake relative paths differ by depth:** `cpp/tests/<cat>/<chip>_test_*` is 3 levels below `cpp/` (`../../..`); `cpp/examples/<platform>/<cat>/<Chip>/<tier>` is 5. Copy from a sibling of the *same kind* (test vs example), never across.
+- **Pico SDK:** `project(<name> C CXX ASM)`, not `CXX` only.
+- **ESP-IDF:** using `esp_timer_get_time()` needs both `#include "esp_timer.h"` and `esp_timer` in `main/CMakeLists.txt` `REQUIRES`.
+- **Java:** import `it.uhde.periph.connection.Register` when using `Register.toSigned`. Build with `mvn -o -pl periph-connection,periph-java compile`.
+- **Embedded builds are mandatory, not optional:** run `cpp/scripts/build-all.sh {picosdk,stm32cube,espidf} <Chip>` (filter is case-sensitive; use the `BMA150` form to catch examples as well as `bma150` tests). Toolchain setup: see the local-SDK notes in the maintainer docs/TOOLCHAINS.md.
+- **Run every language's own full test suite, not just the one you edited:** `mvn -o test` (builds Java + Kotlin + Groovy; a Java-only compile misses Kotlin/Groovy breakage), `go test ./...`, `cargo test -p periph --features std`, the `nodejs/` and `python/` `*_test_unit` files. Previous rounds failed in languages that were never run.
+- **Also generated:** `node cpp/scripts/generate-keywords.js`, `node cpp/scripts/generate-periph-header.js`.
+- **Port register bit-masks exactly:** read-modify-write masks must match the C++ reference (e.g. wake-up enable is bit 0, so mask `0xF8` or clear it explicitly; `0xF9` leaves it set). Copy the C++ reference mask logic, then port the C++ unit test's expectations too. Test multi-bit fields with a non-zero value (e.g. debounce counters: LG = INT_CTRL bits 3:2, HG = bits 5:4); tests that only use the default 0 hide shift bugs.
+- **Group Spock/JUnit assertions per action:** after `sleep(); wake();` the last write reflects only `wake()`. Use separate `when:`/`then:` blocks.
+- **Kotlin:** one `companion object` per class; Float vs Double constants must match their users; use `org.junit.jupiter.api.Assertions.*` like sibling tests.
+- **Groovy:** `@CompileStatic` needs `import groovy.transform.CompileStatic` and goes on the class, not before `package`.
+- **Disk:** `rust/target` can grow past 10 GB; delete it after a local workspace build (it is gitignored).
+- **Never commit `target/`:** the ESP32-S3 test crates and examples are outside the workspace and each builds its own `target/` (~900 MB). `.gitignore` covers `rust/**/target/`; run `git ls-files | grep '/target/'` before pushing — it must print nothing.
+- **C++ end-to-end:** `cpp/scripts/build-all.sh linux <chip>` and `... discovery`; also `go test ./periph/discovery/` and `cargo test -p periph --features std discovery`. Revert any `rust/Cargo.lock` churn.
+
 ## Connection interface
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
@@ -127,7 +162,7 @@ connection.write_reg(reg: int, data: bytes | int)      # register-addressed, any
 ```
 
 ```cpp
-// C++ — same signatures on Arduino, Linux, Zephyr, ESP-IDF, and Pico SDK
+// C++ — same signatures on Arduino, Linux, Zephyr, ESP-IDF, Pico SDK, and STM32Cube
 connection.read(uint8_t reg, uint8_t* buf, size_t len);
 connection.write(uint8_t reg, const uint8_t* data, size_t len);
 ```
@@ -259,6 +294,14 @@ func NewIna226Full(conn connection.Connection, rShunt, maxCurrent float64) (*Ina
 // Full-only methods only — f.Voltage() is already promoted from the embedded Ina226Minimal
 ```
 
+## Block devices
+
+Storage chips (SD, SD NAND, SPI NOR, SPI NAND) follow `specs/feature_block_device.md`. Only the **Full**
+class implements `BlockDevice`; the Minimal class stays the raw chip API. `BlockDevice` lives in a
+`storage/` directory next to `connection/` in each language; chips never implement a filesystem.
+Use the SPI optional extensions (`idle_clocks`, `set_speed`, `read_into`, `specs/transport_spi.md`) rather
+than chip-private bit-banging. Every storage chip must pass the shared contract suite using the RAM mock.
+
 ## IO Expander drivers
 
 IO expander chips follow the same two-stage pattern as other chips, but their primary API is a **GPIO facade**: the driver exposes individual `Pin` proxy objects that implement each platform's native GPIO interface. Users interact with pins exactly as they would with hardware GPIO.
@@ -369,7 +412,7 @@ public:
 };
 ```
 
-The same `IOExpanderPin` class compiles on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
+The same `IOExpanderPin` class compiles on Arduino, Linux GCC, Zephyr, ESP-IDF, Pico SDK, and STM32Cube. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
 
 Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterrupt()` to `IOExpanderPin`. `mode` uses Arduino constants: `RISING`, `FALLING`, `CHANGE`, `HIGH`, `LOW`.
 
@@ -482,7 +525,7 @@ conn = I2CConnection(bus=1, addr=0x68, en_pin=LinuxOutputPin(18))               
 conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
-**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
+**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, Pico SDK, and STM32Cube):
 ```cpp
 I2CConnection conn(bus, addr);                        // bus only
 I2CConnection conn(bus, addr, &gpioPin);              // with INT pin
@@ -552,12 +595,13 @@ Adapt capitalisation to the language convention (snake_case Python/Rust, camelCa
 If `self._conn.int_pin is None`, start a 5 ms polling `Thread` as fallback.
 Keep the handler short — no I/O beyond the register read.
 Multiple chips may share one `InputPin`; each registers its own `_int_handler` independently.
+Level signals the driver samples at a moment of its own choosing (a BUSY output, a data-ready line) are not interrupts: read them with `is_high()` / `isHigh()` / `IsHigh()` (Rust: `embedded_hal::digital::InputPin::is_high()`), interpret the polarity in the chip driver, and keep edge handlers for INT lines (see `specs/feature_inputpin_level_read.md`).
 
 **Python (Linux)**
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
 
 **C++**
-Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` / `InputPinESPIDF.h` / `InputPinPicoSDK.h` — never in the chip driver.
+Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` / `InputPinESPIDF.h` / `InputPinPicoSDK.h` / `InputPinSTM32Cube.h` — never in the chip driver.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(this._intHandler, …)`. `offInterrupt` calls `this._conn.intPin.offEdge(this._intHandler)`. `pollInterrupt` is `async`.
@@ -616,7 +660,7 @@ from periph.connection.i2c_linux import I2CConnection          # Linux
 
 ## C++ conventions
 
-Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.3, CI builds with v6.1; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own connection implementation.
+Six supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.3, CI builds with v6.1; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS), **STM32Cube** (bare-metal STM32 HAL for STM32F4, reference board NUCLEO-F411RE, built with `arm-none-eabi-gcc` against `STM32CUBE_FW_PATH`; polling-only, no DMA/interrupts, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all six; each target has its own connection implementation.
 
 ### Chip drivers
 
@@ -636,42 +680,58 @@ Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF**
 | `I2CConnectionZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
 | `I2CConnectionESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.3), header-only |
 | `I2CConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
+| `I2CConnectionSTM32Cube.h` | STM32Cube | `I2C_HandleTypeDef*` (HAL, blocking); write-then-read is STOP/START, not repeated START; records HAL status in `last_status()`/`error_count()`, header-only |
 | `SMBusConnection.h/.cpp` | Arduino | PEC-capable variant of `I2CConnection` |
 | `SMBusConnectionLinux.h/.cpp` | Linux GCC | PEC-capable variant of `I2CConnectionLinux` |
 | `SMBusConnectionZephyr.h` | Zephyr RTOS | wraps the Zephyr `i2c` driver API, address validation + PEC, header-only |
 | `SMBusConnectionESPIDF.h` | ESP-IDF | wraps `I2CConnectionESPIDF` + software CRC-8, header-only |
 | `SMBusConnectionPicoSDK.h` | Raspberry Pi Pico SDK | wraps `I2CConnectionPicoSDK` + software CRC-8, header-only |
+| `SMBusConnectionSTM32Cube.h` | STM32Cube | wraps `I2CConnectionSTM32Cube` + software CRC-8, header-only |
 | `SPIConnection.h/.cpp` | Arduino | `SPIClass&` (or any compatible object) |
 | `SPIConnectionLinux.h/.cpp` | Linux GCC | `/dev/spidevBUS.DEVICE` via `spidev`, CS owned by the kernel driver |
 | `SPIConnectionZephyr.h` | Zephyr RTOS | wraps the Zephyr `spi` driver API, header-only |
 | `SPIConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
 | `SPIConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
+| `SPIConnectionSTM32Cube.h` | STM32Cube | `SPI_HandleTypeDef*` + manual CS GPIO (port, pin), header-only |
 | `UARTConnection.h/.cpp` | Arduino | `HardwareSerial&` |
 | `UARTConnectionLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
 | `UARTConnectionZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
 | `UARTConnectionESPIDF.h` | ESP-IDF | `uart_port_t` installed via `uart_driver_install()`, `gpio_num_t` DE pin for RS-485, header-only |
 | `UARTConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
+| `UARTConnectionSTM32Cube.h` | STM32Cube | `UART_HandleTypeDef*`, optional `GPIO` DE pin for RS-485, polling only (`available()` stays unknown), header-only |
 | `NeoPixelConnection.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
 | `NeoPixelConnectionLinux.h/.cpp` | Linux GCC | SPI bit-encoding via `spidev` |
 | `NeoPixelConnectionZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
 | `NeoPixelConnectionESPIDF.h` | ESP-IDF | SPI bit-encoding on `spi_device_handle_t` (2.4 MHz, mode 0), header-only |
 | `NeoPixelConnectionPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
+| `NeoPixelConnectionSTM32Cube.h` | STM32Cube | SPI bit-encoding on `SPI_HandleTypeDef*` (2.4 MHz, mode 0), header-only |
 | `HX711Connection.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
 | `HX711ConnectionLinux.h/.cpp` | Linux GCC | bit-bang via `GpiodLineLinux` (libgpiod v2), `(chip_path, dout_line, pd_sck_line)` |
 | `HX711ConnectionZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
 | `HX711ConnectionESPIDF.h` | ESP-IDF | `gpio_num_t` DOUT/PD_SCK pins, `gpio_set_level`/`gpio_get_level` bit-bang, header-only |
 | `HX711ConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
+| `HX711ConnectionSTM32Cube.h` | STM32Cube | `HAL_GPIO_ReadPin`/`WritePin` bit-bang, DWT cycle counter for µs delays, header-only |
 | `SiPoConnection.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
 | `SiPoConnectionLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang lines via `GpiodLineLinux` (libgpiod v2); `-1` disables SRCLR/G |
 | `SiPoConnectionZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
 | `SiPoConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
 | `SiPoConnectionPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
+| `SiPoConnectionSTM32Cube.h` | STM32Cube | hardware SPI (`SPI_HandleTypeDef*`) or bit-bang `HAL_GPIO_WritePin`, header-only |
+| `DisplayConnectionBase.h` / `SoftSPI.h` | all | shared display-connection logic (framing, reset, BUSY wait, wire modes) and a bit-banged SPI over `OutputPin`/`InputPin`; header-only, no exceptions, `valid()` instead of throwing (`specs/transport_display.md`) |
+| `DisplayConnection.h` | Arduino | `SPIClass&` or `SoftSPI&`, CS# as `OutputPin*`, header-only |
+| `DisplayConnectionLinux.h` | Linux GCC | `/dev/spidevBUS.DEVICE` (`SPI_3WIRE` for hardware half-duplex) or `SoftSPI&`, header-only |
+| `DisplayConnectionZephyr.h` | Zephyr RTOS | Zephyr `spi` API (`SPI_HALF_DUPLEX`) or `SoftSPI&`, header-only |
+| `DisplayConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (`SPI_DEVICE_3WIRE`) or `SoftSPI&`, header-only |
+| `DisplayConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` (full-duplex only) or `SoftSPI&`, header-only |
+| `DisplayConnectionSTM32Cube.h` | STM32Cube | `SPI_HandleTypeDef*` (`SPI_DIRECTION_1LINE` for hardware half-duplex) or `SoftSPI&`, header-only |
 | `DHTxxConnection.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
 | `DHTxxConnectionLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
 | `GpiodLineLinux.h/.cpp` | Linux GCC | one libgpiod v2 line request (chip path + offset); shared by `InputPinLinux`, `OutputPinLinux`, `HX711ConnectionLinux`, `SiPoConnectionLinux` |
 | `DHTxxConnectionZephyr.h` | Zephyr RTOS | single-wire bit-bang on a `gpio_dt_spec`, header-only |
 | `DHTxxConnectionESPIDF.h` | ESP-IDF | single-wire bit-bang on a `gpio_num_t` pin, header-only |
 | `DHTxxConnectionPicoSDK.h` | Raspberry Pi Pico SDK | single-wire bit-bang on a GPIO pin number, header-only |
+| `DHTxxConnectionSTM32Cube.h` | STM32Cube | single-wire bit-bang on a GPIO port/pin, DWT cycle counter for µs delays, header-only |
+| `InputPinSTM32Cube.h` / `OutputPinSTM32Cube.h` | STM32Cube | `GPIO_TypeDef*` + pin; `InputPinSTM32Cube` arms an EXTI line in `onEdge()` and needs the project's `EXTIx_IRQHandler` to call `HAL_GPIO_EXTI_IRQHandler()`, header-only |
 
 Linux-only connection classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 
@@ -790,6 +850,43 @@ Each example configures its own bus at file scope (e.g. `i2c_init(i2c0, 100 * 10
 
 The default I²C pins are the pico-sdk documented defaults (`GP4` SDA, `GP5` SCL on `i2c0`). Override the pins by editing the file-scope `i2c_init` / `gpio_set_function` block at the top of `main.cpp`.
 
+### STM32Cube examples
+
+Each STM32Cube example is a standalone bare-metal CMake project under `cpp/examples/stm32cube/<category>/<Chip>/<tier>/`, containing `Core/Src/main.cpp` and `CMakeLists.txt`. It uses the shared toolchain file and NUCLEO-F411RE board files in `cpp/boards/stm32cube/` (linker script, startup file, clock config, `stm32f4xx_hal_conf.h`) and the HAL sources from `$STM32CUBE_FW_PATH` (see `TOOLCHAINS.md`). `CPP_DIR` is five levels up and `BOARD_DIR` is `cpp/boards/stm32cube`:
+
+```cmake
+cmake_minimum_required(VERSION 3.20)
+
+set(BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../boards/stm32cube)
+set(CPP_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/../../../../..)
+
+include(${BOARD_DIR}/toolchain-arm-none-eabi.cmake)
+
+project(<chip>_minimal_stm32cube C CXX ASM)
+
+if(NOT DEFINED ENV{STM32CUBE_FW_PATH})
+    message(FATAL_ERROR "STM32CUBE_FW_PATH is not set — see TOOLCHAINS.md")
+endif()
+set(FW_DIR $ENV{STM32CUBE_FW_PATH})
+
+add_executable(<chip>_minimal_stm32cube
+    Core/Src/main.cpp
+    ${BOARD_DIR}/nucleo-f411re/startup_stm32f411xe.s
+    ${BOARD_DIR}/nucleo-f411re/Core/Src/system_clock_config.c
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+    ${FW_DIR}/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
+    ${FW_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
+    # ... the HAL modules the example needs: _cortex, _rcc, _rcc_ex, _gpio, _dma, _pwr, _pwr_ex,
+    #     _flash*, _exti, plus _i2c/_i2c_ex, _spi or _uart for the bus in use
+)
+# target_include_directories(...) adds board Core/Inc, src/connection, src/chips/<category>,
+# and the CMSIS + HAL Inc dirs; copy the full block from an existing example.
+```
+
+Copy `cpp/examples/stm32cube/accelerometer/ADXL345/minimal/CMakeLists.txt` for the complete source and include list. Each example configures its own clocks and bus at file scope (`HAL_Init()`, `SystemClock_Config()`, then `__HAL_RCC_*_CLK_ENABLE()`, GPIO alternate-function setup and `HAL_I2C_Init()`/`HAL_SPI_Init()`/`HAL_UART_Init()`) before constructing the connection and chip driver. The connection classes only wrap an already-initialised handle. `printf` output goes over USART2 (PA2/PA3, the ST-LINK virtual COM port, 115200 baud) through a `_write()` override, and `SysTick_Handler` must call `HAL_IncTick()` so `HAL_Delay()` works.
+
+Default I²C is I2C1 on PB8 (SCL) / PB9 (SDA), the Arduino header D15/D14. Build with `cmake -S . -B build && cmake --build build`; flash `build/<chip>_<tier>_stm32cube.bin` to `0x8000000` with `st-flash --reset write` (on-board ST-LINK). The F4 HAL has no repeated-START primitive for arbitrary-length writes, so `I2CConnectionSTM32Cube` issues STOP/START between the write and read phases; the HAL return codes are available through `last_status()`/`error_count()` rather than the `Connection` interface.
+
 ## Node.js connection interface
 
 JS chip drivers use `connection.readReg(reg, length)` / `connection.writeReg(reg, data)` in camelCase (see Connection interface section above).
@@ -824,30 +921,67 @@ module.exports = { INA226Minimal, INA226Full };
 
 ## Node-RED node structure
 
-Each chip has two files in `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/`:
+Every chip ships **two** Node-RED node types, both defined in the same pair of files in `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/`:
 
-**`<chip>.js`** — runtime node, registered as `periph-<chip>`:
+| Type id | Kind | Role |
+|---------|------|------|
+| `<chip>-device` | config node (`category: 'config'`) | One instance per physical chip. Owns the connection and driver, and everything that configures the chip itself (bus, address, ranges, calibration…). Closes the connection on `close`. |
+| `<chip>` | flow node (`category: 'Peripheral'`, color `#C084FC`) | Reads/writes through a device node chosen in its `device` property. Holds only per-message options (e.g. a default channel). |
+
+Naming rules:
+
+- Type ids are the lowercase chip name with **no `periph-` prefix**: `ina226` and `ina226-device`. They must match the directory and file name, and must equal the key in the package's `"node-red": { "nodes": {} }` map (`"ina226": "nodes/ina226/ina226.js"`).
+- The displayed name is the chip name in capital letters: `label` and `paletteLabel` of the flow node are `'INA226'`, and the device node's label starts with it (`INA226 @ 0x40 (bus 1)`). The name placeholder is also `INA226`.
+- Both `RED.nodes.registerType(...)` calls live in `<chip>.js`, and both editor registrations (plus `data-template-name` blocks for `<chip>` and `<chip>-device`, and the `data-help-name="<chip>"` block) live in `<chip>.html`.
+- The demo flow `examples/<chip>/demo.json` is a flat importable array holding the tab, **one `<chip>-device` node**, and the `<chip>` node referencing it by `device`.
+
+**`<chip>.js`** — device node plus read node:
 ```js
 'use strict';
 module.exports = function(RED) {
-    function INA226Node(config) {
+    const { I2CConnection } = require('periph/src/connection/i2c');
+    const { INA226Full } = require('periph/src/chips/power/ina226');
+
+    function INA226DeviceNode(config) {
         RED.nodes.createNode(this, config);
-        const connection = /* build from config */;
-        const sensor = new (require('periph/src/chips/<category>/<chip>')).INA226Minimal(connection);
-        this.on('input', function(msg) {
-            msg.payload = { voltage: sensor.voltage(), current: sensor.current(), power: sensor.power() };
-            this.send(msg);
+        const node = this;
+        try {
+            node.connection = new I2CConnection(parseInt(config.bus), parseInt(config.address, 16));
+            node.driver = new INA226Full(node.connection);
+        } catch (e) {
+            node.error('INA226 init failed: ' + e.message);
+        }
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
         });
     }
-    RED.nodes.registerType('periph-ina226', INA226Node);
+    RED.nodes.registerType('ina226-device', INA226DeviceNode);
+
+    function INA226ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        node.on('input', async function(msg, send, done) {
+            if (!deviceNode.driver) { done(new Error('No INA226 device configured')); return; }
+            try {
+                const d = deviceNode.driver;
+                msg.payload = { voltage: await d.voltage(), current: await d.current(), power: await d.power() };
+                send(msg);
+                done();
+            } catch (e) { done(e); }
+        });
+    }
+    RED.nodes.registerType('ina226', INA226ReadNode);
 };
 ```
 
-**`<chip>.html`** — editor UI: defines the node's config panel, label, and color using `RED.nodes.registerType`.
+Always look up properties on `deviceNode` at message time (never copy `deviceNode.driver` at construction): config nodes are created first, but drivers set up asynchronously (`node.ready`) may not be assigned yet.
 
-The `index.js` at the package root auto-discovers nodes — never edit it manually.
+**Chips that emit without an input** (interrupt lines, poll timers, receive loops): a config node cannot send messages, so the device node does `node.emit('periph-data', msg)` and the flow node subscribes with `deviceNode.on('periph-data', (m) => node.send(m))`, removing the listener on `close`. Set `inputs: 0` on a flow node that only receives.
 
-When a new node is added, update the `"node-red": { "nodes": {} }` field in the package's `package.json` to register the node name and file path.
+**`<chip>.html`** — editor UI. Config fields go in the `<chip>-device` registration and its template (use `node-config-input-<field>` ids); the flow node registration has a `device: { value: '', type: '<chip>-device', required: true }` default and a template with a Device row (`node-input-device`). Any `oneditprepare` that toggles device fields (e.g. I²C/SPI transport switch) belongs to the `<chip>-device` registration and uses `#node-config-input-…` selectors.
+
+Node-RED loads nodes only through the `"node-red": { "nodes": {} }` map in the package's `package.json` — a new chip must be added there (`"<chip>": "nodes/<chip>/<chip>.js"`) or it never appears in the palette. Packages have no `index.js` or `"main"` entry; Node-RED never uses one. The package `README.md` is generated (`node nodejs/scripts/generate-readmes.js`).
 
 ## Rust conventions
 
@@ -1387,7 +1521,7 @@ C++ Arduino sketches (examples and `cpp/tests/**/*.ino`) include the library wit
 - the `#else` / `ARDUINO` platform branch includes `<Arduino.h>` itself when it calls `delay()`/`millis()`; name local delay helpers something other than `_delay_ms` (AVR's `<util/delay.h>` owns it)
 - examples use `Serial.print`, not `Serial.printf` (ESP32-only), and guard ESP32-only pin arguments: `#if defined(ARDUINO_ARCH_ESP32)` `Wire.begin(TEST_SDA, TEST_SCL, 400000);` `#else` `Wire.begin(); Wire.setClock(400000);` `#endif`
 
-Verify with `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3` and `--fqbn arduino:avr:mega` (CI runs both).
+Verify with `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3` and `--fqbn arduino:avr:mega` (CI runs the AVR one only; run the ESP32-S3 build locally).
 
 For C++ Zephyr, each example is a standalone Zephyr app at `cpp/examples/zephyr/<category>/<Chip>/<tier>/` (see Zephyr examples above).
 
@@ -1406,6 +1540,7 @@ Every chip needs hardware tests for **every** supported platform:
 | Zephyr | `cpp/tests/<category>/<chip>_test_zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
 | ESP-IDF | `cpp/tests/<category>/<chip>_test_espidf/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
 | Pico SDK | `cpp/tests/<category>/<chip>_test_picosdk/{src/main.cpp,CMakeLists.txt}` |
+| STM32Cube | `cpp/tests/<category>/<chip>_test_stm32cube/{Core/Src/main.cpp,CMakeLists.txt}` |
 | MicroPython | `python/tests/<category>/<chip>_test.py` |
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel (Python) | `python/tests/<category>/<chip>_test_linux.py` |
@@ -1507,7 +1642,7 @@ impl<I2C: I2c> Ina219Minimal<I2C> {
 
 **Node-RED** — `<script type="text/html" data-help-name="…">` section in the `.html` file, following the [Node-RED help style guide](https://nodered.org/docs/creating-nodes/help-style-guide):
 ```html
-<script type="text/html" data-help-name="periph-ina219">
+<script type="text/html" data-help-name="ina219">
     <p>Reads bus voltage, load current, and power from an INA219 power monitor.</p>
     <h3>Inputs</h3>
     <dl class="message-properties">
@@ -1524,8 +1659,9 @@ impl<I2C: I2c> Ina219Minimal<I2C> {
         <dd>Power in W.</dd>
     </dl>
     <h3>Configuration</h3>
-    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x40</code>),
-    the shunt resistor value, and the maximum expected current.</p>
+    <p>The I²C bus number, the chip's 7-bit address (default <code>0x40</code>),
+    the shunt resistor value, and the maximum expected current are set in the
+    <b>ina219-device</b> config node.</p>
 </script>
 ```
 
@@ -1607,6 +1743,7 @@ Use these platform labels consistently:
 | C++ Zephyr | `C++/Zephyr` |
 | C++ ESP-IDF | `C++/ESP-IDF` |
 | C++ Pico SDK | `C++/PicoSDK` |
+| C++ STM32Cube | `C++/STM32Cube` |
 | Node.js | `Node.js` |
 | Node-RED | `Node-RED` |
 | Rust Linux | `Rust/Linux` |

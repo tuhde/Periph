@@ -1,0 +1,91 @@
+[
+  {
+    "id": "hdc1080-tab",
+    "type": "tab",
+    "label": "HDC1080 humidity logger",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HDC1080 every 2 s and formats them. Demonstrates the sequence-mode measurement (temperature then humidity in one read)."
+  },
+  {
+    "id": "hdc1080-inject",
+    "type": "inject",
+    "z": "hdc1080-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "hdc1080-node"
+      ]
+    ]
+  },
+  {
+    "id": "hdc1080-device-1",
+    "type": "hdc1080-device",
+    "name": "HDC1080",
+    "bus": "1",
+    "address": "0x40",
+    "resolution": "14/14"
+  },
+  {
+    "id": "hdc1080-node",
+    "type": "hdc1080",
+    "z": "hdc1080-tab",
+    "name": "HDC1080",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "hdc1080-format"
+      ]
+    ],
+    "device": "hdc1080-device-1"
+  },
+  {
+    "id": "hdc1080-format",
+    "type": "function",
+    "z": "hdc1080-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(2) + ' °C, ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "hdc1080-debug"
+      ]
+    ]
+  },
+  {
+    "id": "hdc1080-debug",
+    "type": "debug",
+    "z": "hdc1080-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

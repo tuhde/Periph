@@ -1,0 +1,1391 @@
+{
+  "category": "MMA8451Q",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MMA8451Q_LANGUAGES = {\n  \"CUSTOM_MMA8451Q___INIT__\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MMA8451Q_X\": {\n    \"en\": \"%1 acceleration X (g)\"\n  },\n  \"CUSTOM_MMA8451Q_Y\": {\n    \"en\": \"%1 acceleration Y (g)\"\n  },\n  \"CUSTOM_MMA8451Q_Z\": {\n    \"en\": \"%1 acceleration Z (g)\"\n  },\n  \"CUSTOM_MMA8451Q_RAW_X\": {\n    \"en\": \"%1 raw X (counts)\"\n  },\n  \"CUSTOM_MMA8451Q_RAW_Y\": {\n    \"en\": \"%1 raw Y (counts)\"\n  },\n  \"CUSTOM_MMA8451Q_RAW_Z\": {\n    \"en\": \"%1 raw Z (counts)\"\n  },\n  \"CUSTOM_MMA8451Q_NEW_DATA_AVAILABLE\": {\n    \"en\": \"%1 new data available\"\n  },\n  \"CUSTOM_MMA8451Q_READ_STATUS\": {\n    \"en\": \"%1 STATUS byte\"\n  },\n  \"CUSTOM_MMA8451Q_READ_SYSTEM_MODE\": {\n    \"en\": \"%1 system mode (0=standby, 1=wake, 2=sleep)\"\n  },\n  \"CUSTOM_MMA8451Q_OFFSET_X\": {\n    \"en\": \"%1 X offset (g)\"\n  },\n  \"CUSTOM_MMA8451Q_OFFSET_Y\": {\n    \"en\": \"%1 Y offset (g)\"\n  },\n  \"CUSTOM_MMA8451Q_OFFSET_Z\": {\n    \"en\": \"%1 Z offset (g)\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_LEVEL\": {\n    \"en\": \"%1 FIFO level (0-32)\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_OVERFLOW\": {\n    \"en\": \"%1 FIFO overflow\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_WATERMARK\": {\n    \"en\": \"%1 FIFO watermark reached\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_COUNT\": {\n    \"en\": \"%1 FIFO sample count (0-32)\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_X\": {\n    \"en\": \"%1 FIFO acceleration X (g)\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_Y\": {\n    \"en\": \"%1 FIFO acceleration Y (g)\"\n  },\n  \"CUSTOM_MMA8451Q_FIFO_Z\": {\n    \"en\": \"%1 FIFO acceleration Z (g)\"\n  },\n  \"CUSTOM_MMA8451Q_MOTION_SOURCE\": {\n    \"en\": \"%1 freefall / motion source byte\"\n  },\n  \"CUSTOM_MMA8451Q_TRANSIENT_SOURCE\": {\n    \"en\": \"%1 transient source byte\"\n  },\n  \"CUSTOM_MMA8451Q_PULSE_SOURCE\": {\n    \"en\": \"%1 tap source byte\"\n  },\n  \"CUSTOM_MMA8451Q_ORIENTATION_CHANGED\": {\n    \"en\": \"%1 orientation changed\"\n  },\n  \"CUSTOM_MMA8451Q_ORIENTATION_LOCKOUT\": {\n    \"en\": \"%1 orientation lockout\"\n  },\n  \"CUSTOM_MMA8451Q_ORIENTATION_LAPO\": {\n    \"en\": \"%1 portrait / landscape (0-3)\"\n  },\n  \"CUSTOM_MMA8451Q_ORIENTATION_BACK\": {\n    \"en\": \"%1 back facing\"\n  },\n  \"CUSTOM_MMA8451Q_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status byte\"\n  },\n  \"CUSTOM_MMA8451Q_SELF_TEST_OK\": {\n    \"en\": \"%1 self-test passed\"\n  },\n  \"CUSTOM_MMA8451Q_SELF_TEST_DX\": {\n    \"en\": \"%1 self-test X delta (counts)\"\n  },\n  \"CUSTOM_MMA8451Q_SELF_TEST_DY\": {\n    \"en\": \"%1 self-test Y delta (counts)\"\n  },\n  \"CUSTOM_MMA8451Q_SELF_TEST_DZ\": {\n    \"en\": \"%1 self-test Z delta (counts)\"\n  },\n  \"CUSTOM_MMA8451Q_SET_RANGE\": {\n    \"en\": \"%1 set range (g: 2, 4, 8) %2\"\n  },\n  \"CUSTOM_MMA8451Q_SET_DATA_RATE\": {\n    \"en\": \"%1 set data rate (Hz: 800, 400, 200, 100, 50, 12.5, 6.25, 1.56) %2\"\n  },\n  \"CUSTOM_MMA8451Q_SET_OVERSAMPLING\": {\n    \"en\": \"%1 set oversampling mode (0 normal, 1 low-noise, 2 high-res, 3 low-power) %2 sleep mode %3\"\n  },\n  \"CUSTOM_MMA8451Q_SET_LOW_NOISE\": {\n    \"en\": \"%1 set low-noise mode (1/0) %2\"\n  },\n  \"CUSTOM_MMA8451Q_SET_RESOLUTION\": {\n    \"en\": \"%1 set resolution (bits: 8 or 14) %2\"\n  },\n  \"CUSTOM_MMA8451Q_SET_HIGH_PASS_OUTPUT\": {\n    \"en\": \"%1 set high-pass output (1/0) %2 cutoff (0-3) %3\"\n  },\n  \"CUSTOM_MMA8451Q_SET_OFFSET\": {\n    \"en\": \"%1 set offsets X %2 g Y %3 g Z %4 g\"\n  },\n  \"CUSTOM_MMA8451Q_SET_FIFO\": {\n    \"en\": \"%1 set FIFO mode (0 off, 1 circular, 2 fill, 3 trigger) %2 watermark %3\"\n  },\n  \"CUSTOM_MMA8451Q_SET_FIFO_TRIGGER\": {\n    \"en\": \"%1 set FIFO trigger transient %2 orientation %3 pulse %4 motion %5\"\n  },\n  \"CUSTOM_MMA8451Q_SET_FREEFALL_MOTION\": {\n    \"en\": \"%1 set freefall / motion (1=motion) %2 axes %3 threshold %4 g debounce %5 ms latch %6\"\n  },\n  \"CUSTOM_MMA8451Q_SET_TRANSIENT\": {\n    \"en\": \"%1 set transient axes %2 threshold %3 g debounce %4 ms bypass HPF %5 latch %6\"\n  },\n  \"CUSTOM_MMA8451Q_SET_PULSE\": {\n    \"en\": \"%1 set tap single %2 double %3 time limit %4 ms latency %5 ms window %6 ms latch %7\"\n  },\n  \"CUSTOM_MMA8451Q_SET_ORIENTATION\": {\n    \"en\": \"%1 set orientation (1/0) %2 debounce %3 ms threshold %4 deg hysteresis %5 z-lock %6 back/front %7\"\n  },\n  \"CUSTOM_MMA8451Q_SET_AUTO_SLEEP\": {\n    \"en\": \"%1 set auto-sleep (1/0) %2 sleep rate %3 Hz timeout %4 s wake sources %5\"\n  },\n  \"CUSTOM_MMA8451Q_SET_FIFO_GATE\": {\n    \"en\": \"%1 set FIFO gate (1/0) %2\"\n  },\n  \"CUSTOM_MMA8451Q_SET_INTERRUPT_PINS\": {\n    \"en\": \"%1 set interrupt pins active high %2 open drain %3\"\n  },\n  \"CUSTOM_MMA8451Q_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt source %2 pin %3\"\n  },\n  \"CUSTOM_MMA8451Q_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt source %2\"\n  },\n  \"CUSTOM_MMA8451Q_STANDBY\": {\n    \"en\": \"%1 standby\"\n  },\n  \"CUSTOM_MMA8451Q_ACTIVATE\": {\n    \"en\": \"%1 activate\"\n  },\n  \"CUSTOM_MMA8451Q_RESET\": {\n    \"en\": \"%1 software reset\"\n  },\n  \"CUSTOM_MMA8451Q_OFF_INTERRUPT\": {\n    \"en\": \"%1 stop interrupt subscription pin %2\"\n  }\n};\n\nconst initType = 'custom_mma8451q_init';\nBlockly.BlockRegExpList['custom_mma8451q'] = {\n  regexp: new RegExp(/^custom_mma8451q_/),\n  code: \"from MMA8451Q import MMA8451Q\",\n  initBlockType: initType,\n  categoryId: 'custom_mma8451q',\n}\nBlockly.utils.registerLanguages(CUSTOM_MMA8451Q_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MMA8451Q_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MMA8451Q = 'MMA8451Q'\n\nBlockly.utils.getcustom_mma8451qOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mma8451q_0', 'mma8451q_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mma8451q___init__\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q___INIT__,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mma8451qOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mma8451q_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q___init__\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MMA8451Q(bus, address)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_raw_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_RAW_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_raw_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.raw_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_raw_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_RAW_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_raw_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.raw_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_raw_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_RAW_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_raw_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.raw_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_new_data_available\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_NEW_DATA_AVAILABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_new_data_available\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.new_data_available()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_read_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_READ_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_read_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_read_system_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_READ_SYSTEM_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_read_system_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_system_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_offset_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_OFFSET_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_offset_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.offset_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_offset_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_OFFSET_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_offset_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.offset_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_offset_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_OFFSET_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_offset_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.offset_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_level\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_LEVEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_level\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_level()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_overflow\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_OVERFLOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_overflow\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_overflow()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_watermark\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_WATERMARK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_watermark\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_watermark()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_count\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_COUNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_count\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_count()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_fifo_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_FIFO_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_fifo_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_motion_source\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_MOTION_SOURCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_motion_source\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.motion_source()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_transient_source\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_TRANSIENT_SOURCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_transient_source\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.transient_source()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_pulse_source\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_PULSE_SOURCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_pulse_source\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pulse_source()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_orientation_changed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_ORIENTATION_CHANGED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_orientation_changed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.orientation_changed()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_orientation_lockout\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_ORIENTATION_LOCKOUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_orientation_lockout\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.orientation_lockout()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_orientation_lapo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_ORIENTATION_LAPO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_orientation_lapo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.orientation_lapo()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_orientation_back\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_ORIENTATION_BACK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_orientation_back\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.orientation_back()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_self_test_ok\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SELF_TEST_OK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_self_test_ok\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.self_test_ok()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_self_test_dx\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SELF_TEST_DX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_self_test_dx\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.self_test_dx()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_self_test_dy\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SELF_TEST_DY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_self_test_dy\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.self_test_dy()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_self_test_dz\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SELF_TEST_DZ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_self_test_dz\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.self_test_dz()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'range_g'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var range_g = Blockly.Python.valueToCode(block, 'range_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_range(range_g)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate_hz = Blockly.Python.valueToCode(block, 'rate_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_data_rate(rate_hz)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_oversampling\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_OVERSAMPLING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sleep_mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_oversampling\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sleep_mode = Blockly.Python.valueToCode(block, 'sleep_mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_oversampling(mode, sleep_mode)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_low_noise\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_LOW_NOISE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_low_noise\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_low_noise(enabled)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'bits'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bits = Blockly.Python.valueToCode(block, 'bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(bits)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_high_pass_output\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_HIGH_PASS_OUTPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cutoff'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_high_pass_output\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cutoff = Blockly.Python.valueToCode(block, 'cutoff', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_high_pass_output(enabled, cutoff)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'x_g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y_g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'z_g'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x_g = Blockly.Python.valueToCode(block, 'x_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y_g = Blockly.Python.valueToCode(block, 'y_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var z_g = Blockly.Python.valueToCode(block, 'z_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_offset(x_g, y_g, z_g)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'watermark'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var watermark = Blockly.Python.valueToCode(block, 'watermark', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_fifo(mode, watermark)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_fifo_trigger\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_FIFO_TRIGGER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'transient'\n        },\n        {\n          'type': 'input_value',\n          'name': 'orientation'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pulse'\n        },\n        {\n          'type': 'input_value',\n          'name': 'motion'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_fifo_trigger\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var transient = Blockly.Python.valueToCode(block, 'transient', Blockly.Python.ORDER_FUNCTION_CALL);\n  var orientation = Blockly.Python.valueToCode(block, 'orientation', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pulse = Blockly.Python.valueToCode(block, 'pulse', Blockly.Python.ORDER_FUNCTION_CALL);\n  var motion = Blockly.Python.valueToCode(block, 'motion', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_fifo_trigger(transient, orientation, pulse, motion)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_freefall_motion\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_FREEFALL_MOTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'motion'\n        },\n        {\n          'type': 'input_value',\n          'name': 'axes'\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'debounce_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'latch'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_freefall_motion\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var motion = Blockly.Python.valueToCode(block, 'motion', Blockly.Python.ORDER_FUNCTION_CALL);\n  var axes = Blockly.Python.valueToCode(block, 'axes', Blockly.Python.ORDER_FUNCTION_CALL);\n  var threshold_g = Blockly.Python.valueToCode(block, 'threshold_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var debounce_ms = Blockly.Python.valueToCode(block, 'debounce_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var latch = Blockly.Python.valueToCode(block, 'latch', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_freefall_motion(motion, axes, threshold_g, debounce_ms, latch)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_transient\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_TRANSIENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'axes'\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'debounce_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bypass_hpf'\n        },\n        {\n          'type': 'input_value',\n          'name': 'latch'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_transient\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var axes = Blockly.Python.valueToCode(block, 'axes', Blockly.Python.ORDER_FUNCTION_CALL);\n  var threshold_g = Blockly.Python.valueToCode(block, 'threshold_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var debounce_ms = Blockly.Python.valueToCode(block, 'debounce_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bypass_hpf = Blockly.Python.valueToCode(block, 'bypass_hpf', Blockly.Python.ORDER_FUNCTION_CALL);\n  var latch = Blockly.Python.valueToCode(block, 'latch', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_transient(axes, threshold_g, debounce_ms, bypass_hpf, latch)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_pulse\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_PULSE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'single'\n        },\n        {\n          'type': 'input_value',\n          'name': 'double'\n        },\n        {\n          'type': 'input_value',\n          'name': 'time_limit_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'latency_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'window_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'latch'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_pulse\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var single = Blockly.Python.valueToCode(block, 'single', Blockly.Python.ORDER_FUNCTION_CALL);\n  var double = Blockly.Python.valueToCode(block, 'double', Blockly.Python.ORDER_FUNCTION_CALL);\n  var time_limit_ms = Blockly.Python.valueToCode(block, 'time_limit_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var latency_ms = Blockly.Python.valueToCode(block, 'latency_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var window_ms = Blockly.Python.valueToCode(block, 'window_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var latch = Blockly.Python.valueToCode(block, 'latch', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pulse(single, double, time_limit_ms, latency_ms, window_ms, latch)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_orientation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_ORIENTATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'debounce_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_deg'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hysteresis'\n        },\n        {\n          'type': 'input_value',\n          'name': 'z_lock'\n        },\n        {\n          'type': 'input_value',\n          'name': 'back_front'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_orientation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var debounce_ms = Blockly.Python.valueToCode(block, 'debounce_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var threshold_deg = Blockly.Python.valueToCode(block, 'threshold_deg', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hysteresis = Blockly.Python.valueToCode(block, 'hysteresis', Blockly.Python.ORDER_FUNCTION_CALL);\n  var z_lock = Blockly.Python.valueToCode(block, 'z_lock', Blockly.Python.ORDER_FUNCTION_CALL);\n  var back_front = Blockly.Python.valueToCode(block, 'back_front', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_orientation(enabled, debounce_ms, threshold_deg, hysteresis, z_lock, back_front)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_auto_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_AUTO_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sleep_rate_hz'\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_s'\n        },\n        {\n          'type': 'input_value',\n          'name': 'wake_sources'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_auto_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sleep_rate_hz = Blockly.Python.valueToCode(block, 'sleep_rate_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  var timeout_s = Blockly.Python.valueToCode(block, 'timeout_s', Blockly.Python.ORDER_FUNCTION_CALL);\n  var wake_sources = Blockly.Python.valueToCode(block, 'wake_sources', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_auto_sleep(enabled, sleep_rate_hz, timeout_s, wake_sources)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_fifo_gate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_FIFO_GATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_fifo_gate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_fifo_gate(enabled)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_set_interrupt_pins\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_SET_INTERRUPT_PINS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'active_high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'open_drain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_set_interrupt_pins\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var active_high = Blockly.Python.valueToCode(block, 'active_high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var open_drain = Blockly.Python.valueToCode(block, 'open_drain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interrupt_pins(active_high, open_drain)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(source, pin)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(source)\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_standby\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_STANDBY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_standby\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.standby()\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_activate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_ACTIVATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_activate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.activate()\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_mma8451q_off_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MMA8451Q_OFF_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mma8451qOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mma8451q_off_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.off_interrupt(pin)\\n`\n}\n",
+    "toolbox": "\n<category name=\"MMA8451Q\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mma8451q\">\n<title text=\"MMA8451Q\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mma8451q___init__\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">28</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_x\"/>\n<block type=\"custom_mma8451q_y\"/>\n<block type=\"custom_mma8451q_z\"/>\n<block type=\"custom_mma8451q_raw_x\"/>\n<block type=\"custom_mma8451q_raw_y\"/>\n<block type=\"custom_mma8451q_raw_z\"/>\n<block type=\"custom_mma8451q_new_data_available\"/>\n<block type=\"custom_mma8451q_read_status\"/>\n<block type=\"custom_mma8451q_read_system_mode\"/>\n<block type=\"custom_mma8451q_offset_x\"/>\n<block type=\"custom_mma8451q_offset_y\"/>\n<block type=\"custom_mma8451q_offset_z\"/>\n<block type=\"custom_mma8451q_fifo_level\"/>\n<block type=\"custom_mma8451q_fifo_overflow\"/>\n<block type=\"custom_mma8451q_fifo_watermark\"/>\n<block type=\"custom_mma8451q_fifo_count\"/>\n<block type=\"custom_mma8451q_fifo_x\"/>\n<block type=\"custom_mma8451q_fifo_y\"/>\n<block type=\"custom_mma8451q_fifo_z\"/>\n<block type=\"custom_mma8451q_motion_source\"/>\n<block type=\"custom_mma8451q_transient_source\"/>\n<block type=\"custom_mma8451q_pulse_source\"/>\n<block type=\"custom_mma8451q_orientation_changed\"/>\n<block type=\"custom_mma8451q_orientation_lockout\"/>\n<block type=\"custom_mma8451q_orientation_lapo\"/>\n<block type=\"custom_mma8451q_orientation_back\"/>\n<block type=\"custom_mma8451q_poll_interrupt\"/>\n<block type=\"custom_mma8451q_self_test_ok\"/>\n<block type=\"custom_mma8451q_self_test_dx\"/>\n<block type=\"custom_mma8451q_self_test_dy\"/>\n<block type=\"custom_mma8451q_self_test_dz\"/>\n<block type=\"custom_mma8451q_set_range\">\n  <value name=\"range_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_data_rate\">\n  <value name=\"rate_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_oversampling\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sleep_mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_low_noise\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_resolution\">\n  <value name=\"bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">14</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_high_pass_output\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cutoff\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_offset\">\n  <value name=\"x_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"z_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_fifo\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"watermark\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_fifo_trigger\">\n  <value name=\"transient\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"orientation\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"pulse\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"motion\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_freefall_motion\">\n  <value name=\"motion\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"axes\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">7</field>\n    </shadow>\n  </value>\n  <value name=\"threshold_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.2</field>\n    </shadow>\n  </value>\n  <value name=\"debounce_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"latch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_transient\">\n  <value name=\"axes\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">7</field>\n    </shadow>\n  </value>\n  <value name=\"threshold_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.3</field>\n    </shadow>\n  </value>\n  <value name=\"debounce_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"bypass_hpf\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"latch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_pulse\">\n  <value name=\"single\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"double\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"time_limit_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">30</field>\n    </shadow>\n  </value>\n  <value name=\"latency_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n  <value name=\"window_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">300</field>\n    </shadow>\n  </value>\n  <value name=\"latch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_orientation\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"debounce_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"threshold_deg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">45</field>\n    </shadow>\n  </value>\n  <value name=\"hysteresis\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"z_lock\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"back_front\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_auto_sleep\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sleep_rate_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50</field>\n    </shadow>\n  </value>\n  <value name=\"timeout_s\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"wake_sources\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_fifo_gate\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_set_interrupt_pins\">\n  <value name=\"active_high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"open_drain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_mma8451q_standby\"/>\n<block type=\"custom_mma8451q_activate\"/>\n<block type=\"custom_mma8451q_reset\"/>\n<block type=\"custom_mma8451q_off_interrupt\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_mma8451q",
+    "block_type": [
+      "custom_mma8451q___init__",
+      "custom_mma8451q_x",
+      "custom_mma8451q_y",
+      "custom_mma8451q_z",
+      "custom_mma8451q_raw_x",
+      "custom_mma8451q_raw_y",
+      "custom_mma8451q_raw_z",
+      "custom_mma8451q_new_data_available",
+      "custom_mma8451q_read_status",
+      "custom_mma8451q_read_system_mode",
+      "custom_mma8451q_offset_x",
+      "custom_mma8451q_offset_y",
+      "custom_mma8451q_offset_z",
+      "custom_mma8451q_fifo_level",
+      "custom_mma8451q_fifo_overflow",
+      "custom_mma8451q_fifo_watermark",
+      "custom_mma8451q_fifo_count",
+      "custom_mma8451q_fifo_x",
+      "custom_mma8451q_fifo_y",
+      "custom_mma8451q_fifo_z",
+      "custom_mma8451q_motion_source",
+      "custom_mma8451q_transient_source",
+      "custom_mma8451q_pulse_source",
+      "custom_mma8451q_orientation_changed",
+      "custom_mma8451q_orientation_lockout",
+      "custom_mma8451q_orientation_lapo",
+      "custom_mma8451q_orientation_back",
+      "custom_mma8451q_poll_interrupt",
+      "custom_mma8451q_self_test_ok",
+      "custom_mma8451q_self_test_dx",
+      "custom_mma8451q_self_test_dy",
+      "custom_mma8451q_self_test_dz",
+      "custom_mma8451q_set_range",
+      "custom_mma8451q_set_data_rate",
+      "custom_mma8451q_set_oversampling",
+      "custom_mma8451q_set_low_noise",
+      "custom_mma8451q_set_resolution",
+      "custom_mma8451q_set_high_pass_output",
+      "custom_mma8451q_set_offset",
+      "custom_mma8451q_set_fifo",
+      "custom_mma8451q_set_fifo_trigger",
+      "custom_mma8451q_set_freefall_motion",
+      "custom_mma8451q_set_transient",
+      "custom_mma8451q_set_pulse",
+      "custom_mma8451q_set_orientation",
+      "custom_mma8451q_set_auto_sleep",
+      "custom_mma8451q_set_fifo_gate",
+      "custom_mma8451q_set_interrupt_pins",
+      "custom_mma8451q_enable_interrupt",
+      "custom_mma8451q_disable_interrupt",
+      "custom_mma8451q_standby",
+      "custom_mma8451q_activate",
+      "custom_mma8451q_reset",
+      "custom_mma8451q_off_interrupt"
+    ]
+  },
+  "data": {
+    "name": "MMA8451Q",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MMA8451Q",
+      "time": "2026-11-03",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.mma8451q import MMA8451QFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "28",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "127"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = MMA8451QFull(I2CConnection(address, bus=bus))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[0]",
+        "ast_return": {
+          "code": "self._driver.read()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[1]",
+        "ast_return": {
+          "code": "self._driver.read()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[2]",
+        "ast_return": {
+          "code": "self._driver.read()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "raw_x",
+        "note": {},
+        "label": {
+          "en": "%1 raw X (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[0]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "raw_y",
+        "note": {},
+        "label": {
+          "en": "%1 raw Y (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[1]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "raw_z",
+        "note": {},
+        "label": {
+          "en": "%1 raw Z (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[2]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "new_data_available",
+        "note": {},
+        "label": {
+          "en": "%1 new data available"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.new_data_available()",
+        "ast_return": {
+          "code": "self._driver.new_data_available()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_status",
+        "note": {},
+        "label": {
+          "en": "%1 STATUS byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_status()",
+        "ast_return": {
+          "code": "self._driver.read_status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_system_mode",
+        "note": {},
+        "label": {
+          "en": "%1 system mode (0=standby, 1=wake, 2=sleep)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_system_mode()",
+        "ast_return": {
+          "code": "self._driver.read_system_mode()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "offset_x",
+        "note": {},
+        "label": {
+          "en": "%1 X offset (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_offset()[0]",
+        "ast_return": {
+          "code": "self._driver.get_offset()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "offset_y",
+        "note": {},
+        "label": {
+          "en": "%1 Y offset (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_offset()[1]",
+        "ast_return": {
+          "code": "self._driver.get_offset()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "offset_z",
+        "note": {},
+        "label": {
+          "en": "%1 Z offset (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_offset()[2]",
+        "ast_return": {
+          "code": "self._driver.get_offset()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_level",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO level (0-32)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.fifo_level()",
+        "ast_return": {
+          "code": "self._driver.fifo_level()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_overflow",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO overflow"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo_status()[0]",
+        "ast_return": {
+          "code": "self._driver.read_fifo_status()[0]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_watermark",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO watermark reached"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo_status()[1]",
+        "ast_return": {
+          "code": "self._driver.read_fifo_status()[1]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_count",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO sample count (0-32)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo_status()[2]",
+        "ast_return": {
+          "code": "self._driver.read_fifo_status()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_x",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO acceleration X (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo()[0][0]",
+        "ast_return": {
+          "code": "self._driver.read_fifo()[0][0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_y",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO acceleration Y (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo()[0][1]",
+        "ast_return": {
+          "code": "self._driver.read_fifo()[0][1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_z",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO acceleration Z (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo()[0][2]",
+        "ast_return": {
+          "code": "self._driver.read_fifo()[0][2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "motion_source",
+        "note": {},
+        "label": {
+          "en": "%1 freefall / motion source byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_motion_source()",
+        "ast_return": {
+          "code": "self._driver.read_motion_source()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "transient_source",
+        "note": {},
+        "label": {
+          "en": "%1 transient source byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_transient_source()",
+        "ast_return": {
+          "code": "self._driver.read_transient_source()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pulse_source",
+        "note": {},
+        "label": {
+          "en": "%1 tap source byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_pulse_source()",
+        "ast_return": {
+          "code": "self._driver.read_pulse_source()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "orientation_changed",
+        "note": {},
+        "label": {
+          "en": "%1 orientation changed"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_orientation()[0]",
+        "ast_return": {
+          "code": "self._driver.read_orientation()[0]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "orientation_lockout",
+        "note": {},
+        "label": {
+          "en": "%1 orientation lockout"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_orientation()[1]",
+        "ast_return": {
+          "code": "self._driver.read_orientation()[1]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "orientation_lapo",
+        "note": {},
+        "label": {
+          "en": "%1 portrait / landscape (0-3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_orientation()[2]",
+        "ast_return": {
+          "code": "self._driver.read_orientation()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "orientation_back",
+        "note": {},
+        "label": {
+          "en": "%1 back facing"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_orientation()[3]",
+        "ast_return": {
+          "code": "self._driver.read_orientation()[3]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_ok",
+        "note": {},
+        "label": {
+          "en": "%1 self-test passed"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.self_test()[0]",
+        "ast_return": {
+          "code": "self._driver.self_test()[0]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_dx",
+        "note": {},
+        "label": {
+          "en": "%1 self-test X delta (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.self_test()[1]",
+        "ast_return": {
+          "code": "self._driver.self_test()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_dy",
+        "note": {},
+        "label": {
+          "en": "%1 self-test Y delta (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.self_test()[2]",
+        "ast_return": {
+          "code": "self._driver.self_test()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_dz",
+        "note": {},
+        "label": {
+          "en": "%1 self-test Z delta (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.self_test()[3]",
+        "ast_return": {
+          "code": "self._driver.self_test()[3]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_range",
+        "note": {},
+        "label": {
+          "en": "%1 set range (g: 2, 4, 8) %2"
+        },
+        "params": [
+          {
+            "name": "range_g",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "min": "2",
+            "max": "8"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_range(range_g)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set data rate (Hz: 800, 400, 200, 100, 50, 12.5, 6.25, 1.56) %2"
+        },
+        "params": [
+          {
+            "name": "rate_hz",
+            "type": "float",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "800"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_data_rate(rate_hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_oversampling",
+        "note": {},
+        "label": {
+          "en": "%1 set oversampling mode (0 normal, 1 low-noise, 2 high-res, 3 low-power) %2 sleep mode %3"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          },
+          {
+            "name": "sleep_mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_oversampling(mode, sleep_mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_low_noise",
+        "note": {},
+        "label": {
+          "en": "%1 set low-noise mode (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_low_noise(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 set resolution (bits: 8 or 14) %2"
+        },
+        "params": [
+          {
+            "name": "bits",
+            "type": "int",
+            "default": "14",
+            "note": {},
+            "field": "number",
+            "min": "8",
+            "max": "14"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(bits)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_high_pass_output",
+        "note": {},
+        "label": {
+          "en": "%1 set high-pass output (1/0) %2 cutoff (0-3) %3"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "cutoff",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_high_pass_output(bool(enabled), cutoff)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_offset",
+        "note": {},
+        "label": {
+          "en": "%1 set offsets X %2 g Y %3 g Z %4 g"
+        },
+        "params": [
+          {
+            "name": "x_g",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "-0.256",
+            "max": "0.256"
+          },
+          {
+            "name": "y_g",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "-0.256",
+            "max": "0.256"
+          },
+          {
+            "name": "z_g",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "-0.256",
+            "max": "0.256"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_offset(x_g, y_g, z_g)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 set FIFO mode (0 off, 1 circular, 2 fill, 3 trigger) %2 watermark %3"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          },
+          {
+            "name": "watermark",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "32"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_fifo(mode, watermark)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_fifo_trigger",
+        "note": {},
+        "label": {
+          "en": "%1 set FIFO trigger transient %2 orientation %3 pulse %4 motion %5"
+        },
+        "params": [
+          {
+            "name": "transient",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "orientation",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "pulse",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "motion",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_fifo_trigger(bool(transient), bool(orientation),\n                                      bool(pulse), bool(motion))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_freefall_motion",
+        "note": {},
+        "label": {
+          "en": "%1 set freefall / motion (1=motion) %2 axes %3 threshold %4 g debounce %5 ms latch %6"
+        },
+        "params": [
+          {
+            "name": "motion",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "axes",
+            "type": "int",
+            "default": "7",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "threshold_g",
+            "type": "float",
+            "default": "0.2",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "8"
+          },
+          {
+            "name": "debounce_ms",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "2550"
+          },
+          {
+            "name": "latch",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_freefall_motion(bool(motion), axes, threshold_g,\n                                         debounce_ms, bool(latch))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_transient",
+        "note": {},
+        "label": {
+          "en": "%1 set transient axes %2 threshold %3 g debounce %4 ms bypass HPF %5 latch %6"
+        },
+        "params": [
+          {
+            "name": "axes",
+            "type": "int",
+            "default": "7",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "threshold_g",
+            "type": "float",
+            "default": "0.3",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "8"
+          },
+          {
+            "name": "debounce_ms",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "2550"
+          },
+          {
+            "name": "bypass_hpf",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "latch",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_transient(axes, threshold_g, debounce_ms,\n                                   bool(bypass_hpf), bool(latch))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pulse",
+        "note": {},
+        "label": {
+          "en": "%1 set tap single %2 double %3 time limit %4 ms latency %5 ms window %6 ms latch %7"
+        },
+        "params": [
+          {
+            "name": "single",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "double",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "time_limit_ms",
+            "type": "float",
+            "default": "30",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "255"
+          },
+          {
+            "name": "latency_ms",
+            "type": "float",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "255"
+          },
+          {
+            "name": "window_ms",
+            "type": "float",
+            "default": "300",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "255"
+          },
+          {
+            "name": "latch",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pulse(single, double, time_limit_ms=time_limit_ms,\n                               latency_ms=latency_ms, window_ms=window_ms,\n                               latch=bool(latch))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_orientation",
+        "note": {},
+        "label": {
+          "en": "%1 set orientation (1/0) %2 debounce %3 ms threshold %4 deg hysteresis %5 z-lock %6 back/front %7"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "debounce_ms",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "2550"
+          },
+          {
+            "name": "threshold_deg",
+            "type": "int",
+            "default": "45",
+            "note": {},
+            "field": "number",
+            "min": "15",
+            "max": "75"
+          },
+          {
+            "name": "hysteresis",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "z_lock",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "back_front",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_orientation(bool(enabled), debounce_ms, threshold_deg,\n                                     hysteresis, z_lock, back_front)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_auto_sleep",
+        "note": {},
+        "label": {
+          "en": "%1 set auto-sleep (1/0) %2 sleep rate %3 Hz timeout %4 s wake sources %5"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "sleep_rate_hz",
+            "type": "float",
+            "default": "50",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "50"
+          },
+          {
+            "name": "timeout_s",
+            "type": "float",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "162"
+          },
+          {
+            "name": "wake_sources",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "255"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_auto_sleep(bool(enabled), sleep_rate_hz, timeout_s,\n                                    wake_sources)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_fifo_gate",
+        "note": {},
+        "label": {
+          "en": "%1 set FIFO gate (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_fifo_gate(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interrupt_pins",
+        "note": {},
+        "label": {
+          "en": "%1 set interrupt pins active high %2 open drain %3"
+        },
+        "params": [
+          {
+            "name": "active_high",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "open_drain",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interrupt_pins(bool(active_high), bool(open_drain))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt source %2 pin %3"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "128"
+          },
+          {
+            "name": "pin",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source, pin)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt source %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "128"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "standby",
+        "note": {},
+        "label": {
+          "en": "%1 standby"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.standby()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "activate",
+        "note": {},
+        "label": {
+          "en": "%1 activate"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.activate()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 software reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "off_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 stop interrupt subscription pin %2"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.off_interrupt(pin)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mma8451q"
+  },
+  "pyCode": "\"\"\"\nfile     MMA8451Q\ntime     2026-11-03\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.mma8451q import MMA8451QFull\n\n\nclass MMA8451Q:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 28):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            address:\n                name: address\n                type: int\n                default: '28'\n                field: number\n                min: '0'\n                max: '127'\n        \"\"\"\n        self._driver = MMA8451QFull(I2CConnection(address, bus=bus))\n\n    def x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (g)'\n        \"\"\"\n        return self._driver.read()[0]\n\n    def y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (g)'\n        \"\"\"\n        return self._driver.read()[1]\n\n    def z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (g)'\n        \"\"\"\n        return self._driver.read()[2]\n\n    def raw_x(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw X (counts)'\n        \"\"\"\n        return self._driver.read_raw()[0]\n\n    def raw_y(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw Y (counts)'\n        \"\"\"\n        return self._driver.read_raw()[1]\n\n    def raw_z(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw Z (counts)'\n        \"\"\"\n        return self._driver.read_raw()[2]\n\n    def new_data_available(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 new data available'\n        \"\"\"\n        return self._driver.new_data_available()\n\n    def read_status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 STATUS byte'\n        \"\"\"\n        return self._driver.read_status()\n\n    def read_system_mode(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 system mode (0=standby, 1=wake, 2=sleep)'\n        \"\"\"\n        return self._driver.read_system_mode()\n\n    def offset_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 X offset (g)'\n        \"\"\"\n        return self._driver.get_offset()[0]\n\n    def offset_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 Y offset (g)'\n        \"\"\"\n        return self._driver.get_offset()[1]\n\n    def offset_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 Z offset (g)'\n        \"\"\"\n        return self._driver.get_offset()[2]\n\n    def fifo_level(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO level (0-32)'\n        \"\"\"\n        return self._driver.fifo_level()\n\n    def fifo_overflow(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 FIFO overflow'\n        \"\"\"\n        return self._driver.read_fifo_status()[0]\n\n    def fifo_watermark(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 FIFO watermark reached'\n        \"\"\"\n        return self._driver.read_fifo_status()[1]\n\n    def fifo_count(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO sample count (0-32)'\n        \"\"\"\n        return self._driver.read_fifo_status()[2]\n\n    def fifo_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 FIFO acceleration X (g)'\n        \"\"\"\n        return self._driver.read_fifo()[0][0]\n\n    def fifo_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 FIFO acceleration Y (g)'\n        \"\"\"\n        return self._driver.read_fifo()[0][1]\n\n    def fifo_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 FIFO acceleration Z (g)'\n        \"\"\"\n        return self._driver.read_fifo()[0][2]\n\n    def motion_source(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 freefall / motion source byte'\n        \"\"\"\n        return self._driver.read_motion_source()\n\n    def transient_source(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 transient source byte'\n        \"\"\"\n        return self._driver.read_transient_source()\n\n    def pulse_source(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 tap source byte'\n        \"\"\"\n        return self._driver.read_pulse_source()\n\n    def orientation_changed(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 orientation changed'\n        \"\"\"\n        return self._driver.read_orientation()[0]\n\n    def orientation_lockout(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 orientation lockout'\n        \"\"\"\n        return self._driver.read_orientation()[1]\n\n    def orientation_lapo(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 portrait / landscape (0-3)'\n        \"\"\"\n        return self._driver.read_orientation()[2]\n\n    def orientation_back(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 back facing'\n        \"\"\"\n        return self._driver.read_orientation()[3]\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status byte'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def self_test_ok(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 self-test passed'\n        \"\"\"\n        return self._driver.self_test()[0]\n\n    def self_test_dx(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 self-test X delta (counts)'\n        \"\"\"\n        return self._driver.self_test()[1]\n\n    def self_test_dy(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 self-test Y delta (counts)'\n        \"\"\"\n        return self._driver.self_test()[2]\n\n    def self_test_dz(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 self-test Z delta (counts)'\n        \"\"\"\n        return self._driver.self_test()[3]\n\n    def set_range(self, range_g: int):\n        \"\"\"\n        label:\n            en: '%1 set range (g: 2, 4, 8) %2'\n        params:\n            range_g:\n                name: range_g\n                type: int\n                default: '2'\n                field: number\n                min: '2'\n                max: '8'\n        \"\"\"\n        self._driver.set_range(range_g)\n\n    def set_data_rate(self, rate_hz: float):\n        \"\"\"\n        label:\n            en: '%1 set data rate (Hz: 800, 400, 200, 100, 50, 12.5, 6.25, 1.56) %2'\n        params:\n            rate_hz:\n                name: rate_hz\n                type: float\n                default: '100'\n                field: number\n                min: '1'\n                max: '800'\n        \"\"\"\n        self._driver.set_data_rate(rate_hz)\n\n    def set_oversampling(self, mode: int, sleep_mode: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set oversampling mode (0 normal, 1 low-noise, 2 high-res, 3 low-power) %2 sleep mode %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            sleep_mode:\n                name: sleep_mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_oversampling(mode, sleep_mode)\n\n    def set_low_noise(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set low-noise mode (1/0) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_low_noise(bool(enabled))\n\n    def set_resolution(self, bits: int):\n        \"\"\"\n        label:\n            en: '%1 set resolution (bits: 8 or 14) %2'\n        params:\n            bits:\n                name: bits\n                type: int\n                default: '14'\n                field: number\n                min: '8'\n                max: '14'\n        \"\"\"\n        self._driver.set_resolution(bits)\n\n    def set_high_pass_output(self, enabled: int, cutoff: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set high-pass output (1/0) %2 cutoff (0-3) %3'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            cutoff:\n                name: cutoff\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_high_pass_output(bool(enabled), cutoff)\n\n    def set_offset(self, x_g: float, y_g: float, z_g: float):\n        \"\"\"\n        label:\n            en: '%1 set offsets X %2 g Y %3 g Z %4 g'\n        params:\n            x_g:\n                name: x_g\n                type: float\n                default: '0'\n                field: number\n                min: '-0.256'\n                max: '0.256'\n            y_g:\n                name: y_g\n                type: float\n                default: '0'\n                field: number\n                min: '-0.256'\n                max: '0.256'\n            z_g:\n                name: z_g\n                type: float\n                default: '0'\n                field: number\n                min: '-0.256'\n                max: '0.256'\n        \"\"\"\n        self._driver.set_offset(x_g, y_g, z_g)\n\n    def set_fifo(self, mode: int, watermark: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set FIFO mode (0 off, 1 circular, 2 fill, 3 trigger) %2 watermark %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            watermark:\n                name: watermark\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '32'\n        \"\"\"\n        self._driver.set_fifo(mode, watermark)\n\n    def set_fifo_trigger(self, transient: int = 0, orientation: int = 0,\n                         pulse: int = 0, motion: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set FIFO trigger transient %2 orientation %3 pulse %4 motion %5'\n        params:\n            transient:\n                name: transient\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            orientation:\n                name: orientation\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            pulse:\n                name: pulse\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            motion:\n                name: motion\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_fifo_trigger(bool(transient), bool(orientation),\n                                      bool(pulse), bool(motion))\n\n    def set_freefall_motion(self, motion: int, axes: int = 7,\n                            threshold_g: float = 0.0, debounce_ms: float = 0.0,\n                            latch: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set freefall / motion (1=motion) %2 axes %3 threshold %4 g debounce %5 ms latch %6'\n        params:\n            motion:\n                name: motion\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            axes:\n                name: axes\n                type: int\n                default: '7'\n                field: number\n                min: '0'\n                max: '7'\n            threshold_g:\n                name: threshold_g\n                type: float\n                default: '0.2'\n                field: number\n                min: '0'\n                max: '8'\n            debounce_ms:\n                name: debounce_ms\n                type: float\n                default: '0'\n                field: number\n                min: '0'\n                max: '2550'\n            latch:\n                name: latch\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_freefall_motion(bool(motion), axes, threshold_g,\n                                         debounce_ms, bool(latch))\n\n    def set_transient(self, axes: int = 7, threshold_g: float = 0.0,\n                      debounce_ms: float = 0.0, bypass_hpf: int = 0,\n                      latch: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set transient axes %2 threshold %3 g debounce %4 ms bypass HPF %5 latch %6'\n        params:\n            axes:\n                name: axes\n                type: int\n                default: '7'\n                field: number\n                min: '0'\n                max: '7'\n            threshold_g:\n                name: threshold_g\n                type: float\n                default: '0.3'\n                field: number\n                min: '0'\n                max: '8'\n            debounce_ms:\n                name: debounce_ms\n                type: float\n                default: '0'\n                field: number\n                min: '0'\n                max: '2550'\n            bypass_hpf:\n                name: bypass_hpf\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            latch:\n                name: latch\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_transient(axes, threshold_g, debounce_ms,\n                                   bool(bypass_hpf), bool(latch))\n\n    def set_pulse(self, single: int = 0, double: int = 0,\n                  time_limit_ms: float = 30.0, latency_ms: float = 100.0,\n                  window_ms: float = 300.0, latch: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set tap single %2 double %3 time limit %4 ms latency %5 ms window %6 ms latch %7'\n        params:\n            single:\n                name: single\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            double:\n                name: double\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            time_limit_ms:\n                name: time_limit_ms\n                type: float\n                default: '30'\n                field: number\n                min: '0'\n                max: '255'\n            latency_ms:\n                name: latency_ms\n                type: float\n                default: '100'\n                field: number\n                min: '0'\n                max: '255'\n            window_ms:\n                name: window_ms\n                type: float\n                default: '300'\n                field: number\n                min: '0'\n                max: '255'\n            latch:\n                name: latch\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_pulse(single, double, time_limit_ms=time_limit_ms,\n                               latency_ms=latency_ms, window_ms=window_ms,\n                               latch=bool(latch))\n\n    def set_orientation(self, enabled: int = 1, debounce_ms: float = 0.0,\n                        threshold_deg: int = 45, hysteresis: int = 4,\n                        z_lock: int = 4, back_front: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set orientation (1/0) %2 debounce %3 ms threshold %4 deg hysteresis %5 z-lock %6 back/front %7'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            debounce_ms:\n                name: debounce_ms\n                type: float\n                default: '0'\n                field: number\n                min: '0'\n                max: '2550'\n            threshold_deg:\n                name: threshold_deg\n                type: int\n                default: '45'\n                field: number\n                min: '15'\n                max: '75'\n            hysteresis:\n                name: hysteresis\n                type: int\n                default: '4'\n                field: number\n                min: '0'\n                max: '7'\n            z_lock:\n                name: z_lock\n                type: int\n                default: '4'\n                field: number\n                min: '0'\n                max: '7'\n            back_front:\n                name: back_front\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_orientation(bool(enabled), debounce_ms, threshold_deg,\n                                     hysteresis, z_lock, back_front)\n\n    def set_auto_sleep(self, enabled: int, sleep_rate_hz: float = 50.0,\n                       timeout_s: float = 10.0, wake_sources: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set auto-sleep (1/0) %2 sleep rate %3 Hz timeout %4 s wake sources %5'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            sleep_rate_hz:\n                name: sleep_rate_hz\n                type: float\n                default: '50'\n                field: number\n                min: '1'\n                max: '50'\n            timeout_s:\n                name: timeout_s\n                type: float\n                default: '10'\n                field: number\n                min: '0'\n                max: '162'\n            wake_sources:\n                name: wake_sources\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.set_auto_sleep(bool(enabled), sleep_rate_hz, timeout_s,\n                                    wake_sources)\n\n    def set_fifo_gate(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set FIFO gate (1/0) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_fifo_gate(bool(enabled))\n\n    def set_interrupt_pins(self, active_high: int = 0, open_drain: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set interrupt pins active high %2 open drain %3'\n        params:\n            active_high:\n                name: active_high\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            open_drain:\n                name: open_drain\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_interrupt_pins(bool(active_high), bool(open_drain))\n\n    def enable_interrupt(self, source: int, pin: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt source %2 pin %3'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '128'\n            pin:\n                name: pin\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.enable_interrupt(source, pin)\n\n    def disable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt source %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '128'\n        \"\"\"\n        self._driver.disable_interrupt(source)\n\n    def standby(self):\n        \"\"\"\n        label:\n            en: '%1 standby'\n        \"\"\"\n        self._driver.standby()\n\n    def activate(self):\n        \"\"\"\n        label:\n            en: '%1 activate'\n        \"\"\"\n        self._driver.activate()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 software reset'\n        \"\"\"\n        self._driver.reset()\n\n    def off_interrupt(self, pin: int = 1):\n        \"\"\"\n        label:\n            en: '%1 stop interrupt subscription pin %2'\n        params:\n            pin:\n                name: pin\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.off_interrupt(pin)\n",
+  "version": "alpha2"
+}

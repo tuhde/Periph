@@ -4,7 +4,7 @@ try:
     from machine import I2C as _MachineI2C
     from .i2c_micropython import I2CConnection as _I2CConnection
 
-    def I2CConnection(addr, bus=0, freq=400_000, int_pin=None, en_pin=None, en_active_high=True):
+    def I2CConnection(addr, bus=0, freq=400_000, int_pin=None, en_pin=None, reg_bytes=1, en_active_high=True):
         """Create an I²C connection for MicroPython.
 
         Args:
@@ -13,9 +13,10 @@ try:
             freq: Bus frequency in Hz (default 400_000).
             int_pin: Optional InputPin for INT-line delivery.
             en_pin: Optional OutputPin for hardware enable/power control.
+            reg_bytes: Register address width in bytes, big-endian (default 1).
             en_active_high: True if the EN pin is active-high (default); False for active-low.
         """
-        return _I2CConnection(_MachineI2C(bus, freq=freq), addr, int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
+        return _I2CConnection(_MachineI2C(bus, freq=freq), addr, int_pin=int_pin, en_pin=en_pin, reg_bytes=reg_bytes, en_active_high=en_active_high)
 
 except ImportError:
     try:
@@ -23,7 +24,7 @@ except ImportError:
         import busio as _busio
         from .i2c_circuitpython import I2CConnection as _I2CConnection
 
-        def I2CConnection(addr, bus=None, freq=400_000, int_pin=None, en_pin=None, en_active_high=True):
+        def I2CConnection(addr, bus=None, freq=400_000, int_pin=None, en_pin=None, reg_bytes=1, en_active_high=True):
             """Create an I²C connection for CircuitPython.
 
             Args:
@@ -32,11 +33,12 @@ except ImportError:
                 freq: Bus frequency in Hz (default 400_000); ignored if bus is provided.
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                reg_bytes: Register address width in bytes, big-endian (default 1).
                 en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             if bus is None:
                 bus = _busio.I2C(_board.SCL, _board.SDA, frequency=freq)
-            return _I2CConnection(bus, addr, int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
+            return _I2CConnection(bus, addr, int_pin=int_pin, en_pin=en_pin, reg_bytes=reg_bytes, en_active_high=en_active_high)
 
     except ImportError:
         try:
@@ -45,7 +47,7 @@ except ImportError:
             from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'smbus2', 'smbus2', 'I2C on Linux')
 
-        def I2CConnection(addr, bus=None, freq=None, int_pin=None, en_pin=None, en_active_high=True):
+        def I2CConnection(addr, bus=None, freq=None, int_pin=None, en_pin=None, reg_bytes=1, en_active_high=True):
             """Create an I²C connection for Linux.
 
             Args:
@@ -54,8 +56,9 @@ except ImportError:
                 freq: Ignored (kernel-controlled).
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                reg_bytes: Register address width in bytes, big-endian (default 1).
                 en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             if bus is None:
                 bus = int(os.environ.get('LINUX_I2C_BUS', '1'))
-            return _I2CConnection(bus, addr, int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
+            return _I2CConnection(bus, addr, int_pin=int_pin, en_pin=en_pin, reg_bytes=reg_bytes, en_active_high=en_active_high)

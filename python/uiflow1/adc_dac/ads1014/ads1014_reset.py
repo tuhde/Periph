@@ -1,0 +1,1 @@
+_periph_ads1014.reset()

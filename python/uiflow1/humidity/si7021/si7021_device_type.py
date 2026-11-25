@@ -1,0 +1,1 @@
+_periph_si7021.device_type()

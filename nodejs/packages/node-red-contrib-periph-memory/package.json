@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-periph-memory",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for memory chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for memory chips: 23X1024, 24AA02UID, AT24C02N, AT24C64, CAT24C512, MB85RC, MX25L12845E, SD_SPI",
   "keywords": [
     "node-red",
     "memory",
@@ -9,15 +9,46 @@
     "flash",
     "i2c",
     "spi",
-    "peripheral"
+    "peripheral",
+    "sd",
+    "storage",
+    "node-red-contrib",
+    "23x1024",
+    "24aa02uid",
+    "at24c02n",
+    "at24c64",
+    "cat24c512",
+    "mb85rc",
+    "mx25l12845e",
+    "sd_spi"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
-      "24aa02uid": "nodes/24aa02uid/24aa02uid.js"
+      "23x1024": "nodes/23x1024/23x1024.js",
+      "24aa02uid": "nodes/24aa02uid/24aa02uid.js",
+      "at24c02n": "nodes/at24c02n/at24c02n.js",
+      "at24c64": "nodes/at24c64/at24c64.js",
+      "cat24c512": "nodes/cat24c512/cat24c512.js",
+      "mb85rc": "nodes/mb85rc/mb85rc.js",
+      "mx25l12845e": "nodes/mx25l12845e/mx25l12845e.js",
+      "sd_spi": "nodes/sd_spi/sd_spi.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-memory#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-memory"
+  }
 }

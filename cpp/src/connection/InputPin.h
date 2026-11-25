@@ -1,15 +1,18 @@
 #pragma once
 #include <stdint.h>
 
-/** @brief Delivers edge notifications from a chip's INT line.
+/** @brief Delivers edge notifications from a chip's INT line, and reads its level.
  *
- * Intentionally minimal: it only signals that *an* edge occurred. The chip
- * driver always calls pollInterrupt() to determine the cause. Multiple
- * handlers may be registered on the same InputPin instance (up to
- * kMaxHandlers) — the common pattern for chips with open-drain INT outputs
- * wired to a single GPIO. Handlers are plain function pointers (no
+ * Edge delivery is intentionally minimal: it only signals that *an* edge
+ * occurred. The chip driver always calls pollInterrupt() to determine the
+ * cause. Multiple handlers may be registered on the same InputPin instance
+ * (up to kMaxHandlers) — the common pattern for chips with open-drain INT
+ * outputs wired to a single GPIO. Handlers are plain function pointers (no
  * std::function, no heap allocation) to stay usable from ISR context on
  * every platform.
+ *
+ * Level signals that a driver samples at a moment of its own choosing (a
+ * BUSY output, a data-ready line) use isHigh() instead of an edge handler.
  */
 class InputPin {
 public:
@@ -40,6 +43,17 @@ public:
      *  @param handler The exact function pointer previously passed to onEdge().
      */
     virtual void offEdge(Handler handler) = 0;
+
+    /** @brief Read the electrical level of the line now.
+     *
+     *  The raw level: no inversion and no debounce. Active-low signals are
+     *  interpreted by the chip driver. A level read does not disturb a
+     *  registered edge handler. There is no default body: a silently wrong
+     *  default is worse than a compile error.
+     *
+     *  @return true when the line is at logic high.
+     */
+    virtual bool isHigh() = 0;
 
 protected:
     /** @brief Shared fan-out helper: appends to a fixed-size handler array.

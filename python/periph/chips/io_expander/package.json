@@ -5,8 +5,28 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/io_expander/mcp23008.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/mcp23008.py"
+    ],
+    [
       "periph/chips/io_expander/mcp23017.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/mcp23017.py"
+    ],
+    [
+      "periph/chips/io_expander/pca6408a.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/pca6408a.py"
+    ],
+    [
+      "periph/chips/io_expander/pca6416a.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/pca6416a.py"
+    ],
+    [
+      "periph/chips/io_expander/pca9536.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/pca9536.py"
+    ],
+    [
+      "periph/chips/io_expander/pca9539.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/pca9539.py"
     ],
     [
       "periph/chips/io_expander/pcf8574.py",
@@ -15,6 +35,10 @@
     [
       "periph/chips/io_expander/pcf8575.py",
       "github:tuhde/Periph/python/periph/chips/io_expander/pcf8575.py"
+    ],
+    [
+      "periph/chips/io_expander/tca9554.py",
+      "github:tuhde/Periph/python/periph/chips/io_expander/tca9554.py"
     ],
     [
       "periph/chips/io_expander/tpic6b595.py",
@@ -55,6 +79,22 @@
     [
       "periph/connection/sipo_micropython.py",
       "github:tuhde/Periph/python/periph/connection/sipo_micropython.py"
+    ],
+    [
+      "periph/connection/smbus_auto.py",
+      "github:tuhde/Periph/python/periph/connection/smbus_auto.py"
+    ],
+    [
+      "periph/connection/smbus_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/smbus_micropython.py"
+    ],
+    [
+      "periph/connection/spi_auto.py",
+      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
+    ],
+    [
+      "periph/connection/spi_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
     ]
   ],
   "deps": [
@@ -63,5 +103,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

@@ -1,0 +1,1 @@
+_periph_fxos8700.set_accel_oversampling(int(${_mode}))

@@ -1,0 +1,1 @@
+_periph_fxos8700.set_accel_offset(float(${_x_g}), float(${_y_g}), float(${_z_g}))

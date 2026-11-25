@@ -1,0 +1,53 @@
+"""CircuitPython hardware test for the TMC2209 — runs against a wired driver board.
+
+Checks identity (IOIN), IFCNT write acknowledgement, microstep and current
+registers, and spins the motor briefly with VACTUAL.
+"""
+
+import time
+import busio
+import board
+from periph.connection.uart_circuitpython import UARTConnection
+from periph.chips.motor.tmc2209 import TMC2209Full
+
+passed = 0
+failed = 0
+
+
+def check_true(label, condition):
+    global passed, failed
+    if condition:
+        print('PASS', label)
+        passed += 1
+    else:
+        print('FAIL', label)
+        failed += 1
+
+
+uart = busio.UART(board.TX, board.RX, baudrate=115200, timeout=0.1)
+connection = UARTConnection(uart, 115200)
+motor = TMC2209Full(connection)
+
+check_true('construct_full', isinstance(motor, TMC2209Full))
+ioin = motor.read_ioin()
+check_true('ioin_version', ioin['version'] == 0x21)
+motor.set_stall_threshold(60)
+check_true('sg_result_even', motor.read_stallguard() % 2 == 0)
+ifcnt = motor.read_ifcnt()
+motor.set_current(0.5)
+check_true('ifcnt_advances', motor.read_ifcnt() == (ifcnt + 2) % 256)
+motor.set_microsteps(16)
+check_true('mres_readback', (motor.read_register(0x6C) >> 24) & 0xF == 4)
+check_true('gconf_pdn_disable', motor.read_register(0x00) & 0x40 == 0x40)
+motor.enable()
+motor.run(100)
+time.sleep(1)
+check_true('moving', not motor.is_standstill())
+check_true('tstep_nonzero', motor.read_tstep() > 0)
+check_true('no_fault', motor.read_fault() == 0)
+motor.stop()
+time.sleep(0.5)
+motor.disable()
+check_true('status_dict', 'cs_actual' in motor.read_status())
+
+print('===DONE: %d passed, %d failed===' % (passed, failed))

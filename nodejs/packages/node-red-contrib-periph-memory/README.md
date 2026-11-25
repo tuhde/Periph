@@ -1,6 +1,10 @@
 # node-red-contrib-periph-memory
 
-Node-RED nodes for memory chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for memory chips: 23X1024, 24AA02UID, AT24C02N, AT24C64, CAT24C512, MB85RC, MX25L12845E, SD_SPI — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (8):** 23X1024, 24AA02UID, AT24C02N, AT24C64, CAT24C512, MB85RC, MX25L12845E, SD-SPI.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-memory/examples).
 
 ## Install
 
@@ -16,8 +20,22 @@ npm install node-red-contrib-periph-memory
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `23x1024-device` | config | Bus configuration for a 23X1024 |
+| `23x1024` | input | Reads, writes and fills a 23LC1024 / 23A1024 1-Mbit (128 KiB) SPI serial SRAM, and selects its operating mode. |
 | `24aa02uid-device` | config | I²C bus and address for a 24AA02UID |
 | `24aa02uid` | input | Reads the factory-programmed 32-bit unique serial number from a 24AA02UID EEPROM, or reads / writes user EEPROM bytes, over I²C. |
+| `at24c02n-device` | config | I²C bus and address for an AT24C02N |
+| `at24c02n` | input | Reads, writes and fills the 256 B EEPROM of an AT24C02N over I²C. Writes are split at 8-byte page boundaries and ACK-polled until each write cycle (5 ms max) has finished. |
+| `at24c64-device` | config | I²C bus and address for an AT24C64 |
+| `at24c64` | input | Reads, writes and fills the 8 KiB EEPROM of an AT24C64 over I²C. Writes are split at 32-byte page boundaries and ACK-polled until each write cycle (10 ms max (20 ms at 1.8 V)) has finished. |
+| `cat24c512-device` | config | I²C bus and address for a CAT24C512 |
+| `cat24c512` | input | Reads, writes and fills the 64 KiB EEPROM of a CAT24C512 over I²C. Writes are split at 128-byte page boundaries and ACK-polled until each write cycle (5 ms max) has finished. |
+| `mb85rc-device` | config | I²C bus and address for a MB85RC |
+| `mb85rc` | input | Reads, writes and fills the 32 KiB non-volatile FRAM of an MB85RC256V over I²C. FRAM writes complete at bus speed — no write delay, no page limit. |
+| `mx25l12845e-device` | config | Bus configuration for a MX25L12845E |
+| `mx25l12845e` | input | Reads, writes and erases the 16 MiB Macronix MX25L12845E SPI NOR flash by byte address. Writes are erase-aware: the node erases a 4 KiB sector itself when bits must go from 0 to 1, and keeps the other bytes of that sector. There is no filesystem. |
+| `sd-spi-device` | config | Bus configuration for a SD-SPI |
+| `sd-spi` | input | Reads and writes raw 512-byte blocks of an SD / SDHC / SDXC / microSD card in SPI mode. There is no filesystem: blocks are addressed by number. |
 
 ## Links
 

@@ -1,0 +1,707 @@
+{
+  "category": "VL6180X",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_VL6180X_LANGUAGES = {\n  \"CUSTOM_VL6180X_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_VL6180X_RANGE\": {\n    \"en\": \"%1 range (mm)\"\n  },\n  \"CUSTOM_VL6180X_RANGE_ERROR\": {\n    \"en\": \"%1 single-shot range error code (0=valid)\"\n  },\n  \"CUSTOM_VL6180X_LUX\": {\n    \"en\": \"%1 ambient light (lux)\"\n  },\n  \"CUSTOM_VL6180X_ALS_RAW\": {\n    \"en\": \"%1 ALS raw count\"\n  },\n  \"CUSTOM_VL6180X_START_CONTINUOUS_RANGE\": {\n    \"en\": \"%1 start continuous range, period (ms, 10-2550) %2\"\n  },\n  \"CUSTOM_VL6180X_STOP_CONTINUOUS_RANGE\": {\n    \"en\": \"%1 stop continuous range\"\n  },\n  \"CUSTOM_VL6180X_RANGE_CONTINUOUS\": {\n    \"en\": \"%1 next continuous range (mm)\"\n  },\n  \"CUSTOM_VL6180X_START_CONTINUOUS_ALS\": {\n    \"en\": \"%1 start continuous ALS, period (ms, 10-2550) %2\"\n  },\n  \"CUSTOM_VL6180X_STOP_CONTINUOUS_ALS\": {\n    \"en\": \"%1 stop continuous ALS\"\n  },\n  \"CUSTOM_VL6180X_SET_INTERLEAVED\": {\n    \"en\": \"%1 interleaved ALS+range (1=on 0=off) %2\"\n  },\n  \"CUSTOM_VL6180X_SET_ALS_GAIN\": {\n    \"en\": \"%1 ALS gain code (0=20 6=1 7=40) %2\"\n  },\n  \"CUSTOM_VL6180X_SET_ALS_INTEGRATION_TIME\": {\n    \"en\": \"%1 ALS integration time (ms) %2\"\n  },\n  \"CUSTOM_VL6180X_SET_ALS_SCALER\": {\n    \"en\": \"%1 ALS scaler %2\"\n  },\n  \"CUSTOM_VL6180X_SET_RANGE_THRESHOLDS\": {\n    \"en\": \"%1 range thresholds low (mm) %2 high (mm) %3\"\n  },\n  \"CUSTOM_VL6180X_SET_ALS_THRESHOLDS\": {\n    \"en\": \"%1 ALS thresholds low %2 high %3\"\n  },\n  \"CUSTOM_VL6180X_SET_MAX_CONVERGENCE_TIME\": {\n    \"en\": \"%1 max convergence time (ms) %2\"\n  },\n  \"CUSTOM_VL6180X_SET_AVERAGING_PERIOD\": {\n    \"en\": \"%1 averaging period (units of 64.5 us) %2\"\n  },\n  \"CUSTOM_VL6180X_SET_RANGE_OFFSET\": {\n    \"en\": \"%1 range offset (mm) %2\"\n  },\n  \"CUSTOM_VL6180X_RANGE_OFFSET\": {\n    \"en\": \"%1 range offset (mm)\"\n  },\n  \"CUSTOM_VL6180X_SET_CROSSTALK_RATE\": {\n    \"en\": \"%1 crosstalk rate (Mcps) %2\"\n  },\n  \"CUSTOM_VL6180X_RECALIBRATE_VHV\": {\n    \"en\": \"%1 recalibrate VHV\"\n  },\n  \"CUSTOM_VL6180X_SET_ADDRESS\": {\n    \"en\": \"%1 device address (volatile) %2\"\n  },\n  \"CUSTOM_VL6180X_MODEL_ID\": {\n    \"en\": \"%1 model ID\"\n  },\n  \"CUSTOM_VL6180X_REVISION\": {\n    \"en\": \"%1 revision (major*10+minor)\"\n  },\n  \"CUSTOM_VL6180X_HISTORY_ENTRY\": {\n    \"en\": \"%1 history entry %2\"\n  },\n  \"CUSTOM_VL6180X_POLL_INTERRUPT\": {\n    \"en\": \"%1 poll interrupt (1=range 2=ALS 4=error)\"\n  },\n  \"CUSTOM_VL6180X_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt source (1=range 2=ALS) %2 mode (1=low 2=high 3=window 4=new sample) %3\"\n  },\n  \"CUSTOM_VL6180X_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt source (1=range 2=ALS) %2\"\n  }\n};\n\nconst initType = 'custom_vl6180x_init';\nBlockly.BlockRegExpList['custom_vl6180x'] = {\n  regexp: new RegExp(/^custom_vl6180x_/),\n  code: \"from VL6180X import VL6180X\",\n  initBlockType: initType,\n  categoryId: 'custom_vl6180x',\n}\nBlockly.utils.registerLanguages(CUSTOM_VL6180X_LANGUAGES)\n\nBlockly.Msg.CUSTOM_VL6180X_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_VL6180X = 'VL6180X'\n\nBlockly.utils.getcustom_vl6180xOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['vl6180x_0', 'vl6180x_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_vl6180x_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_vl6180xOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'vl6180x_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = VL6180X(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.range()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_range_error\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_RANGE_ERROR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_range_error\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.range_error()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_lux\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_LUX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_lux\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lux()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_als_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_ALS_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_als_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.als_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_start_continuous_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_START_CONTINUOUS_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'period_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_start_continuous_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var period_ms = Blockly.Python.valueToCode(block, 'period_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_continuous_range(${period_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_stop_continuous_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_STOP_CONTINUOUS_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_stop_continuous_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous_range()\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_range_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_RANGE_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_range_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.range_continuous()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_start_continuous_als\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_START_CONTINUOUS_ALS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'period_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_start_continuous_als\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var period_ms = Blockly.Python.valueToCode(block, 'period_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_continuous_als(${period_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_stop_continuous_als\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_STOP_CONTINUOUS_ALS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_stop_continuous_als\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous_als()\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_interleaved\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_INTERLEAVED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_interleaved\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interleaved(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_als_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_ALS_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_als_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_als_gain(${code})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_als_integration_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_ALS_INTEGRATION_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_als_integration_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ms = Blockly.Python.valueToCode(block, 'ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_als_integration_time(${ms})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_als_scaler\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_ALS_SCALER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'scaler'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_als_scaler\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var scaler = Blockly.Python.valueToCode(block, 'scaler', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_als_scaler(${scaler})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_range_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_RANGE_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_range_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_range_thresholds(${low}, ${high})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_als_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_ALS_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_als_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_als_thresholds(${low}, ${high})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_max_convergence_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_MAX_CONVERGENCE_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_max_convergence_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ms = Blockly.Python.valueToCode(block, 'ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_max_convergence_time(${ms})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_averaging_period\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_AVERAGING_PERIOD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'units'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_averaging_period\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var units = Blockly.Python.valueToCode(block, 'units', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_averaging_period(${units})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_range_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_RANGE_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mm'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_range_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mm = Blockly.Python.valueToCode(block, 'mm', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_range_offset(${mm})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_range_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_RANGE_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_range_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.range_offset()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_crosstalk_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_CROSSTALK_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_crosstalk_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate = Blockly.Python.valueToCode(block, 'rate', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_crosstalk_rate(${rate})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_recalibrate_vhv\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_RECALIBRATE_VHV,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_recalibrate_vhv\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.recalibrate_vhv()\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_set_address\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_SET_ADDRESS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_set_address\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_address(${address})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_model_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_MODEL_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_model_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.model_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_revision\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_REVISION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_revision\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.revision()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_history_entry\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_HISTORY_ENTRY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_history_entry\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.history_entry(${index})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl6180x_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source}, ${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_vl6180x_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL6180X_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl6180xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl6180x_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}\n",
+    "toolbox": "\n<category name=\"VL6180X\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_vl6180x\">\n<title text=\"VL6180X\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_vl6180x_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">41</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_range\"/><block type=\"custom_vl6180x_range_error\"/><block type=\"custom_vl6180x_lux\"/><block type=\"custom_vl6180x_als_raw\"/><block type=\"custom_vl6180x_start_continuous_range\">\n  <value name=\"period_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_stop_continuous_range\"/><block type=\"custom_vl6180x_range_continuous\"/><block type=\"custom_vl6180x_start_continuous_als\">\n  <value name=\"period_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_stop_continuous_als\"/><block type=\"custom_vl6180x_set_interleaved\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_als_gain\">\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">6</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_als_integration_time\">\n  <value name=\"ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_als_scaler\">\n  <value name=\"scaler\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_range_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">30</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">80</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_als_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">65535</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_max_convergence_time\">\n  <value name=\"ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">49</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_averaging_period\">\n  <value name=\"units\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">48</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_set_range_offset\">\n  <value name=\"mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_range_offset\"/><block type=\"custom_vl6180x_set_crosstalk_rate\">\n  <value name=\"rate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_recalibrate_vhv\"/><block type=\"custom_vl6180x_set_address\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">48</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_model_id\"/><block type=\"custom_vl6180x_revision\"/><block type=\"custom_vl6180x_history_entry\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_poll_interrupt\"/><block type=\"custom_vl6180x_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl6180x_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_vl6180x",
+    "block_type": [
+      "custom_vl6180x___init__",
+      "custom_vl6180x_range",
+      "custom_vl6180x_range_error",
+      "custom_vl6180x_lux",
+      "custom_vl6180x_als_raw",
+      "custom_vl6180x_start_continuous_range",
+      "custom_vl6180x_stop_continuous_range",
+      "custom_vl6180x_range_continuous",
+      "custom_vl6180x_start_continuous_als",
+      "custom_vl6180x_stop_continuous_als",
+      "custom_vl6180x_set_interleaved",
+      "custom_vl6180x_set_als_gain",
+      "custom_vl6180x_set_als_integration_time",
+      "custom_vl6180x_set_als_scaler",
+      "custom_vl6180x_set_range_thresholds",
+      "custom_vl6180x_set_als_thresholds",
+      "custom_vl6180x_set_max_convergence_time",
+      "custom_vl6180x_set_averaging_period",
+      "custom_vl6180x_set_range_offset",
+      "custom_vl6180x_range_offset",
+      "custom_vl6180x_set_crosstalk_rate",
+      "custom_vl6180x_recalibrate_vhv",
+      "custom_vl6180x_set_address",
+      "custom_vl6180x_model_id",
+      "custom_vl6180x_revision",
+      "custom_vl6180x_history_entry",
+      "custom_vl6180x_poll_interrupt",
+      "custom_vl6180x_enable_interrupt",
+      "custom_vl6180x_disable_interrupt"
+    ]
+  },
+  "data": {
+    "name": "VL6180X",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "VL6180X",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.tof.vl6180x import VL6180XFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "41",
+            "note": {},
+            "field": "number",
+            "max": "119",
+            "min": "8"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus, reg_bytes=2)\n        self._driver = VL6180XFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "range",
+        "note": {},
+        "label": {
+          "en": "%1 range (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_range()",
+        "ast_return": {
+          "code": "self._driver.read_range()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "range_error",
+        "note": {},
+        "label": {
+          "en": "%1 single-shot range error code (0=valid)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_range_status()[1]",
+        "ast_return": {
+          "code": "self._driver.read_range_status()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lux",
+        "note": {},
+        "label": {
+          "en": "%1 ambient light (lux)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_lux()",
+        "ast_return": {
+          "code": "self._driver.read_lux()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "als_raw",
+        "note": {},
+        "label": {
+          "en": "%1 ALS raw count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_als_raw()",
+        "ast_return": {
+          "code": "self._driver.read_als_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous_range",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous range, period (ms, 10-2550) %2"
+        },
+        "params": [
+          {
+            "name": "period_ms",
+            "type": "int",
+            "default": "50",
+            "note": {},
+            "field": "number",
+            "max": "2550",
+            "min": "10"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_continuous_range(period_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous_range",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous range"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous_range()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "range_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 next continuous range (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_range_continuous()",
+        "ast_return": {
+          "code": "self._driver.read_range_continuous()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous_als",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous ALS, period (ms, 10-2550) %2"
+        },
+        "params": [
+          {
+            "name": "period_ms",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "max": "2550",
+            "min": "10"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_continuous_als(period_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous_als",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous ALS"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous_als()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interleaved",
+        "note": {},
+        "label": {
+          "en": "%1 interleaved ALS+range (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interleaved(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_als_gain",
+        "note": {},
+        "label": {
+          "en": "%1 ALS gain code (0=20 6=1 7=40) %2"
+        },
+        "params": [
+          {
+            "name": "code",
+            "type": "int",
+            "default": "6",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_als_gain(code)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_als_integration_time",
+        "note": {},
+        "label": {
+          "en": "%1 ALS integration time (ms) %2"
+        },
+        "params": [
+          {
+            "name": "ms",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "max": "512",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_als_integration_time(ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_als_scaler",
+        "note": {},
+        "label": {
+          "en": "%1 ALS scaler %2"
+        },
+        "params": [
+          {
+            "name": "scaler",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "16",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_als_scaler(scaler)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_range_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 range thresholds low (mm) %2 high (mm) %3"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "30",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "high",
+            "type": "int",
+            "default": "80",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_range_thresholds(low, high)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_als_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 ALS thresholds low %2 high %3"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          },
+          {
+            "name": "high",
+            "type": "int",
+            "default": "65535",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_als_thresholds(low, high)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_max_convergence_time",
+        "note": {},
+        "label": {
+          "en": "%1 max convergence time (ms) %2"
+        },
+        "params": [
+          {
+            "name": "ms",
+            "type": "int",
+            "default": "49",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_max_convergence_time(ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_averaging_period",
+        "note": {},
+        "label": {
+          "en": "%1 averaging period (units of 64.5 us) %2"
+        },
+        "params": [
+          {
+            "name": "units",
+            "type": "int",
+            "default": "48",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_averaging_period(units)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_range_offset",
+        "note": {},
+        "label": {
+          "en": "%1 range offset (mm) %2"
+        },
+        "params": [
+          {
+            "name": "mm",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "127",
+            "min": "-128"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_range_offset(mm)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "range_offset",
+        "note": {},
+        "label": {
+          "en": "%1 range offset (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_range_offset()",
+        "ast_return": {
+          "code": "self._driver.get_range_offset()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_crosstalk_rate",
+        "note": {},
+        "label": {
+          "en": "%1 crosstalk rate (Mcps) %2"
+        },
+        "params": [
+          {
+            "name": "rate",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "500",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_crosstalk_rate(rate)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "recalibrate_vhv",
+        "note": {},
+        "label": {
+          "en": "%1 recalibrate VHV"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.recalibrate_vhv()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_address",
+        "note": {},
+        "label": {
+          "en": "%1 device address (volatile) %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "48",
+            "note": {},
+            "field": "number",
+            "max": "119",
+            "min": "8"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_address(address)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "model_id",
+        "note": {},
+        "label": {
+          "en": "%1 model ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.model_id()",
+        "ast_return": {
+          "code": "self._driver.model_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "revision",
+        "note": {},
+        "label": {
+          "en": "%1 revision (major*10+minor)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.revision()[0] * 10 + self._driver.revision()[1]",
+        "ast_return": {
+          "code": "self._driver.revision()[0] * 10 + self._driver.revision()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "history_entry",
+        "note": {},
+        "label": {
+          "en": "%1 history entry %2"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_history()[index]",
+        "ast_return": {
+          "code": "self._driver.read_history()[index]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 poll interrupt (1=range 2=ALS 4=error)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt source (1=range 2=ALS) %2 mode (1=low 2=high 3=window 4=new sample) %3"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "1"
+          },
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "4",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source, mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt source (1=range 2=ALS) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "vl6180x"
+  },
+  "pyCode": "\"\"\"\nfile     VL6180X\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.tof.vl6180x import VL6180XFull\n\n\nclass VL6180X:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 41):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '41'\n                field: number\n                min: '8'\n                max: '119'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus, reg_bytes=2)\n        self._driver = VL6180XFull(connection)\n\n    def range(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 range (mm)'\n        \"\"\"\n        return self._driver.read_range()\n\n    def range_error(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 single-shot range error code (0=valid)'\n        \"\"\"\n        return self._driver.read_range_status()[1]\n\n    def lux(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 ambient light (lux)'\n        \"\"\"\n        return self._driver.read_lux()\n\n    def als_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 ALS raw count'\n        \"\"\"\n        return self._driver.read_als_raw()\n\n    def start_continuous_range(self, period_ms: int = 50):\n        \"\"\"\n        label:\n            en: '%1 start continuous range, period (ms, 10-2550) %2'\n        params:\n            period_ms:\n                name: period_ms\n                type: int\n                default: '50'\n                field: number\n                max: '2550'\n                min: '10'\n        \"\"\"\n        self._driver.start_continuous_range(period_ms)\n\n    def stop_continuous_range(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous range'\n        \"\"\"\n        self._driver.stop_continuous_range()\n\n    def range_continuous(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 next continuous range (mm)'\n        \"\"\"\n        return self._driver.read_range_continuous()\n\n    def start_continuous_als(self, period_ms: int = 100):\n        \"\"\"\n        label:\n            en: '%1 start continuous ALS, period (ms, 10-2550) %2'\n        params:\n            period_ms:\n                name: period_ms\n                type: int\n                default: '100'\n                field: number\n                max: '2550'\n                min: '10'\n        \"\"\"\n        self._driver.start_continuous_als(period_ms)\n\n    def stop_continuous_als(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous ALS'\n        \"\"\"\n        self._driver.stop_continuous_als()\n\n    def set_interleaved(self, enabled: int = 0):\n        \"\"\"\n        label:\n            en: '%1 interleaved ALS+range (1=on 0=off) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_interleaved(bool(enabled))\n\n    def set_als_gain(self, code: int = 6):\n        \"\"\"\n        label:\n            en: '%1 ALS gain code (0=20 6=1 7=40) %2'\n        params:\n            code:\n                name: code\n                type: int\n                default: '6'\n                field: number\n                max: '7'\n                min: '0'\n        \"\"\"\n        self._driver.set_als_gain(code)\n\n    def set_als_integration_time(self, ms: int = 100):\n        \"\"\"\n        label:\n            en: '%1 ALS integration time (ms) %2'\n        params:\n            ms:\n                name: ms\n                type: int\n                default: '100'\n                field: number\n                max: '512'\n                min: '1'\n        \"\"\"\n        self._driver.set_als_integration_time(ms)\n\n    def set_als_scaler(self, scaler: int = 1):\n        \"\"\"\n        label:\n            en: '%1 ALS scaler %2'\n        params:\n            scaler:\n                name: scaler\n                type: int\n                default: '1'\n                field: number\n                max: '16'\n                min: '1'\n        \"\"\"\n        self._driver.set_als_scaler(scaler)\n\n    def set_range_thresholds(self, low: int = 30, high: int = 80):\n        \"\"\"\n        label:\n            en: '%1 range thresholds low (mm) %2 high (mm) %3'\n        params:\n            low:\n                name: low\n                type: int\n                default: '30'\n                field: number\n                max: '255'\n                min: '0'\n            high:\n                name: high\n                type: int\n                default: '80'\n                field: number\n                max: '255'\n                min: '0'\n        \"\"\"\n        self._driver.set_range_thresholds(low, high)\n\n    def set_als_thresholds(self, low: int = 0, high: int = 65535):\n        \"\"\"\n        label:\n            en: '%1 ALS thresholds low %2 high %3'\n        params:\n            low:\n                name: low\n                type: int\n                default: '0'\n                field: number\n                max: '65535'\n                min: '0'\n            high:\n                name: high\n                type: int\n                default: '65535'\n                field: number\n                max: '65535'\n                min: '0'\n        \"\"\"\n        self._driver.set_als_thresholds(low, high)\n\n    def set_max_convergence_time(self, ms: int = 49):\n        \"\"\"\n        label:\n            en: '%1 max convergence time (ms) %2'\n        params:\n            ms:\n                name: ms\n                type: int\n                default: '49'\n                field: number\n                max: '63'\n                min: '1'\n        \"\"\"\n        self._driver.set_max_convergence_time(ms)\n\n    def set_averaging_period(self, units: int = 48):\n        \"\"\"\n        label:\n            en: '%1 averaging period (units of 64.5 us) %2'\n        params:\n            units:\n                name: units\n                type: int\n                default: '48'\n                field: number\n                max: '255'\n                min: '0'\n        \"\"\"\n        self._driver.set_averaging_period(units)\n\n    def set_range_offset(self, mm: int = 0):\n        \"\"\"\n        label:\n            en: '%1 range offset (mm) %2'\n        params:\n            mm:\n                name: mm\n                type: int\n                default: '0'\n                field: number\n                max: '127'\n                min: '-128'\n        \"\"\"\n        self._driver.set_range_offset(mm)\n\n    def range_offset(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 range offset (mm)'\n        \"\"\"\n        return self._driver.get_range_offset()\n\n    def set_crosstalk_rate(self, rate: float = 0):\n        \"\"\"\n        label:\n            en: '%1 crosstalk rate (Mcps) %2'\n        params:\n            rate:\n                name: rate\n                type: float\n                default: '0'\n                field: number\n                max: '500'\n                min: '0'\n        \"\"\"\n        self._driver.set_crosstalk_rate(rate)\n\n    def recalibrate_vhv(self):\n        \"\"\"\n        label:\n            en: '%1 recalibrate VHV'\n        \"\"\"\n        self._driver.recalibrate_vhv()\n\n    def set_address(self, address: int = 48):\n        \"\"\"\n        label:\n            en: '%1 device address (volatile) %2'\n        params:\n            address:\n                name: address\n                type: int\n                default: '48'\n                field: number\n                max: '119'\n                min: '8'\n        \"\"\"\n        self._driver.set_address(address)\n\n    def model_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 model ID'\n        \"\"\"\n        return self._driver.model_id()\n\n    def revision(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 revision (major*10+minor)'\n        \"\"\"\n        return self._driver.revision()[0] * 10 + self._driver.revision()[1]\n\n    def history_entry(self, index: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '%1 history entry %2'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n                max: '7'\n                min: '0'\n        \"\"\"\n        return self._driver.read_history()[index]\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 poll interrupt (1=range 2=ALS 4=error)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def enable_interrupt(self, source: int = 1, mode: int = 4):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt source (1=range 2=ALS) %2 mode (1=low 2=high 3=window 4=new sample) %3'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                max: '2'\n                min: '1'\n            mode:\n                name: mode\n                type: int\n                default: '4'\n                field: number\n                max: '4'\n                min: '1'\n        \"\"\"\n        self._driver.enable_interrupt(source, mode)\n\n    def disable_interrupt(self, source: int = 1):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt source (1=range 2=ALS) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                max: '2'\n                min: '1'\n        \"\"\"\n        self._driver.disable_interrupt(source)\n",
+  "version": "alpha2"
+}

@@ -1,0 +1,1 @@
+_periph_hs40xx.set_resolution(int(${_humidity_bits}), int(${_temperature_bits}))

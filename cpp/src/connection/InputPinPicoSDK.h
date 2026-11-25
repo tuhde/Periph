@@ -36,6 +36,11 @@ public:
         removeHandler(_handlers, handler);
     }
 
+    /** @brief Raw level via gpio_get(). */
+    bool isHigh() override {
+        return gpio_get(_pin);
+    }
+
 private:
     static constexpr uint8_t kMaxInstances = 8;
 

@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <math.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/i2c_master.h"
+#include "I2CConnectionESPIDF.h"
+#include "HS40xx.h"
+
+#define I2C_SDA  21
+#define I2C_SCL  22
+#define AHT_ADDR 0x54
+
+extern "C" void app_main(void) {
+    i2c_master_bus_config_t bus_cfg = {};
+    bus_cfg.i2c_port = I2C_NUM_0;
+    bus_cfg.sda_io_num = static_cast<gpio_num_t>(I2C_SDA);
+    bus_cfg.scl_io_num = static_cast<gpio_num_t>(I2C_SCL);
+    bus_cfg.clk_source = I2C_CLK_SRC_DEFAULT;
+    bus_cfg.glitch_ignore_cnt = 7;
+    bus_cfg.flags.enable_internal_pullup = true;
+    i2c_master_bus_handle_t bus;
+    i2c_new_master_bus(&bus_cfg, &bus);
+
+    i2c_device_config_t dev_cfg = {};
+    dev_cfg.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    dev_cfg.device_address = AHT_ADDR;
+    dev_cfg.scl_speed_hz = 100000;
+    i2c_master_dev_handle_t dev;
+    i2c_master_bus_add_device(bus, &dev_cfg, &dev);
+
+    I2CConnectionESPIDF connection(dev);
+    HS40xxFull sensor(connection);                                  // Create HS40xx driver, (connection) → void
+    float t = 0, rh = 0;
+    uint8_t st = 0;
+    uint32_t id = 0;
+    // --- Humidity watchdog ---
+    // Single readings for 10 s, then periodic mode with an RH-high alert (breathe on the sensor).
+    sensor.read_id(id);                                             // Read the 32-bit sensor ID, (id) → bool
+    printf("ID 0x%lX\n", (unsigned long)(id));
+    for (uint8_t n = 0; n < 5; n++) {
+        sensor.read(t, rh);                                         // Read temperature and humidity, (t, rh) → bool °C, %RH
+        printf("%.2f C, %.1f %%RH\n", t, rh);
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+    sensor.set_alert_thresholds(60.0f, 55.0f);                      // Set alert thresholds, (rh_high, rh_high_reset, ...) → bool
+    sensor.enable_interrupt(HS40xxFull::SOURCE_RH_HIGH);            // Enable alert sources, (source) → bool
+    sensor.start_periodic(1.0f);                                    // Start periodic mode, (period_s) → bool
+    for (uint8_t n = 0; n < 15; n++) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        sensor.read_periodic(t, rh, st);                            // Fetch the latest periodic result, (t, rh, status) → bool
+        printf("%.2f C, %.1f %%RH %s\n", t, rh, (st & HS40xxFull::SOURCE_RH_HIGH) ? "ALERT" : "ok");
+    }
+    sensor.stop_periodic();                                         // Stop periodic mode, () → bool
+    sensor.soft_reset();                                            // Soft reset, () → bool
+    while (true) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}

@@ -1,0 +1,234 @@
+{
+  "category": "Shtc3",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SHTC3_LANGUAGES = {\n  \"CUSTOM_SHTC3_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_SHTC3_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_SHTC3_HUMIDITY\": {\n    \"en\": \"%1 relative humidity (%RH)\"\n  },\n  \"CUSTOM_SHTC3_DEW_POINT\": {\n    \"en\": \"%1 dew point (°C)\"\n  },\n  \"CUSTOM_SHTC3_READ_ID\": {\n    \"en\": \"%1 ID word\"\n  },\n  \"CUSTOM_SHTC3_SET_LOW_POWER\": {\n    \"en\": \"%1 low-power mode (1=on 0=off) %2\"\n  },\n  \"CUSTOM_SHTC3_SET_SLEEP_BETWEEN\": {\n    \"en\": \"%1 sleep between reads (1=on 0=off) %2\"\n  },\n  \"CUSTOM_SHTC3_WAKE\": {\n    \"en\": \"%1 wake up\"\n  },\n  \"CUSTOM_SHTC3_SLEEP\": {\n    \"en\": \"%1 sleep\"\n  },\n  \"CUSTOM_SHTC3_SOFTWARE_RESET\": {\n    \"en\": \"%1 software reset\"\n  }\n};\n\nconst initType = 'custom_shtc3_init';\nBlockly.BlockRegExpList['custom_shtc3'] = {\n  regexp: new RegExp(/^custom_shtc3_/),\n  code: \"from Shtc3 import Shtc3\",\n  initBlockType: initType,\n  categoryId: 'custom_shtc3',\n}\nBlockly.utils.registerLanguages(CUSTOM_SHTC3_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SHTC3_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SHTC3 = 'Shtc3'\n\nBlockly.utils.getcustom_shtc3Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['shtc3_0', 'shtc3_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_shtc3_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_shtc3Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'shtc3_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Shtc3(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_shtc3_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_shtc3_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_shtc3_dew_point\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_DEW_POINT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_dew_point\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.dew_point()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_shtc3_read_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_READ_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_read_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_shtc3_set_low_power\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_SET_LOW_POWER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_set_low_power\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_low_power(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_shtc3_set_sleep_between\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_SET_SLEEP_BETWEEN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_set_sleep_between\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sleep_between(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_shtc3_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_shtc3_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.sleep()\\n`\n}\n\nBlockly.Blocks[\"custom_shtc3_software_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SHTC3_SOFTWARE_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_shtc3Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_shtc3_software_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.software_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Shtc3\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_shtc3\">\n<title text=\"Shtc3\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_shtc3_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">112</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_shtc3_temperature\"/><block type=\"custom_shtc3_humidity\"/><block type=\"custom_shtc3_dew_point\"/><block type=\"custom_shtc3_read_id\"/><block type=\"custom_shtc3_set_low_power\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_shtc3_set_sleep_between\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_shtc3_wake\"/><block type=\"custom_shtc3_sleep\"/><block type=\"custom_shtc3_software_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_shtc3",
+    "block_type": [
+      "custom_shtc3___init__",
+      "custom_shtc3_temperature",
+      "custom_shtc3_humidity",
+      "custom_shtc3_dew_point",
+      "custom_shtc3_read_id",
+      "custom_shtc3_set_low_power",
+      "custom_shtc3_set_sleep_between",
+      "custom_shtc3_wake",
+      "custom_shtc3_sleep",
+      "custom_shtc3_software_reset"
+    ]
+  },
+  "data": {
+    "name": "Shtc3",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Shtc3",
+      "time": "2026-11-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.shtc3 import SHTC3Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "112",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = SHTC3Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 relative humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "dew_point",
+        "note": {},
+        "label": {
+          "en": "%1 dew point (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.dew_point()",
+        "ast_return": {
+          "code": "self._driver.dew_point()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_id",
+        "note": {},
+        "label": {
+          "en": "%1 ID word"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_id()",
+        "ast_return": {
+          "code": "self._driver.read_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_low_power",
+        "note": {},
+        "label": {
+          "en": "%1 low-power mode (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_low_power(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sleep_between",
+        "note": {},
+        "label": {
+          "en": "%1 sleep between reads (1=on 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sleep_between(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake up"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sleep",
+        "note": {},
+        "label": {
+          "en": "%1 sleep"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.sleep()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "software_reset",
+        "note": {},
+        "label": {
+          "en": "%1 software reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "shtc3"
+  },
+  "pyCode": "\"\"\"\nfile     Shtc3\ntime     2026-11-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.humidity.shtc3 import SHTC3Full\n\n\nclass Shtc3:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 112):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '112'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = SHTC3Full(connection)\n        self._driver.init()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 relative humidity (%RH)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n    def dew_point(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 dew point (°C)'\n        \"\"\"\n        return self._driver.dew_point()\n\n    def read_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 ID word'\n        \"\"\"\n        return self._driver.read_id()\n\n    def set_low_power(self, enabled: int = 0):\n        \"\"\"\n        label:\n            en: '%1 low-power mode (1=on 0=off) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_low_power(bool(enabled))\n\n    def set_sleep_between(self, enabled: int = 1):\n        \"\"\"\n        label:\n            en: '%1 sleep between reads (1=on 0=off) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_sleep_between(bool(enabled))\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake up'\n        \"\"\"\n        self._driver.wake()\n\n    def sleep(self):\n        \"\"\"\n        label:\n            en: '%1 sleep'\n        \"\"\"\n        self._driver.sleep()\n\n    def software_reset(self):\n        \"\"\"\n        label:\n            en: '%1 software reset'\n        \"\"\"\n        self._driver.soft_reset()\n",
+  "version": "alpha2"
+}

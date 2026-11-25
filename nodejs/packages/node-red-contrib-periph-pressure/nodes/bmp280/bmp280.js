@@ -53,5 +53,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-bmp280', BMP280ReadNode);
+    RED.nodes.registerType('bmp280', BMP280ReadNode);
 };

@@ -1,0 +1,1 @@
+_periph_fxos8700.new_mag_data()

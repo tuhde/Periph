@@ -1,0 +1,1 @@
+_periph_mpl3115a2.read_temperature()

@@ -1,6 +1,8 @@
 pub mod connection;
+pub use connection::Connection;
 pub mod register;
 pub mod dhtxx;
+pub mod display;
 pub mod hx711;
 pub mod i2c;
 pub mod smbus;
@@ -8,5 +10,7 @@ pub mod neopixel;
 pub mod sipo;
 pub mod spi;
 pub mod uart;
+#[cfg(feature = "std")]
+pub mod uart_mock;
 #[cfg(feature = "uart-linux")]
 pub mod uart_linux;

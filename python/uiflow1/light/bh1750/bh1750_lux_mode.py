@@ -1,0 +1,1 @@
+_periph_bh1750.measure_once(int(${_mode}))

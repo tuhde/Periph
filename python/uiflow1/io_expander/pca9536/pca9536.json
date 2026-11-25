@@ -1,0 +1,164 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "pca9536_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init PCA9536",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_set_pin_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9536 set pin (0-3) mode: IN=0, OUT=1",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_write_pin",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9536 write pin (0-3) value (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_read_pin",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9536 read pin (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_read_port",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9536 read port (4 pins)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_write_port",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9536 write port mask (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_configure_polarity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9536 input polarity mask (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_set_direction",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9536 direction mask, 1=input (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_get_direction",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9536 read direction mask",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_poll_changes",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9536 poll changed-pin mask",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9536_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9536 reset registers to defaults",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

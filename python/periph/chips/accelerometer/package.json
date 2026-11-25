@@ -13,6 +13,30 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/adxl362.py"
     ],
     [
+      "periph/chips/accelerometer/bma150.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/bma150.py"
+    ],
+    [
+      "periph/chips/accelerometer/bma180.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/bma180.py"
+    ],
+    [
+      "periph/chips/accelerometer/fxos8700.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/fxos8700.py"
+    ],
+    [
+      "periph/chips/accelerometer/lis3dh.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/lis3dh.py"
+    ],
+    [
+      "periph/chips/accelerometer/lsm303.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/lsm303.py"
+    ],
+    [
+      "periph/chips/accelerometer/mma8451q.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/mma8451q.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
@@ -59,5 +83,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

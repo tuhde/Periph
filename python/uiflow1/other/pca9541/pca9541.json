@@ -1,0 +1,220 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "pca9541_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init PCA9541",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_has_control",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 this master has the bus",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_acquire",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 take the bus (1 = with bus init)",
+          "type": "label"
+        },
+        {
+          "name": "_bus_init",
+          "type": "number"
+        },
+        {
+          "name": "timeout (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_timeout_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_release",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9541 give the bus to the other master",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_recover_bus",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 recover and take the bus",
+          "type": "label"
+        },
+        {
+          "name": "timeout (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_timeout_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_is_connected",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 downstream bus connected",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_connect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9541 connect downstream bus",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_disconnect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9541 disconnect downstream bus",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_get_control",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 CONTROL register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_set_interrupt_mask",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9541 mask interrupts (1 = masked)",
+          "type": "label"
+        },
+        {
+          "name": "bus lost",
+          "type": "label"
+        },
+        {
+          "name": "_bus_lost",
+          "type": "number"
+        },
+        {
+          "name": "bus not idle",
+          "type": "label"
+        },
+        {
+          "name": "_bus_not_idle",
+          "type": "number"
+        },
+        {
+          "name": "bus init",
+          "type": "label"
+        },
+        {
+          "name": "_bus_init",
+          "type": "number"
+        },
+        {
+          "name": "INT_IN",
+          "type": "label"
+        },
+        {
+          "name": "_int_in",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_get_interrupt_mask",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 interrupt mask",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_test_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCA9541 INT test (1 = drive low)",
+          "type": "label"
+        },
+        {
+          "name": "own",
+          "type": "label"
+        },
+        {
+          "name": "_own",
+          "type": "number"
+        },
+        {
+          "name": "other",
+          "type": "label"
+        },
+        {
+          "name": "_other",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pca9541_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCA9541 interrupt status",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,11 @@
         "type": "inject",
         "z": "mpu9255-demo",
         "name": "100ms timer",
-        "props": [{"p": "payload"}],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "repeat": "100",
         "crontab": "",
         "once": false,
@@ -13,30 +17,48 @@
         "payloadType": "date",
         "x": 180,
         "y": 160,
-        "wires": [["mpu9255-node"]]
+        "wires": [
+            [
+                "mpu9255-node"
+            ]
+        ]
     },
     {
-        "id": "mpu9255-node",
-        "type": "periph-mpu9255",
-        "z": "mpu9255-demo",
+        "id": "mpu9255-device-1",
+        "type": "mpu9255-device",
         "name": "MPU9255",
-        "connection": "i2c-conn-1",
+        "bus": "1",
         "addr": "0x68",
         "gyroFs": "1",
         "accelFs": "1",
         "enableMag": true,
         "enableWom": false,
-        "womThreshold": "64",
+        "womThreshold": "64"
+    },
+    {
+        "id": "mpu9255-node",
+        "type": "mpu9255",
+        "z": "mpu9255-demo",
+        "name": "MPU9255",
         "x": 400,
         "y": 160,
-        "wires": [["function-tilt"]]
+        "wires": [
+            [
+                "function-tilt"
+            ]
+        ],
+        "device": "mpu9255-device-1"
     },
     {
         "id": "inject-1s",
         "type": "inject",
         "z": "mpu9255-demo",
         "name": "1s timer (WoM)",
-        "props": [{"p": "payload"}],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "repeat": "1",
         "crontab": "",
         "once": false,
@@ -45,23 +67,37 @@
         "payloadType": "date",
         "x": 180,
         "y": 240,
-        "wires": [["mpu9255-node-wom"]]
+        "wires": [
+            [
+                "mpu9255-node-wom"
+            ]
+        ]
     },
     {
-        "id": "mpu9255-node-wom",
-        "type": "periph-mpu9255",
-        "z": "mpu9255-demo",
-        "name": "MPU9255 (WoM)",
-        "connection": "i2c-conn-1",
+        "id": "mpu9255-device-2",
+        "type": "mpu9255-device",
+        "name": "MPU9255",
+        "bus": "1",
         "addr": "0x68",
         "gyroFs": "0",
         "accelFs": "0",
         "enableMag": false,
         "enableWom": true,
-        "womThreshold": "64",
+        "womThreshold": "64"
+    },
+    {
+        "id": "mpu9255-node-wom",
+        "type": "mpu9255",
+        "z": "mpu9255-demo",
+        "name": "MPU9255 (WoM)",
         "x": 400,
         "y": 240,
-        "wires": [["debug-wom"]]
+        "wires": [
+            [
+                "debug-wom"
+            ]
+        ],
+        "device": "mpu9255-device-2"
     },
     {
         "id": "function-tilt",
@@ -76,7 +112,11 @@
         "libs": [],
         "x": 650,
         "y": 160,
-        "wires": [["debug-out"]]
+        "wires": [
+            [
+                "debug-out"
+            ]
+        ]
     },
     {
         "id": "debug-out",
@@ -111,12 +151,5 @@
         "x": 650,
         "y": 240,
         "wires": []
-    },
-    {
-        "id": "i2c-conn-1",
-        "type": "periph-i2c-connection",
-        "z": "",
-        "name": "I2C bus 1",
-        "bus": "1"
     }
 ]

@@ -1,0 +1,184 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hts221_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HTS221",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hts221_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTS221 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTS221 relative humidity (%rH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTS221 dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_who_am_i",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTS221 WHO_AM_I",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTS221 data ready (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_set_output_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTS221 output data rate (0, 1, 7 or 12.5 Hz)",
+          "type": "label"
+        },
+        {
+          "name": "Hz",
+          "type": "label"
+        },
+        {
+          "name": "_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hts221_set_averaging",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTS221 averaging (T 2-256, RH 4-512 samples)",
+          "type": "label"
+        },
+        {
+          "name": "temperature samples",
+          "type": "label"
+        },
+        {
+          "name": "_tsamples",
+          "type": "number"
+        },
+        {
+          "name": "humidity samples",
+          "type": "label"
+        },
+        {
+          "name": "_hsamples",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hts221_set_heater",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTS221 heater (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "hts221_heater_on",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTS221 heater on (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTS221 power down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_power_up",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTS221 power up",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "hts221_reboot",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTS221 reload calibration (reboot)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

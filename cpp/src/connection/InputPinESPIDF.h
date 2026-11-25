@@ -36,6 +36,11 @@ public:
         removeHandler(_handlers, handler);
     }
 
+    /** @brief Raw level via gpio_get_level(). */
+    bool isHigh() override {
+        return gpio_get_level(_pin) != 0;
+    }
+
 private:
     static void IRAM_ATTR isrTrampoline(void* arg) {
         InputPinESPIDF* self = static_cast<InputPinESPIDF*>(arg);

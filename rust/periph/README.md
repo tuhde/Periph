@@ -16,7 +16,7 @@ Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-periph = "1.2.1"
+periph = "1.5.4"
 ```
 
 ## Example
@@ -42,63 +42,159 @@ Each chip exposes two structs:
 
 | Chip | Category | Description |
 |------|----------|-------------|
+| 23X1024 | Memory | 1-Mbit SPI serial SRAM (Microchip 23LC1024 / 23A1024). |
 | 24AA02UID | Memory | 2 Kbit I²C EEPROM with 32-bit unique serial number. |
+| AD5243 | ADC/DAC | Dual 256-position I²C digital potentiometer (Analog Devices). |
+| AD5248 | ADC/DAC | Dual 256-position I²C digital rheostat (Analog Devices). |
+| AD5251 | ADC/DAC | Dual 64-position I²C digital potentiometer with EEMEM (Analog Devices). |
+| AD5252 | ADC/DAC | Dual 256-position I²C digital potentiometer with EEMEM (Analog Devices). |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | ADE7953 | Power monitor | Single-phase multifunction metering IC (Analog Devices). |
+| ADS1013 | ADC/DAC | 12-bit I²C ADC with a fixed ±2.048 V range (Texas Instruments). |
+| ADS1014 | ADC/DAC | 12-bit I²C ADC with PGA and programmable comparator (Texas Instruments). |
+| ADS1113 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), fixed ±2.048 V) (Texas Instruments). |
+| ADS1114 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), PGA and comparator) (Texas Instruments). |
+| ADS1115 | ADC/DAC | 16-bit ΔΣ ADC (four-channel multiplexer, PGA and comparator) (Texas Instruments). |
+| ADS7828 | ADC/DAC | 12-bit, 8-channel sampling ADC with internal 2.5 V reference |
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
+| AHT10 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
+| AHT20 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
+| AM2315 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
+| AM2320 | Environmental sensor | Humidity and temperature sensor probe (Aosong). |
 | APA102 | LED driver | Addressable RGB LED strip driver. |
 | APDS-9930 | Light sensor | Digital ambient light and proximity sensor (Broadcom/Avago). |
+| APDS9250 | Light sensor | Digital RGB, IR and ambient light sensor (Broadcom). |
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor (AMS OSRAM). |
+| AS7262 | Color sensor | 6-channel visible spectral sensor (ams OSRAM), I²C address `0x49`. |
+| AT24C02N | Memory | 2 Kbit (256 B) I²C EEPROM (Atmel / Microchip). |
+| AT24C64 | Memory | 64 Kbit (8 KiB) I²C EEPROM (Atmel / Microchip). |
+| AXP2101 | Power monitor | Single-cell Li-ion NVDC power-management IC (X-Powers). |
+| BH1750 | Light sensor | Ambient light sensor (ROHM). |
+| BMA150 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
+| BMA180 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor (Bosch Sensortec). |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec). |
+| BME688 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec). |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
 | BMP180 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
 | BMP280 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor (Bosch Sensortec). |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor (Bosch Sensortec). |
+| BNO055 | IMU | 9-axis absolute-orientation sensor (Bosch Sensortec): 14-bit accelerometer, 16-bit |
+| CAT24C512 | Memory | 512 Kbit (64 KiB) I²C EEPROM (onsemi). |
+| CAT5171 | ADC/DAC | 256-position I²C digital potentiometer (ON Semiconductor). |
+| CS43L22 | ADC/DAC | Low-power stereo DAC with headphone and Class-D speaker amplifiers (Cirrus Logic). |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor (ASAIR / Aosong). |
+| DRV2605 | Motor driver | Haptic driver for ERM and LRA actuators with I²C interface (Texas Instruments). |
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |
+| DS1881 | ADC/DAC | Dual nonvolatile audio log-taper digital potentiometer (Maxim). |
 | DS3231 | RTC | Extremely accurate I²C-integrated RTC/TCXO/crystal (Analog |
+| DS3502 | ADC/DAC | 7-bit nonvolatile high-voltage I²C digital potentiometer (Maxim). |
 | ENS160 | Gas sensor | Digital multi-gas sensor driver. |
+| ES8311 | ADC/DAC | Low-power mono audio codec, I²C control port (Everest Semiconductor). |
+| FXOS8700 | Accelerometer | 6-axis e-compass: 14-bit accelerometer + 16-bit magnetometer (NXP). |
+| HDC1008 | Humidity sensor | Low-power digital humidity and temperature sensor (Texas Instruments). |
+| HDC1080 | Humidity sensor | Low-power digital humidity and temperature sensor (Texas Instruments). |
 | HMC5883L | Magnetometer | 3-axis anisotropic magnetoresistive magnetometer (Honeywell). |
+| HS30XX | Humidity sensor | Relative humidity and temperature sensors (Renesas HS3001, HS3002, HS3003). |
+| HS40XX | Humidity sensor | Relative humidity and temperature sensors (Renesas HS4001, HS4003). |
+| HT16K33 | LED driver | 16 × 8 LED matrix driver with key scan (Holtek). |
+| HTS221 | Humidity sensor | Capacitive digital relative-humidity and temperature sensor (STMicroelectronics). |
+| HTU21DF | Humidity sensor | Relative humidity and temperature sensor (Measurement Specialties). |
+| HTU31D | Humidity sensor | Relative humidity and temperature sensor (TE Connectivity). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
+| HY3131 | ADC/DAC | HYCON HY3131 50,000-count DMM analog front end driver (SPI). |
+| ICM20948 | IMU | 9-axis MotionTracking device (TDK InvenSense): gyroscope, accelerometer and |
+| IL0373 | Display driver | Black/white e-paper controller (104 x 212 panels such as the |
 | INA219 | Power monitor | 26 V, 12-bit current/voltage/power monitor (Texas Instruments). |
 | INA226 | Power monitor | 36 V, 16-bit current/voltage/power monitor (Texas Instruments). |
+| INA260 | Power monitor | 36 V, 16-bit current/voltage/power monitor with integrated 2 mΩ shunt (Texas Instruments). |
 | INA3221 | Power monitor | Three-channel 26 V current/voltage/power monitor (Texas Instruments). |
+| IS31FL3731 | LED driver | 144-LED matrix driver, CharliePlex (Lumissil / ISSI). |
+| ISL29125 | Color sensor | Digital red, green and blue colour light sensor (Renesas / Intersil). |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
 | L3GD20H | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
+| LC709203F | Power monitor | 1-cell lithium-ion / polymer battery fuel gauge ("Smart LiB Gauge", onsemi). |
+| LIS3DH | Accelerometer | 3-axis ultra-low-power MEMS accelerometer (STMicroelectronics). |
+| LM25066 | Power monitor | Hot-swap controller / PMBus power monitor (Texas Instruments). |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor (STMicroelectronics). |
+| LPS22HB | Pressure sensor | MEMS nano absolute pressure sensor (STMicroelectronics). |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
+| LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |
+| LTC4151 | Power monitor | 7–80 V high-side current and voltage monitor (Linear Technology / Analog Devices). |
+| MAX17048 | Power monitor | Lithium fuel gauge with ModelGauge (Maxim Integrated / Analog Devices). |
+| MAX44009 | Light sensor | Ultra-low-power ambient light sensor with ADC (Maxim / Analog Devices). |
+| MB85RC | Memory | 256 Kbit (32 KiB) I²C FRAM (ferroelectric RAM). |
+| MCP23008 | IO expander | / MCP23S08 8-bit bidirectional I/O port expander (Microchip). |
 | MCP23017 | IO expander | 16-bit bidirectional I/O port expander (Microchip). |
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
+| MCP3422 | ADC/DAC | 2-channel, 18-bit delta-sigma ADC with PGA and 2.048 V reference (Microchip). |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC (Microchip). |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC (Microchip). |
+| MCP4XXX | ADC/DAC | MCP453X / 454X / 455X / 456X / 463X / 464X / 465X / 466X I²C digital |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor (Microchip). |
 | MFRC522 | RFID/NFC | 13.56 MHz contactless reader/writer (NXP). |
+| MMA8451Q | Accelerometer | 3-axis MEMS accelerometer (NXP / Freescale). |
+| MPL115A2 | Pressure sensor | Miniature I²C digital barometer, 50–115 kPa (NXP Semiconductors). |
+| MPL3115A2 | Pressure sensor | Barometric pressure, altitude and temperature sensor (NXP). |
 | MPR121 | Other | Proximity capacitive touch sensor controller (Freescale/NXP). |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope). |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
+| MS5607 | Pressure sensor | Barometric pressure sensor (TE Connectivity), 10–2000 mbar, 24-bit ADC. |
+| MS5611 | Pressure sensor | Barometric pressure sensor (TE Connectivity), 10–1200 mbar, 24-bit ADC. |
+| MX25L12845E | Memory | Macronix 128-Mbit (16 MiB) serial NOR flash (`specs/memory/mx25l12845e.md`). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
+| PCA6408A | IO expander | 8-bit I/O expander (NXP), I²C / SMBus. |
+| PCA6416A | IO expander | 16-bit I/O expander (NXP), I²C / SMBus. |
+| PCA9536 | IO expander | 4-bit I/O expander (TI), I²C / SMBus. |
+| PCA9539 | IO expander | 16-bit I/O expander (NXP), I²C / SMBus. |
+| PCA9541 | Other | 2-to-1 I²C-bus master selector (NXP). |
+| PCA9685 | LED driver | 16-channel, 12-bit PWM LED/servo controller (NXP Semiconductors). |
+| PCF85063A | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander (NXP). |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver (NXP). |
+| PCF8578 | Display driver | Row/column LCD dot-matrix driver (NXP). |
+| PCF8579 | Display driver | LCD column driver (NXP), companion of the PCF8578. |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
+| QMI8658A | IMU | 6-axis inertial measurement unit (QST): 3-axis gyroscope, 3-axis accelerometer and |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
+| SAA1064 | LED driver | 4-digit LED driver (Philips / NXP). |
+| SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
+| SH1106 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Sino Wealth), the chip behind the common |
+| SHT31 | Humidity sensor | Digital temperature and humidity sensor (Sensirion SHT3x-DIS family). |
+| SHTC3 | Humidity sensor | Relative humidity and temperature sensor (Sensirion). |
+| SI1132 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
+| SI7021 | Humidity sensor | Relative humidity and temperature sensor (Silicon Labs). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
+| SSD1305 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
+| SSD1306 | Display driver | 128 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
+| SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
+| ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
+| TCA9554 | IO expander | 8-bit I/O expander (TI), I²C / SMBus. |
+| TMC2130 | Motor driver | -- Trinamic TMC2130 stepper driver over SPI (Mode 3). |
+| TMC2208 | Motor driver | -- Trinamic TMC2202 / TMC2208 / TMC2224 stepper driver over single-wire UART. |
+| TMC2209 | Motor driver | -- Trinamic TMC2209 stepper driver over single-wire UART. |
+| TMC5160 | Motor driver | -- Trinamic TMC5160 stepper controller/driver over SPI or single-wire UART. |
+| TMP102 | Temperature sensor | 12-bit digital temperature sensor with ALERT output (Texas Instruments). |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
+| UC1611S | Display driver | 160 COM x 256 SEG graphic LCD controller-driver (UltraChip), as used on the EA DOGXL240-7. |
+| UC8159 | Display driver | Seven-colour e-paper controller (600 x 448 panels such as the |
+| UC8276C | Display driver | Black/white/red e-paper controller (400 x 300 panels such as the |
 | VL53L0X | Time-of-flight | Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | VL53L1X | Time-of-flight | Long-distance Time-of-Flight laser-ranging sensor (STMicroelectronics). |
+| VL6180X | Time-of-flight | Proximity and ambient-light sensor (STMicroelectronics). |
 | WS2812B | LED driver | Addressable RGB LED strip driver (Worldsemi). |
 | WS2814 | LED driver | Addressable RGBW LED strip driver (Super Lighting LED). |
 

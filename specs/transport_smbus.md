@@ -71,6 +71,14 @@ PEC errors are reported the same way as `SMBusConnection` (Arduino): an internal
 
 File: `cpp/src/connection/SMBusConnectionPicoSDK.h` (header-only)
 
+### STM32Cube
+
+Wraps `I2CConnectionSTM32Cube` and adds the same 7-bit address validation and software PEC as `SMBusConnectionZephyr`/`SMBusConnectionPicoSDK`. Constructor signature: `SMBusConnectionSTM32Cube(I2C_HandleTypeDef* hi2c, uint8_t addr, bool pec = false, ...)`, followed by the optional INT/EN pins and register-address width common to all register connections.
+
+PEC errors are reported the same way as `SMBusConnection` (Arduino): an internal error flag readable via `bool valid()` after each operation. HAL transfer errors are recorded by the wrapped connection (`last_status()`/`error_count()`). The inherited STOP/START (not repeated START) behaviour of `write_read` applies here too; see the I²C transport spec.
+
+File: `cpp/src/connection/SMBusConnectionSTM32Cube.h` (header-only)
+
 ### JVM (Linux)
 
 Wraps `I2CConnection` (FFM-based, same approach as the Linux I²C connection) and adds address validation plus software PEC. Constructor signature: `SMBusConnection(int bus, int address, boolean pec)`.
@@ -118,6 +126,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/SMBusConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/connection/smbus.js` — JSDoc on class and every exported method

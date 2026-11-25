@@ -1,0 +1,302 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ds1881_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init DS1881",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_attenuation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 set attenuation",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "dB",
+          "type": "label"
+        },
+        {
+          "name": "_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_get_attenuation",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS1881 attenuation (dB)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_mute",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 mute",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_position",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 set position",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "position (0-63)",
+          "type": "label"
+        },
+        {
+          "name": "_position",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_get_position",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS1881 position",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_both",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 set both positions",
+          "type": "label"
+        },
+        {
+          "name": "channel 0",
+          "type": "label"
+        },
+        {
+          "name": "_position0",
+          "type": "number"
+        },
+        {
+          "name": "channel 1",
+          "type": "label"
+        },
+        {
+          "name": "_position1",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_attenuation_both",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 set both attenuations (dB)",
+          "type": "label"
+        },
+        {
+          "name": "channel 0",
+          "type": "label"
+        },
+        {
+          "name": "_db0",
+          "type": "number"
+        },
+        {
+          "name": "channel 1",
+          "type": "label"
+        },
+        {
+          "name": "_db1",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_option",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 set option (1 or 2)",
+          "type": "label"
+        },
+        {
+          "name": "option",
+          "type": "label"
+        },
+        {
+          "name": "_option",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_zero_crossing",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 zero-crossing (1 on, 0 off)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_set_nonvolatile",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 EEPROM storage (1 on, 0 off)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_store",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 store positions to EEPROM",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_position_to_db",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS1881 position to dB",
+          "type": "label"
+        },
+        {
+          "name": "position",
+          "type": "label"
+        },
+        {
+          "name": "_position",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_db_to_position",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS1881 dB to position",
+          "type": "label"
+        },
+        {
+          "name": "dB",
+          "type": "label"
+        },
+        {
+          "name": "_db",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_max_position",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS1881 max position",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds1881_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS1881 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

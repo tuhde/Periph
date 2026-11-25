@@ -349,11 +349,15 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/picosdk/io_expander/<Chip>/minimal/src/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/io_expander/<Chip>/complete/src/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/io_expander/<Chip>/demo/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/stm32cube/io_expander/<Chip>/minimal/Core/Src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/stm32cube/io_expander/<Chip>/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/stm32cube/io_expander/<Chip>/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/io_expander/<chip>_test/<chip>_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_linux/<chip>_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_zephyr/src/main.cpp` (Zephyr)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_espidf/main/main.cpp` (ESP-IDF)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_picosdk/src/main.cpp` (Pico SDK)
+- [ ] Tests `cpp/tests/io_expander/<chip>_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Unit test `cpp/tests/io_expander/<chip>_test_unit/<chip>_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js

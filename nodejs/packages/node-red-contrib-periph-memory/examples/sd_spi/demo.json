@@ -1,0 +1,100 @@
+[
+    {
+        "id": "tab-sd-spi-demo",
+        "type": "tab",
+        "label": "SD card block reader",
+        "disabled": false,
+        "info": "Reads block 0 of an SD card every 5 seconds and shows the boot signature (0x55AA on a partitioned card) and the card info. Read-only: nothing is written to the card."
+    },
+    {
+        "id": "cfg-sd-spi",
+        "type": "sd-spi-device",
+        "name": "SD card",
+        "bus": "0",
+        "device": "0",
+        "gpiochip": "/dev/gpiochip0",
+        "csLine": "25",
+        "speed": "12000000"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-sd-spi-demo",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "make-read"
+            ]
+        ]
+    },
+    {
+        "id": "make-read",
+        "type": "function",
+        "name": "Read block 0",
+        "func": "msg.op    = 'read';\nmsg.block = 0;\nmsg.count = 1;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-sd-spi-demo",
+        "x": 300,
+        "y": 120,
+        "wires": [
+            [
+                "sd-read"
+            ]
+        ]
+    },
+    {
+        "id": "sd-read",
+        "type": "sd-spi",
+        "name": "Read",
+        "device": "cfg-sd-spi",
+        "z": "tab-sd-spi-demo",
+        "x": 460,
+        "y": 120,
+        "wires": [
+            [
+                "summarise"
+            ]
+        ]
+    },
+    {
+        "id": "summarise",
+        "type": "function",
+        "name": "Boot signature",
+        "func": "const b = msg.payload;\nmsg.payload = {\n    bootSignature: b[510].toString(16).padStart(2, '0') + b[511].toString(16).padStart(2, '0'),\n    first16: Array.from(b.subarray(0, 16))\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-sd-spi-demo",
+        "x": 640,
+        "y": 120,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "block 0",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-sd-spi-demo",
+        "x": 820,
+        "y": 120,
+        "wires": []
+    }
+]

@@ -1,0 +1,89 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ltc4151-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '6A', required: true },
+            rsense:  { value: '20', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('LTC4151 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ltc4151-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LTC4151">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="6A" style="width:80px"> &nbsp;67–6F (ADR1/ADR0 pins)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rsense">Sense resistor (mΩ)</label>
+        <input type="number" id="node-config-input-rsense" min="0.01" step="0.01" style="width:100px">
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('ltc4151', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ltc4151-device', required: true },
+            adin:   { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-bolt',
+        label:   function() { return this.name || 'LTC4151'; },
+        paletteLabel: 'LTC4151'
+    });
+</script>
+
+<script type="text/html" data-template-name="ltc4151">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LTC4151">
+    </div>
+    <div class="form-row">
+        <label for="node-input-adin"><i class="fa fa-plug"></i> ADIN</label>
+        <input type="checkbox" id="node-input-adin" style="width:auto"> &nbsp;also output the ADIN pin voltage
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ltc4151">
+    <p>Reads supply voltage, load current and power from an LTC4151 7&ndash;80&nbsp;V high-side power monitor over I²C.</p>
+    <p>Any input message triggers one reading. The device is configured via a <b>ltc4151-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Supply voltage at VIN in volts.</dd>
+        <dt>payload.current <span class="property-type">number</span></dt>
+        <dd>Load current in amperes (sense voltage divided by the sense resistor).</dd>
+        <dt>payload.power <span class="property-type">number</span></dt>
+        <dd>Load power in watts.</dd>
+        <dt>payload.adin <span class="property-type">number</span></dt>
+        <dd>ADIN pin voltage in volts (only when the <b>ADIN</b> option is enabled).</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure the I²C bus number, the address (<code>0x67</code>&ndash;<code>0x6F</code>, default <code>0x6A</code> with
+    both address pins open) and the sense resistor value in milliohms (default 20) in the device config node.
+    The node uses the continuous scan mode (about 7.5&nbsp;Hz) and never writes the chip.</p>
+</script>

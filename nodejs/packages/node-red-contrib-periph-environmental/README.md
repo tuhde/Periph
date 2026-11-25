@@ -1,6 +1,10 @@
 # node-red-contrib-periph-environmental
 
-Node-RED nodes for environmental sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for environmental sensor chips: AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680, BME688 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (8):** AHT10, AHT20, AHT21, AM2315, AM2320, BME280, BME680, BME688.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-environmental/examples).
 
 ## Install
 
@@ -16,12 +20,22 @@ npm install node-red-contrib-periph-environmental
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `aht10-device` | config | I²C bus and address for an AHT10 |
+| `aht10` | input | Reads temperature and humidity from an AHT10 environmental sensor over I²C. |
+| `aht20-device` | config | I²C bus and address for an AHT20 |
+| `aht20` | input | Reads temperature and humidity from an AHT20 environmental sensor over I²C. |
 | `aht21-device` | config | I²C bus and address for an AHT21 |
 | `aht21` | input | Reads temperature and humidity from an AHT21 environmental sensor over I²C. |
+| `am2315-device` | config | I²C bus and address for an AM2315 |
+| `am2315` | input | Reads temperature and relative humidity from an Aosong AM2315 over I²C (fixed address 0x5C). The sensor sleeps between transactions and returns the result of the previous measurement; the node keeps transactions at least 2 s apart, so a message arriving earlier is answered after the remaining delay. Every response is CRC-16 checked. |
+| `am2320-device` | config | I²C bus and address for an AM2320 |
+| `am2320` | input | Reads temperature and relative humidity from an Aosong AM2320 over I²C (fixed address 0x5C). The sensor sleeps between transactions and returns the result of the previous measurement; the node keeps transactions at least 2 s apart, so a message arriving earlier is answered after the remaining delay. Every response is CRC-16 checked. |
 | `bme280-device` | config | Bus configuration for a BME280 |
-| `periph-bme280` | input | Reads temperature, pressure, humidity, altitude, and dew point from a BME280 combined humidity + pressure + temperature sensor. |
+| `bme280` | input | Reads temperature, pressure, humidity, altitude, and dew point from a BME280 combined humidity + pressure + temperature sensor. |
 | `bme680-device` | config | Bus configuration for a BME680 |
-| `periph-bme680` | input | Reads temperature, pressure, humidity, gas resistance, altitude, and dew point from a BME680 4-in-1 environmental sensor. |
+| `bme680` | input | Reads temperature, pressure, humidity, gas resistance, altitude, and dew point from a BME680 4-in-1 environmental sensor. |
+| `bme688-device` | config | Bus configuration for a BME688 |
+| `bme688` | input | Reads temperature, pressure, humidity, gas resistance, altitude, and dew point from a BME688 4-in-1 environmental sensor. |
 
 ## Links
 

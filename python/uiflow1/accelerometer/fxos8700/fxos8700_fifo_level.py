@@ -1,0 +1,1 @@
+_periph_fxos8700.fifo_level()

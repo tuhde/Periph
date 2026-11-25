@@ -1,26 +1,55 @@
 {
   "name": "node-red-contrib-periph-power",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for power monitor chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for power monitor chips: ADE7953, AXP2101, INA219, INA226, INA260, INA3221, LC709203F, LM25066, LTC4151, MAX17048",
   "keywords": [
     "node-red",
     "power",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "ade7953",
+    "axp2101",
+    "ina219",
+    "ina226",
+    "ina260",
+    "ina3221",
+    "lc709203f",
+    "lm25066",
+    "ltc4151",
+    "max17048"
   ],
-  "main": "index.js",
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "ina226": "nodes/ina226/ina226.js",
+      "ina260": "nodes/ina260/ina260.js",
       "ina219": "nodes/ina219/ina219.js",
       "ina3221": "nodes/ina3221/ina3221.js",
-      "ade7953": "nodes/ade7953/ade7953.js"
+      "ade7953": "nodes/ade7953/ade7953.js",
+      "axp2101": "nodes/axp2101/axp2101.js",
+      "lc709203f": "nodes/lc709203f/lc709203f.js",
+      "lm25066": "nodes/lm25066/lm25066.js",
+      "ltc4151": "nodes/ltc4151/ltc4151.js",
+      "max17048": "nodes/max17048/max17048.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-power#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-power"
+  }
 }

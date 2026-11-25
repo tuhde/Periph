@@ -1,0 +1,172 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "axp2101_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init AXP2101",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_battery_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 battery voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_battery_percent",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 battery level (%)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_charge_state",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 charge state (0 trickle, 1 pre, 2 CC, 3 CV, 4 done, 5 none)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_vbus_present",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 VBUS present",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_vbus_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 VBUS voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_system_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 system voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_die_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "AXP2101 die temperature (C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_set_charging",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AXP2101 charging (1 on, 0 off)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_set_charge_voltage",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AXP2101 set charge voltage (V: 4.0, 4.1, 4.2, 4.35, 4.4)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_set_charge_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AXP2101 set charge current (A, 0-1.5)",
+          "type": "label"
+        },
+        {
+          "name": "_amps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_set_input_current_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AXP2101 set input current limit (A: 0.1, 0.5, 0.9, 1.0, 1.5, 2.0)",
+          "type": "label"
+        },
+        {
+          "name": "_amps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "axp2101_set_gpio1",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AXP2101 GPIO1 drive low (1 low, 0 Hi-Z)",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

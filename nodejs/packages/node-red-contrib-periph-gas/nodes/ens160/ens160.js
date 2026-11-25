@@ -56,5 +56,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ens160', ENS160ReadNode);
+    RED.nodes.registerType('ens160', ENS160ReadNode);
 };

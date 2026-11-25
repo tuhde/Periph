@@ -4,7 +4,7 @@
         "type": "tab",
         "label": "MCP9808 Freezer Monitor Demo",
         "disabled": false,
-        "info": "An Inject node fires every 5 seconds, triggering the periph-mcp9808 node to read the temperature and Alert status, which a Function node formats into a log line. The node is configured with TCRIT at -5 °C — the \"too warm, door left open\" threshold for a freezer — with the Alert source set to TCRIT only and the Alert in latched interrupt mode. When the freezer warms past TCRIT the node emits a separate {source: \"critical\"} message; the Function node turns it into an alarm notification on the Debug sidebar and sends {clear_interrupt: true} back into the node to re-arm the latched Alert. To try it without a freezer, raise TCRIT just above room temperature and warm the sensor with a fingertip."
+        "info": "An Inject node fires every 5 seconds, triggering the mcp9808 node to read the temperature and Alert status, which a Function node formats into a log line. The node is configured with TCRIT at -5 °C — the \"too warm, door left open\" threshold for a freezer — with the Alert source set to TCRIT only and the Alert in latched interrupt mode. When the freezer warms past TCRIT the node emits a separate {source: \"critical\"} message; the Function node turns it into an alarm notification on the Debug sidebar and sends {clear_interrupt: true} back into the node to re-arm the latched Alert. To try it without a freezer, raise TCRIT just above room temperature and warm the sensor with a fingertip."
     },
     {
         "id": "inj-read",
@@ -27,19 +27,24 @@
         ]
     },
     {
-        "id": "mcp9808-node",
-        "type": "periph-mcp9808",
-        "name": "Freezer MCP9808",
+        "id": "mcp9808-device-1",
+        "type": "mcp9808-device",
+        "name": "MCP9808",
         "bus": "1",
-        "address": "0x18",
-        "resolution": "0.25",
         "alertEnabled": true,
-        "upperLimit": "-15",
-        "lowerLimit": "-25",
-        "criticalLimit": "-5",
-        "hysteresis": "3",
-        "alertMode": "critical_only",
+        "resolution": "0.25",
         "alertOutput": "interrupt",
+        "address": "0x18",
+        "alertMode": "critical_only",
+        "hysteresis": "3",
+        "criticalLimit": "-5",
+        "lowerLimit": "-25",
+        "upperLimit": "-15"
+    },
+    {
+        "id": "mcp9808-node",
+        "type": "mcp9808",
+        "name": "Freezer MCP9808",
         "z": "tab-mcp9808-demo",
         "x": 400,
         "y": 100,
@@ -47,7 +52,8 @@
             [
                 "fn-alarm"
             ]
-        ]
+        ],
+        "device": "mcp9808-device-1"
     },
     {
         "id": "fn-alarm",

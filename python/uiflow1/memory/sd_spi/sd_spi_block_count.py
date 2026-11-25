@@ -1,0 +1,1 @@
+_periph_sd_spi.block_count()

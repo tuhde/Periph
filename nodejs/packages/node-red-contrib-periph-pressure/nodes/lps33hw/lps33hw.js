@@ -53,5 +53,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-lps33hw', LPS33HWReadNode);
+    RED.nodes.registerType('lps33hw', LPS33HWReadNode);
 };

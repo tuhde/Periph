@@ -1,0 +1,1 @@
+_periph_fxos8700.set_range(int(${_range_g}))

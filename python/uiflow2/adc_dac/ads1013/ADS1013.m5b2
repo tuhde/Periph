@@ -1,0 +1,304 @@
+{
+  "category": "ADS1013",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ADS1013_LANGUAGES = {\n  \"CUSTOM_ADS1013_INIT\": {\n    \"en\": \"%1 init bus %2 address (72-75) %3\"\n  },\n  \"CUSTOM_ADS1013_READ_RAW\": {\n    \"en\": \"%1 raw code\"\n  },\n  \"CUSTOM_ADS1013_READ_VOLTAGE\": {\n    \"en\": \"%1 voltage (V)\"\n  },\n  \"CUSTOM_ADS1013_FULL_SCALE\": {\n    \"en\": \"%1 full scale (V)\"\n  },\n  \"CUSTOM_ADS1013_LSB\": {\n    \"en\": \"%1 LSB (V)\"\n  },\n  \"CUSTOM_ADS1013_SET_DATA_RATE\": {\n    \"en\": \"%1 set data rate (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS) %2\"\n  },\n  \"CUSTOM_ADS1013_GET_DATA_RATE\": {\n    \"en\": \"%1 data rate code\"\n  },\n  \"CUSTOM_ADS1013_DATA_RATE_SPS\": {\n    \"en\": \"%1 data rate (SPS)\"\n  },\n  \"CUSTOM_ADS1013_START_CONTINUOUS\": {\n    \"en\": \"%1 start continuous\"\n  },\n  \"CUSTOM_ADS1013_READ_CONTINUOUS_RAW\": {\n    \"en\": \"%1 continuous raw code\"\n  },\n  \"CUSTOM_ADS1013_READ_CONTINUOUS\": {\n    \"en\": \"%1 continuous voltage (V)\"\n  },\n  \"CUSTOM_ADS1013_STOP_CONTINUOUS\": {\n    \"en\": \"%1 stop continuous\"\n  },\n  \"CUSTOM_ADS1013_IS_CONVERTING\": {\n    \"en\": \"%1 is converting\"\n  },\n  \"CUSTOM_ADS1013_READ_CONFIG\": {\n    \"en\": \"%1 CONFIG register\"\n  },\n  \"CUSTOM_ADS1013_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_ads1013_init';\nBlockly.BlockRegExpList['custom_ads1013'] = {\n  regexp: new RegExp(/^custom_ads1013_/),\n  code: \"from ADS1013 import ADS1013\",\n  initBlockType: initType,\n  categoryId: 'custom_ads1013',\n}\nBlockly.utils.registerLanguages(CUSTOM_ADS1013_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ADS1013_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ADS1013 = 'ADS1013'\n\nBlockly.utils.getcustom_ads1013Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ads1013_0', 'ads1013_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ads1013_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ads1013Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ads1013_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ADS1013(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1013_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_READ_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_full_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_FULL_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_full_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.full_scale()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_lsb\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_LSB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_lsb\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lsb()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_set_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_SET_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'dr'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_set_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var dr = Blockly.Python.valueToCode(block, 'dr', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_data_rate(${dr})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1013_get_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_GET_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_get_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_data_rate()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_data_rate_sps\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_DATA_RATE_SPS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_data_rate_sps\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_rate_sps()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_start_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_START_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_start_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.start_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1013_read_continuous_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_READ_CONTINUOUS_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_read_continuous_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_read_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_READ_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_read_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_stop_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_STOP_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_stop_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1013_is_converting\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_IS_CONVERTING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_is_converting\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_converting()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_read_config\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_READ_CONFIG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_read_config\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_config()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1013_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1013_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1013Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1013_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"ADS1013\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ads1013\">\n<title text=\"ADS1013\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ads1013_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">72</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1013_read_raw\"/><block type=\"custom_ads1013_read_voltage\"/><block type=\"custom_ads1013_full_scale\"/><block type=\"custom_ads1013_lsb\"/><block type=\"custom_ads1013_set_data_rate\">\n  <value name=\"dr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1013_get_data_rate\"/><block type=\"custom_ads1013_data_rate_sps\"/><block type=\"custom_ads1013_start_continuous\"/><block type=\"custom_ads1013_read_continuous_raw\"/><block type=\"custom_ads1013_read_continuous\"/><block type=\"custom_ads1013_stop_continuous\"/><block type=\"custom_ads1013_is_converting\"/><block type=\"custom_ads1013_read_config\"/><block type=\"custom_ads1013_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_ads1013",
+    "block_type": [
+      "custom_ads1013___init__",
+      "custom_ads1013_read_raw",
+      "custom_ads1013_read_voltage",
+      "custom_ads1013_full_scale",
+      "custom_ads1013_lsb",
+      "custom_ads1013_set_data_rate",
+      "custom_ads1013_get_data_rate",
+      "custom_ads1013_data_rate_sps",
+      "custom_ads1013_start_continuous",
+      "custom_ads1013_read_continuous_raw",
+      "custom_ads1013_read_continuous",
+      "custom_ads1013_stop_continuous",
+      "custom_ads1013_is_converting",
+      "custom_ads1013_read_config",
+      "custom_ads1013_reset"
+    ]
+  },
+  "data": {
+    "name": "ADS1013",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ADS1013",
+      "time": "2026-11-05",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ads1013 import ADS1013Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address (72-75) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "72",
+            "note": {},
+            "field": "number",
+            "max": "75",
+            "min": "72"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = ADS1013Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()",
+        "ast_return": {
+          "code": "self._driver.read_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_voltage()",
+        "ast_return": {
+          "code": "self._driver.read_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "full_scale",
+        "note": {},
+        "label": {
+          "en": "%1 full scale (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.full_scale()",
+        "ast_return": {
+          "code": "self._driver.full_scale()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lsb",
+        "note": {},
+        "label": {
+          "en": "%1 LSB (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.lsb()",
+        "ast_return": {
+          "code": "self._driver.lsb()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set data rate (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS) %2"
+        },
+        "params": [
+          {
+            "name": "dr",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_data_rate(dr)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 data rate code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_data_rate()",
+        "ast_return": {
+          "code": "self._driver.get_data_rate()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_rate_sps",
+        "note": {},
+        "label": {
+          "en": "%1 data rate (SPS)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_rate_sps()",
+        "ast_return": {
+          "code": "self._driver.data_rate_sps()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.start_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous_raw",
+        "note": {},
+        "label": {
+          "en": "%1 continuous raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous_raw()",
+        "ast_return": {
+          "code": "self._driver.read_continuous_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 continuous voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous()",
+        "ast_return": {
+          "code": "self._driver.read_continuous()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_converting",
+        "note": {},
+        "label": {
+          "en": "%1 is converting"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_converting()",
+        "ast_return": {
+          "code": "self._driver.is_converting()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_config",
+        "note": {},
+        "label": {
+          "en": "%1 CONFIG register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_config()",
+        "ast_return": {
+          "code": "self._driver.read_config()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ads1013"
+  },
+  "pyCode": "\"\"\"\nfile     ADS1013\ntime     2026-11-05\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ads1013 import ADS1013Full\n\n\nclass ADS1013:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 72):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address (72-75) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '72'\n                field: number\n                min: '72'\n                max: '75'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = ADS1013Full(connection)\n\n    def read_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw code'\n        \"\"\"\n        return self._driver.read_raw()\n\n    def read_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 voltage (V)'\n        \"\"\"\n        return self._driver.read_voltage()\n\n    def full_scale(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 full scale (V)'\n        \"\"\"\n        return self._driver.full_scale()\n\n    def lsb(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 LSB (V)'\n        \"\"\"\n        return self._driver.lsb()\n\n    def set_data_rate(self, dr: int):\n        \"\"\"\n        label:\n            en: '%1 set data rate (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS) %2'\n        params:\n            dr:\n                name: dr\n                type: int\n                default: '4'\n                field: number\n        \"\"\"\n        self._driver.set_data_rate(dr)\n\n    def get_data_rate(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 data rate code'\n        \"\"\"\n        return self._driver.get_data_rate()\n\n    def data_rate_sps(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 data rate (SPS)'\n        \"\"\"\n        return self._driver.data_rate_sps()\n\n    def start_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 start continuous'\n        \"\"\"\n        self._driver.start_continuous()\n\n    def read_continuous_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 continuous raw code'\n        \"\"\"\n        return self._driver.read_continuous_raw()\n\n    def read_continuous(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 continuous voltage (V)'\n        \"\"\"\n        return self._driver.read_continuous()\n\n    def stop_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous'\n        \"\"\"\n        self._driver.stop_continuous()\n\n    def is_converting(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is converting'\n        \"\"\"\n        return self._driver.is_converting()\n\n    def read_config(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 CONFIG register'\n        \"\"\"\n        return self._driver.read_config()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

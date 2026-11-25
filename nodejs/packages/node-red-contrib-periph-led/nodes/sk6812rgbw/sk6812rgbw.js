@@ -68,5 +68,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-sk6812rgbw', SK6812RGBWWriteNode);
+    RED.nodes.registerType('sk6812rgbw', SK6812RGBWWriteNode);
 };

@@ -92,7 +92,7 @@
   },
   {
     "id": "ws2812b-node",
-    "type": "periph-ws2812b",
+    "type": "ws2812b",
     "z": "ws2812b-demo-tab",
     "name": "WS2812B",
     "device": "ws2812b-device-1",

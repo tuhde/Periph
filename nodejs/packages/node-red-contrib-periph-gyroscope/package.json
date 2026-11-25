@@ -1,22 +1,39 @@
 {
   "name": "node-red-contrib-periph-gyroscope",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for gyroscope chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for gyroscope chips: L3G4200D, L3GD20H",
   "keywords": [
     "node-red",
     "gyroscope",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "l3g4200d",
+    "l3gd20h"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
-      "l3g4200d": "nodes/l3g4200d/l3g4200d.js"
+      "l3g4200d": "nodes/l3g4200d/l3g4200d.js",
+      "l3gd20h": "nodes/l3gd20h/l3gd20h.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-gyroscope#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-gyroscope"
+  }
 }

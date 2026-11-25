@@ -1,16 +1,31 @@
 {
   "name": "node-red-contrib-periph-pressure",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for pressure sensor chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607, MS5611",
   "keywords": [
     "node-red",
     "pressure",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "bmp085",
+    "bmp180",
+    "bmp280",
+    "bmp384",
+    "bmp581",
+    "lps22df",
+    "lps22hb",
+    "lps28dfw",
+    "lps33hw",
+    "mpl115a2",
+    "mpl3115a2",
+    "ms5607",
+    "ms5611"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "bmp085": "nodes/bmp085/bmp085.js",
       "bmp180": "nodes/bmp180/bmp180.js",
@@ -19,11 +34,28 @@
       "bmp581": "nodes/bmp581/bmp581.js",
       "lps28dfw": "nodes/lps28dfw/lps28dfw.js",
       "lps33hw": "nodes/lps33hw/lps33hw.js",
-      "lps22df": "nodes/lps22df/lps22df.js"
+      "lps22hb": "nodes/lps22hb/lps22hb.js",
+      "lps22df": "nodes/lps22df/lps22df.js",
+      "mpl115a2": "nodes/mpl115a2/mpl115a2.js",
+      "mpl3115a2": "nodes/mpl3115a2/mpl3115a2.js",
+      "ms5607": "nodes/ms5607/ms5607.js",
+      "ms5611": "nodes/ms5611/ms5611.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-pressure#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-pressure"
+  }
 }

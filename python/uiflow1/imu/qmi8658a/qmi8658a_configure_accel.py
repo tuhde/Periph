@@ -1,0 +1,1 @@
+_periph_qmi8658a.configure_accel(int(${_full_scale}), int(${_odr}))

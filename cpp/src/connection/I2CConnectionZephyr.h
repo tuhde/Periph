@@ -27,7 +27,7 @@ protected:
      *  @param len  Number of bytes to send.
      */
     void _write(const uint8_t* data, size_t len) override {
-        i2c_write(_dev, data, len, _addr);
+        _setOk(i2c_write(_dev, data, len, _addr) == 0);
     }
 
     /** @brief Read bytes from the device via i2c_read.
@@ -35,7 +35,7 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        i2c_read(_dev, buf, len, _addr);
+        _setOk(i2c_read(_dev, buf, len, _addr) == 0);
     }
 
     /** @brief Write then read via i2c_write_read (repeated start).
@@ -46,7 +46,7 @@ protected:
      */
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
-        i2c_write_read(_dev, _addr, data, data_len, buf, buf_len);
+        _setOk(i2c_write_read(_dev, _addr, data, data_len, buf, buf_len) == 0);
     }
 
 private:

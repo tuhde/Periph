@@ -61,6 +61,10 @@
 		hx710b_dout: hx710b_dout { gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; };
 		hx710b_sck: hx710b_sck { gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>; };
 
+		display_dc: display_dc { gpios = <&gpio0 10 GPIO_ACTIVE_HIGH>; };
+		display_res: display_res { gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>; };
+		display_busy: display_busy { gpios = <&gpio0 21 GPIO_ACTIVE_HIGH>; };
+
 		pcf8574_int: pcf8574_int { gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; };
 		mcp23017_int: mcp23017_int { gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; };
 	};
@@ -75,5 +79,8 @@
 		hx710a-sck = &hx710a_sck;
 		hx710b-dout = &hx710b_dout;
 		hx710b-sck = &hx710b_sck;
+		display-dc = &display_dc;
+		display-res = &display_res;
+		display-busy = &display_busy;
 	};
 };

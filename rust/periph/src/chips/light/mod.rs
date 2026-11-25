@@ -3,3 +3,25 @@ pub use apds9960::{Apds9960Minimal, Apds9960Full};
 
 pub mod apds_9930;
 pub use apds_9930::{Apds9930Minimal, Apds9930Full, Status};
+
+pub mod max44009;
+pub use max44009::{
+    MAX44009Minimal, MAX44009Full, MAX44009Config, Max44009Error, MAX44009_I2C_ADDRESS,
+    MAX44009_I2C_ADDRESS_A0_HIGH, MAX44009_SOURCE_THRESHOLD,
+};
+
+pub mod apds9250;
+pub use apds9250::{
+    Apds9250Minimal, Apds9250Full, Apds9250Counts, Apds9250Channel, Apds9250Error, APDS9250_I2C_ADDRESS,
+    APDS9250_SOURCE_THRESHOLD, APDS9250_SOURCE_VARIATION, APDS9250_STATUS_POWER_ON,
+    APDS9250_STATUS_INTERRUPT, APDS9250_STATUS_DATA_READY,
+};
+
+pub mod bh1750;
+pub use bh1750::{
+    BH1750Minimal, BH1750Full, Mode as BH1750Mode, Error as BH1750Error, BH1750_I2C_ADDRESS,
+    BH1750_I2C_ADDRESS_ADDR_HIGH,
+};
+
+pub mod si1132;
+pub use si1132::{Si1132Minimal, Si1132Full, Reading as Si1132Reading, Error as Si1132Error};

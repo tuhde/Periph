@@ -1,0 +1,1 @@
+_periph_fxos8700.set_data_rate(float(${_rate_hz}))

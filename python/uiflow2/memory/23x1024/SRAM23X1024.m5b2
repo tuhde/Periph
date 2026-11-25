@@ -1,0 +1,235 @@
+{
+  "category": "SRAM23X1024",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SRAM23X1024_LANGUAGES = {\n  \"CUSTOM_SRAM23X1024_INIT\": {\n    \"en\": \"%1 init bus %2 CS pin %3\"\n  },\n  \"CUSTOM_SRAM23X1024_READ_BYTE\": {\n    \"en\": \"%1 read byte address %2\"\n  },\n  \"CUSTOM_SRAM23X1024_WRITE_BYTE\": {\n    \"en\": \"%1 write byte address %2 value %3\"\n  },\n  \"CUSTOM_SRAM23X1024_FILL\": {\n    \"en\": \"%1 fill address %2 length %3 value %4\"\n  },\n  \"CUSTOM_SRAM23X1024_SIZE\": {\n    \"en\": \"%1 size (bytes)\"\n  },\n  \"CUSTOM_SRAM23X1024_SET_MODE\": {\n    \"en\": \"%1 set mode (0 byte, 128 page, 64 sequential) %2\"\n  },\n  \"CUSTOM_SRAM23X1024_GET_MODE\": {\n    \"en\": \"%1 mode (0 byte, 128 page, 64 sequential)\"\n  },\n  \"CUSTOM_SRAM23X1024_RESET_IO\": {\n    \"en\": \"%1 reset I/O (back to SPI mode)\"\n  }\n};\n\nconst initType = 'custom_sram23x1024_init';\nBlockly.BlockRegExpList['custom_sram23x1024'] = {\n  regexp: new RegExp(/^custom_sram23x1024_/),\n  code: \"from SRAM23X1024 import SRAM23X1024\",\n  initBlockType: initType,\n  categoryId: 'custom_sram23x1024',\n}\nBlockly.utils.registerLanguages(CUSTOM_SRAM23X1024_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SRAM23X1024_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SRAM23X1024 = 'SRAM23X1024'\n\nBlockly.utils.getcustom_sram23x1024Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['sram23x1024_0', 'sram23x1024_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_sram23x1024_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_sram23x1024Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'sram23x1024_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = SRAM23X1024(${bus}, ${cs_pin})\\n`\n}\n\nBlockly.Blocks[\"custom_sram23x1024_read_byte\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_READ_BYTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_read_byte\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_byte(${address})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sram23x1024_write_byte\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_WRITE_BYTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_write_byte\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_byte(${address}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_sram23x1024_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'length'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var length = Blockly.Python.valueToCode(block, 'length', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${address}, ${length}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_sram23x1024_size\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_SIZE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_size\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.size()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sram23x1024_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_sram23x1024_get_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_GET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_get_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_sram23x1024_reset_io\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SRAM23X1024_RESET_IO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_sram23x1024Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_sram23x1024_reset_io\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset_io()\\n`\n}\n",
+    "toolbox": "\n<category name=\"SRAM23X1024\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_sram23x1024\">\n<title text=\"SRAM23X1024\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_sram23x1024_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sram23x1024_read_byte\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sram23x1024_write_byte\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sram23x1024_fill\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n  <value name=\"length\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sram23x1024_size\"/><block type=\"custom_sram23x1024_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_sram23x1024_get_mode\"/><block type=\"custom_sram23x1024_reset_io\"/>\n</category>\n",
+    "toolboxitemid": "custom_sram23x1024",
+    "block_type": [
+      "custom_sram23x1024___init__",
+      "custom_sram23x1024_read_byte",
+      "custom_sram23x1024_write_byte",
+      "custom_sram23x1024_fill",
+      "custom_sram23x1024_size",
+      "custom_sram23x1024_set_mode",
+      "custom_sram23x1024_get_mode",
+      "custom_sram23x1024_reset_io"
+    ]
+  },
+  "data": {
+    "name": "SRAM23X1024",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "SRAM23X1024",
+      "time": "2026-10-21",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.memory._23x1024 import SRAM23X1024Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 CS pin %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = SRAM23X1024Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_byte",
+        "note": {},
+        "label": {
+          "en": "%1 read byte address %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_byte(address)",
+        "ast_return": {
+          "code": "self._driver.read_byte(address)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_byte",
+        "note": {},
+        "label": {
+          "en": "%1 write byte address %2 value %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_byte(address, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill address %2 length %3 value %4"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "length",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(address, length, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "size",
+        "note": {},
+        "label": {
+          "en": "%1 size (bytes)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.size()",
+        "ast_return": {
+          "code": "self._driver.size()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set mode (0 byte, 128 page, 64 sequential) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_mode",
+        "note": {},
+        "label": {
+          "en": "%1 mode (0 byte, 128 page, 64 sequential)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_mode()",
+        "ast_return": {
+          "code": "self._driver.get_mode()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset_io",
+        "note": {},
+        "label": {
+          "en": "%1 reset I/O (back to SPI mode)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset_io()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "sram23x1024"
+  },
+  "pyCode": "\"\"\"\nfile     SRAM23X1024\ntime     2026-10-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.memory._23x1024 import SRAM23X1024Full\n\n\nclass SRAM23X1024:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, cs_pin: int = 5):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 CS pin %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = SRAM23X1024Full(connection)\n    def read_byte(self, address: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read byte address %2'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_byte(address)\n\n    def write_byte(self, address: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write byte address %2 value %3'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_byte(address, value)\n\n    def fill(self, address: int, length: int, value: int = 0):\n        \"\"\"\n        label:\n            en: '%1 fill address %2 length %3 value %4'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            length:\n                name: length\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.fill(address, length, value)\n\n    def size(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 size (bytes)'\n        \"\"\"\n        return self._driver.size()\n\n    def set_mode(self, mode: int = 64):\n        \"\"\"\n        label:\n            en: '%1 set mode (0 byte, 128 page, 64 sequential) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '64'\n                field: number\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def get_mode(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 mode (0 byte, 128 page, 64 sequential)'\n        \"\"\"\n        return self._driver.get_mode()\n\n    def reset_io(self):\n        \"\"\"\n        label:\n            en: '%1 reset I/O (back to SPI mode)'\n        \"\"\"\n        self._driver.reset_io()",
+  "version": "alpha2"
+}

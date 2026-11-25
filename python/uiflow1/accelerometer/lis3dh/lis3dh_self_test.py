@@ -1,0 +1,1 @@
+_periph_lis3dh.self_test(int(${_mode}))

@@ -1,0 +1,1 @@
+_periph_mx25l12845e.erase_sector(${_address})

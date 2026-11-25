@@ -1,0 +1,1 @@
+int(_periph_hdc1008.is_heater_on())

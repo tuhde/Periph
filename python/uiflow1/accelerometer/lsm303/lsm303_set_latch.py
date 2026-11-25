@@ -1,0 +1,1 @@
+_periph_lsm303.set_latch(int(${_generator}), bool(int(${_enabled})))

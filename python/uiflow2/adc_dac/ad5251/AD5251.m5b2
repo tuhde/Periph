@@ -1,0 +1,677 @@
+{
+  "category": "AD5251",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_AD5251_LANGUAGES = {\n  \"CUSTOM_AD5251_INIT\": {\n    \"en\": \"%1 init bus %2 RAB (ohm) %3\"\n  },\n  \"CUSTOM_AD5251_SET_WIPER\": {\n    \"en\": \"%1 set wiper channel (0-1) %2 code (0-63) %3\"\n  },\n  \"CUSTOM_AD5251_GET_WIPER\": {\n    \"en\": \"%1 wiper code channel (0-1) %2\"\n  },\n  \"CUSTOM_AD5251_SET_RESISTANCE\": {\n    \"en\": \"%1 set W-B resistance channel (0-1) %2 ohms %3\"\n  },\n  \"CUSTOM_AD5251_GET_RESISTANCE\": {\n    \"en\": \"%1 W-B resistance (ohm) channel (0-1) %2\"\n  },\n  \"CUSTOM_AD5251_SET_BOTH\": {\n    \"en\": \"%1 set both wipers channel 0 code %2 channel 1 code %3\"\n  },\n  \"CUSTOM_AD5251_SET_RATIO\": {\n    \"en\": \"%1 set ratio channel (0-1) %2 ratio (0-1) %3\"\n  },\n  \"CUSTOM_AD5251_GET_RATIO\": {\n    \"en\": \"%1 ratio channel (0-1) %2\"\n  },\n  \"CUSTOM_AD5251_SET_RESISTANCE_WA\": {\n    \"en\": \"%1 set W-A resistance channel (0-1) %2 ohms %3\"\n  },\n  \"CUSTOM_AD5251_GET_RESISTANCE_WA\": {\n    \"en\": \"%1 W-A resistance (ohm) channel (0-1) %2\"\n  },\n  \"CUSTOM_AD5251_INCREMENT\": {\n    \"en\": \"%1 step up channel (0-1, -1 = both) %2\"\n  },\n  \"CUSTOM_AD5251_DECREMENT\": {\n    \"en\": \"%1 step down channel (0-1, -1 = both) %2\"\n  },\n  \"CUSTOM_AD5251_DOUBLE\": {\n    \"en\": \"%1 double (+6 dB) channel (0-1, -1 = both) %2\"\n  },\n  \"CUSTOM_AD5251_HALVE\": {\n    \"en\": \"%1 halve (-6 dB) channel (0-1, -1 = both) %2\"\n  },\n  \"CUSTOM_AD5251_STORE\": {\n    \"en\": \"%1 store to EEMEM channel (0-1, -1 = both) %2\"\n  },\n  \"CUSTOM_AD5251_RESTORE\": {\n    \"en\": \"%1 restore from EEMEM channel (0-1, -1 = both) %2\"\n  },\n  \"CUSTOM_AD5251_RESET\": {\n    \"en\": \"%1 reset from EEMEM\"\n  },\n  \"CUSTOM_AD5251_READ_EEMEM\": {\n    \"en\": \"%1 read user EEMEM index (4-15) %2\"\n  },\n  \"CUSTOM_AD5251_WRITE_EEMEM\": {\n    \"en\": \"%1 write user EEMEM index (4-15) %2 value (0-63) %3\"\n  },\n  \"CUSTOM_AD5251_READ_TOLERANCE\": {\n    \"en\": \"%1 RAB tolerance (percent) channel (0-1) %2\"\n  },\n  \"CUSTOM_AD5251_RAB_ACTUAL\": {\n    \"en\": \"%1 actual RAB (ohm) channel (0-1) %2\"\n  },\n  \"CUSTOM_AD5251_NOP\": {\n    \"en\": \"%1 NOP\"\n  },\n  \"CUSTOM_AD5251_SET_RAB\": {\n    \"en\": \"%1 set RAB (ohm) %2 RW (ohm) %3\"\n  }\n};\n\nconst initType = 'custom_ad5251_init';\nBlockly.BlockRegExpList['custom_ad5251'] = {\n  regexp: new RegExp(/^custom_ad5251_/),\n  code: \"from AD5251 import AD5251\",\n  initBlockType: initType,\n  categoryId: 'custom_ad5251',\n}\nBlockly.utils.registerLanguages(CUSTOM_AD5251_LANGUAGES)\n\nBlockly.Msg.CUSTOM_AD5251_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_AD5251 = 'AD5251'\n\nBlockly.utils.getcustom_ad5251Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ad5251_0', 'ad5251_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ad5251_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ad5251Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ad5251_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_ab'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_ab = Blockly.Python.valueToCode(block, 'r_ab', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = AD5251(${bus}, ${r_ab})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_set_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_SET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_set_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wiper(${channel}, ${code})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_get_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_GET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_get_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_wiper(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_set_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_SET_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ohms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_set_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ohms = Blockly.Python.valueToCode(block, 'ohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resistance(${channel}, ${ohms})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_get_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_GET_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_get_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_resistance(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_set_both\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_SET_BOTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'code0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'code1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_set_both\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code0 = Blockly.Python.valueToCode(block, 'code0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var code1 = Blockly.Python.valueToCode(block, 'code1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_both(${code0}, ${code1})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_set_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_SET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ratio'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_set_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ratio = Blockly.Python.valueToCode(block, 'ratio', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ratio(${channel}, ${ratio})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_get_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_GET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_get_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_ratio(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_set_resistance_wa\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_SET_RESISTANCE_WA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ohms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_set_resistance_wa\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ohms = Blockly.Python.valueToCode(block, 'ohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resistance_wa(${channel}, ${ohms})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_get_resistance_wa\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_GET_RESISTANCE_WA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_get_resistance_wa\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_resistance_wa(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_increment\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_INCREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_increment\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.increment(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_decrement\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_DECREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_decrement\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.decrement(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_double\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_DOUBLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_double\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.double(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_halve\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_HALVE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_halve\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.halve(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_store\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_STORE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_store\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.store(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_restore\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_RESTORE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_restore\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.restore(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_read_eemem\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_READ_EEMEM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_read_eemem\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_eemem(${index})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_write_eemem\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_WRITE_EEMEM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_write_eemem\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_eemem(${index}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_read_tolerance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_READ_TOLERANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_read_tolerance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_tolerance(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_rab_actual\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_RAB_ACTUAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_rab_actual\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.rab_actual(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ad5251_nop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_NOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_nop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.nop()\\n`\n}\n\nBlockly.Blocks[\"custom_ad5251_set_rab\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD5251_SET_RAB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad5251Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_ab'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_wiper'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ad5251_set_rab\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var r_ab = Blockly.Python.valueToCode(block, 'r_ab', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_wiper = Blockly.Python.valueToCode(block, 'r_wiper', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rab(${r_ab}, ${r_wiper})\\n`\n}\n",
+    "toolbox": "\n<category name=\"AD5251\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ad5251\">\n<title text=\"AD5251\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ad5251_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"r_ab\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50000.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_set_wiper\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">32</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_get_wiper\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_set_resistance\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"ohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">25000.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_get_resistance\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_set_both\">\n  <value name=\"code0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">32</field>\n    </shadow>\n  </value>\n  <value name=\"code1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">32</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_set_ratio\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"ratio\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_get_ratio\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_set_resistance_wa\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"ohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">25000.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_get_resistance_wa\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_increment\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_decrement\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_double\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_halve\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_store\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_restore\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_reset\"/><block type=\"custom_ad5251_read_eemem\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_write_eemem\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_read_tolerance\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_rab_actual\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ad5251_nop\"/><block type=\"custom_ad5251_set_rab\">\n  <value name=\"r_ab\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50000.0</field>\n    </shadow>\n  </value>\n  <value name=\"r_wiper\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">75.0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_ad5251",
+    "block_type": [
+      "custom_ad5251___init__",
+      "custom_ad5251_set_wiper",
+      "custom_ad5251_get_wiper",
+      "custom_ad5251_set_resistance",
+      "custom_ad5251_get_resistance",
+      "custom_ad5251_set_both",
+      "custom_ad5251_set_ratio",
+      "custom_ad5251_get_ratio",
+      "custom_ad5251_set_resistance_wa",
+      "custom_ad5251_get_resistance_wa",
+      "custom_ad5251_increment",
+      "custom_ad5251_decrement",
+      "custom_ad5251_double",
+      "custom_ad5251_halve",
+      "custom_ad5251_store",
+      "custom_ad5251_restore",
+      "custom_ad5251_reset",
+      "custom_ad5251_read_eemem",
+      "custom_ad5251_write_eemem",
+      "custom_ad5251_read_tolerance",
+      "custom_ad5251_rab_actual",
+      "custom_ad5251_nop",
+      "custom_ad5251_set_rab"
+    ]
+  },
+  "data": {
+    "name": "AD5251",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "AD5251",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ad5251 import AD5251Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 RAB (ohm) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_ab",
+            "type": "float",
+            "default": "50000.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(0x2C, bus=bus)\n        self._driver = AD5251Full(connection, r_ab)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 set wiper channel (0-1) %2 code (0-63) %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "code",
+            "type": "int",
+            "default": "32",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wiper(channel, code)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 wiper code channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_wiper(channel)",
+        "ast_return": {
+          "code": "self._driver.get_wiper(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 set W-B resistance channel (0-1) %2 ohms %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "ohms",
+            "type": "float",
+            "default": "25000.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resistance(channel, ohms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 W-B resistance (ohm) channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_resistance(channel)",
+        "ast_return": {
+          "code": "self._driver.get_resistance(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_both",
+        "note": {},
+        "label": {
+          "en": "%1 set both wipers channel 0 code %2 channel 1 code %3"
+        },
+        "params": [
+          {
+            "name": "code0",
+            "type": "int",
+            "default": "32",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          },
+          {
+            "name": "code1",
+            "type": "int",
+            "default": "32",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_both(code0, code1)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 set ratio channel (0-1) %2 ratio (0-1) %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "ratio",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ratio(channel, ratio)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 ratio channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_ratio(channel)",
+        "ast_return": {
+          "code": "self._driver.get_ratio(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resistance_wa",
+        "note": {},
+        "label": {
+          "en": "%1 set W-A resistance channel (0-1) %2 ohms %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "ohms",
+            "type": "float",
+            "default": "25000.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resistance_wa(channel, ohms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance_wa",
+        "note": {},
+        "label": {
+          "en": "%1 W-A resistance (ohm) channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_resistance_wa(channel)",
+        "ast_return": {
+          "code": "self._driver.get_resistance_wa(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "increment",
+        "note": {},
+        "label": {
+          "en": "%1 step up channel (0-1, -1 = both) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.increment(None if channel < 0 else channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "decrement",
+        "note": {},
+        "label": {
+          "en": "%1 step down channel (0-1, -1 = both) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.decrement(None if channel < 0 else channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "double",
+        "note": {},
+        "label": {
+          "en": "%1 double (+6 dB) channel (0-1, -1 = both) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.double(None if channel < 0 else channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "halve",
+        "note": {},
+        "label": {
+          "en": "%1 halve (-6 dB) channel (0-1, -1 = both) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.halve(None if channel < 0 else channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "store",
+        "note": {},
+        "label": {
+          "en": "%1 store to EEMEM channel (0-1, -1 = both) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.store(None if channel < 0 else channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "restore",
+        "note": {},
+        "label": {
+          "en": "%1 restore from EEMEM channel (0-1, -1 = both) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "-1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.restore(None if channel < 0 else channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset from EEMEM"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_eemem",
+        "note": {},
+        "label": {
+          "en": "%1 read user EEMEM index (4-15) %2"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "4"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_eemem(index)",
+        "ast_return": {
+          "code": "self._driver.read_eemem(index)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_eemem",
+        "note": {},
+        "label": {
+          "en": "%1 write user EEMEM index (4-15) %2 value (0-63) %3"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "4"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "63",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_eemem(index, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_tolerance",
+        "note": {},
+        "label": {
+          "en": "%1 RAB tolerance (percent) channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_tolerance(channel)",
+        "ast_return": {
+          "code": "self._driver.read_tolerance(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "rab_actual",
+        "note": {},
+        "label": {
+          "en": "%1 actual RAB (ohm) channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.rab_actual(channel)",
+        "ast_return": {
+          "code": "self._driver.rab_actual(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "nop",
+        "note": {},
+        "label": {
+          "en": "%1 NOP"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.nop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rab",
+        "note": {},
+        "label": {
+          "en": "%1 set RAB (ohm) %2 RW (ohm) %3"
+        },
+        "params": [
+          {
+            "name": "r_ab",
+            "type": "float",
+            "default": "50000.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_wiper",
+            "type": "float",
+            "default": "75.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rab(r_ab, r_wiper)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ad5251"
+  },
+  "pyCode": "\"\"\"\nfile     AD5251\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ad5251 import AD5251Full\n\n\nclass AD5251:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, r_ab: float = 50000.0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 RAB (ohm) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            r_ab:\n                name: r_ab\n                type: float\n                default: '50000.0'\n                field: number\n        \"\"\"\n        connection = I2CConnection(0x2C, bus=bus)\n        self._driver = AD5251Full(connection, r_ab)\n\n    def set_wiper(self, channel: int, code: int):\n        \"\"\"\n        label:\n            en: '%1 set wiper channel (0-1) %2 code (0-63) %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            code:\n                name: code\n                type: int\n                default: '32'\n                field: number\n                min: '0'\n                max: '63'\n        \"\"\"\n        self._driver.set_wiper(channel, code)\n\n    def get_wiper(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 wiper code channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.get_wiper(channel)\n\n    def set_resistance(self, channel: int, ohms: float):\n        \"\"\"\n        label:\n            en: '%1 set W-B resistance channel (0-1) %2 ohms %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            ohms:\n                name: ohms\n                type: float\n                default: '25000.0'\n                field: number\n        \"\"\"\n        self._driver.set_resistance(channel, ohms)\n\n    def get_resistance(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 W-B resistance (ohm) channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.get_resistance(channel)\n\n    def set_both(self, code0: int, code1: int):\n        \"\"\"\n        label:\n            en: '%1 set both wipers channel 0 code %2 channel 1 code %3'\n        params:\n            code0:\n                name: code0\n                type: int\n                default: '32'\n                field: number\n                min: '0'\n                max: '63'\n            code1:\n                name: code1\n                type: int\n                default: '32'\n                field: number\n                min: '0'\n                max: '63'\n        \"\"\"\n        self._driver.set_both(code0, code1)\n\n    def set_ratio(self, channel: int, ratio: float):\n        \"\"\"\n        label:\n            en: '%1 set ratio channel (0-1) %2 ratio (0-1) %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            ratio:\n                name: ratio\n                type: float\n                default: '0.5'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_ratio(channel, ratio)\n\n    def get_ratio(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 ratio channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.get_ratio(channel)\n\n    def set_resistance_wa(self, channel: int, ohms: float):\n        \"\"\"\n        label:\n            en: '%1 set W-A resistance channel (0-1) %2 ohms %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            ohms:\n                name: ohms\n                type: float\n                default: '25000.0'\n                field: number\n        \"\"\"\n        self._driver.set_resistance_wa(channel, ohms)\n\n    def get_resistance_wa(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 W-A resistance (ohm) channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.get_resistance_wa(channel)\n\n    def increment(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 step up channel (0-1, -1 = both) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '-1'\n                field: number\n                min: '-1'\n                max: '1'\n        \"\"\"\n        self._driver.increment(None if channel < 0 else channel)\n\n    def decrement(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 step down channel (0-1, -1 = both) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '-1'\n                field: number\n                min: '-1'\n                max: '1'\n        \"\"\"\n        self._driver.decrement(None if channel < 0 else channel)\n\n    def double(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 double (+6 dB) channel (0-1, -1 = both) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '-1'\n                field: number\n                min: '-1'\n                max: '1'\n        \"\"\"\n        self._driver.double(None if channel < 0 else channel)\n\n    def halve(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 halve (-6 dB) channel (0-1, -1 = both) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '-1'\n                field: number\n                min: '-1'\n                max: '1'\n        \"\"\"\n        self._driver.halve(None if channel < 0 else channel)\n\n    def store(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 store to EEMEM channel (0-1, -1 = both) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '-1'\n                field: number\n                min: '-1'\n                max: '1'\n        \"\"\"\n        self._driver.store(None if channel < 0 else channel)\n\n    def restore(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 restore from EEMEM channel (0-1, -1 = both) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '-1'\n                field: number\n                min: '-1'\n                max: '1'\n        \"\"\"\n        self._driver.restore(None if channel < 0 else channel)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset from EEMEM'\n        \"\"\"\n        self._driver.reset()\n\n    def read_eemem(self, index: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read user EEMEM index (4-15) %2'\n        params:\n            index:\n                name: index\n                type: int\n                default: '4'\n                field: number\n                min: '4'\n                max: '15'\n        \"\"\"\n        return self._driver.read_eemem(index)\n\n    def write_eemem(self, index: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write user EEMEM index (4-15) %2 value (0-63) %3'\n        params:\n            index:\n                name: index\n                type: int\n                default: '4'\n                field: number\n                min: '4'\n                max: '15'\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '63'\n        \"\"\"\n        self._driver.write_eemem(index, value)\n\n    def read_tolerance(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 RAB tolerance (percent) channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.read_tolerance(channel)\n\n    def rab_actual(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 actual RAB (ohm) channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.rab_actual(channel)\n\n    def nop(self):\n        \"\"\"\n        label:\n            en: '%1 NOP'\n        \"\"\"\n        self._driver.nop()\n\n    def set_rab(self, r_ab: float, r_wiper: float):\n        \"\"\"\n        label:\n            en: '%1 set RAB (ohm) %2 RW (ohm) %3'\n        params:\n            r_ab:\n                name: r_ab\n                type: float\n                default: '50000.0'\n                field: number\n            r_wiper:\n                name: r_wiper\n                type: float\n                default: '75.0'\n                field: number\n        \"\"\"\n        self._driver.set_rab(r_ab, r_wiper)\n",
+  "version": "alpha2"
+}

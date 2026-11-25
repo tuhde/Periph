@@ -27,6 +27,7 @@ class SPIConnection(RegisterConnection):
         self._cs.value(1)
         self._read_bit = read_bit
         self._multi_byte_bit = multi_byte_bit
+        self._held = False
 
     def read_reg(self, reg: int, length: int) -> bytes:
         """Read `length` bytes starting at register `reg`, building the SPI command byte.
@@ -54,18 +55,63 @@ class SPIConnection(RegisterConnection):
         cmd = (reg & ~self._read_bit) | (self._multi_byte_bit if len(payload) > 1 and self._multi_byte_bit else 0)
         self.write(bytes([cmd]) + payload)
 
+    def idle_clocks(self, n):
+        """Clock ``n`` bits of 0xFF with CS deasserted (rounded up to whole bytes).
+
+        Args:
+            n: Number of clock bits.
+        """
+        self._cs.value(1)
+        self._bus.write(b"\xff" * ((n + 7) // 8))
+
+    def set_speed(self, hz):
+        """Change the SCK frequency (keeps pins, polarity and phase).
+
+        Args:
+            hz: Clock frequency in Hz.
+
+        Returns:
+            bool: True.
+        """
+        self._bus.init(baudrate=hz)
+        return True
+
+    def select(self):
+        """Assert CS and hold it low across following operations until deselect()."""
+        self._cs.value(0)
+        self._held = True
+
+    def deselect(self):
+        """Release CS asserted by select()."""
+        self._held = False
+        self._cs.value(1)
+
+    def read_into(self, buf):
+        """Fill ``buf`` with ``len(buf)`` bytes read from the device (no allocation).
+
+        Args:
+            buf: Writable buffer.
+        """
+        if not self._held:
+            self._cs.value(0)
+        self._bus.readinto(buf, 0xFF)
+        if not self._held:
+            self._cs.value(1)
+
     def _write(self, data):
-        """Assert CS, send bytes, deassert CS.
+        """Assert CS, send bytes, deassert CS (CS stays low while select() is active).
 
         Args:
             data: Bytes to send.
         """
-        self._cs.value(0)
+        if not self._held:
+            self._cs.value(0)
         self._bus.write(data)
-        self._cs.value(1)
+        if not self._held:
+            self._cs.value(1)
 
     def _read(self, n):
-        """Assert CS, clock out n bytes, capture response, deassert CS.
+        """Assert CS, clock out n bytes (MOSI high), capture response, deassert CS.
 
         Args:
             n: Number of bytes to read.
@@ -73,15 +119,18 @@ class SPIConnection(RegisterConnection):
         Returns:
             bytes: Data received from the device.
         """
-        self._cs.value(0)
-        result = self._bus.read(n)
-        self._cs.value(1)
+        if not self._held:
+            self._cs.value(0)
+        result = self._bus.read(n, 0xFF)
+        if not self._held:
+            self._cs.value(1)
         return result
 
     def _write_read(self, data, n):
         """Assert CS, send command bytes, read n bytes, deassert CS.
 
         Write and read phases are separate SPI transfers within one CS assertion.
+        MOSI idles high (0xFF) during the read phase.
 
         Args:
             data: Command bytes to send.
@@ -91,8 +140,10 @@ class SPIConnection(RegisterConnection):
             bytes: Data received during the read phase.
         """
         buf = bytearray(n)
-        self._cs.value(0)
+        if not self._held:
+            self._cs.value(0)
         self._bus.write(data)
-        self._bus.readinto(buf)
-        self._cs.value(1)
+        self._bus.readinto(buf, 0xFF)
+        if not self._held:
+            self._cs.value(1)
         return bytes(buf)

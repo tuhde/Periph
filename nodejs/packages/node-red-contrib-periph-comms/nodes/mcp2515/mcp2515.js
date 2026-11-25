@@ -4,10 +4,9 @@ module.exports = function(RED) {
     const SPIConnection = require('periph/src/connection/spi').SPIConnection;
     const MCP2515Full   = require('periph/src/chips/comms/mcp2515').MCP2515Full;
 
-    function MCP2515Node(config) {
+    function MCP2515DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const connection = new SPIConnection(
                 parseInt(config.bus),
@@ -35,7 +34,7 @@ module.exports = function(RED) {
                                     rtr: frame.rtr,
                                 },
                             };
-                            node.send(msg);
+                            node.emit('periph-data', msg);
                         }
                     }, pollInterval);
                 }
@@ -46,19 +45,36 @@ module.exports = function(RED) {
             node.error('MCP2515 init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.pollHandle) clearInterval(node.pollHandle);
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('mcp2515-device', MCP2515DeviceNode);
+
+    function MCP2515ReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+        if (deviceNode.on) {
+            const onData = (m) => node.send(m);
+            deviceNode.on('periph-data', onData);
+            node.on('close', () => deviceNode.removeListener('periph-data', onData));
+        }
+
         node.on('input', async function(msg, send, done) {
-            if (!node.chip) { done(new Error('MCP2515 not initialised')); return; }
+            if (!deviceNode.chip) { done(new Error('MCP2515 not initialised')); return; }
             try {
                 const p = msg.payload || {};
                 if (p.command === 'send') {
                     const data = Buffer.isBuffer(p.data) ? p.data : Buffer.from(Array.from(p.data || []));
-                    await node.chip.send(p.id, data, !!p.extended);
+                    await deviceNode.chip.send(p.id, data, !!p.extended);
                     msg.payload = { sent: true, bytes: data.length };
                     send(msg); done();
                     return;
                 }
                 if (p.command === 'recv') {
-                    const frame = await node.chip.recv(parseInt(p.timeout) || 0);
+                    const frame = await deviceNode.chip.recv(parseInt(p.timeout) || 0);
                     msg.payload = frame ? {
                         id: frame.id,
                         data: Array.from(frame.data),
@@ -69,19 +85,14 @@ module.exports = function(RED) {
                     return;
                 }
                 if (p.command === 'set_mode') {
-                    await node.chip.setMode(p.mode);
-                    msg.payload = { mode: await node.chip.getMode() };
+                    await deviceNode.chip.setMode(p.mode);
+                    msg.payload = { mode: await deviceNode.chip.getMode() };
                     send(msg); done();
                     return;
                 }
                 done(new Error('payload.command must be "send", "recv", or "set_mode"'));
             } catch (e) { done(e); }
         });
-
-        node.on('close', function() {
-            if (node.pollHandle) clearInterval(node.pollHandle);
-            if (node.connection) node.connection.close();
-        });
     }
-    RED.nodes.registerType('periph-mcp2515', MCP2515Node);
+    RED.nodes.registerType('mcp2515', MCP2515ReadNode);
 };

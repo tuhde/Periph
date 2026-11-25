@@ -1,0 +1,1147 @@
+{
+  "category": "DRV2605",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_DRV2605_LANGUAGES = {\n  \"CUSTOM_DRV2605_INIT\": {\n    \"en\": \"%1 init bus %2 actuator (0 = ERM, 1 = LRA) %3\"\n  },\n  \"CUSTOM_DRV2605_PLAY_EFFECT\": {\n    \"en\": \"%1 play effect (1-123) %2\"\n  },\n  \"CUSTOM_DRV2605_PLAY_SEQUENCE\": {\n    \"en\": \"%1 play sequence (e.g. 1,w100,10; wN = wait N ms) %2\"\n  },\n  \"CUSTOM_DRV2605_STOP\": {\n    \"en\": \"%1 stop\"\n  },\n  \"CUSTOM_DRV2605_IS_PLAYING\": {\n    \"en\": \"%1 is playing\"\n  },\n  \"CUSTOM_DRV2605_WAIT_DONE\": {\n    \"en\": \"%1 wait until done, timeout (ms) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_LIBRARY\": {\n    \"en\": \"%1 set library (0-6) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_MODE\": {\n    \"en\": \"%1 set mode (0-7) %2\"\n  },\n  \"CUSTOM_DRV2605_STANDBY\": {\n    \"en\": \"%1 standby\"\n  },\n  \"CUSTOM_DRV2605_WAKE\": {\n    \"en\": \"%1 wake\"\n  },\n  \"CUSTOM_DRV2605_RESET\": {\n    \"en\": \"%1 reset\"\n  },\n  \"CUSTOM_DRV2605_SET_HI_Z\": {\n    \"en\": \"%1 set high-impedance (0/1) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_ACTUATOR\": {\n    \"en\": \"%1 set actuator (0 = ERM, 1 = LRA) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_OPEN_LOOP\": {\n    \"en\": \"%1 set open loop (0/1) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_BIDIRECTIONAL\": {\n    \"en\": \"%1 set bidirectional input (0/1) %2\"\n  },\n  \"CUSTOM_DRV2605_RTP_LEVEL\": {\n    \"en\": \"%1 RTP level (0.0-1.0) %2\"\n  },\n  \"CUSTOM_DRV2605_RTP_WRITE\": {\n    \"en\": \"%1 RTP raw value (0-255) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_RTP_FORMAT\": {\n    \"en\": \"%1 set RTP unsigned (0/1) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_INPUT\": {\n    \"en\": \"%1 set input (0 = PWM, 1 = analog) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_RATED_VOLTAGE\": {\n    \"en\": \"%1 set rated voltage (V) %2 LRA frequency (Hz, 0 = ERM) %3\"\n  },\n  \"CUSTOM_DRV2605_SET_OVERDRIVE_CLAMP\": {\n    \"en\": \"%1 set overdrive clamp (V) %2 LRA frequency (Hz, 0 = not needed) %3\"\n  },\n  \"CUSTOM_DRV2605_SET_DRIVE_TIME\": {\n    \"en\": \"%1 set drive time (ms) %2\"\n  },\n  \"CUSTOM_DRV2605_SET_FEEDBACK\": {\n    \"en\": \"%1 set feedback brake factor (0-7) %2 loop gain (0-3) %3 BEMF gain (0-3) %4\"\n  },\n  \"CUSTOM_DRV2605_SET_ADVANCED\": {\n    \"en\": \"%1 set advanced startup boost (0/1) %2 brake stabilizer (0/1) %3 sample time (0-3) %4 blanking time (0-3) %5 idiss time (0-3) %6 LRA drive twice (0/1) %7 supply compensation (0/1) %8 noise gate (0-3) %9\"\n  },\n  \"CUSTOM_DRV2605_SET_TIME_OFFSETS\": {\n    \"en\": \"%1 set time offsets overdrive (ms) %2 sustain + (ms) %3 sustain - (ms) %4 brake (ms) %5\"\n  },\n  \"CUSTOM_DRV2605_CALIBRATE\": {\n    \"en\": \"%1 calibrate, LRA (0/1) %2 rated voltage (V) %3 overdrive voltage (V) %4 LRA frequency (Hz, 0 = ERM) %5 (1 = OK)\"\n  },\n  \"CUSTOM_DRV2605_CALIBRATION_COMP\": {\n    \"en\": \"%1 calibration compensation\"\n  },\n  \"CUSTOM_DRV2605_CALIBRATION_BEMF\": {\n    \"en\": \"%1 calibration back-EMF\"\n  },\n  \"CUSTOM_DRV2605_CALIBRATION_BEMF_GAIN\": {\n    \"en\": \"%1 calibration BEMF gain\"\n  },\n  \"CUSTOM_DRV2605_SET_CALIBRATION\": {\n    \"en\": \"%1 set calibration compensation (0-255) %2 back-EMF (0-255) %3 BEMF gain (0-3) %4\"\n  },\n  \"CUSTOM_DRV2605_DIAGNOSE\": {\n    \"en\": \"%1 diagnose actuator (OK = true)\"\n  },\n  \"CUSTOM_DRV2605_SET_AUDIO_TO_VIBE\": {\n    \"en\": \"%1 audio to vibe AC coupled (0/1) %2 peak time (10/20/30/40 ms) %3 filter (100/125/150/200 Hz) %4 min input (V) %5 max input (V) %6 min drive (0.0-1.0) %7 max drive (0.0-1.0) %8\"\n  },\n  \"CUSTOM_DRV2605_DIAG_FAILED\": {\n    \"en\": \"%1 diagnostics failed (clears flags)\"\n  },\n  \"CUSTOM_DRV2605_FB_TIMEOUT\": {\n    \"en\": \"%1 feedback timeout (clears flags)\"\n  },\n  \"CUSTOM_DRV2605_OVER_TEMP\": {\n    \"en\": \"%1 over-temperature (clears flags)\"\n  },\n  \"CUSTOM_DRV2605_OVER_CURRENT\": {\n    \"en\": \"%1 over-current\"\n  },\n  \"CUSTOM_DRV2605_DEVICE_ID\": {\n    \"en\": \"%1 device id\"\n  },\n  \"CUSTOM_DRV2605_SUPPLY_VOLTAGE\": {\n    \"en\": \"%1 supply voltage (V)\"\n  },\n  \"CUSTOM_DRV2605_LRA_FREQUENCY\": {\n    \"en\": \"%1 LRA frequency (Hz, 0 = n/a)\"\n  },\n  \"CUSTOM_DRV2605_PROGRAM_OTP\": {\n    \"en\": \"%1 program OTP, IRREVERSIBLE (1 to burn) %2\"\n  },\n  \"CUSTOM_DRV2605_OTP_PROGRAMMED\": {\n    \"en\": \"%1 OTP programmed\"\n  }\n};\n\nconst initType = 'custom_drv2605_init';\nBlockly.BlockRegExpList['custom_drv2605'] = {\n  regexp: new RegExp(/^custom_drv2605_/),\n  code: \"from DRV2605 import DRV2605\",\n  initBlockType: initType,\n  categoryId: 'custom_drv2605',\n}\nBlockly.utils.registerLanguages(CUSTOM_DRV2605_LANGUAGES)\n\nBlockly.Msg.CUSTOM_DRV2605_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_DRV2605 = 'DRV2605'\n\nBlockly.utils.getcustom_drv2605Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['drv2605_0', 'drv2605_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_drv2605_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_drv2605Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'drv2605_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var lra = Blockly.Python.valueToCode(block, 'lra', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = DRV2605(${bus}, ${lra})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_play_effect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_PLAY_EFFECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'effect'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_play_effect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var effect = Blockly.Python.valueToCode(block, 'effect', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.play_effect(${effect})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_play_sequence\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_PLAY_SEQUENCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_play_sequence\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.play_sequence(${steps})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.stop()\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_is_playing\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_IS_PLAYING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_is_playing\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_playing()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_wait_done\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_WAIT_DONE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_ms'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_wait_done\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var timeout_ms = Blockly.Python.valueToCode(block, 'timeout_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.wait_done(${timeout_ms})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_set_library\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_LIBRARY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'library'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_library\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var library = Blockly.Python.valueToCode(block, 'library', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_library(${library})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_standby\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_STANDBY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_standby\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.standby()\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_hi_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_HI_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_hi_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_hi_z(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_actuator\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_ACTUATOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_actuator\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var lra = Blockly.Python.valueToCode(block, 'lra', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_actuator(${lra})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_open_loop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_OPEN_LOOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_open_loop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_open_loop(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_bidirectional\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_BIDIRECTIONAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_bidirectional\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_bidirectional(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_rtp_level\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_RTP_LEVEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'level'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_rtp_level\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var level = Blockly.Python.valueToCode(block, 'level', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.rtp_level(${level})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_rtp_write\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_RTP_WRITE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_rtp_write\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.rtp_write(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_rtp_format\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_RTP_FORMAT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'unsigned'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_rtp_format\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var unsigned = Blockly.Python.valueToCode(block, 'unsigned', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rtp_format(${unsigned})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_input\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_INPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'analog'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_input\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var analog = Blockly.Python.valueToCode(block, 'analog', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_input(${analog})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_rated_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_RATED_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'volts'\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra_freq_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_rated_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var volts = Blockly.Python.valueToCode(block, 'volts', Blockly.Python.ORDER_FUNCTION_CALL);\n  var lra_freq_hz = Blockly.Python.valueToCode(block, 'lra_freq_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rated_voltage(${volts}, ${lra_freq_hz})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_overdrive_clamp\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_OVERDRIVE_CLAMP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'volts'\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra_freq_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_overdrive_clamp\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var volts = Blockly.Python.valueToCode(block, 'volts', Blockly.Python.ORDER_FUNCTION_CALL);\n  var lra_freq_hz = Blockly.Python.valueToCode(block, 'lra_freq_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_overdrive_clamp(${volts}, ${lra_freq_hz})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_drive_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_DRIVE_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_drive_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ms = Blockly.Python.valueToCode(block, 'ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_drive_time(${ms})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_feedback\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_FEEDBACK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'brake_factor'\n        },\n        {\n          'type': 'input_value',\n          'name': 'loop_gain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bemf_gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_feedback\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var brake_factor = Blockly.Python.valueToCode(block, 'brake_factor', Blockly.Python.ORDER_FUNCTION_CALL);\n  var loop_gain = Blockly.Python.valueToCode(block, 'loop_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bemf_gain = Blockly.Python.valueToCode(block, 'bemf_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_feedback(${brake_factor}, ${loop_gain}, ${bemf_gain})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_advanced\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_ADVANCED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'startup_boost'\n        },\n        {\n          'type': 'input_value',\n          'name': 'brake_stabilizer'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sample_time'\n        },\n        {\n          'type': 'input_value',\n          'name': 'blanking_time'\n        },\n        {\n          'type': 'input_value',\n          'name': 'idiss_time'\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra_drive_twice'\n        },\n        {\n          'type': 'input_value',\n          'name': 'supply_comp'\n        },\n        {\n          'type': 'input_value',\n          'name': 'noise_gate'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_advanced\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var startup_boost = Blockly.Python.valueToCode(block, 'startup_boost', Blockly.Python.ORDER_FUNCTION_CALL);\n  var brake_stabilizer = Blockly.Python.valueToCode(block, 'brake_stabilizer', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sample_time = Blockly.Python.valueToCode(block, 'sample_time', Blockly.Python.ORDER_FUNCTION_CALL);\n  var blanking_time = Blockly.Python.valueToCode(block, 'blanking_time', Blockly.Python.ORDER_FUNCTION_CALL);\n  var idiss_time = Blockly.Python.valueToCode(block, 'idiss_time', Blockly.Python.ORDER_FUNCTION_CALL);\n  var lra_drive_twice = Blockly.Python.valueToCode(block, 'lra_drive_twice', Blockly.Python.ORDER_FUNCTION_CALL);\n  var supply_comp = Blockly.Python.valueToCode(block, 'supply_comp', Blockly.Python.ORDER_FUNCTION_CALL);\n  var noise_gate = Blockly.Python.valueToCode(block, 'noise_gate', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_advanced(${startup_boost}, ${brake_stabilizer}, ${sample_time}, ${blanking_time}, ${idiss_time}, ${lra_drive_twice}, ${supply_comp}, ${noise_gate})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_set_time_offsets\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_TIME_OFFSETS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'overdrive_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sustain_pos_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sustain_neg_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'brake_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_time_offsets\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var overdrive_ms = Blockly.Python.valueToCode(block, 'overdrive_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sustain_pos_ms = Blockly.Python.valueToCode(block, 'sustain_pos_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sustain_neg_ms = Blockly.Python.valueToCode(block, 'sustain_neg_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var brake_ms = Blockly.Python.valueToCode(block, 'brake_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_time_offsets(${overdrive_ms}, ${sustain_pos_ms}, ${sustain_neg_ms}, ${brake_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_calibrate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_CALIBRATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rated_voltage'\n        },\n        {\n          'type': 'input_value',\n          'name': 'overdrive_voltage'\n        },\n        {\n          'type': 'input_value',\n          'name': 'lra_freq_hz'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_calibrate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var lra = Blockly.Python.valueToCode(block, 'lra', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rated_voltage = Blockly.Python.valueToCode(block, 'rated_voltage', Blockly.Python.ORDER_FUNCTION_CALL);\n  var overdrive_voltage = Blockly.Python.valueToCode(block, 'overdrive_voltage', Blockly.Python.ORDER_FUNCTION_CALL);\n  var lra_freq_hz = Blockly.Python.valueToCode(block, 'lra_freq_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.calibrate(${lra}, ${rated_voltage}, ${overdrive_voltage}, ${lra_freq_hz})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_calibration_comp\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_CALIBRATION_COMP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_calibration_comp\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calibration_comp()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_calibration_bemf\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_CALIBRATION_BEMF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_calibration_bemf\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calibration_bemf()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_calibration_bemf_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_CALIBRATION_BEMF_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_calibration_bemf_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.calibration_bemf_gain()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_set_calibration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_CALIBRATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'comp'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bemf'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bemf_gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_calibration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var comp = Blockly.Python.valueToCode(block, 'comp', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bemf = Blockly.Python.valueToCode(block, 'bemf', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bemf_gain = Blockly.Python.valueToCode(block, 'bemf_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_calibration(${comp}, ${bemf}, ${bemf_gain})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_diagnose\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_DIAGNOSE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_diagnose\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.diagnose()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_set_audio_to_vibe\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SET_AUDIO_TO_VIBE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ac_couple'\n        },\n        {\n          'type': 'input_value',\n          'name': 'peak_time_ms'\n        },\n        {\n          'type': 'input_value',\n          'name': 'filter_hz'\n        },\n        {\n          'type': 'input_value',\n          'name': 'min_input_v'\n        },\n        {\n          'type': 'input_value',\n          'name': 'max_input_v'\n        },\n        {\n          'type': 'input_value',\n          'name': 'min_drive'\n        },\n        {\n          'type': 'input_value',\n          'name': 'max_drive'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_set_audio_to_vibe\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ac_couple = Blockly.Python.valueToCode(block, 'ac_couple', Blockly.Python.ORDER_FUNCTION_CALL);\n  var peak_time_ms = Blockly.Python.valueToCode(block, 'peak_time_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  var filter_hz = Blockly.Python.valueToCode(block, 'filter_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  var min_input_v = Blockly.Python.valueToCode(block, 'min_input_v', Blockly.Python.ORDER_FUNCTION_CALL);\n  var max_input_v = Blockly.Python.valueToCode(block, 'max_input_v', Blockly.Python.ORDER_FUNCTION_CALL);\n  var min_drive = Blockly.Python.valueToCode(block, 'min_drive', Blockly.Python.ORDER_FUNCTION_CALL);\n  var max_drive = Blockly.Python.valueToCode(block, 'max_drive', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_audio_to_vibe(${ac_couple}, ${peak_time_ms}, ${filter_hz}, ${min_input_v}, ${max_input_v}, ${min_drive}, ${max_drive})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_diag_failed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_DIAG_FAILED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_diag_failed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.diag_failed()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_fb_timeout\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_FB_TIMEOUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_fb_timeout\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fb_timeout()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_over_temp\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_OVER_TEMP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_over_temp\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.over_temp()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_over_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_OVER_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_over_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.over_current()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_device_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_DEVICE_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_device_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.device_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_supply_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_SUPPLY_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_supply_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.supply_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_lra_frequency\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_LRA_FREQUENCY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_lra_frequency\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lra_frequency()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_drv2605_program_otp\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_PROGRAM_OTP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'confirm'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_program_otp\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var confirm = Blockly.Python.valueToCode(block, 'confirm', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.program_otp(${confirm})\\n`\n}\n\nBlockly.Blocks[\"custom_drv2605_otp_programmed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DRV2605_OTP_PROGRAMMED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_drv2605Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_drv2605_otp_programmed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.otp_programmed()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"DRV2605\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_drv2605\">\n<title text=\"DRV2605\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_drv2605_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"lra\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_play_effect\">\n  <value name=\"effect\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_play_sequence\">\n  <value name=\"steps\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">1,w100,1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_stop\"/><block type=\"custom_drv2605_is_playing\"/><block type=\"custom_drv2605_wait_done\">\n  <value name=\"timeout_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_library\">\n  <value name=\"library\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_standby\"/><block type=\"custom_drv2605_wake\"/><block type=\"custom_drv2605_reset\"/><block type=\"custom_drv2605_set_hi_z\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_actuator\">\n  <value name=\"lra\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_open_loop\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_bidirectional\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_rtp_level\">\n  <value name=\"level\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_rtp_write\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_rtp_format\">\n  <value name=\"unsigned\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_input\">\n  <value name=\"analog\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_rated_voltage\">\n  <value name=\"volts\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3.0</field>\n    </shadow>\n  </value>\n  <value name=\"lra_freq_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_overdrive_clamp\">\n  <value name=\"volts\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3.0</field>\n    </shadow>\n  </value>\n  <value name=\"lra_freq_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_drive_time\">\n  <value name=\"ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_feedback\">\n  <value name=\"brake_factor\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n  <value name=\"loop_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"bemf_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_advanced\">\n  <value name=\"startup_boost\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"brake_stabilizer\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"sample_time\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n  <value name=\"blanking_time\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"idiss_time\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"lra_drive_twice\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"supply_comp\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"noise_gate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_set_time_offsets\">\n  <value name=\"overdrive_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sustain_pos_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sustain_neg_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"brake_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_calibrate\">\n  <value name=\"lra\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"rated_voltage\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3.0</field>\n    </shadow>\n  </value>\n  <value name=\"overdrive_voltage\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3.0</field>\n    </shadow>\n  </value>\n  <value name=\"lra_freq_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_calibration_comp\"/><block type=\"custom_drv2605_calibration_bemf\"/><block type=\"custom_drv2605_calibration_bemf_gain\"/><block type=\"custom_drv2605_set_calibration\">\n  <value name=\"comp\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">13</field>\n    </shadow>\n  </value>\n  <value name=\"bemf\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">109</field>\n    </shadow>\n  </value>\n  <value name=\"bemf_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_diagnose\"/><block type=\"custom_drv2605_set_audio_to_vibe\">\n  <value name=\"ac_couple\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"peak_time_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n  <value name=\"filter_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">125</field>\n    </shadow>\n  </value>\n  <value name=\"min_input_v\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.1</field>\n    </shadow>\n  </value>\n  <value name=\"max_input_v\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.8</field>\n    </shadow>\n  </value>\n  <value name=\"min_drive\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.1</field>\n    </shadow>\n  </value>\n  <value name=\"max_drive\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_diag_failed\"/><block type=\"custom_drv2605_fb_timeout\"/><block type=\"custom_drv2605_over_temp\"/><block type=\"custom_drv2605_over_current\"/><block type=\"custom_drv2605_device_id\"/><block type=\"custom_drv2605_supply_voltage\"/><block type=\"custom_drv2605_lra_frequency\"/><block type=\"custom_drv2605_program_otp\">\n  <value name=\"confirm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_drv2605_otp_programmed\"/>\n</category>\n",
+    "toolboxitemid": "custom_drv2605",
+    "block_type": [
+      "custom_drv2605___init__",
+      "custom_drv2605_play_effect",
+      "custom_drv2605_play_sequence",
+      "custom_drv2605_stop",
+      "custom_drv2605_is_playing",
+      "custom_drv2605_wait_done",
+      "custom_drv2605_set_library",
+      "custom_drv2605_set_mode",
+      "custom_drv2605_standby",
+      "custom_drv2605_wake",
+      "custom_drv2605_reset",
+      "custom_drv2605_set_hi_z",
+      "custom_drv2605_set_actuator",
+      "custom_drv2605_set_open_loop",
+      "custom_drv2605_set_bidirectional",
+      "custom_drv2605_rtp_level",
+      "custom_drv2605_rtp_write",
+      "custom_drv2605_set_rtp_format",
+      "custom_drv2605_set_input",
+      "custom_drv2605_set_rated_voltage",
+      "custom_drv2605_set_overdrive_clamp",
+      "custom_drv2605_set_drive_time",
+      "custom_drv2605_set_feedback",
+      "custom_drv2605_set_advanced",
+      "custom_drv2605_set_time_offsets",
+      "custom_drv2605_calibrate",
+      "custom_drv2605_calibration_comp",
+      "custom_drv2605_calibration_bemf",
+      "custom_drv2605_calibration_bemf_gain",
+      "custom_drv2605_set_calibration",
+      "custom_drv2605_diagnose",
+      "custom_drv2605_set_audio_to_vibe",
+      "custom_drv2605_diag_failed",
+      "custom_drv2605_fb_timeout",
+      "custom_drv2605_over_temp",
+      "custom_drv2605_over_current",
+      "custom_drv2605_device_id",
+      "custom_drv2605_supply_voltage",
+      "custom_drv2605_lra_frequency",
+      "custom_drv2605_program_otp",
+      "custom_drv2605_otp_programmed"
+    ]
+  },
+  "data": {
+    "name": "DRV2605",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "DRV2605",
+      "time": "2026-11-03",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.motor.drv2605 import DRV2605Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 actuator (0 = ERM, 1 = LRA) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "lra",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(0x5A, bus=bus)\n        self._driver = DRV2605Full(connection, lra=bool(lra))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "play_effect",
+        "note": {},
+        "label": {
+          "en": "%1 play effect (1-123) %2"
+        },
+        "params": [
+          {
+            "name": "effect",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "123",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.play_effect(effect)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "play_sequence",
+        "note": {},
+        "label": {
+          "en": "%1 play sequence (e.g. 1,w100,10; wN = wait N ms) %2"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "str",
+            "default": "1,w100,1",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.play_sequence([('wait', int(s[1:])) if s[0] == 'w' else int(s) for s in steps.replace(' ', '').split(',') if s])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop",
+        "note": {},
+        "label": {
+          "en": "%1 stop"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_playing",
+        "note": {},
+        "label": {
+          "en": "%1 is playing"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.is_playing()",
+        "ast_return": {
+          "code": "self._driver.is_playing()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wait_done",
+        "note": {},
+        "label": {
+          "en": "%1 wait until done, timeout (ms) %2"
+        },
+        "params": [
+          {
+            "name": "timeout_ms",
+            "type": "int",
+            "default": "5000",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          }
+        ],
+        "return": "bool",
+        "source": "        return self._driver.wait_done(timeout_ms)",
+        "ast_return": {
+          "code": "self._driver.wait_done(timeout_ms)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_library",
+        "note": {},
+        "label": {
+          "en": "%1 set library (0-6) %2"
+        },
+        "params": [
+          {
+            "name": "library",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "6",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_library(library)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set mode (0-7) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "standby",
+        "note": {},
+        "label": {
+          "en": "%1 standby"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.standby()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_hi_z",
+        "note": {},
+        "label": {
+          "en": "%1 set high-impedance (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_hi_z(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_actuator",
+        "note": {},
+        "label": {
+          "en": "%1 set actuator (0 = ERM, 1 = LRA) %2"
+        },
+        "params": [
+          {
+            "name": "lra",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_actuator(bool(lra))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_open_loop",
+        "note": {},
+        "label": {
+          "en": "%1 set open loop (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_open_loop(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_bidirectional",
+        "note": {},
+        "label": {
+          "en": "%1 set bidirectional input (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_bidirectional(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "rtp_level",
+        "note": {},
+        "label": {
+          "en": "%1 RTP level (0.0-1.0) %2"
+        },
+        "params": [
+          {
+            "name": "level",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.rtp_level(level)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "rtp_write",
+        "note": {},
+        "label": {
+          "en": "%1 RTP raw value (0-255) %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.rtp_write(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rtp_format",
+        "note": {},
+        "label": {
+          "en": "%1 set RTP unsigned (0/1) %2"
+        },
+        "params": [
+          {
+            "name": "unsigned",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rtp_format(bool(unsigned))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_input",
+        "note": {},
+        "label": {
+          "en": "%1 set input (0 = PWM, 1 = analog) %2"
+        },
+        "params": [
+          {
+            "name": "analog",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_input(bool(analog))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rated_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 set rated voltage (V) %2 LRA frequency (Hz, 0 = ERM) %3"
+        },
+        "params": [
+          {
+            "name": "volts",
+            "type": "float",
+            "default": "3.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          },
+          {
+            "name": "lra_freq_hz",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rated_voltage(volts=volts, lra_freq_hz=lra_freq_hz or None)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_overdrive_clamp",
+        "note": {},
+        "label": {
+          "en": "%1 set overdrive clamp (V) %2 LRA frequency (Hz, 0 = not needed) %3"
+        },
+        "params": [
+          {
+            "name": "volts",
+            "type": "float",
+            "default": "3.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          },
+          {
+            "name": "lra_freq_hz",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_overdrive_clamp(volts=volts, lra_freq_hz=lra_freq_hz or None)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_drive_time",
+        "note": {},
+        "label": {
+          "en": "%1 set drive time (ms) %2"
+        },
+        "params": [
+          {
+            "name": "ms",
+            "type": "float",
+            "default": "2.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_drive_time(ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_feedback",
+        "note": {},
+        "label": {
+          "en": "%1 set feedback brake factor (0-7) %2 loop gain (0-3) %3 BEMF gain (0-3) %4"
+        },
+        "params": [
+          {
+            "name": "brake_factor",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "loop_gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "bemf_gain",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_feedback(brake_factor, loop_gain, bemf_gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_advanced",
+        "note": {},
+        "label": {
+          "en": "%1 set advanced startup boost (0/1) %2 brake stabilizer (0/1) %3 sample time (0-3) %4 blanking time (0-3) %5 idiss time (0-3) %6 LRA drive twice (0/1) %7 supply compensation (0/1) %8 noise gate (0-3) %9"
+        },
+        "params": [
+          {
+            "name": "startup_boost",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "brake_stabilizer",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "sample_time",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "blanking_time",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "idiss_time",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "lra_drive_twice",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "supply_comp",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "noise_gate",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_advanced(bool(startup_boost), bool(brake_stabilizer), sample_time, blanking_time, idiss_time, bool(lra_drive_twice), bool(supply_comp), noise_gate)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_time_offsets",
+        "note": {},
+        "label": {
+          "en": "%1 set time offsets overdrive (ms) %2 sustain + (ms) %3 sustain - (ms) %4 brake (ms) %5"
+        },
+        "params": [
+          {
+            "name": "overdrive_ms",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sustain_pos_ms",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sustain_neg_ms",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "brake_ms",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_time_offsets(overdrive_ms, sustain_pos_ms, sustain_neg_ms, brake_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calibrate",
+        "note": {},
+        "label": {
+          "en": "%1 calibrate, LRA (0/1) %2 rated voltage (V) %3 overdrive voltage (V) %4 LRA frequency (Hz, 0 = ERM) %5 (1 = OK)"
+        },
+        "params": [
+          {
+            "name": "lra",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "rated_voltage",
+            "type": "float",
+            "default": "3.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          },
+          {
+            "name": "overdrive_voltage",
+            "type": "float",
+            "default": "3.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          },
+          {
+            "name": "lra_freq_hz",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number",
+            "min": "0"
+          }
+        ],
+        "return": "bool",
+        "source": "        return self._driver.calibrate(bool(lra), rated_voltage, overdrive_voltage, lra_freq_hz or None)[0]",
+        "ast_return": {
+          "code": "self._driver.calibrate(bool(lra), rated_voltage, overdrive_voltage, lra_freq_hz or None)[0]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calibration_comp",
+        "note": {},
+        "label": {
+          "en": "%1 calibration compensation"
+        },
+        "params": [],
+        "return": "int",
+        "source": "        return self._driver.get_calibration()[0]",
+        "ast_return": {
+          "code": "self._driver.get_calibration()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calibration_bemf",
+        "note": {},
+        "label": {
+          "en": "%1 calibration back-EMF"
+        },
+        "params": [],
+        "return": "int",
+        "source": "        return self._driver.get_calibration()[1]",
+        "ast_return": {
+          "code": "self._driver.get_calibration()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calibration_bemf_gain",
+        "note": {},
+        "label": {
+          "en": "%1 calibration BEMF gain"
+        },
+        "params": [],
+        "return": "int",
+        "source": "        return self._driver.get_calibration()[2]",
+        "ast_return": {
+          "code": "self._driver.get_calibration()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_calibration",
+        "note": {},
+        "label": {
+          "en": "%1 set calibration compensation (0-255) %2 back-EMF (0-255) %3 BEMF gain (0-3) %4"
+        },
+        "params": [
+          {
+            "name": "comp",
+            "type": "int",
+            "default": "13",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "bemf",
+            "type": "int",
+            "default": "109",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "bemf_gain",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_calibration(comp, bemf, bemf_gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "diagnose",
+        "note": {},
+        "label": {
+          "en": "%1 diagnose actuator (OK = true)"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.diagnose()",
+        "ast_return": {
+          "code": "self._driver.diagnose()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_audio_to_vibe",
+        "note": {},
+        "label": {
+          "en": "%1 audio to vibe AC coupled (0/1) %2 peak time (10/20/30/40 ms) %3 filter (100/125/150/200 Hz) %4 min input (V) %5 max input (V) %6 min drive (0.0-1.0) %7 max drive (0.0-1.0) %8"
+        },
+        "params": [
+          {
+            "name": "ac_couple",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "peak_time_ms",
+            "type": "int",
+            "default": "20",
+            "note": {},
+            "field": "number",
+            "max": "40",
+            "min": "10"
+          },
+          {
+            "name": "filter_hz",
+            "type": "int",
+            "default": "125",
+            "note": {},
+            "field": "number",
+            "max": "200",
+            "min": "100"
+          },
+          {
+            "name": "min_input_v",
+            "type": "float",
+            "default": "0.1",
+            "note": {},
+            "field": "number",
+            "max": "1.8",
+            "min": "0"
+          },
+          {
+            "name": "max_input_v",
+            "type": "float",
+            "default": "1.8",
+            "note": {},
+            "field": "number",
+            "max": "1.8",
+            "min": "0"
+          },
+          {
+            "name": "min_drive",
+            "type": "float",
+            "default": "0.1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "max_drive",
+            "type": "float",
+            "default": "1.0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_audio_to_vibe(bool(ac_couple), peak_time_ms, filter_hz, min_input_v, max_input_v, min_drive, max_drive)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "diag_failed",
+        "note": {},
+        "label": {
+          "en": "%1 diagnostics failed (clears flags)"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.read_status()[0]",
+        "ast_return": {
+          "code": "self._driver.read_status()[0]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fb_timeout",
+        "note": {},
+        "label": {
+          "en": "%1 feedback timeout (clears flags)"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.read_status()[1]",
+        "ast_return": {
+          "code": "self._driver.read_status()[1]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "over_temp",
+        "note": {},
+        "label": {
+          "en": "%1 over-temperature (clears flags)"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.read_status()[2]",
+        "ast_return": {
+          "code": "self._driver.read_status()[2]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "over_current",
+        "note": {},
+        "label": {
+          "en": "%1 over-current"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.read_status()[3]",
+        "ast_return": {
+          "code": "self._driver.read_status()[3]",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "device_id",
+        "note": {},
+        "label": {
+          "en": "%1 device id"
+        },
+        "params": [],
+        "return": "int",
+        "source": "        return self._driver.read_device_id()",
+        "ast_return": {
+          "code": "self._driver.read_device_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "supply_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 supply voltage (V)"
+        },
+        "params": [],
+        "return": "float",
+        "source": "        return self._driver.read_supply_voltage()",
+        "ast_return": {
+          "code": "self._driver.read_supply_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lra_frequency",
+        "note": {},
+        "label": {
+          "en": "%1 LRA frequency (Hz, 0 = n/a)"
+        },
+        "params": [],
+        "return": "float",
+        "source": "        return self._driver.read_lra_frequency() or 0.0",
+        "ast_return": {
+          "code": "self._driver.read_lra_frequency() or 0.0",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "program_otp",
+        "note": {},
+        "label": {
+          "en": "%1 program OTP, IRREVERSIBLE (1 to burn) %2"
+        },
+        "params": [
+          {
+            "name": "confirm",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.program_otp(confirm=(confirm == 1))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "otp_programmed",
+        "note": {},
+        "label": {
+          "en": "%1 OTP programmed"
+        },
+        "params": [],
+        "return": "bool",
+        "source": "        return self._driver.otp_programmed()",
+        "ast_return": {
+          "code": "self._driver.otp_programmed()",
+          "id": "bool"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "drv2605"
+  },
+  "pyCode": "\"\"\"\nfile     DRV2605\ntime     2026-11-03\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.motor.drv2605 import DRV2605Full\n\n\nclass DRV2605:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, lra: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 actuator (0 = ERM, 1 = LRA) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            lra:\n                name: lra\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        connection = I2CConnection(0x5A, bus=bus)\n        self._driver = DRV2605Full(connection, lra=bool(lra))\n\n    def play_effect(self, effect: int):\n        \"\"\"\n        label:\n            en: '%1 play effect (1-123) %2'\n        params:\n            effect:\n                name: effect\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '123'\n        \"\"\"\n        self._driver.play_effect(effect)\n\n    def play_sequence(self, steps: str):\n        \"\"\"\n        label:\n            en: '%1 play sequence (e.g. 1,w100,10; wN = wait N ms) %2'\n        params:\n            steps:\n                name: steps\n                type: str\n                default: '1,w100,1'\n        \"\"\"\n        self._driver.play_sequence([('wait', int(s[1:])) if s[0] == 'w' else int(s) for s in steps.replace(' ', '').split(',') if s])\n\n    def stop(self):\n        \"\"\"\n        label:\n            en: '%1 stop'\n        \"\"\"\n        self._driver.stop()\n\n    def is_playing(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is playing'\n        \"\"\"\n        return self._driver.is_playing()\n\n    def wait_done(self, timeout_ms: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 wait until done, timeout (ms) %2'\n        params:\n            timeout_ms:\n                name: timeout_ms\n                type: int\n                default: '5000'\n                field: number\n                min: '0'\n        \"\"\"\n        return self._driver.wait_done(timeout_ms)\n\n    def set_library(self, library: int):\n        \"\"\"\n        label:\n            en: '%1 set library (0-6) %2'\n        params:\n            library:\n                name: library\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '6'\n        \"\"\"\n        self._driver.set_library(library)\n\n    def set_mode(self, mode: int):\n        \"\"\"\n        label:\n            en: '%1 set mode (0-7) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def standby(self):\n        \"\"\"\n        label:\n            en: '%1 standby'\n        \"\"\"\n        self._driver.standby()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n\n    def set_hi_z(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set high-impedance (0/1) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_hi_z(bool(enabled))\n\n    def set_actuator(self, lra: int):\n        \"\"\"\n        label:\n            en: '%1 set actuator (0 = ERM, 1 = LRA) %2'\n        params:\n            lra:\n                name: lra\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_actuator(bool(lra))\n\n    def set_open_loop(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set open loop (0/1) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_open_loop(bool(enabled))\n\n    def set_bidirectional(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set bidirectional input (0/1) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_bidirectional(bool(enabled))\n\n    def rtp_level(self, level: float):\n        \"\"\"\n        label:\n            en: '%1 RTP level (0.0-1.0) %2'\n        params:\n            level:\n                name: level\n                type: float\n                default: '0.5'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.rtp_level(level)\n\n    def rtp_write(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 RTP raw value (0-255) %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '64'\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.rtp_write(value)\n\n    def set_rtp_format(self, unsigned: int):\n        \"\"\"\n        label:\n            en: '%1 set RTP unsigned (0/1) %2'\n        params:\n            unsigned:\n                name: unsigned\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_rtp_format(bool(unsigned))\n\n    def set_input(self, analog: int):\n        \"\"\"\n        label:\n            en: '%1 set input (0 = PWM, 1 = analog) %2'\n        params:\n            analog:\n                name: analog\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_input(bool(analog))\n\n    def set_rated_voltage(self, volts: float, lra_freq_hz: float):\n        \"\"\"\n        label:\n            en: '%1 set rated voltage (V) %2 LRA frequency (Hz, 0 = ERM) %3'\n        params:\n            volts:\n                name: volts\n                type: float\n                default: '3.0'\n                field: number\n                min: '0'\n            lra_freq_hz:\n                name: lra_freq_hz\n                type: float\n                default: '0.0'\n                field: number\n                min: '0'\n        \"\"\"\n        self._driver.set_rated_voltage(volts=volts, lra_freq_hz=lra_freq_hz or None)\n\n    def set_overdrive_clamp(self, volts: float, lra_freq_hz: float):\n        \"\"\"\n        label:\n            en: '%1 set overdrive clamp (V) %2 LRA frequency (Hz, 0 = not needed) %3'\n        params:\n            volts:\n                name: volts\n                type: float\n                default: '3.0'\n                field: number\n                min: '0'\n            lra_freq_hz:\n                name: lra_freq_hz\n                type: float\n                default: '0.0'\n                field: number\n                min: '0'\n        \"\"\"\n        self._driver.set_overdrive_clamp(volts=volts, lra_freq_hz=lra_freq_hz or None)\n\n    def set_drive_time(self, ms: float):\n        \"\"\"\n        label:\n            en: '%1 set drive time (ms) %2'\n        params:\n            ms:\n                name: ms\n                type: float\n                default: '2.0'\n                field: number\n                min: '0'\n        \"\"\"\n        self._driver.set_drive_time(ms)\n\n    def set_feedback(self, brake_factor: int, loop_gain: int, bemf_gain: int):\n        \"\"\"\n        label:\n            en: '%1 set feedback brake factor (0-7) %2 loop gain (0-3) %3 BEMF gain (0-3) %4'\n        params:\n            brake_factor:\n                name: brake_factor\n                type: int\n                default: '3'\n                field: number\n                min: '0'\n                max: '7'\n            loop_gain:\n                name: loop_gain\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '3'\n            bemf_gain:\n                name: bemf_gain\n                type: int\n                default: '2'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_feedback(brake_factor, loop_gain, bemf_gain)\n\n    def set_advanced(self, startup_boost: int, brake_stabilizer: int, sample_time: int, blanking_time: int, idiss_time: int, lra_drive_twice: int, supply_comp: int, noise_gate: int):\n        \"\"\"\n        label:\n            en: '%1 set advanced startup boost (0/1) %2 brake stabilizer (0/1) %3 sample time (0-3) %4 blanking time (0-3) %5 idiss time (0-3) %6 LRA drive twice (0/1) %7 supply compensation (0/1) %8 noise gate (0-3) %9'\n        params:\n            startup_boost:\n                name: startup_boost\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            brake_stabilizer:\n                name: brake_stabilizer\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            sample_time:\n                name: sample_time\n                type: int\n                default: '3'\n                field: number\n                min: '0'\n                max: '3'\n            blanking_time:\n                name: blanking_time\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '3'\n            idiss_time:\n                name: idiss_time\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '3'\n            lra_drive_twice:\n                name: lra_drive_twice\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            supply_comp:\n                name: supply_comp\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            noise_gate:\n                name: noise_gate\n                type: int\n                default: '2'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_advanced(bool(startup_boost), bool(brake_stabilizer), sample_time, blanking_time, idiss_time, bool(lra_drive_twice), bool(supply_comp), noise_gate)\n\n    def set_time_offsets(self, overdrive_ms: int, sustain_pos_ms: int, sustain_neg_ms: int, brake_ms: int):\n        \"\"\"\n        label:\n            en: '%1 set time offsets overdrive (ms) %2 sustain + (ms) %3 sustain - (ms) %4 brake (ms) %5'\n        params:\n            overdrive_ms:\n                name: overdrive_ms\n                type: int\n                default: '0'\n                field: number\n            sustain_pos_ms:\n                name: sustain_pos_ms\n                type: int\n                default: '0'\n                field: number\n            sustain_neg_ms:\n                name: sustain_neg_ms\n                type: int\n                default: '0'\n                field: number\n            brake_ms:\n                name: brake_ms\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_time_offsets(overdrive_ms, sustain_pos_ms, sustain_neg_ms, brake_ms)\n\n    def calibrate(self, lra: int, rated_voltage: float, overdrive_voltage: float, lra_freq_hz: float) -> bool:\n        \"\"\"\n        label:\n            en: '%1 calibrate, LRA (0/1) %2 rated voltage (V) %3 overdrive voltage (V) %4 LRA frequency (Hz, 0 = ERM) %5 (1 = OK)'\n        params:\n            lra:\n                name: lra\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            rated_voltage:\n                name: rated_voltage\n                type: float\n                default: '3.0'\n                field: number\n                min: '0'\n            overdrive_voltage:\n                name: overdrive_voltage\n                type: float\n                default: '3.0'\n                field: number\n                min: '0'\n            lra_freq_hz:\n                name: lra_freq_hz\n                type: float\n                default: '0.0'\n                field: number\n                min: '0'\n        \"\"\"\n        return self._driver.calibrate(bool(lra), rated_voltage, overdrive_voltage, lra_freq_hz or None)[0]\n\n    def calibration_comp(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 calibration compensation'\n        \"\"\"\n        return self._driver.get_calibration()[0]\n\n    def calibration_bemf(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 calibration back-EMF'\n        \"\"\"\n        return self._driver.get_calibration()[1]\n\n    def calibration_bemf_gain(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 calibration BEMF gain'\n        \"\"\"\n        return self._driver.get_calibration()[2]\n\n    def set_calibration(self, comp: int, bemf: int, bemf_gain: int):\n        \"\"\"\n        label:\n            en: '%1 set calibration compensation (0-255) %2 back-EMF (0-255) %3 BEMF gain (0-3) %4'\n        params:\n            comp:\n                name: comp\n                type: int\n                default: '13'\n                field: number\n                min: '0'\n                max: '255'\n            bemf:\n                name: bemf\n                type: int\n                default: '109'\n                field: number\n                min: '0'\n                max: '255'\n            bemf_gain:\n                name: bemf_gain\n                type: int\n                default: '2'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_calibration(comp, bemf, bemf_gain)\n\n    def diagnose(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 diagnose actuator (OK = true)'\n        \"\"\"\n        return self._driver.diagnose()\n\n    def set_audio_to_vibe(self, ac_couple: int, peak_time_ms: int, filter_hz: int, min_input_v: float, max_input_v: float, min_drive: float, max_drive: float):\n        \"\"\"\n        label:\n            en: '%1 audio to vibe AC coupled (0/1) %2 peak time (10/20/30/40 ms) %3 filter (100/125/150/200 Hz) %4 min input (V) %5 max input (V) %6 min drive (0.0-1.0) %7 max drive (0.0-1.0) %8'\n        params:\n            ac_couple:\n                name: ac_couple\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            peak_time_ms:\n                name: peak_time_ms\n                type: int\n                default: '20'\n                field: number\n                min: '10'\n                max: '40'\n            filter_hz:\n                name: filter_hz\n                type: int\n                default: '125'\n                field: number\n                min: '100'\n                max: '200'\n            min_input_v:\n                name: min_input_v\n                type: float\n                default: '0.1'\n                field: number\n                min: '0'\n                max: '1.8'\n            max_input_v:\n                name: max_input_v\n                type: float\n                default: '1.8'\n                field: number\n                min: '0'\n                max: '1.8'\n            min_drive:\n                name: min_drive\n                type: float\n                default: '0.1'\n                field: number\n                min: '0'\n                max: '1'\n            max_drive:\n                name: max_drive\n                type: float\n                default: '1.0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_audio_to_vibe(bool(ac_couple), peak_time_ms, filter_hz, min_input_v, max_input_v, min_drive, max_drive)\n\n    def diag_failed(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 diagnostics failed (clears flags)'\n        \"\"\"\n        return self._driver.read_status()[0]\n\n    def fb_timeout(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 feedback timeout (clears flags)'\n        \"\"\"\n        return self._driver.read_status()[1]\n\n    def over_temp(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 over-temperature (clears flags)'\n        \"\"\"\n        return self._driver.read_status()[2]\n\n    def over_current(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 over-current'\n        \"\"\"\n        return self._driver.read_status()[3]\n\n    def device_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 device id'\n        \"\"\"\n        return self._driver.read_device_id()\n\n    def supply_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 supply voltage (V)'\n        \"\"\"\n        return self._driver.read_supply_voltage()\n\n    def lra_frequency(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 LRA frequency (Hz, 0 = n/a)'\n        \"\"\"\n        return self._driver.read_lra_frequency() or 0.0\n\n    def program_otp(self, confirm: int):\n        \"\"\"\n        label:\n            en: '%1 program OTP, IRREVERSIBLE (1 to burn) %2'\n        params:\n            confirm:\n                name: confirm\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.program_otp(confirm=(confirm == 1))\n\n    def otp_programmed(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 OTP programmed'\n        \"\"\"\n        return self._driver.otp_programmed()\n",
+  "version": "alpha2"
+}

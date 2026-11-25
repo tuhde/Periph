@@ -118,6 +118,21 @@ public final class PollingInputPin implements InputPin {
     }
 
     @Override
+    public boolean isHigh() throws IOException {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment data = arena.allocate(GD_SIZE, 1);
+            data.fill((byte) 0);
+            int rc = (int) ioctlAddrMH.invoke(lineFd, GPIOHANDLE_GET_LINE_VALUES_IOCTL, data);
+            if (rc < 0) throw new IOException("GPIOHANDLE_GET_LINE_VALUES_IOCTL failed");
+            return (data.get(ValueLayout.JAVA_BYTE, 0) & 0xFF) != 0;
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
+        }
+    }
+
+    @Override
     public synchronized void onEdge(EdgeHandler handler, EdgeTrigger trigger) {
         handlers.add(handler);
         this.trigger = trigger;

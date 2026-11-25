@@ -1,0 +1,200 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "cat24c512_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init CAT24C512",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_read_byte",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT24C512 read byte",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_write_byte",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT24C512 write byte",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_read",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT24C512 read (hex string)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "length",
+          "type": "label"
+        },
+        {
+          "name": "_length",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_write",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT24C512 write (data hex)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "data",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_fill",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CAT24C512 fill",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "length",
+          "type": "label"
+        },
+        {
+          "name": "_length",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_size",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT24C512 size (bytes)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_page_size",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT24C512 page size (bytes)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "cat24c512_wait_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "CAT24C512 ready within (ms)",
+          "type": "label"
+        },
+        {
+          "name": "timeout",
+          "type": "label"
+        },
+        {
+          "name": "_timeout",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

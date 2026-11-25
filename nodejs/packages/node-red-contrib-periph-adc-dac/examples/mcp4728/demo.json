@@ -95,7 +95,7 @@
     },
     {
         "id": "mcp4728-A",
-        "type": "periph-mcp4728",
+        "type": "mcp4728",
         "name": "MCP4728 A",
         "device": "cfg-mcp4728",
         "channel": "A",
@@ -110,7 +110,7 @@
     },
     {
         "id": "mcp4728-B",
-        "type": "periph-mcp4728",
+        "type": "mcp4728",
         "name": "MCP4728 B",
         "device": "cfg-mcp4728",
         "channel": "B",
@@ -125,7 +125,7 @@
     },
     {
         "id": "mcp4728-C",
-        "type": "periph-mcp4728",
+        "type": "mcp4728",
         "name": "MCP4728 C",
         "device": "cfg-mcp4728",
         "channel": "C",
@@ -140,7 +140,7 @@
     },
     {
         "id": "mcp4728-D",
-        "type": "periph-mcp4728",
+        "type": "mcp4728",
         "name": "MCP4728 D",
         "device": "cfg-mcp4728",
         "channel": "D",
@@ -155,7 +155,7 @@
     },
     {
         "id": "mcp4728-all",
-        "type": "periph-mcp4728",
+        "type": "mcp4728",
         "name": "MCP4728 All",
         "device": "cfg-mcp4728",
         "channel": "A",

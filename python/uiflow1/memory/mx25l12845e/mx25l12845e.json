@@ -1,0 +1,134 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mx25l12845e_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MX25L12845E",
+          "type": "label"
+        },
+        {
+          "name": "SPI bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "CS pin",
+          "type": "label"
+        },
+        {
+          "name": "_cs_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_size",
+      "type": "value",
+      "params": [
+        {
+          "name": "MX25L12845E capacity (bytes)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_jedec_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "MX25L12845E JEDEC ID (hex string)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_read_byte",
+      "type": "value",
+      "params": [
+        {
+          "name": "MX25L12845E read byte",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_write_byte",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MX25L12845E write byte (erases the sector if needed)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_erase_sector",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MX25L12845E erase 4 KiB sector at",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_deep_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MX25L12845E deep power-down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mx25l12845e_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MX25L12845E wake up (release deep power-down)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

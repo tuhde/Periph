@@ -57,13 +57,21 @@ arguments. Every wrapped method already exists on the underlying driver in
 
 | Chip | Category | Blocks |
 |------|----------|--------|
+| [HT16K33](led/ht16k33/) | led | `ht16k33_init`, `ht16k33_clear`, `ht16k33_set_pixel`, `ht16k33_show`, `ht16k33_set_brightness`, `ht16k33_display_on`, `ht16k33_display_off`, `ht16k33_set_blink`, `ht16k33_standby`, `ht16k33_wake`, `ht16k33_set_int_output`, `ht16k33_read_keys`, `ht16k33_key_pressed`, `ht16k33_get_pixel` |
 | [HX711](adc_dac/hx711/) | adc_dac | `hx711_init`, `hx711_tare`, `hx711_set_scale`, `hx711_read_weight`, `hx711_read_raw` |
+| [IS31FL3731](led/is31fl3731/) | led | `is31fl3731_init`, `is31fl3731_set_pixel`, `is31fl3731_clear`, `is31fl3731_fill`, `is31fl3731_get_pixel`, `is31fl3731_set_led_enabled`, `is31fl3731_set_blink`, `is31fl3731_set_blink_all`, `is31fl3731_enable_blink`, `is31fl3731_select_frame`, `is31fl3731_show_frame`, `is31fl3731_clear_frame`, `is31fl3731_clear_all_frames`, `is31fl3731_copy_frame`, `is31fl3731_set_picture_mode`, `is31fl3731_start_auto_play`, `is31fl3731_stop_auto_play`, `is31fl3731_set_audio_mode`, `is31fl3731_set_audio_sync`, `is31fl3731_set_audio_gain`, `is31fl3731_set_audio_rate`, `is31fl3731_set_breath`, `is31fl3731_set_intensity_control`, `is31fl3731_shutdown`, `is31fl3731_frame_state`, `is31fl3731_current_frame`, `is31fl3731_movie_finished`, `is31fl3731_read_function_register`, `is31fl3731_write_function_register`, `is31fl3731_poll_interrupt` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | `mcp4725_init`, `mcp4725_set_voltage`, `mcp4725_set_raw` |
+| [AD5248](adc_dac/ad5248/) | adc_dac | `ad5248_init`, `ad5248_set_wiper`, `ad5248_get_wiper`, `ad5248_set_resistance`, `ad5248_get_resistance`, `ad5248_set_both`, `ad5248_set_ratio`, `ad5248_get_ratio`, `ad5248_increment`, `ad5248_shutdown`, `ad5248_resume`, `ad5248_is_shutdown`, `ad5248_reset` |
+| [MCP3422](adc_dac/mcp3422/) | adc_dac | `mcp3422_init`, `mcp3422_read_raw`, `mcp3422_read_voltage`, `mcp3422_set_resolution`, `mcp3422_set_gain`, `mcp3422_start_continuous`, `mcp3422_read_continuous`, `mcp3422_general_call_reset` |
 | [MCP4728](adc_dac/mcp4728/) | adc_dac | `mcp4728_init`, `mcp4728_set_voltage`, `mcp4728_set_raw`, `mcp4728_set_all` |
 | [PCF8591](adc_dac/pcf8591/) | adc_dac | `pcf8591_init`, `pcf8591_read_channel`, `pcf8591_read_channel_voltage`, `pcf8591_set_dac_voltage` |
 | [RDA5807M](comms/rda5807m/) | comms | `rda5807m_init`, `rda5807m_set_frequency`, `rda5807m_frequency`, `rda5807m_set_volume`, `rda5807m_mute`, `rda5807m_seek` |
 | [RFM9x](comms/rfm9x/) | comms | `rfm9x_init`, `rfm9x_send`, `rfm9x_receive`, `rfm9x_configure`, `rfm9x_set_tx_power`, `rfm9x_last_packet_rssi`, `rfm9x_last_packet_snr`, `rfm9x_sleep` |
 | [PCF8576](display/pcf8576/) | display | `pcf8576_init`, `pcf8576_clear`, `pcf8576_set_digit` |
+| [PCF8578](display/pcf8578/) | display | `pcf8578_init`, `pcf8578_clear`, `pcf8578_set_pixel`, `pcf8578_get_pixel`, `pcf8578_write_column`, `pcf8578_fill`, `pcf8578_draw_line`, `pcf8578_draw_rect`, `pcf8578_set_display`, `pcf8578_set_mode`, `pcf8578_set_start_bank`, `pcf8578_scroll`, `pcf8578_device_select`, `pcf8578_reset` |
+| [PCF8579](display/pcf8579/) | display | `pcf8579_init`, `pcf8579_clear`, `pcf8579_set_pixel`, `pcf8579_get_pixel`, `pcf8579_write_column`, `pcf8579_fill`, `pcf8579_draw_line`, `pcf8579_draw_rect`, `pcf8579_set_display`, `pcf8579_set_mode`, `pcf8579_set_start_bank`, `pcf8579_scroll`, `pcf8579_reset` |
+| [AHT10](environmental/aht10/) | environmental | `aht10_init`, `aht10_read_temperature`, `aht10_read_humidity` |
+| [AHT20](environmental/aht20/) | environmental | `aht20_init`, `aht20_read_temperature`, `aht20_read_humidity` |
 | [AHT21](environmental/aht21/) | environmental | `aht21_init`, `aht21_read_temperature`, `aht21_read_humidity` |
 | [BME280](environmental/bme280/) | environmental | `bme280_init`, `bme280_temperature`, `bme280_pressure`, `bme280_humidity` |
 | [BME680](environmental/bme680/) | environmental | `bme680_init`, `bme680_temperature`, `bme680_pressure`, `bme680_humidity`, `bme680_gas_resistance` |
@@ -71,20 +79,34 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [NEO-6](gnss/neo6/) | gnss | `neo6_init`, `neo6_update`, `neo6_latitude`, `neo6_longitude`, `neo6_altitude` |
 | [DHT11](humidity/dht11/) | humidity | `dht11_init`, `dht11_read_temperature`, `dht11_read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | `mpu6050_init`, `mpu6050_accel_x`, `mpu6050_accel_y`, `mpu6050_accel_z`, `mpu6050_gyro_x`, `mpu6050_gyro_y`, `mpu6050_gyro_z`, `mpu6050_temperature`, `mpu6050_data_ready` |
+| [MCP23008](io_expander/mcp23008/) | io_expander | `mcp23008_init`, `mcp23008_set_pin_mode`, `mcp23008_write_pin`, `mcp23008_read_pin`, `mcp23008_read_port`, `mcp23008_write_port`, `mcp23008_configure_pullup`, `mcp23008_configure_polarity`, `mcp23008_set_default_value`, `mcp23008_enable_pin_interrupt`, `mcp23008_poll_interrupt`, `mcp23008_read_capture`, `mcp23008_reset` |
+| [PCA6408A](io_expander/pca6408a/) | io_expander | `pca6408a_init`, `pca6408a_set_pin_mode`, `pca6408a_write_pin`, `pca6408a_read_pin`, `pca6408a_read_port`, `pca6408a_write_port`, `pca6408a_configure_polarity`, `pca6408a_set_direction`, `pca6408a_get_direction`, `pca6408a_poll_interrupt`, `pca6408a_reset` |
+| [PCA6416A](io_expander/pca6416a/) | io_expander | `pca6416a_init`, `pca6416a_set_pin_mode`, `pca6416a_write_pin`, `pca6416a_read_pin`, `pca6416a_read_port`, `pca6416a_write_port`, `pca6416a_read_all`, `pca6416a_write_all`, `pca6416a_configure_polarity`, `pca6416a_set_direction`, `pca6416a_get_direction`, `pca6416a_poll_interrupt`, `pca6416a_reset` |
+| [PCA9539](io_expander/pca9539/) | io_expander | `pca9539_init`, `pca9539_set_pin_mode`, `pca9539_write_pin`, `pca9539_read_pin`, `pca9539_read_port`, `pca9539_write_port`, `pca9539_read_all`, `pca9539_write_all`, `pca9539_configure_polarity`, `pca9539_set_direction`, `pca9539_get_direction`, `pca9539_poll_interrupt`, `pca9539_reset` |
 | [MCP23017](io_expander/mcp23017/) | io_expander | `mcp23017_init`, `mcp23017_set_pin_mode`, `mcp23017_write_pin`, `mcp23017_read_pin` |
 | [PCF8574](io_expander/pcf8574/) | io_expander | `pcf8574_init`, `pcf8574_set_pin_mode`, `pcf8574_write_pin`, `pcf8574_read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | `pcf8575_init`, `pcf8575_set_pin_mode`, `pcf8575_write_pin`, `pcf8575_read_pin` |
 | [SK6812RGBW](led/sk6812rgbw/) | led | `sk6812rgbw_init`, `sk6812rgbw_fill`, `sk6812rgbw_set_pixel`, `sk6812rgbw_show`, `sk6812rgbw_off` |
+| [TCA9554](io_expander/tca9554/) | io_expander | `tca9554_init`, `tca9554_set_pin_mode`, `tca9554_write_pin`, `tca9554_read_pin`, `tca9554_read_port`, `tca9554_write_port`, `tca9554_configure_polarity`, `tca9554_set_direction`, `tca9554_get_direction`, `tca9554_poll_interrupt`, `tca9554_reset` |
 | [WS2812B](led/ws2812b/) | led | `ws2812b_init`, `ws2812b_fill`, `ws2812b_set_pixel`, `ws2812b_show`, `ws2812b_off` |
 | [APDS9960](light/apds9960/) | light | `apds9960_init`, `apds9960_color_clear`, `apds9960_color_red`, `apds9960_color_green`, `apds9960_color_blue`, `apds9960_enable_proximity`, `apds9960_proximity` |
+| [MAX44009](light/max44009/) | light | `max44009_init`, `max44009_lux`, `max44009_is_overrange`, `max44009_resolution`, `max44009_set_continuous`, `max44009_set_automatic`, `max44009_set_manual`, `max44009_set_thresholds`, `max44009_get_low_threshold`, `max44009_get_high_threshold`, `max44009_set_threshold_delay`, `max44009_get_threshold_delay`, `max44009_enable_interrupt`, `max44009_disable_interrupt`, `max44009_poll_interrupt` |
+| [PCA9541](other/pca9541/) | other | `pca9541_init`, `pca9541_has_control`, `pca9541_acquire`, `pca9541_release`, `pca9541_recover_bus`, `pca9541_is_connected`, `pca9541_connect`, `pca9541_disconnect`, `pca9541_get_control`, `pca9541_set_interrupt_mask`, `pca9541_get_interrupt_mask`, `pca9541_test_interrupt`, `pca9541_poll_interrupt` |
 | [AS5600](magnetometer/as5600/) | magnetometer | `as5600_init`, `as5600_angle`, `as5600_angle_raw`, `as5600_is_magnet_detected`, `as5600_is_magnet_too_strong`, `as5600_is_magnet_too_weak` |
 | [24AA02UID](memory/24aa02uid/) | memory | `24aa02uid_init`, `24aa02uid_read_uid`, `24aa02uid_read_byte`, `24aa02uid_write_byte` |
+| [MB85RC](memory/mb85rc/) | memory | `mb85rc_init`, `mb85rc_read_byte`, `mb85rc_write_byte`, `mb85rc_read`, `mb85rc_write`, `mb85rc_fill`, `mb85rc_size`, `mb85rc_read_device_id` |
 | [INA219](power/ina219/) | power | `ina219_init`, `ina219_voltage`, `ina219_shunt_voltage`, `ina219_current`, `ina219_power` |
 | [INA226](power/ina226/) | power | `ina226_init`, `ina226_read_voltage`, `ina226_read_current`, `ina226_read_power` |
+| [INA260](power/ina260/) | power | `ina260_init`, `ina260_read_voltage`, `ina260_read_current`, `ina260_read_power` |
+| [LC709203F](power/lc709203f/) | power | `lc709203f_init`, `lc709203f_read_voltage`, `lc709203f_read_percent`, `lc709203f_read_temperature` and setters (RSOC, temperature, alarms, profile, sleep/wake) |
+| [LM25066](power/lm25066/) | power | `lm25066_init`, `lm25066_voltage_in`, `lm25066_voltage_out`, `lm25066_current`, `lm25066_power`, `lm25066_temperature` and averaging, warning limits, fault clearing, MOSFET on/off, alert masks |
 | [INA3221](power/ina3221/) | power | `ina3221_init`, `ina3221_read_voltage`, `ina3221_read_current`, `ina3221_read_power` (each takes a `_channel` param) |
 | [BMP180](pressure/bmp180/) | pressure | `bmp180_init`, `bmp180_read_temperature`, `bmp180_read_pressure`, `bmp180_read_altitude` |
 | [BMP280](pressure/bmp280/) | pressure | `bmp280_init`, `bmp280_read_temperature`, `bmp280_read_pressure`, `bmp280_read_altitude` |
 | [MFRC522](rfid/mfrc522/) | rfid | `mfrc522_init`, `mfrc522_is_card_present`, `mfrc522_read_uid` |
+| [ADS7828](adc_dac/ads7828/) | adc_dac | `ads7828_init`, `ads7828_read_raw`, `ads7828_read_voltage`, `ads7828_read_differential`, `ads7828_read_signed_differential`, `ads7828_set_reference`, `ads7828_power_down` |
+| [DS3502](adc_dac/ds3502/) | adc_dac | `ds3502_init`, `ds3502_set_wiper`, `ds3502_get_wiper`, `ds3502_set_voltage`, `ds3502_get_voltage`, `ds3502_set_ratio`, `ds3502_get_ratio`, `ds3502_get_resistance_l`, `ds3502_get_resistance_h`, `ds3502_increment`, `ds3502_store_wiper`, `ds3502_set_mode`, `ds3502_get_mode`, `ds3502_wait_ready`, `ds3502_set_endpoints` |
+| [PCA9536](io_expander/pca9536/) | io_expander | `pca9536_init`, `pca9536_set_pin_mode`, `pca9536_write_pin`, `pca9536_read_pin`, `pca9536_read_port`, `pca9536_write_port`, `pca9536_configure_polarity`, `pca9536_set_direction`, `pca9536_get_direction`, `pca9536_poll_changes`, `pca9536_reset` |
 
 ## Using these blocks
 

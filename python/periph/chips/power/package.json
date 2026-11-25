@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/power/ade7953.py"
     ],
     [
+      "periph/chips/power/axp2101.py",
+      "github:tuhde/Periph/python/periph/chips/power/axp2101.py"
+    ],
+    [
       "periph/chips/power/ina219.py",
       "github:tuhde/Periph/python/periph/chips/power/ina219.py"
     ],
@@ -17,8 +21,28 @@
       "github:tuhde/Periph/python/periph/chips/power/ina226.py"
     ],
     [
+      "periph/chips/power/ina260.py",
+      "github:tuhde/Periph/python/periph/chips/power/ina260.py"
+    ],
+    [
       "periph/chips/power/ina3221.py",
       "github:tuhde/Periph/python/periph/chips/power/ina3221.py"
+    ],
+    [
+      "periph/chips/power/lc709203f.py",
+      "github:tuhde/Periph/python/periph/chips/power/lc709203f.py"
+    ],
+    [
+      "periph/chips/power/lm25066.py",
+      "github:tuhde/Periph/python/periph/chips/power/lm25066.py"
+    ],
+    [
+      "periph/chips/power/ltc4151.py",
+      "github:tuhde/Periph/python/periph/chips/power/ltc4151.py"
+    ],
+    [
+      "periph/chips/power/max17048.py",
+      "github:tuhde/Periph/python/periph/chips/power/max17048.py"
     ],
     [
       "periph/connection/__init__.py",
@@ -83,5 +107,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

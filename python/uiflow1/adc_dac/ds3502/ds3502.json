@@ -1,0 +1,256 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ds3502_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init DS3502",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "RH (V)",
+          "type": "label"
+        },
+        {
+          "name": "_v_high",
+          "type": "number"
+        },
+        {
+          "name": "RL (V)",
+          "type": "label"
+        },
+        {
+          "name": "_v_low",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_set_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 set wiper",
+          "type": "label"
+        },
+        {
+          "name": "code (0-127)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_get_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 wiper code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_set_voltage",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 set output voltage",
+          "type": "label"
+        },
+        {
+          "name": "volts",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_get_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 output voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_set_ratio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 set ratio",
+          "type": "label"
+        },
+        {
+          "name": "ratio (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_get_ratio",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 ratio",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_get_resistance_l",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 wiper-to-RL resistance (ohm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_get_resistance_h",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 wiper-to-RH resistance (ohm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_increment",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 step wiper (returns new code)",
+          "type": "label"
+        },
+        {
+          "name": "steps",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_store_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 store wiper in EEPROM (power-up value)",
+          "type": "label"
+        },
+        {
+          "name": "code (0-127)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 EEPROM-backed writes (1 = yes)",
+          "type": "label"
+        },
+        {
+          "name": "_eeprom",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_get_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "DS3502 EEPROM-backed writes",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_wait_ready",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 wait until ready",
+          "type": "label"
+        },
+        {
+          "name": "timeout (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_timeout_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ds3502_set_endpoints",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DS3502 set RH / RL (V)",
+          "type": "label"
+        },
+        {
+          "name": "RH",
+          "type": "label"
+        },
+        {
+          "name": "_v_high",
+          "type": "number"
+        },
+        {
+          "name": "RL",
+          "type": "label"
+        },
+        {
+          "name": "_v_low",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

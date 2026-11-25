@@ -1,0 +1,1 @@
+int(_periph_hts221.is_heater_on())

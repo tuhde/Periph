@@ -1,0 +1,83 @@
+[
+    {
+        "id": "tab-lsm303-demo",
+        "type": "tab",
+        "label": "LSM303 Compass Logger",
+        "disabled": false,
+        "info": "Reads the accelerometer, the magnetometer and the compass heading from an LSM303 every 500 ms. A function node computes the acceleration magnitude √(x²+y²+z²) and the magnetic field magnitude √(x²+y²+z²), so the total vector stays near 1 g and near the Earth's field strength while the static components shift between the axes as the board is turned. The heading in the payload comes from the driver's tilt-compensated compass algorithm. Demonstrates e-compass orientation sensing: rotate the board and watch the heading track the change while the magnitudes stay constant. Adjust the I²C bus number in the device config node to match the wiring."
+    },
+    {
+        "id": "cfg-lsm303",
+        "type": "lsm303-device",
+        "name": "LSM303",
+        "bus": "1"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 500 ms",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lsm303-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["read-lsm303"]]
+    },
+    {
+        "id": "read-lsm303",
+        "type": "lsm303",
+        "name": "LSM303 read",
+        "device": "cfg-lsm303",
+        "z": "tab-lsm303-demo",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn-magnitude", "dbg-axes"]]
+    },
+    {
+        "id": "fn-magnitude",
+        "type": "function",
+        "name": "magnitudes",
+        "func": "const {accel, mag, heading} = msg.payload;\nmsg.payload = {\n    accel,\n    mag,\n    heading,\n    accelMagnitude: Math.sqrt(accel.x*accel.x + accel.y*accel.y + accel.z*accel.z),\n    magMagnitude: Math.sqrt(mag.x*mag.x + mag.y*mag.y + mag.z*mag.z)\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-lsm303-demo",
+        "x": 540,
+        "y": 100,
+        "wires": [["dbg-magnitude"]]
+    },
+    {
+        "id": "dbg-axes",
+        "type": "debug",
+        "name": "accel + mag + heading",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 520,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-magnitude",
+        "type": "debug",
+        "name": "magnitudes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 770,
+        "y": 100,
+        "wires": []
+    }
+]

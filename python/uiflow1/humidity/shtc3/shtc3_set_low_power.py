@@ -1,0 +1,1 @@
+_periph_shtc3.set_low_power(bool(int(${_on})))

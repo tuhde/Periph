@@ -5,10 +5,9 @@ module.exports = function(RED) {
     const { HX711Connection } = require('periph/src/connection/hx711');
     const { HX710BFull }      = require('periph/src/chips/adc_dac/hx710b');
 
-    function HX710BNode(config) {
+    function HX710BDeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-
         try {
             const chip   = parseInt(config.gpioChip || 0);
             const dout   = Default.input({ chip, line: parseInt(config.doutPin) });
@@ -24,20 +23,31 @@ module.exports = function(RED) {
             node.error('HX710B init failed: ' + e.message);
         }
 
+        node.on('close', function() {
+            if (node.connection) node.connection.close();
+        });
+    }
+    RED.nodes.registerType('hx710b-device', HX710BDeviceNode);
+
+    function HX710BReadNode(config) {
+        RED.nodes.createNode(this, config);
+        const node = this;
+        const deviceNode = RED.nodes.getNode(config.device) || {};
+
         node.on('input', function(msg, send, done) {
-            if (!node.driver) { done(); return; }
+            if (!deviceNode.driver) { done(); return; }
             try {
                 if (msg.payload === 'tare') {
-                    node.driver.tare(10);
+                    deviceNode.driver.tare(10);
                     done();
                 } else if (msg.payload === 'supply_diff') {
-                    const raw_supply_diff = node.driver.readSupplyDiffRaw();
+                    const raw_supply_diff = deviceNode.driver.readSupplyDiffRaw();
                     msg.payload = { raw_supply_diff };
                     send(msg);
                     done();
                 } else {
-                    const raw    = node.driver.readRaw();
-                    const weight = (raw - node.driver.getOffset()) / node.driver.getScale();
+                    const raw    = deviceNode.driver.readRaw();
+                    const weight = (raw - deviceNode.driver.getOffset()) / deviceNode.driver.getScale();
                     msg.payload = { raw, weight };
                     send(msg);
                     done();
@@ -46,11 +56,6 @@ module.exports = function(RED) {
                 done(e);
             }
         });
-
-        node.on('close', function() {
-            if (node.connection) node.connection.close();
-        });
     }
-
-    RED.nodes.registerType('periph-hx710b', HX710BNode);
+    RED.nodes.registerType('hx710b', HX710BReadNode);
 };

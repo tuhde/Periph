@@ -1,0 +1,1127 @@
+{
+  "category": "LSM303",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_LSM303_LANGUAGES = {\n  \"CUSTOM_LSM303_INIT\": {\n    \"en\": \"%1 init I2C bus %2 (accel 0x19, mag 0x1E)\"\n  },\n  \"CUSTOM_LSM303_ACCEL_X\": {\n    \"en\": \"%1 acceleration X (g)\"\n  },\n  \"CUSTOM_LSM303_ACCEL_Y\": {\n    \"en\": \"%1 acceleration Y (g)\"\n  },\n  \"CUSTOM_LSM303_ACCEL_Z\": {\n    \"en\": \"%1 acceleration Z (g)\"\n  },\n  \"CUSTOM_LSM303_MAG_X\": {\n    \"en\": \"%1 magnetic X (µT)\"\n  },\n  \"CUSTOM_LSM303_MAG_Y\": {\n    \"en\": \"%1 magnetic Y (µT)\"\n  },\n  \"CUSTOM_LSM303_MAG_Z\": {\n    \"en\": \"%1 magnetic Z (µT)\"\n  },\n  \"CUSTOM_LSM303_READ_ACCELERATION\": {\n    \"en\": \"%1 read acceleration (x, y, z)\"\n  },\n  \"CUSTOM_LSM303_READ_MAGNETIC\": {\n    \"en\": \"%1 read magnetic field (x, y, z)\"\n  },\n  \"CUSTOM_LSM303_READ_ACCELERATION_RAW\": {\n    \"en\": \"%1 read raw acceleration (x, y, z)\"\n  },\n  \"CUSTOM_LSM303_READ_MAGNETIC_RAW\": {\n    \"en\": \"%1 read raw magnetic field (x, y, z)\"\n  },\n  \"CUSTOM_LSM303_SET_RANGE\": {\n    \"en\": \"%1 set range (g: 2, 4, 8 or 16) %2\"\n  },\n  \"CUSTOM_LSM303_SET_DATA_RATE\": {\n    \"en\": \"%1 set data rate (Hz) %2\"\n  },\n  \"CUSTOM_LSM303_SET_MODE\": {\n    \"en\": \"%1 set mode (0 low-power, 1 normal, 2 high-res) %2\"\n  },\n  \"CUSTOM_LSM303_SET_AXES\": {\n    \"en\": \"%1 enable axes (x %2, y %3, z %4)\"\n  },\n  \"CUSTOM_LSM303_POWER_DOWN\": {\n    \"en\": \"%1 power down the accelerometer\"\n  },\n  \"CUSTOM_LSM303_NEW_DATA_AVAILABLE\": {\n    \"en\": \"%1 new data available (1/0)\"\n  },\n  \"CUSTOM_LSM303_READ_STATUS\": {\n    \"en\": \"%1 status register (raw)\"\n  },\n  \"CUSTOM_LSM303_SET_HIGH_PASS\": {\n    \"en\": \"%1 set high-pass (mode %2, cutoff %3)\"\n  },\n  \"CUSTOM_LSM303_RESET_HIGH_PASS\": {\n    \"en\": \"%1 reset high-pass, returns the reference\"\n  },\n  \"CUSTOM_LSM303_SET_REFERENCE\": {\n    \"en\": \"%1 set the high-pass reference %2\"\n  },\n  \"CUSTOM_LSM303_SET_FIFO\": {\n    \"en\": \"%1 set FIFO (mode %2, watermark %3)\"\n  },\n  \"CUSTOM_LSM303_FIFO_LEVEL\": {\n    \"en\": \"%1 FIFO level (sample sets)\"\n  },\n  \"CUSTOM_LSM303_READ_FIFO\": {\n    \"en\": \"%1 read the FIFO samples\"\n  },\n  \"CUSTOM_LSM303_READ_FIFO_STATUS\": {\n    \"en\": \"%1 read the FIFO status\"\n  },\n  \"CUSTOM_LSM303_SET_MOTION_INTERRUPT\": {\n    \"en\": \"%1 set motion interrupt (generator %2, events %3, threshold g %4, duration ms %5)\"\n  },\n  \"CUSTOM_LSM303_SET_FREE_FALL\": {\n    \"en\": \"%1 set free-fall (generator %2, threshold g %3, duration ms %4)\"\n  },\n  \"CUSTOM_LSM303_SET_ORIENTATION\": {\n    \"en\": \"%1 set orientation (generator %2, position %3, four_d %4)\"\n  },\n  \"CUSTOM_LSM303_SET_LATCH\": {\n    \"en\": \"%1 latch the interrupt (generator %2, enabled %3)\"\n  },\n  \"CUSTOM_LSM303_READ_INTERRUPT_SOURCE\": {\n    \"en\": \"%1 read the interrupt source (generator %2)\"\n  },\n  \"CUSTOM_LSM303_SET_CLICK\": {\n    \"en\": \"%1 set click (single mask %2, double mask %3, threshold g %4)\"\n  },\n  \"CUSTOM_LSM303_READ_CLICK_SOURCE\": {\n    \"en\": \"%1 read the click source (raw)\"\n  },\n  \"CUSTOM_LSM303_SET_INTERRUPT_POLARITY\": {\n    \"en\": \"%1 set interrupt polarity (1 = active low) %2\"\n  },\n  \"CUSTOM_LSM303_SET_MAG_RANGE\": {\n    \"en\": \"%1 set magnetometer range (µT) %2\"\n  },\n  \"CUSTOM_LSM303_SET_MAG_DATA_RATE\": {\n    \"en\": \"%1 set magnetometer data rate (Hz) %2\"\n  },\n  \"CUSTOM_LSM303_SET_MAG_MODE\": {\n    \"en\": \"%1 set magnetometer mode (0 continuous, 1 single, 2 sleep) %2\"\n  },\n  \"CUSTOM_LSM303_MAG_DATA_READY\": {\n    \"en\": \"%1 magnetometer data ready (1/0)\"\n  },\n  \"CUSTOM_LSM303_READ_MAG_STATUS\": {\n    \"en\": \"%1 read the magnetometer status\"\n  },\n  \"CUSTOM_LSM303_READ_MAG_IDENTITY\": {\n    \"en\": \"%1 magnetometer identity (hex)\"\n  },\n  \"CUSTOM_LSM303_ENABLE_TEMPERATURE\": {\n    \"en\": \"%1 enable the temperature sensor %2\"\n  },\n  \"CUSTOM_LSM303_READ_TEMPERATURE_DELTA\": {\n    \"en\": \"%1 temperature delta (°C)\"\n  },\n  \"CUSTOM_LSM303_HEADING\": {\n    \"en\": \"%1 compass heading (deg) %2\"\n  },\n  \"CUSTOM_LSM303_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable an interrupt source (source %2, pin %3)\"\n  },\n  \"CUSTOM_LSM303_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable an interrupt source (source %2, pin %3)\"\n  },\n  \"CUSTOM_LSM303_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status (mask)\"\n  },\n  \"CUSTOM_LSM303_REBOOT\": {\n    \"en\": \"%1 reboot the accelerometer\"\n  },\n};\n\nconst initType = 'custom_lsm303_init';\nBlockly.BlockRegExpList['custom_lsm303'] = {\n  regexp: new RegExp(/^custom_lsm303_/),\n  code: \"from LSM303 import LSM303\",\n  initBlockType: initType,\n  categoryId: 'custom_lsm303',\n}\nBlockly.utils.registerLanguages(CUSTOM_LSM303_LANGUAGES)\n\nBlockly.Msg.CUSTOM_LSM303_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_LSM303 = 'LSM303'\n\nBlockly.utils.getlsm303Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['lsm303_0', 'lsm303_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_lsm303_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getlsm303Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'lsm303_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = LSM303(${bus})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_accel_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ACCEL_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_accel_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_accel_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ACCEL_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_accel_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_accel_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ACCEL_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_accel_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_read_acceleration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_ACCELERATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_acceleration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_acceleration()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_magnetic\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_MAGNETIC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_magnetic\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_magnetic()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_acceleration_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_ACCELERATION_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_acceleration_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_acceleration_raw()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_magnetic_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_MAGNETIC_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_magnetic_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_magnetic_raw()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'range_g'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var range_g = Blockly.Python.valueToCode(block, 'range_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_range(${range_g})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate_hz = Blockly.Python.valueToCode(block, 'rate_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_data_rate(${rate_hz})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_axes\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_AXES,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'z'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_axes\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var z = Blockly.Python.valueToCode(block, 'z', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_axes(${x}, ${y}, ${z})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.power_down()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_new_data_available\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_NEW_DATA_AVAILABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_new_data_available\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.new_data_available()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_read_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_set_high_pass\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_HIGH_PASS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cutoff'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_high_pass\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cutoff = Blockly.Python.valueToCode(block, 'cutoff', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_high_pass(${mode}, ${cutoff})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_reset_high_pass\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_RESET_HIGH_PASS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_reset_high_pass\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.reset_high_pass()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_set_reference\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_REFERENCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_reference\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_reference(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'watermark'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var watermark = Blockly.Python.valueToCode(block, 'watermark', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_fifo(${mode}, ${watermark})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_fifo_level\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_FIFO_LEVEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_fifo_level\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_level()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_read_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_fifo()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_fifo_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_FIFO_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_fifo_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_fifo_status()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_motion_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_MOTION_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'generator'\n        },\n        {\n          'type': 'input_value',\n          'name': 'events'\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'duration_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_motion_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var generator = Blockly.Python.valueToCode(block, 'generator', Blockly.Python.ORDER_FUNCTION_CALL);\n  var events = Blockly.Python.valueToCode(block, 'events', Blockly.Python.ORDER_FUNCTION_CALL);\n  var threshold_g = Blockly.Python.valueToCode(block, 'threshold_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var duration_ms = Blockly.Python.valueToCode(block, 'duration_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_motion_interrupt(${generator}, ${events}, ${threshold_g}, ${duration_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_free_fall\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_FREE_FALL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'generator'\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'duration_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_free_fall\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var generator = Blockly.Python.valueToCode(block, 'generator', Blockly.Python.ORDER_FUNCTION_CALL);\n  var threshold_g = Blockly.Python.valueToCode(block, 'threshold_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var duration_ms = Blockly.Python.valueToCode(block, 'duration_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_free_fall(${generator}, ${threshold_g}, ${duration_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_orientation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_ORIENTATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'generator'\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n        {\n          'type': 'input_value',\n          'name': 'four_d'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_orientation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var generator = Blockly.Python.valueToCode(block, 'generator', Blockly.Python.ORDER_FUNCTION_CALL);\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  var four_d = Blockly.Python.valueToCode(block, 'four_d', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_orientation(${generator}, ${position}, ${four_d})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_latch\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_LATCH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'generator'\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_latch\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var generator = Blockly.Python.valueToCode(block, 'generator', Blockly.Python.ORDER_FUNCTION_CALL);\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_latch(${generator}, ${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_interrupt_source\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_INTERRUPT_SOURCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'generator'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_interrupt_source\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var generator = Blockly.Python.valueToCode(block, 'generator', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_interrupt_source(${generator})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_set_click\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_CLICK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'single'\n        },\n        {\n          'type': 'input_value',\n          'name': 'double'\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_g'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_click\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var single = Blockly.Python.valueToCode(block, 'single', Blockly.Python.ORDER_FUNCTION_CALL);\n  var double = Blockly.Python.valueToCode(block, 'double', Blockly.Python.ORDER_FUNCTION_CALL);\n  var threshold_g = Blockly.Python.valueToCode(block, 'threshold_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_click(${single}, ${double}, ${threshold_g})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_click_source\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_CLICK_SOURCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_click_source\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_click_source()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_set_interrupt_polarity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_INTERRUPT_POLARITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'active_low'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_interrupt_polarity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var active_low = Blockly.Python.valueToCode(block, 'active_low', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interrupt_polarity(${active_low})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_mag_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_MAG_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'range_ut'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_mag_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var range_ut = Blockly.Python.valueToCode(block, 'range_ut', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mag_range(${range_ut})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_mag_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_MAG_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_mag_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate_hz = Blockly.Python.valueToCode(block, 'rate_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mag_data_rate(${rate_hz})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_set_mag_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_SET_MAG_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_set_mag_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mag_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_read_mag_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_MAG_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_mag_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.read_mag_status()\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_mag_identity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_MAG_IDENTITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_mag_identity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_mag_identity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_enable_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ENABLE_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_enable_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_temperature(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_read_temperature_delta\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_READ_TEMPERATURE_DELTA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_read_temperature_delta\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature_delta()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_heading\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_HEADING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'tilt_compensate'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_heading\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var tilt_compensate = Blockly.Python.valueToCode(block, 'tilt_compensate', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.heading(${tilt_compensate})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source}, ${pin})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source}, ${pin})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_reboot\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_REBOOT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_reboot\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.reboot()\\n`\n}\n",
+    "toolbox": "\n<category name=\"LSM303\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_lsm303\">\n<title text=\"LSM303\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_lsm303_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_accel_x\"/>\n<block type=\"custom_lsm303_accel_y\"/>\n<block type=\"custom_lsm303_accel_z\"/>\n<block type=\"custom_lsm303_mag_x\"/>\n<block type=\"custom_lsm303_mag_y\"/>\n<block type=\"custom_lsm303_mag_z\"/>\n<block type=\"custom_lsm303_read_acceleration\"/>\n<block type=\"custom_lsm303_read_magnetic\"/>\n<block type=\"custom_lsm303_read_acceleration_raw\"/>\n<block type=\"custom_lsm303_read_magnetic_raw\"/>\n<block type=\"custom_lsm303_set_range\">\n  <value name=\"range_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_data_rate\">\n  <value name=\"rate_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_axes\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"z\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_power_down\"/>\n<block type=\"custom_lsm303_new_data_available\"/>\n<block type=\"custom_lsm303_read_status\"/>\n<block type=\"custom_lsm303_set_high_pass\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cutoff\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_reset_high_pass\"/>\n<block type=\"custom_lsm303_set_reference\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_fifo\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"watermark\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_fifo_level\"/>\n<block type=\"custom_lsm303_read_fifo\"/>\n<block type=\"custom_lsm303_read_fifo_status\"/>\n<block type=\"custom_lsm303_set_motion_interrupt\">\n  <value name=\"generator\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"events\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"threshold_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n  <value name=\"duration_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_free_fall\">\n  <value name=\"generator\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"threshold_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.35</field>\n    </shadow>\n  </value>\n  <value name=\"duration_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">30</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_orientation\">\n  <value name=\"generator\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"four_d\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_latch\">\n  <value name=\"generator\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_read_interrupt_source\">\n  <value name=\"generator\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_click\">\n  <value name=\"single\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"double\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"threshold_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_read_click_source\"/>\n<block type=\"custom_lsm303_set_interrupt_polarity\">\n  <value name=\"active_low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_mag_range\">\n  <value name=\"range_ut\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">130</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_mag_data_rate\">\n  <value name=\"rate_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">15.0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_set_mag_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_mag_data_ready\"/>\n<block type=\"custom_lsm303_read_mag_status\"/>\n<block type=\"custom_lsm303_read_mag_identity\"/>\n<block type=\"custom_lsm303_enable_temperature\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_read_temperature_delta\"/>\n<block type=\"custom_lsm303_heading\">\n  <value name=\"tilt_compensate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_lsm303_poll_interrupt\"/>\n<block type=\"custom_lsm303_reboot\"/>\n</category>\n",
+    "toolboxitemid": "custom_lsm303",
+    "block_type": [
+      "custom_lsm303___init__",
+      "custom_lsm303_accel_x",
+      "custom_lsm303_accel_y",
+      "custom_lsm303_accel_z",
+      "custom_lsm303_mag_x",
+      "custom_lsm303_mag_y",
+      "custom_lsm303_mag_z",
+      "custom_lsm303_read_acceleration",
+      "custom_lsm303_read_magnetic",
+      "custom_lsm303_read_acceleration_raw",
+      "custom_lsm303_read_magnetic_raw",
+      "custom_lsm303_set_range",
+      "custom_lsm303_set_data_rate",
+      "custom_lsm303_set_mode",
+      "custom_lsm303_set_axes",
+      "custom_lsm303_power_down",
+      "custom_lsm303_new_data_available",
+      "custom_lsm303_read_status",
+      "custom_lsm303_set_high_pass",
+      "custom_lsm303_reset_high_pass",
+      "custom_lsm303_set_reference",
+      "custom_lsm303_set_fifo",
+      "custom_lsm303_fifo_level",
+      "custom_lsm303_read_fifo",
+      "custom_lsm303_read_fifo_status",
+      "custom_lsm303_set_motion_interrupt",
+      "custom_lsm303_set_free_fall",
+      "custom_lsm303_set_orientation",
+      "custom_lsm303_set_latch",
+      "custom_lsm303_read_interrupt_source",
+      "custom_lsm303_set_click",
+      "custom_lsm303_read_click_source",
+      "custom_lsm303_set_interrupt_polarity",
+      "custom_lsm303_set_mag_range",
+      "custom_lsm303_set_mag_data_rate",
+      "custom_lsm303_set_mag_mode",
+      "custom_lsm303_mag_data_ready",
+      "custom_lsm303_read_mag_status",
+      "custom_lsm303_read_mag_identity",
+      "custom_lsm303_enable_temperature",
+      "custom_lsm303_read_temperature_delta",
+      "custom_lsm303_heading",
+      "custom_lsm303_enable_interrupt",
+      "custom_lsm303_disable_interrupt",
+      "custom_lsm303_poll_interrupt",
+      "custom_lsm303_reboot"
+    ]
+  },
+  "data": {
+    "name": "LSM303",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "LSM303",
+      "time": "2026-10-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.lsm303 import LSM303Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init I2C bus %2 (accel 0x19, mag 0x1E)"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = LSM303Full(I2CConnection(0x19, bus=bus), I2CConnection(0x1E, bus=bus))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_acceleration()[0]",
+        "ast_return": {
+          "code": "self._driver.read_acceleration()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_acceleration()[1]",
+        "ast_return": {
+          "code": "self._driver.read_acceleration()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_acceleration()[2]",
+        "ast_return": {
+          "code": "self._driver.read_acceleration()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_x",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic X (µT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_magnetic()[0]",
+        "ast_return": {
+          "code": "self._driver.read_magnetic()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_y",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic Y (µT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_magnetic()[1]",
+        "ast_return": {
+          "code": "self._driver.read_magnetic()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_z",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic Z (µT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_magnetic()[2]",
+        "ast_return": {
+          "code": "self._driver.read_magnetic()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_acceleration",
+        "note": {},
+        "label": {
+          "en": "%1 read acceleration (x, y, z)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_acceleration()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_magnetic",
+        "note": {},
+        "label": {
+          "en": "%1 read magnetic field (x, y, z)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_magnetic()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_acceleration_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read raw acceleration (x, y, z)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_acceleration_raw()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_magnetic_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read raw magnetic field (x, y, z)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_magnetic_raw()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_range",
+        "note": {},
+        "label": {
+          "en": "%1 set range (g: 2, 4, 8 or 16) %2"
+        },
+        "params": [
+          {
+            "name": "range_g",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "min": "2",
+            "max": "16"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_range(int(range_g))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set data rate (Hz) %2"
+        },
+        "params": [
+          {
+            "name": "rate_hz",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "5376"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_data_rate(int(rate_hz))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set mode (0 low-power, 1 normal, 2 high-res) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(int(mode))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_axes",
+        "note": {},
+        "label": {
+          "en": "%1 enable axes (x %2, y %3, z %4)"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "z",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_axes(bool(x), bool(y), bool(z))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down the accelerometer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "new_data_available",
+        "note": {},
+        "label": {
+          "en": "%1 new data available (1/0)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.new_data_available())",
+        "ast_return": {
+          "code": "int(self._driver.new_data_available())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_status",
+        "note": {},
+        "label": {
+          "en": "%1 status register (raw)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_status()",
+        "ast_return": {
+          "code": "self._driver.read_status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_high_pass",
+        "note": {},
+        "label": {
+          "en": "%1 set high-pass (mode %2, cutoff %3)"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          },
+          {
+            "name": "cutoff",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_high_pass(int(mode), int(cutoff))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset_high_pass",
+        "note": {},
+        "label": {
+          "en": "%1 reset high-pass, returns the reference"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.reset_high_pass()",
+        "ast_return": {
+          "code": "self._driver.reset_high_pass()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_reference",
+        "note": {},
+        "label": {
+          "en": "%1 set the high-pass reference %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "255"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_reference(int(value))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 set FIFO (mode %2, watermark %3)"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "3"
+          },
+          {
+            "name": "watermark",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "31"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_fifo(int(mode), int(watermark))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_level",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO level (sample sets)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.fifo_level()",
+        "ast_return": {
+          "code": "self._driver.fifo_level()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 read the FIFO samples"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_fifo()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_fifo_status",
+        "note": {},
+        "label": {
+          "en": "%1 read the FIFO status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_fifo_status()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_motion_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 set motion interrupt (generator %2, events %3, threshold g %4, duration ms %5)"
+        },
+        "params": [
+          {
+            "name": "generator",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          },
+          {
+            "name": "events",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "63"
+          },
+          {
+            "name": "threshold_g",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "duration_ms",
+            "type": "float",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_motion_interrupt(int(generator), int(events), float(threshold_g), float(duration_ms))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_free_fall",
+        "note": {},
+        "label": {
+          "en": "%1 set free-fall (generator %2, threshold g %3, duration ms %4)"
+        },
+        "params": [
+          {
+            "name": "generator",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          },
+          {
+            "name": "threshold_g",
+            "type": "float",
+            "default": "0.35",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "duration_ms",
+            "type": "float",
+            "default": "30",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_free_fall(int(generator), float(threshold_g), float(duration_ms))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_orientation",
+        "note": {},
+        "label": {
+          "en": "%1 set orientation (generator %2, position %3, four_d %4)"
+        },
+        "params": [
+          {
+            "name": "generator",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          },
+          {
+            "name": "position",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          },
+          {
+            "name": "four_d",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_orientation(int(generator), bool(position), bool(four_d))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_latch",
+        "note": {},
+        "label": {
+          "en": "%1 latch the interrupt (generator %2, enabled %3)"
+        },
+        "params": [
+          {
+            "name": "generator",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          },
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_latch(int(generator), bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_interrupt_source",
+        "note": {},
+        "label": {
+          "en": "%1 read the interrupt source (generator %2)"
+        },
+        "params": [
+          {
+            "name": "generator",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_interrupt_source(int(generator))",
+        "ast_return": {
+          "code": "self._driver.read_interrupt_source(int(generator))",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_click",
+        "note": {},
+        "label": {
+          "en": "%1 set click (single mask %2, double mask %3, threshold g %4)"
+        },
+        "params": [
+          {
+            "name": "single",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "double",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "threshold_g",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_click(int(single), int(double), float(threshold_g))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_click_source",
+        "note": {},
+        "label": {
+          "en": "%1 read the click source (raw)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_click_source()",
+        "ast_return": {
+          "code": "self._driver.read_click_source()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interrupt_polarity",
+        "note": {},
+        "label": {
+          "en": "%1 set interrupt polarity (1 = active low) %2"
+        },
+        "params": [
+          {
+            "name": "active_low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interrupt_polarity(bool(active_low))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mag_range",
+        "note": {},
+        "label": {
+          "en": "%1 set magnetometer range (µT) %2"
+        },
+        "params": [
+          {
+            "name": "range_ut",
+            "type": "int",
+            "default": "130",
+            "note": {},
+            "field": "number",
+            "min": "130",
+            "max": "810"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mag_range(int(range_ut))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mag_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set magnetometer data rate (Hz) %2"
+        },
+        "params": [
+          {
+            "name": "rate_hz",
+            "type": "float",
+            "default": "15.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mag_data_rate(float(rate_hz))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mag_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set magnetometer mode (0 continuous, 1 single, 2 sleep) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mag_mode(int(mode))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 magnetometer data ready (1/0)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.mag_data_ready())",
+        "ast_return": {
+          "code": "int(self._driver.mag_data_ready())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_mag_status",
+        "note": {},
+        "label": {
+          "en": "%1 read the magnetometer status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.read_mag_status()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_mag_identity",
+        "note": {},
+        "label": {
+          "en": "%1 magnetometer identity (hex)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_mag_identity().hex()",
+        "ast_return": {
+          "code": "self._driver.read_mag_identity().hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 enable the temperature sensor %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_temperature(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature_delta",
+        "note": {},
+        "label": {
+          "en": "%1 temperature delta (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature_delta()",
+        "ast_return": {
+          "code": "self._driver.read_temperature_delta()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "heading",
+        "note": {},
+        "label": {
+          "en": "%1 compass heading (deg) %2"
+        },
+        "params": [
+          {
+            "name": "tilt_compensate",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "1"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.heading(bool(tilt_compensate))",
+        "ast_return": {
+          "code": "self._driver.heading(bool(tilt_compensate))",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable an interrupt source (source %2, pin %3)"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "128"
+          },
+          {
+            "name": "pin",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(int(source), int(pin))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable an interrupt source (source %2, pin %3)"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "128"
+          },
+          {
+            "name": "pin",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "min": "1",
+            "max": "2"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(int(source), int(pin))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status (mask)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reboot",
+        "note": {},
+        "label": {
+          "en": "%1 reboot the accelerometer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reboot()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "lsm303"
+  },
+  "pyCode": "\"\"\"\nfile     LSM303\ntime     2026-10-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.lsm303 import LSM303Full\n\n\nclass LSM303:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(bus: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init I2C bus %2 (accel 0x19, mag 0x1E)'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n        \"\"\"\n        self._driver = LSM303Full(I2CConnection(0x19, bus=bus), I2CConnection(0x1E, bus=bus))\n\n    def accel_x() -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (g)'\n        \"\"\"\n        return self._driver.read_acceleration()[0]\n\n    def accel_y() -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (g)'\n        \"\"\"\n        return self._driver.read_acceleration()[1]\n\n    def accel_z() -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (g)'\n        \"\"\"\n        return self._driver.read_acceleration()[2]\n\n    def mag_x() -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic X (µT)'\n        \"\"\"\n        return self._driver.read_magnetic()[0]\n\n    def mag_y() -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic Y (µT)'\n        \"\"\"\n        return self._driver.read_magnetic()[1]\n\n    def mag_z() -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic Z (µT)'\n        \"\"\"\n        return self._driver.read_magnetic()[2]\n\n    def read_acceleration():\n        \"\"\"\n        label:\n            en: '%1 read acceleration (x, y, z)'\n        \"\"\"\n        self._driver.read_acceleration()\n\n    def read_magnetic():\n        \"\"\"\n        label:\n            en: '%1 read magnetic field (x, y, z)'\n        \"\"\"\n        self._driver.read_magnetic()\n\n    def read_acceleration_raw():\n        \"\"\"\n        label:\n            en: '%1 read raw acceleration (x, y, z)'\n        \"\"\"\n        self._driver.read_acceleration_raw()\n\n    def read_magnetic_raw():\n        \"\"\"\n        label:\n            en: '%1 read raw magnetic field (x, y, z)'\n        \"\"\"\n        self._driver.read_magnetic_raw()\n\n    def set_range(range_g: int = 2):\n        \"\"\"\n        label:\n            en: '%1 set range (g: 2, 4, 8 or 16) %2'\n        params:\n            range_g:\n                name: range_g\n                type: int\n                default: '2'\n                field: number\n                min: '2'\n                max: '16'\n        \"\"\"\n        self._driver.set_range(int(range_g))\n\n    def set_data_rate(rate_hz: int = 100):\n        \"\"\"\n        label:\n            en: '%1 set data rate (Hz) %2'\n        params:\n            rate_hz:\n                name: rate_hz\n                type: int\n                default: '100'\n                field: number\n                min: '0'\n                max: '5376'\n        \"\"\"\n        self._driver.set_data_rate(int(rate_hz))\n\n    def set_mode(mode: int = 2):\n        \"\"\"\n        label:\n            en: '%1 set mode (0 low-power, 1 normal, 2 high-res) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '2'\n                field: number\n                min: '0'\n                max: '2'\n        \"\"\"\n        self._driver.set_mode(int(mode))\n\n    def set_axes(x: int = 1, y: int = 1, z: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable axes (x %2, y %3, z %4)'\n        params:\n            x:\n                name: x\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            y:\n                name: y\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n            z:\n                name: z\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_axes(bool(x), bool(y), bool(z))\n\n    def power_down():\n        \"\"\"\n        label:\n            en: '%1 power down the accelerometer'\n        \"\"\"\n        self._driver.power_down()\n\n    def new_data_available() -> int:\n        \"\"\"\n        label:\n            en: '%1 new data available (1/0)'\n        \"\"\"\n        return int(self._driver.new_data_available())\n\n    def read_status() -> int:\n        \"\"\"\n        label:\n            en: '%1 status register (raw)'\n        \"\"\"\n        return self._driver.read_status()\n\n    def set_high_pass(mode: int = 0, cutoff: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set high-pass (mode %2, cutoff %3)'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            cutoff:\n                name: cutoff\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_high_pass(int(mode), int(cutoff))\n\n    def reset_high_pass() -> int:\n        \"\"\"\n        label:\n            en: '%1 reset high-pass, returns the reference'\n        \"\"\"\n        return self._driver.reset_high_pass()\n\n    def set_reference(value: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set the high-pass reference %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.set_reference(int(value))\n\n    def set_fifo(mode: int = 0, watermark: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set FIFO (mode %2, watermark %3)'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            watermark:\n                name: watermark\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '31'\n        \"\"\"\n        self._driver.set_fifo(int(mode), int(watermark))\n\n    def fifo_level() -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO level (sample sets)'\n        \"\"\"\n        return self._driver.fifo_level()\n\n    def read_fifo():\n        \"\"\"\n        label:\n            en: '%1 read the FIFO samples'\n        \"\"\"\n        self._driver.read_fifo()\n\n    def read_fifo_status():\n        \"\"\"\n        label:\n            en: '%1 read the FIFO status'\n        \"\"\"\n        self._driver.read_fifo_status()\n\n    def set_motion_interrupt(generator: int = 1, events: int = 0, threshold_g: float = 0.5, duration_ms: float = 0):\n        \"\"\"\n        label:\n            en: '%1 set motion interrupt (generator %2, events %3, threshold g %4, duration ms %5)'\n        params:\n            generator:\n                name: generator\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n            events:\n                name: events\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '63'\n            threshold_g:\n                name: threshold_g\n                type: float\n                default: '0.5'\n                field: number\n            duration_ms:\n                name: duration_ms\n                type: float\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_motion_interrupt(int(generator), int(events), float(threshold_g), float(duration_ms))\n\n    def set_free_fall(generator: int = 1, threshold_g: float = 0.35, duration_ms: float = 30):\n        \"\"\"\n        label:\n            en: '%1 set free-fall (generator %2, threshold g %3, duration ms %4)'\n        params:\n            generator:\n                name: generator\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n            threshold_g:\n                name: threshold_g\n                type: float\n                default: '0.35'\n                field: number\n            duration_ms:\n                name: duration_ms\n                type: float\n                default: '30'\n                field: number\n        \"\"\"\n        self._driver.set_free_fall(int(generator), float(threshold_g), float(duration_ms))\n\n    def set_orientation(generator: int = 1, position: int = 0, four_d: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set orientation (generator %2, position %3, four_d %4)'\n        params:\n            generator:\n                name: generator\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n            position:\n                name: position\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            four_d:\n                name: four_d\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_orientation(int(generator), bool(position), bool(four_d))\n\n    def set_latch(generator: int = 1, enabled: int = 0):\n        \"\"\"\n        label:\n            en: '%1 latch the interrupt (generator %2, enabled %3)'\n        params:\n            generator:\n                name: generator\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_latch(int(generator), bool(enabled))\n\n    def read_interrupt_source(generator: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 read the interrupt source (generator %2)'\n        params:\n            generator:\n                name: generator\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        return self._driver.read_interrupt_source(int(generator))\n\n    def set_click(single: int = 0, double: int = 0, threshold_g: float = 0.5):\n        \"\"\"\n        label:\n            en: '%1 set click (single mask %2, double mask %3, threshold g %4)'\n        params:\n            single:\n                name: single\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            double:\n                name: double\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            threshold_g:\n                name: threshold_g\n                type: float\n                default: '0.5'\n                field: number\n        \"\"\"\n        self._driver.set_click(int(single), int(double), float(threshold_g))\n\n    def read_click_source() -> int:\n        \"\"\"\n        label:\n            en: '%1 read the click source (raw)'\n        \"\"\"\n        return self._driver.read_click_source()\n\n    def set_interrupt_polarity(active_low: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set interrupt polarity (1 = active low) %2'\n        params:\n            active_low:\n                name: active_low\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_interrupt_polarity(bool(active_low))\n\n    def set_mag_range(range_ut: int = 130):\n        \"\"\"\n        label:\n            en: '%1 set magnetometer range (µT) %2'\n        params:\n            range_ut:\n                name: range_ut\n                type: int\n                default: '130'\n                field: number\n                min: '130'\n                max: '810'\n        \"\"\"\n        self._driver.set_mag_range(int(range_ut))\n\n    def set_mag_data_rate(rate_hz: float = 15.0):\n        \"\"\"\n        label:\n            en: '%1 set magnetometer data rate (Hz) %2'\n        params:\n            rate_hz:\n                name: rate_hz\n                type: float\n                default: '15.0'\n                field: number\n        \"\"\"\n        self._driver.set_mag_data_rate(float(rate_hz))\n\n    def set_mag_mode(mode: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set magnetometer mode (0 continuous, 1 single, 2 sleep) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '2'\n        \"\"\"\n        self._driver.set_mag_mode(int(mode))\n\n    def mag_data_ready() -> int:\n        \"\"\"\n        label:\n            en: '%1 magnetometer data ready (1/0)'\n        \"\"\"\n        return int(self._driver.mag_data_ready())\n\n    def read_mag_status():\n        \"\"\"\n        label:\n            en: '%1 read the magnetometer status'\n        \"\"\"\n        self._driver.read_mag_status()\n\n    def read_mag_identity() -> str:\n        \"\"\"\n        label:\n            en: '%1 magnetometer identity (hex)'\n        \"\"\"\n        return self._driver.read_mag_identity().hex()\n\n    def enable_temperature(enabled: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable the temperature sensor %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.enable_temperature(bool(enabled))\n\n    def read_temperature_delta() -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature delta (°C)'\n        \"\"\"\n        return self._driver.read_temperature_delta()\n\n    def heading(tilt_compensate: int = 1) -> float:\n        \"\"\"\n        label:\n            en: '%1 compass heading (deg) %2'\n        params:\n            tilt_compensate:\n                name: tilt_compensate\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        return self._driver.heading(bool(tilt_compensate))\n\n    def enable_interrupt(source: int = 1, pin: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable an interrupt source (source %2, pin %3)'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '128'\n            pin:\n                name: pin\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.enable_interrupt(int(source), int(pin))\n\n    def disable_interrupt(source: int = 1, pin: int = 1):\n        \"\"\"\n        label:\n            en: '%1 disable an interrupt source (source %2, pin %3)'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '128'\n            pin:\n                name: pin\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.disable_interrupt(int(source), int(pin))\n\n    def poll_interrupt() -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status (mask)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def reboot():\n        \"\"\"\n        label:\n            en: '%1 reboot the accelerometer'\n        \"\"\"\n        self._driver.reboot()\n",
+  "version": "alpha2"
+}

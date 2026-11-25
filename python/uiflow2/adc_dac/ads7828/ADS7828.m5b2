@@ -1,0 +1,214 @@
+{
+  "category": "ADS7828",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ADS7828_LANGUAGES = {\n  \"CUSTOM_ADS7828_INIT\": {\n    \"en\": \"%1 init bus %2 address %3 external vref V (0 = internal 2.5 V) %4\"\n  },\n  \"CUSTOM_ADS7828_READ_RAW\": {\n    \"en\": \"%1 read channel (0-7) raw code channel %2\"\n  },\n  \"CUSTOM_ADS7828_READ_VOLTAGE\": {\n    \"en\": \"%1 read channel (0-7) voltage V channel %2\"\n  },\n  \"CUSTOM_ADS7828_READ_DIFFERENTIAL\": {\n    \"en\": \"%1 read differential pair (0-3) voltage V pair %2 inverted (0/1) %3\"\n  },\n  \"CUSTOM_ADS7828_READ_SIGNED_DIFFERENTIAL\": {\n    \"en\": \"%1 read signed differential pair (0-3) V pair %2\"\n  },\n  \"CUSTOM_ADS7828_SET_REFERENCE\": {\n    \"en\": \"%1 set reference V (0 = internal 2.5 V) vref %2\"\n  },\n  \"CUSTOM_ADS7828_POWER_DOWN\": {\n    \"en\": \"%1 power down\"\n  }\n};\n\nconst initType = 'custom_ads7828_init';\nBlockly.BlockRegExpList['custom_ads7828'] = {\n  regexp: new RegExp(/^custom_ads7828_/),\n  code: \"from ADS7828 import ADS7828\",\n  initBlockType: initType,\n  categoryId: 'custom_ads7828',\n}\nBlockly.utils.registerLanguages(CUSTOM_ADS7828_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ADS7828_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ADS7828 = 'ADS7828'\n\nBlockly.utils.getcustom_ads7828Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ads7828_0', 'ads7828_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ads7828_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ads7828Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ads7828_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'vref'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var vref = Blockly.Python.valueToCode(block, 'vref', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ADS7828(${bus}, ${address}, ${vref})\\n`\n}\n\nBlockly.Blocks[\"custom_ads7828_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads7828Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_raw(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads7828_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_READ_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads7828Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_voltage(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads7828_read_differential\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_READ_DIFFERENTIAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads7828Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pair'\n        },\n        {\n          'type': 'input_value',\n          'name': 'inverted'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_read_differential\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pair = Blockly.Python.valueToCode(block, 'pair', Blockly.Python.ORDER_FUNCTION_CALL);\n  var inverted = Blockly.Python.valueToCode(block, 'inverted', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_differential(${pair}, ${inverted})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads7828_read_signed_differential\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_READ_SIGNED_DIFFERENTIAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads7828Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pair'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_read_signed_differential\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pair = Blockly.Python.valueToCode(block, 'pair', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_signed_differential(${pair})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads7828_set_reference\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_SET_REFERENCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads7828Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'vref'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_set_reference\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var vref = Blockly.Python.valueToCode(block, 'vref', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_reference(${vref})\\n`\n}\n\nBlockly.Blocks[\"custom_ads7828_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS7828_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads7828Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads7828_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_down()\\n`\n}\n",
+    "toolbox": "\n<category name=\"ADS7828\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ads7828\">\n<title text=\"ADS7828\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ads7828_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">72</field>\n    </shadow>\n  </value>\n  <value name=\"vref\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads7828_read_raw\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads7828_read_voltage\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads7828_read_differential\">\n  <value name=\"pair\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"inverted\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads7828_read_signed_differential\">\n  <value name=\"pair\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads7828_set_reference\">\n  <value name=\"vref\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads7828_power_down\"/>\n</category>\n",
+    "toolboxitemid": "custom_ads7828",
+    "block_type": [
+      "custom_ads7828___init__",
+      "custom_ads7828_read_raw",
+      "custom_ads7828_read_voltage",
+      "custom_ads7828_read_differential",
+      "custom_ads7828_read_signed_differential",
+      "custom_ads7828_set_reference",
+      "custom_ads7828_power_down"
+    ]
+  },
+  "data": {
+    "name": "ADS7828",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ADS7828",
+      "time": "2026-11-11",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ads7828 import ADS7828Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3 external vref V (0 = internal 2.5 V) %4"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "72",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "vref",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = ADS7828Full(connection, vref or None)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read channel (0-7) raw code channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_raw(channel)",
+        "ast_return": {
+          "code": "self._driver.read_raw(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 read channel (0-7) voltage V channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_voltage(channel)",
+        "ast_return": {
+          "code": "self._driver.read_voltage(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_differential",
+        "note": {},
+        "label": {
+          "en": "%1 read differential pair (0-3) voltage V pair %2 inverted (0/1) %3"
+        },
+        "params": [
+          {
+            "name": "pair",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "inverted",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_differential(pair, bool(inverted))",
+        "ast_return": {
+          "code": "self._driver.read_differential(pair, bool(inverted))",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_signed_differential",
+        "note": {},
+        "label": {
+          "en": "%1 read signed differential pair (0-3) V pair %2"
+        },
+        "params": [
+          {
+            "name": "pair",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_signed_differential(pair)",
+        "ast_return": {
+          "code": "self._driver.read_signed_differential(pair)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_reference",
+        "note": {},
+        "label": {
+          "en": "%1 set reference V (0 = internal 2.5 V) vref %2"
+        },
+        "params": [
+          {
+            "name": "vref",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_reference(vref or None)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ads7828"
+  },
+  "pyCode": "\"\"\"\nfile     ADS7828\ntime     2026-11-11\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ads7828 import ADS7828Full\n\n\nclass ADS7828:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 72, vref: float = 0.0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3 external vref V (0 = internal 2.5 V) %4'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '72'\n                field: number\n            vref:\n                name: vref\n                type: float\n                default: '0.0'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = ADS7828Full(connection, vref or None)\n\n    def read_raw(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read channel (0-7) raw code channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_raw(channel)\n\n    def read_voltage(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 read channel (0-7) voltage V channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_voltage(channel)\n\n    def read_differential(self, pair: int, inverted: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 read differential pair (0-3) voltage V pair %2 inverted (0/1) %3'\n        params:\n            pair:\n                name: pair\n                type: int\n                field: number\n            inverted:\n                name: inverted\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_differential(pair, bool(inverted))\n\n    def read_signed_differential(self, pair: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 read signed differential pair (0-3) V pair %2'\n        params:\n            pair:\n                name: pair\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_signed_differential(pair)\n\n    def set_reference(self, vref: float):\n        \"\"\"\n        label:\n            en: '%1 set reference V (0 = internal 2.5 V) vref %2'\n        params:\n            vref:\n                name: vref\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_reference(vref or None)\n\n    def power_down(self):\n        \"\"\"\n        label:\n            en: '%1 power down'\n        \"\"\"\n        self._driver.power_down()\n",
+  "version": "alpha2"
+}

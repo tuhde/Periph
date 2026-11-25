@@ -100,12 +100,21 @@ cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
 ### 2c. Raspberry Pi Pico SDK
 
 ```sh
-sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi gcc g++ python3 ccache
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib gcc g++ python3 ccache
 
 git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
 cd ~/pico-sdk && git submodule update --init --depth 1 && cd -
 echo 'export PICO_SDK_PATH="$HOME/pico-sdk"' >> ~/.bashrc
 export PICO_SDK_PATH="$HOME/pico-sdk"
+
+# Install picotool once. Without it the SDK clones and builds picotool from
+# GitHub in every app's configure (~25 s per app, and needs the network).
+# scripts/ci/run.sh finds it via $PICOTOOL_PREFIX (default ~/picotool).
+git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/picotool.git /tmp/picotool-src
+cmake -S /tmp/picotool-src -B /tmp/picotool-build -DPICO_SDK_PATH="$PICO_SDK_PATH" \
+  -DPICOTOOL_NO_LIBUSB=1 -DPICOTOOL_FLAT_INSTALL=1 -DCMAKE_INSTALL_PREFIX="$HOME/picotool"
+cmake --build /tmp/picotool-build -j"$(nproc)" && cmake --install /tmp/picotool-build
+export CMAKE_PREFIX_PATH="$HOME/picotool"   # only needed outside run.sh
 
 PICO_BOARD=pico cpp/scripts/build-all.sh picosdk
 ```
@@ -160,6 +169,33 @@ cd ~/zephyrproject
 source zephyr/zephyr-env.sh
 "$OLDPWD/cpp/scripts/build-all.sh" zephyr   # run from the Periph checkout, or pass its absolute path
 ```
+
+### 2f. STM32Cube (STM32CubeF4 v1.28.3, NUCLEO-F411RE)
+
+```sh
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib g++ ccache
+
+# Sparse + blobless: only Drivers/CMSIS and the HAL driver are needed (~145 MB instead of ~1 GB).
+git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
+  https://github.com/STMicroelectronics/STM32CubeF4.git ~/STM32CubeF4
+git -C ~/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver Middlewares/Third_Party/FatFs
+git -C ~/STM32CubeF4 submodule update --init --depth 1 \
+  Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
+echo 'export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"' >> ~/.bashrc
+export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"
+
+cpp/scripts/build-all.sh stm32cube
+```
+
+The clone alone is **not enough**: the CMSIS device headers and the HAL
+driver are git submodules, and without them CMake fails with
+`Cannot find source file: .../system_stm32f4xx.c`. Only those two are
+needed; everything else in the repo (docs, example projects, middlewares, BSP) is large and unused.
+
+To flash and run on a NUCLEO-F411RE (on-board ST-LINK), install
+`stlink-tools` and use `cpp/test_stm32cube.sh`; it builds, flashes with
+`st-flash` and reads the ST-LINK virtual COM port (`/dev/ttyACM0`, 115200
+baud).
 
 ---
 
@@ -292,6 +328,7 @@ cpp/scripts/build-all.sh linux
 cpp/scripts/build-all.sh picosdk
 cpp/scripts/build-all.sh espidf     # after sourcing esp-idf/export.sh
 cpp/scripts/build-all.sh zephyr     # from inside ~/zephyrproject, after sourcing zephyr-env.sh
+cpp/scripts/build-all.sh stm32cube  # needs STM32CUBE_FW_PATH
 cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests
 cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
 

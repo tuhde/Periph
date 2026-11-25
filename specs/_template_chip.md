@@ -119,6 +119,17 @@ Goal: expose complete chip functionality. Extends Minimal.
 
 **Additional configuration options:** <!-- List all settings exposed in Full -->
 
+## Block device
+
+*(Only for storage chips: SD, SD NAND, SPI NOR, SPI NAND. Delete otherwise.)*
+The Full class implements `BlockDevice` (`specs/feature_block_device.md`).
+
+| `block_size` | `block_count` | `erase_size` | `needs_erase` | `bad_blocks` |
+|--------------|---------------|--------------|---------------|--------------|
+|  |  |  |  |  |
+
+Describe geometry discovery (SFDP / ID / CSD), `auto_erase` behaviour, and bad-block handling.
+
 ## Data Conversion
 
 <!-- Formulas mapping raw register values to real-world units. -->
@@ -203,6 +214,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/<category>/<chip>_test_linux.py` (Linux)
 - [ ] Unit test `python/tests/<category>/<chip>_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
+### Block device (storage chips only)
+- [ ] Full class implements `BlockDevice` in every language; passes the shared contract suite
+
 ### UIFlow 1
 - [ ] Manifest `python/uiflow1/<category>/<chip>/<chip>.json` — `Periph` category, `#C084FC` color
 - [ ] Blocks `python/uiflow1/<category>/<chip>/<chip>_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
@@ -231,11 +245,15 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/picosdk/<category>/<Chip>/minimal/src/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/<category>/<Chip>/complete/src/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/<category>/<Chip>/demo/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/stm32cube/<category>/<Chip>/minimal/Core/Src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/stm32cube/<category>/<Chip>/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/stm32cube/<category>/<Chip>/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/<category>/<chip>_test/<chip>_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/<category>/<chip>_test_linux/<chip>_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` (Zephyr)
 - [ ] Tests `cpp/tests/<category>/<chip>_test_espidf/main/main.cpp` (ESP-IDF)
 - [ ] Tests `cpp/tests/<category>/<chip>_test_picosdk/src/main.cpp` (Pico SDK)
+- [ ] Tests `cpp/tests/<category>/<chip>_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Unit test `cpp/tests/<category>/<chip>_test_unit/<chip>_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js

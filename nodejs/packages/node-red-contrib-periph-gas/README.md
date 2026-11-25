@@ -1,6 +1,10 @@
 # node-red-contrib-periph-gas
 
-Node-RED nodes for gas sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for gas sensor chips: ENS160 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (1):** ENS160.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-gas/examples).
 
 ## Install
 
@@ -17,7 +21,7 @@ npm install node-red-contrib-periph-gas
 | Node | Kind | Description |
 |------|------|-------------|
 | `ens160-device` | config | Bus configuration for an ENS160 |
-| `periph-ens160` | input | Reads air quality (AQI, TVOC, eCO2) from an ENS160 digital multi-gas sensor. |
+| `ens160` | input | Reads air quality (AQI, TVOC, eCO2) from an ENS160 digital multi-gas sensor. |
 
 ## Links
 

@@ -1,0 +1,88 @@
+[
+    {
+        "id": "tab-ltc4151-demo",
+        "type": "tab",
+        "label": "LTC4151 High-side Supply Monitor",
+        "disabled": false,
+        "info": "High-side supply monitor: every 1 s reads the supply voltage, load current and power from an LTC4151 on a 48 V rail with a 20 mOhm sense resistor and shows a formatted string in the debug panel. Adjust the sense resistor in the device config node to match your hardware. The node only reads the continuous scan and never writes the chip."
+    },
+    {
+        "id": "cfg-ltc4151",
+        "type": "ltc4151-device",
+        "name": "LTC4151",
+        "bus": "1",
+        "address": "6A",
+        "rsense": "20"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-ltc4151-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "read-ltc4151"
+            ]
+        ]
+    },
+    {
+        "id": "read-ltc4151",
+        "type": "ltc4151",
+        "name": "LTC4151",
+        "device": "cfg-ltc4151",
+        "z": "tab-ltc4151-demo",
+        "x": 320,
+        "y": 160,
+        "wires": [
+            [
+                "fmt-readings"
+            ]
+        ],
+        "adin": false
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format",
+        "func": "const p = msg.payload;\nmsg.payload = p.voltage.toFixed(2) + ' V  ' + p.current.toFixed(3) + ' A  ' + p.power.toFixed(2) + ' W';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-ltc4151-demo",
+        "x": 520,
+        "y": 160,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "rail",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-ltc4151-demo",
+        "x": 700,
+        "y": 160,
+        "wires": []
+    }
+]

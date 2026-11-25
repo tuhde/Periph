@@ -1,0 +1,533 @@
+{
+  "category": "Pca9685",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCA9685_LANGUAGES = {\n  \"CUSTOM_PCA9685_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PCA9685_SET_DUTY\": {\n    \"en\": \"%1 set duty channel %2 duty %3\"\n  },\n  \"CUSTOM_PCA9685_SET_PWM\": {\n    \"en\": \"%1 set pwm channel %2 on %3 off %4\"\n  },\n  \"CUSTOM_PCA9685_GET_PWM_ON\": {\n    \"en\": \"%1 get pwm on count channel %2\"\n  },\n  \"CUSTOM_PCA9685_GET_PWM_OFF\": {\n    \"en\": \"%1 get pwm off count channel %2\"\n  },\n  \"CUSTOM_PCA9685_SET_FULL_ON\": {\n    \"en\": \"%1 set full on channel %2\"\n  },\n  \"CUSTOM_PCA9685_SET_FULL_OFF\": {\n    \"en\": \"%1 set full off channel %2\"\n  },\n  \"CUSTOM_PCA9685_SET_ALL_DUTY\": {\n    \"en\": \"%1 set all duty %2\"\n  },\n  \"CUSTOM_PCA9685_SET_ALL_PWM\": {\n    \"en\": \"%1 set all pwm on %2 off %3\"\n  },\n  \"CUSTOM_PCA9685_SET_FREQUENCY\": {\n    \"en\": \"%1 set frequency Hz %2\"\n  },\n  \"CUSTOM_PCA9685_GET_FREQUENCY\": {\n    \"en\": \"%1 get frequency\"\n  },\n  \"CUSTOM_PCA9685_SET_PULSE_WIDTH\": {\n    \"en\": \"%1 set pulse width channel %2 seconds %3\"\n  },\n  \"CUSTOM_PCA9685_SLEEP\": {\n    \"en\": \"%1 sleep\"\n  },\n  \"CUSTOM_PCA9685_WAKE\": {\n    \"en\": \"%1 wake\"\n  },\n  \"CUSTOM_PCA9685_RESTART\": {\n    \"en\": \"%1 restart\"\n  },\n  \"CUSTOM_PCA9685_SET_OUTPUT_MODE\": {\n    \"en\": \"%1 set output mode open drain %2 invert %3 off state %4\"\n  },\n  \"CUSTOM_PCA9685_SET_UPDATE_ON_ACK\": {\n    \"en\": \"%1 set update on ACK enabled %2\"\n  },\n  \"CUSTOM_PCA9685_SET_ALLCALL\": {\n    \"en\": \"%1 set all-call enabled %2 address %3\"\n  },\n  \"CUSTOM_PCA9685_SET_SUBADDRESS\": {\n    \"en\": \"%1 set sub address index %2 address %3 enabled %4\"\n  },\n  \"CUSTOM_PCA9685_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_pca9685_init';\nBlockly.BlockRegExpList['custom_pca9685'] = {\n  regexp: new RegExp(/^custom_pca9685_/),\n  code: \"from Pca9685 import Pca9685\",\n  initBlockType: initType,\n  categoryId: 'custom_pca9685',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCA9685_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCA9685_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCA9685 = 'Pca9685'\n\nBlockly.utils.getcustom_pca9685Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pca9685_0', 'pca9685_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pca9685_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pca9685Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pca9685_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Pca9685(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_duty\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_DUTY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'duty'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_duty\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var duty = Blockly.Python.valueToCode(block, 'duty', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_duty(${channel}, ${duty})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_pwm\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_PWM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n        {\n          'type': 'input_value',\n          'name': 'off'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_pwm\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  var off = Blockly.Python.valueToCode(block, 'off', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pwm(${channel}, ${on}, ${off})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_get_pwm_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_GET_PWM_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_get_pwm_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_pwm_on(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9685_get_pwm_off\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_GET_PWM_OFF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_get_pwm_off\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.get_pwm_off(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9685_set_full_on\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_FULL_ON,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_full_on\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_full_on(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_full_off\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_FULL_OFF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_full_off\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_full_off(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_all_duty\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_ALL_DUTY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'duty'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_all_duty\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var duty = Blockly.Python.valueToCode(block, 'duty', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_all_duty(${duty})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_all_pwm\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_ALL_PWM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n        {\n          'type': 'input_value',\n          'name': 'off'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_all_pwm\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  var off = Blockly.Python.valueToCode(block, 'off', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_all_pwm(${on}, ${off})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_frequency\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_FREQUENCY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_frequency\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var hz = Blockly.Python.valueToCode(block, 'hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_frequency(${hz})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_get_frequency\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_GET_FREQUENCY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_get_frequency\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_frequency()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9685_set_pulse_width\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_PULSE_WIDTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'seconds'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_pulse_width\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var seconds = Blockly.Python.valueToCode(block, 'seconds', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pulse_width(${channel}, ${seconds})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.sleep()\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_restart\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_RESTART,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_restart\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.restart()\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_output_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_OUTPUT_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'open_drain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'invert'\n        },\n        {\n          'type': 'input_value',\n          'name': 'off_state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_output_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var open_drain = Blockly.Python.valueToCode(block, 'open_drain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var invert = Blockly.Python.valueToCode(block, 'invert', Blockly.Python.ORDER_FUNCTION_CALL);\n  var off_state = Blockly.Python.valueToCode(block, 'off_state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_output_mode(${open_drain}, ${invert}, ${off_state})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_update_on_ack\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_UPDATE_ON_ACK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_update_on_ack\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_update_on_ack(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_allcall\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_ALLCALL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_allcall\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_allcall(${enabled}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_set_subaddress\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_SET_SUBADDRESS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_set_subaddress\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_subaddress(${index}, ${address}, ${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9685_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9685_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9685Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9685_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Pca9685\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pca9685\"><title text=\"Pca9685\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pca9685_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_duty\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"duty\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_pwm\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"off\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_get_pwm_on\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_get_pwm_off\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_full_on\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_full_off\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_all_duty\">\n  <value name=\"duty\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_all_pwm\">\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"off\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_frequency\">\n  <value name=\"hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_get_frequency\"/><block type=\"custom_pca9685_set_pulse_width\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"seconds\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_sleep\"/><block type=\"custom_pca9685_wake\"/><block type=\"custom_pca9685_restart\"/><block type=\"custom_pca9685_set_output_mode\">\n  <value name=\"open_drain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"invert\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"off_state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_update_on_ack\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_allcall\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">112</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_set_subaddress\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9685_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_pca9685",
+    "block_type": [
+      "custom_pca9685___init__",
+      "custom_pca9685_set_duty",
+      "custom_pca9685_set_pwm",
+      "custom_pca9685_get_pwm_on",
+      "custom_pca9685_get_pwm_off",
+      "custom_pca9685_set_full_on",
+      "custom_pca9685_set_full_off",
+      "custom_pca9685_set_all_duty",
+      "custom_pca9685_set_all_pwm",
+      "custom_pca9685_set_frequency",
+      "custom_pca9685_get_frequency",
+      "custom_pca9685_set_pulse_width",
+      "custom_pca9685_sleep",
+      "custom_pca9685_wake",
+      "custom_pca9685_restart",
+      "custom_pca9685_set_output_mode",
+      "custom_pca9685_set_update_on_ack",
+      "custom_pca9685_set_allcall",
+      "custom_pca9685_set_subaddress",
+      "custom_pca9685_reset"
+    ]
+  },
+  "data": {
+    "name": "Pca9685",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Pca9685",
+      "time": "2026-11-19",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.pca9685 import PCA9685Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PCA9685Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_duty",
+        "note": {},
+        "label": {
+          "en": "%1 set duty channel %2 duty %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "duty",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_duty(channel, duty)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pwm",
+        "note": {},
+        "label": {
+          "en": "%1 set pwm channel %2 on %3 off %4"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "on",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "off",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pwm(channel, on, off)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_pwm_on",
+        "note": {},
+        "label": {
+          "en": "%1 get pwm on count channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_pwm(channel)[0]",
+        "ast_return": {
+          "code": "self._driver.get_pwm(channel)[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_pwm_off",
+        "note": {},
+        "label": {
+          "en": "%1 get pwm off count channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_pwm(channel)[1]",
+        "ast_return": {
+          "code": "self._driver.get_pwm(channel)[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_full_on",
+        "note": {},
+        "label": {
+          "en": "%1 set full on channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_full_on(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_full_off",
+        "note": {},
+        "label": {
+          "en": "%1 set full off channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_full_off(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_all_duty",
+        "note": {},
+        "label": {
+          "en": "%1 set all duty %2"
+        },
+        "params": [
+          {
+            "name": "duty",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_all_duty(duty)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_all_pwm",
+        "note": {},
+        "label": {
+          "en": "%1 set all pwm on %2 off %3"
+        },
+        "params": [
+          {
+            "name": "on",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "off",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_all_pwm(on, off)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_frequency",
+        "note": {},
+        "label": {
+          "en": "%1 set frequency Hz %2"
+        },
+        "params": [
+          {
+            "name": "hz",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_frequency(hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_frequency",
+        "note": {},
+        "label": {
+          "en": "%1 get frequency"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_frequency()",
+        "ast_return": {
+          "code": "self._driver.get_frequency()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pulse_width",
+        "note": {},
+        "label": {
+          "en": "%1 set pulse width channel %2 seconds %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "seconds",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pulse_width(channel, seconds)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sleep",
+        "note": {},
+        "label": {
+          "en": "%1 sleep"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.sleep()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "restart",
+        "note": {},
+        "label": {
+          "en": "%1 restart"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.restart()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_output_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set output mode open drain %2 invert %3 off state %4"
+        },
+        "params": [
+          {
+            "name": "open_drain",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "invert",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "off_state",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_output_mode(bool(open_drain), bool(invert), off_state)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_update_on_ack",
+        "note": {},
+        "label": {
+          "en": "%1 set update on ACK enabled %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_update_on_ack(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_allcall",
+        "note": {},
+        "label": {
+          "en": "%1 set all-call enabled %2 address %3"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "112",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_allcall(bool(enabled), address)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_subaddress",
+        "note": {},
+        "label": {
+          "en": "%1 set sub address index %2 address %3 enabled %4"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_subaddress(index, address, bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pca9685"
+  },
+  "pyCode": "\"\"\"\nfile     Pca9685\ntime     2026-11-19\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.led.pca9685 import PCA9685Full\n\n\nclass Pca9685:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 64):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '64'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PCA9685Full(connection)\n\n    def set_duty(self, channel: int, duty: float):\n        \"\"\"\n        label:\n            en: '%1 set duty channel %2 duty %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n            duty:\n                name: duty\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_duty(channel, duty)\n\n    def set_pwm(self, channel: int, on: int, off: int):\n        \"\"\"\n        label:\n            en: '%1 set pwm channel %2 on %3 off %4'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n            on:\n                name: on\n                type: int\n                field: number\n            off:\n                name: off\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_pwm(channel, on, off)\n\n    def get_pwm_on(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 get pwm on count channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n\n        return self._driver.get_pwm(channel)[0]\n\n    def get_pwm_off(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 get pwm off count channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n\n        return self._driver.get_pwm(channel)[1]\n\n    def set_full_on(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set full on channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_full_on(channel)\n\n    def set_full_off(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 set full off channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_full_off(channel)\n\n    def set_all_duty(self, duty: float):\n        \"\"\"\n        label:\n            en: '%1 set all duty %2'\n        params:\n            duty:\n                name: duty\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_all_duty(duty)\n\n    def set_all_pwm(self, on: int, off: int):\n        \"\"\"\n        label:\n            en: '%1 set all pwm on %2 off %3'\n        params:\n            on:\n                name: on\n                type: int\n                field: number\n            off:\n                name: off\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_all_pwm(on, off)\n\n    def set_frequency(self, hz: float):\n        \"\"\"\n        label:\n            en: '%1 set frequency Hz %2'\n        params:\n            hz:\n                name: hz\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_frequency(hz)\n\n    def get_frequency(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 get frequency'\n        \"\"\"\n\n        return self._driver.get_frequency()\n\n    def set_pulse_width(self, channel: int, seconds: float):\n        \"\"\"\n        label:\n            en: '%1 set pulse width channel %2 seconds %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n            seconds:\n                name: seconds\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_pulse_width(channel, seconds)\n\n    def sleep(self):\n        \"\"\"\n        label:\n            en: '%1 sleep'\n        \"\"\"\n        self._driver.sleep()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n\n    def restart(self):\n        \"\"\"\n        label:\n            en: '%1 restart'\n        \"\"\"\n        self._driver.restart()\n\n    def set_output_mode(self, open_drain: int, invert: int, off_state: int):\n        \"\"\"\n        label:\n            en: '%1 set output mode open drain %2 invert %3 off state %4'\n        params:\n            open_drain:\n                name: open_drain\n                type: int\n                field: number\n            invert:\n                name: invert\n                type: int\n                field: number\n            off_state:\n                name: off_state\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_output_mode(bool(open_drain), bool(invert), off_state)\n\n    def set_update_on_ack(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set update on ACK enabled %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_update_on_ack(bool(enabled))\n\n    def set_allcall(self, enabled: int, address: int = 112):\n        \"\"\"\n        label:\n            en: '%1 set all-call enabled %2 address %3'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n            address:\n                name: address\n                type: int\n                default: '112'\n                field: number\n        \"\"\"\n        self._driver.set_allcall(bool(enabled), address)\n\n    def set_subaddress(self, index: int, address: int, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set sub address index %2 address %3 enabled %4'\n        params:\n            index:\n                name: index\n                type: int\n                field: number\n            address:\n                name: address\n                type: int\n                field: number\n            enabled:\n                name: enabled\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_subaddress(index, address, bool(enabled))\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

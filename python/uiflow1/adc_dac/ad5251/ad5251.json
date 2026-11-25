@@ -1,0 +1,468 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ad5251_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init AD5251",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_set_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 set wiper",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "code (0-63)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_get_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 wiper code",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_set_resistance",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 set W-B resistance",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "ohms",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_get_resistance",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 W-B resistance (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_set_both",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 set both wipers",
+          "type": "label"
+        },
+        {
+          "name": "channel 0 code",
+          "type": "label"
+        },
+        {
+          "name": "_code1",
+          "type": "number"
+        },
+        {
+          "name": "channel 1 code",
+          "type": "label"
+        },
+        {
+          "name": "_code2",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_set_ratio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 set ratio",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "ratio (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_get_ratio",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 ratio",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_set_resistance_wa",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 set W-A resistance",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "ohms",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_get_resistance_wa",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 W-A resistance (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_increment",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 step up",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1, -1 = both)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_decrement",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 step down",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1, -1 = both)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_double",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 double (+6 dB)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1, -1 = both)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_halve",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 halve (-6 dB)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1, -1 = both)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_store",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 store to EEMEM",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1, -1 = both)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_restore",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 restore from EEMEM",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1, -1 = both)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 reset from EEMEM",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_read_eemem",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 read user EEMEM",
+          "type": "label"
+        },
+        {
+          "name": "index (4-15)",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_write_eemem",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 write user EEMEM",
+          "type": "label"
+        },
+        {
+          "name": "index (4-15)",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        },
+        {
+          "name": "value (0-63)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_read_tolerance",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 RAB tolerance (percent)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_rab_actual",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5251 actual RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_nop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 NOP",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ad5251_set_rab",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5251 set RAB / RW",
+          "type": "label"
+        },
+        {
+          "name": "RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        },
+        {
+          "name": "RW (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_wiper",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+_periph_icm20948.configure_accel(int(${_full_scale}))

@@ -1,0 +1,1 @@
+_periph_am2315.read_fresh()['temperature_c']

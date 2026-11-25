@@ -30,7 +30,7 @@
 
 <!-- Read node: trigger → measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-hmc5883l', {
+    RED.nodes.registerType('hmc5883l', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -45,7 +45,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-hmc5883l">
+<script type="text/html" data-template-name="hmc5883l">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -56,7 +56,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-hmc5883l">
+<script type="text/html" data-help-name="hmc5883l">
     <p>Reads the magnetic field on three axes from an HMC5883L 3-axis magnetometer over I²C.</p>
     <p>Any input message triggers a measurement. The device is configured via an
     <b>hmc5883l-device</b> config node.</p>

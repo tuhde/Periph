@@ -1,0 +1,86 @@
+#include <Wire.h>
+#include <Periph.h>
+
+#ifndef TEST_SDA
+#define TEST_SDA 8
+#endif
+#ifndef TEST_SCL
+#define TEST_SCL 9
+#endif
+#ifndef TEST_I2C_FREQ
+#define TEST_I2C_FREQ 400000
+#endif
+#ifndef TEST_ADDR
+#define TEST_ADDR 0x40
+#endif
+
+I2CConnection connection(Wire, TEST_ADDR);
+Si7021Full sensor(connection);
+
+static int passed = 0;
+static int failed = 0;
+
+static void check_true(const char* label, bool condition) {
+    if (condition) {
+        Serial.print("PASS "); Serial.println(label);
+        passed++;
+    } else {
+        Serial.print("FAIL "); Serial.println(label);
+        failed++;
+    }
+}
+#define CHECK(c, l) check_true((l), (c))
+#define NEAR(v, lo, hi, l) check_true((l), ((v) >= (lo) && (v) <= (hi)))
+#define TEST_DELAY_MS(ms) delay(ms)
+
+void setup() {
+    Serial.begin(115200);
+    delay(2000);
+
+    Wire.begin(TEST_SDA, TEST_SCL, TEST_I2C_FREQ);
+
+    float t = 0, rh = 0;
+    sensor.software_reset();
+    TEST_DELAY_MS(20);
+    CHECK(sensor.device_type() == 0x15, "device type 0x15");
+    CHECK(sensor.serial_number() != 0, "serial number");
+    CHECK((sensor.read_user_register() & 0xBF) == 0x3A, "user register after reset");
+
+    CHECK(sensor.read(t, rh), "read ok");
+    NEAR(t, -40.0f, 125.0f, "temperature range");
+    NEAR(rh, 0.0f, 100.0f, "humidity range");
+    NEAR(sensor.read_humidity(), 0.0f, 100.0f, "read_humidity range");
+    NEAR(sensor.read_temperature(), -40.0f, 125.0f, "read_temperature range");
+    NEAR(sensor.read_temperature_previous(), -40.0f, 125.0f, "read_temperature_previous range");
+    uint16_t raw = 0;
+    CHECK(sensor.read_raw_humidity(raw), "read_raw_humidity ok");
+    CHECK(sensor.read_raw_temperature(raw), "read_raw_temperature ok");
+
+    static const uint8_t PAIRS[4][2] = {{12, 14}, {8, 12}, {10, 13}, {11, 11}};
+    for (uint8_t i = 0; i < 4; i++) {
+        uint8_t rb = 0, tb = 0;
+        CHECK(sensor.set_resolution(PAIRS[i][0], PAIRS[i][1]), "set_resolution");
+        sensor.get_resolution(rb, tb);
+        CHECK(rb == PAIRS[i][0] && tb == PAIRS[i][1], "get_resolution");
+        CHECK(sensor.read(t, rh), "read at resolution");
+    }
+    sensor.set_resolution(12, 14);
+    NEAR(sensor.conversion_time(), 0.005f, 0.03f, "conversion time");
+
+    sensor.set_heater(true);
+    CHECK(sensor.is_heater_on(), "heater on");
+    sensor.set_heater(false);
+    CHECK(!sensor.is_heater_on(), "heater off");
+    CHECK(!sensor.vdd_low(), "vdd ok");
+    NEAR(sensor.dew_point(), -60.0f, 60.0f, "dew point plausible");
+    sensor.software_reset();
+    CHECK(sensor.read(t, rh), "read after software reset");
+
+    Serial.print("===DONE: ");
+    Serial.print(passed); Serial.print(" passed, ");
+    Serial.print(failed); Serial.println(" failed===");
+}
+
+void loop() {
+    delay(1000);
+}

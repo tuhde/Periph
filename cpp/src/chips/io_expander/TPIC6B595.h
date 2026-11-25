@@ -33,7 +33,8 @@
  * Generic over any SiPo connection class that exposes
  * @c write(const uint8_t*, size_t), @c clear(), and @c set_output_enable(bool)
  * — covers @c SiPoConnection (Arduino), @c SiPoConnectionLinux,
- * @c SiPoConnectionZephyr, @c SiPoConnectionESPIDF, @c SiPoConnectionPicoSDK.
+ * @c SiPoConnectionZephyr, @c SiPoConnectionESPIDF, @c SiPoConnectionPicoSDK,
+ * @c SiPoConnectionSTM32Cube.
  *
  * @tparam CONN  SiPo connection class (must have write / clear / set_output_enable).
  *
@@ -92,7 +93,7 @@ public:
      *  Zeroes every shadow byte, pulses SRCLR if the SiPo connection has it
      *  wired (no-op otherwise — missing SRCLR on the connection is not
      *  fatal, whether the connection reports that via a bool/int return
-     *  (Arduino/Zephyr/ESP-IDF/Pico SDK) or by throwing (Linux, whose
+     *  (Arduino/Zephyr/ESP-IDF/Pico SDK/STM32Cube) or by throwing (Linux, whose
      *  @c clear() is documented to throw @c std::runtime_error when SRCLR
      *  was not configured)), then writes the all-zero reversed cascade so
      *  every output starts OFF regardless of the chip's undefined power-on

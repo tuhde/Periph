@@ -5,6 +5,14 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/imu/bno055.py",
+      "github:tuhde/Periph/python/periph/chips/imu/bno055.py"
+    ],
+    [
+      "periph/chips/imu/icm20948.py",
+      "github:tuhde/Periph/python/periph/chips/imu/icm20948.py"
+    ],
+    [
       "periph/chips/imu/mpu6050.py",
       "github:tuhde/Periph/python/periph/chips/imu/mpu6050.py"
     ],
@@ -15,6 +23,10 @@
     [
       "periph/chips/imu/mpu9255.py",
       "github:tuhde/Periph/python/periph/chips/imu/mpu9255.py"
+    ],
+    [
+      "periph/chips/imu/qmi8658a.py",
+      "github:tuhde/Periph/python/periph/chips/imu/qmi8658a.py"
     ],
     [
       "periph/connection/__init__.py",
@@ -63,5 +75,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

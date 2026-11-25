@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <math.h>
+#include <stm32f4xx_hal.h>
+#include "system_clock_config.h"
+#include "I2CConnectionSTM32Cube.h"
+#include "Max17048.h"
+
+static UART_HandleTypeDef huart2;
+static I2C_HandleTypeDef hi2c1;
+
+// SysTick_Handler overrides the weak default in startup_stm32f411xe.s —
+// without this, HAL_GetTick()/HAL_Delay() never advance.
+extern "C" void SysTick_Handler(void) {
+    HAL_IncTick();
+}
+
+// Retargets printf() to USART2 (PA2/PA3), which NUCLEO-F411RE's on-board
+// ST-LINK exposes as a USB virtual COM port at 115200 baud.
+extern "C" int _write(int file, char* ptr, int len) {
+    (void)file;
+    HAL_UART_Transmit(&huart2, reinterpret_cast<uint8_t*>(ptr), static_cast<uint16_t>(len), HAL_MAX_DELAY);
+    return len;
+}
+
+static void gpio_clocks_init(void) {
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+}
+
+static void uart2_init(void) {
+    __HAL_RCC_USART2_CLK_ENABLE();
+
+    GPIO_InitTypeDef gpioInit = {};
+    gpioInit.Pin       = GPIO_PIN_2 | GPIO_PIN_3;  // PA2=TX, PA3=RX
+    gpioInit.Mode      = GPIO_MODE_AF_PP;
+    gpioInit.Pull      = GPIO_NOPULL;
+    gpioInit.Speed     = GPIO_SPEED_FREQ_LOW;
+    gpioInit.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &gpioInit);
+
+    huart2.Instance          = USART2;
+    huart2.Init.BaudRate     = 115200;
+    huart2.Init.WordLength   = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits     = UART_STOPBITS_1;
+    huart2.Init.Parity       = UART_PARITY_NONE;
+    huart2.Init.Mode         = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_Init(&huart2);
+}
+
+static void i2c1_init(void) {
+    __HAL_RCC_I2C1_CLK_ENABLE();
+
+    GPIO_InitTypeDef gpioInit = {};
+    gpioInit.Pin       = GPIO_PIN_8 | GPIO_PIN_9;  // PB8=SCL, PB9=SDA
+    gpioInit.Mode      = GPIO_MODE_AF_OD;
+    gpioInit.Pull      = GPIO_PULLUP;               // internal pull-up, in case the breakout has none
+    gpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
+    gpioInit.Alternate = GPIO_AF4_I2C1;
+    HAL_GPIO_Init(GPIOB, &gpioInit);
+
+    hi2c1.Instance             = I2C1;
+    hi2c1.Init.ClockSpeed      = 100000;
+    hi2c1.Init.DutyCycle       = I2C_DUTYCYCLE_2;
+    hi2c1.Init.OwnAddress1     = 0;
+    hi2c1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2     = 0;
+    hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    HAL_I2C_Init(&hi2c1);
+}
+
+static volatile uint16_t g_alert = 0;
+static void on_alert(uint16_t status) { g_alert = status; }
+
+int main(void) {
+    HAL_Init();
+    SystemClock_Config();
+    gpio_clocks_init();
+    uart2_init();
+    i2c1_init();
+    I2CConnectionSTM32Cube connection(&hi2c1, 0x36);
+    Max17048Full gauge(connection, 1);                      // Create MAX17048 driver, (connection, cells)
+
+    printf("version 0x%04X, id 0x%02X\r\n", (unsigned)(gauge.version()), (unsigned)(gauge.chip_id()));
+    gauge.clear_status(Max17048Full::SOURCE_RESET);         // Clear the reset indicator, (mask)
+
+    // Battery fuel gauge: one line per second for 30 s
+    for (int n = 0; n < 30; n++) {
+        printf("%.3f V  %.1f %%  %+.1f %%/h\r\n", (double)(gauge.voltage()), (double)(gauge.percent()), (double)(gauge.charge_rate()));
+        HAL_Delay(1000);
+    }
+
+    gauge.set_alert_soc(10);                                // Low-SOC alert at 10 %, (percent)
+    gauge.set_voltage_alert(3.3f, 4.25f);                   // Voltage window 3.3-4.25 V, (min_v, max_v)
+    gauge.onInterrupt(on_alert);                            // Subscribe to ALRT, (callback, intPin = nullptr)
+    HAL_Delay(5000);
+    gauge.offInterrupt();
+    printf("poll_interrupt 0x%04X (callback saw 0x%04X)\r\n", (unsigned)(gauge.pollInterrupt()), (unsigned)g_alert);  // Without an ALRT pin, () → uint16_t
+
+    gauge.compensate_temperature(5.0f);                     // RCOMP for the temperature, (celsius)
+    printf("RCOMP at 5 C: 0x%02X\r\n", (unsigned)(gauge.get_rcomp()));
+    gauge.compensate_temperature(35.0f);
+    printf("RCOMP at 35 C: 0x%02X\r\n", (unsigned)(gauge.get_rcomp()));
+    gauge.compensate_temperature(20.0f);
+
+    gauge.disable_hibernate();                              // Never hibernate, ()
+    printf("hibernating %d\r\n", (int)gauge.is_hibernating());
+    gauge.set_hibernate_thresholds(26.624f, 0.06f);         // Back to the defaults
+
+    gauge.enable_sleep(true);                               // Sleep round trip, (enabled)
+    gauge.sleep();
+    HAL_Delay(1000);
+    gauge.wake();
+    gauge.enable_sleep(false);
+    printf("after wake: %.3f V\r\n", (double)(gauge.voltage()));
+    while (true) HAL_Delay(1000);
+}

@@ -1,0 +1,1 @@
+_periph_sd_spi.write_block(${_block}, bytes([${_value}]) * 512)

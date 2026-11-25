@@ -1,0 +1,1 @@
+_periph_lsm303.set_orientation(int(${_generator}), bool(int(${_position})), bool(int(${_four_d})))

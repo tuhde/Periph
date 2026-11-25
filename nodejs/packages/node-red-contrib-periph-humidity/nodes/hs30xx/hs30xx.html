@@ -1,0 +1,78 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('hs30xx-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x44' }
+        },
+        label: function() {
+            return this.name || ('HS30XX @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="hs30xx-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HS30XX">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x44"> &nbsp;(fixed, 0x44)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('hs30xx', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'hs30xx-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'HS30XX'; },
+        paletteLabel: 'HS30XX'
+    });
+</script>
+
+<script type="text/html" data-template-name="hs30xx">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HS30XX">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="hs30xx">
+    <p>Reads temperature and relative humidity from a Renesas HS3001, HS3002 or HS3003 (the HS30xx family, one
+    protocol) over I²C (fixed address 0x44) with one measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement (request, 40 ms wait, data fetch).</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH (0 to 100).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number and I²C address (0x44). The node reads at the factory resolution (14 bit) and does not touch the
+    sensor's NVM; send no more than one message per second to keep self-heating low. A reading whose status bits
+    still report stale data after one retry raises an error.</p>
+</script>

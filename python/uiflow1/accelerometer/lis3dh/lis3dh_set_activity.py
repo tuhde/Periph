@@ -1,0 +1,1 @@
+_periph_lis3dh.set_activity(threshold_g=float(${_threshold_g}), duration_ms=float(${_duration_ms}))

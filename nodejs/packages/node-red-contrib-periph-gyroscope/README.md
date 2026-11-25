@@ -1,6 +1,10 @@
 # node-red-contrib-periph-gyroscope
 
-Node-RED nodes for gyroscope chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for gyroscope chips: L3G4200D, L3GD20H — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (2):** L3G4200D, L3GD20H.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-gyroscope/examples).
 
 ## Install
 
@@ -17,9 +21,9 @@ npm install node-red-contrib-periph-gyroscope
 | Node | Kind | Description |
 |------|------|-------------|
 | `l3g4200d-device` | config | Bus configuration for a L3G4200D |
-| `periph-l3g4200d` | input | Reads angular rate on the X, Y, and Z axes from an L3G4200D MEMS gyroscope. |
+| `l3g4200d` | input | Reads angular rate on the X, Y, and Z axes from an L3G4200D MEMS gyroscope. |
 | `l3gd20h-device` | config | Bus configuration for a L3GD20H |
-| `periph-l3gd20h` | input | Reads angular rate on the X, Y, and Z axes from an L3GD20H (or L3GD20) MEMS gyroscope. |
+| `l3gd20h` | input | Reads angular rate on the X, Y, and Z axes from an L3GD20H (or L3GD20) MEMS gyroscope. |
 
 ## Links
 

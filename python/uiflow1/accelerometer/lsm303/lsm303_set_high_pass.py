@@ -1,0 +1,1 @@
+_periph_lsm303.set_high_pass(int(${_mode}), int(${_cutoff}))

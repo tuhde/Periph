@@ -139,17 +139,19 @@ func TestIdentifiesChips(t *testing.T) {
 	}{
 		{"bme280", 0xD0, 0x60, 0x76}, {"bmp280", 0xD0, 0x58, 0x76}, {"bme680", 0xD0, 0x61, 0x77},
 		{"bmp384", 0x00, 0x50, 0x76}, {"mpu6050", 0x75, 0x68, 0x68}, {"mpu9250", 0x75, 0x71, 0x68},
-		{"mpu9255", 0x75, 0x73, 0x69}, {"l3g4200d", 0x0F, 0xD3, 0x68}, {"lps33hw", 0x0F, 0xB1, 0x5C},
+		{"mpu9255", 0x75, 0x73, 0x69}, {"l3g4200d", 0x0F, 0xD3, 0x68},
 		{"adxl345", 0x00, 0xE5, 0x53}, {"vl53l0x", 0xC0, 0xEE, 0x29}, {"mfrc522", 0x37, 0x92, 0x28},
 	}
 	for _, tc := range table {
-		// 0x28-0x2F also hosts the write-sensitive DS1881, so those need active probing.
-		active := tc.addr == 0x28 || tc.addr == 0x29
+		// Many of these addresses also host write-sensitive chips (DS1881 at 0x28-0x2F,
+		// HT16K33 at 0x70-0x77, MCP3422 at 0x68, AM2315 at 0x5C, ...), which block
+		// passive probing, so identification needs active probing.
+		active := true
 		if d := one(t, single(tc.addr, map[uint32]byte{tc.reg: tc.value}), active); d.Identified != tc.id {
 			t.Errorf("%s: identified %q (candidates %v)", tc.id, d.Identified, d.Candidates)
 		}
 	}
-	if d := one(t, single(0x76, map[uint32]byte{0xD0: 0x60}), false); d.Driver != "bme280" {
+	if d := one(t, single(0x76, map[uint32]byte{0xD0: 0x60}), true); d.Driver != "bme280" {
 		t.Errorf("driver = %q", d.Driver)
 	}
 }
@@ -161,8 +163,8 @@ func TestIdentifiesMultiByteAndMaskedRegisters(t *testing.T) {
 		regs map[uint32]byte
 	}{
 		{"ens160", 0x52, map[uint32]byte{0x00: 0x60, 0x01: 0x01}},
-		{"ina226", 0x40, map[uint32]byte{0xFF: 0x22, 0x100: 0x60}},
-		{"ina3221", 0x40, map[uint32]byte{0xFF: 0x32, 0x100: 0x20}},
+		{"ina226", 0x43, map[uint32]byte{0xFF: 0x22, 0x100: 0x60}},
+		{"ina3221", 0x43, map[uint32]byte{0xFF: 0x32, 0x100: 0x20}},
 		{"mcp9808", 0x18, map[uint32]byte{0x07: 0x04, 0x08: 0x01}},
 		{"vl53l1x", 0x29, map[uint32]byte{0x010F: 0xEA, 0x0110: 0xCC}},
 	}
@@ -206,11 +208,16 @@ func TestWriteSensitiveCandidatesBlockProbingUnlessActive(t *testing.T) {
 }
 
 func TestAmbiguityIsAFinalAnswer(t *testing.T) {
-	d := one(t, single(0x5C, map[uint32]byte{0x0F: 0xB4}), false)
+	d := one(t, single(0x5C, map[uint32]byte{0x0F: 0xB4}), true)
 	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"lps22df", "lps28dfw"}) {
 		t.Errorf("lps: %+v", d)
 	}
-	d = one(t, single(0x77, map[uint32]byte{0xD0: 0x55}), false)
+	// LPS22HB and LPS33HW both answer WHO_AM_I = 0xB1 (registry/known_ambiguities.json).
+	d = one(t, single(0x5C, map[uint32]byte{0x0F: 0xB1}), true)
+	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"lps22hb", "lps33hw"}) {
+		t.Errorf("lps22hb/lps33hw: %+v", d)
+	}
+	d = one(t, single(0x77, map[uint32]byte{0xD0: 0x55}), true)
 	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"bmp085", "bmp180"}) {
 		t.Errorf("bmp: %+v", d)
 	}
@@ -221,18 +228,21 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		addr     uint8
 		want     []string
 		noProbes bool // nothing at this address has an identity register
+		skip     ProbeSkipReason
 	}{
-		{0x68, []string{"drv8830", "ds3231", "pcf8523"}, false},
-		{0x40, []string{"ina219"}, false},
-		{0x36, []string{"as5600"}, true},
-		{0x0B, nil, true},
-		{0x38, []string{"ade7953", "aht21", "pcf8574", "pcf8576"}, true},
+		// 0x68 hosts the write-sensitive MCP3422, so passive scans skip probing there.
+		{0x68, []string{"bq32000", "drv8830", "ds1307", "ds1371", "ds3231", "icm20948", "itg3200", "l3g4200d", "ltc4151", "mcp3422", "mpu6050", "mpu9250", "mpu9255", "pca9685", "pcf8523", "pcf8573"}, false, SkipWriteSensitive},
+		{0x40, []string{"bma180", "hdc1008", "hdc1080", "htu21df", "htu31d", "ina219", "ina226", "ina260", "ina3221", "lm25066", "pca9685", "si7021", "tmp007"}, false, SkipWriteSensitive},
+		// 0x36 is shared with MAX17048, which has an identity register, so probing happens here.
+		{0x36, []string{"as5600"}, false, SkipNone},
+		{0x0B, []string{"lc709203f"}, false, SkipNone},
+		{0x38, []string{"ade7953", "aht10", "aht20", "aht21", "bma150", "pcf8574", "pcf8576", "rrh46410", "saa1064", "uc1611s", "veml6070"}, true, SkipWriteSensitive},
 	}
 	for _, tc := range cases {
 		b := newBus(single(tc.addr, map[uint32]byte{}))
 		got, _ := DiscoverBus(b, registry, false)
 		d := got[0]
-		if d.Identified != "" || !reflect.DeepEqual(d.Candidates, tc.want) || d.ProbeSkipped != SkipNone || (tc.noProbes && len(b.registerOps) != 0) {
+		if d.Identified != "" || !reflect.DeepEqual(d.Candidates, tc.want) || d.ProbeSkipped != tc.skip || (tc.noProbes && len(b.registerOps) != 0) {
 			t.Errorf("%#x: %+v", tc.addr, d)
 		}
 	}
@@ -278,9 +288,21 @@ func TestKernelBoundAddressIsReportedNotProbed(t *testing.T) {
 func TestFailedIdentityReadIsNoMatch(t *testing.T) {
 	b := newBus(single(0x76, map[uint32]byte{0xD0: 0x60}))
 	b.readError = true
-	got, _ := DiscoverBus(b, registry, false)
-	if got[0].Identified != "" || len(got[0].Candidates) != 0 {
+	got, _ := DiscoverBus(b, registry, true) // HT16K33 at 0x70-0x77 is write-sensitive: probe actively
+	// Chips without an identity register stay candidates: nothing can rule them out.
+	noID := map[string]bool{}
+	for _, c := range registry {
+		if c.Probe == nil {
+			noID[c.ID] = true
+		}
+	}
+	if got[0].Identified != "" {
 		t.Errorf("%+v", got[0])
+	}
+	for _, id := range got[0].Candidates {
+		if !noID[id] {
+			t.Errorf("%s has an identity register but matched after a failed read: %+v", id, got[0])
+		}
 	}
 }
 
@@ -315,7 +337,7 @@ func TestAliasedBlockMergedOnlyWhenComplete(t *testing.T) {
 		all[a] = map[uint32]byte{}
 	}
 	got, _ := DiscoverBus(newBus(all), registry, false)
-	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "mb85rc"}) ||
+	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "at24c02n", "at24c64", "cat24c512", "lm25066", "mb85rc", "pca9685"}) ||
 		!reflect.DeepEqual(got[0].Aliases, []uint8{0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}) {
 		t.Errorf("merged: %+v", got)
 	}

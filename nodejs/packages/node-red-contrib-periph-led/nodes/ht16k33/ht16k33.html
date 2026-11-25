@@ -1,0 +1,94 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ht16k33-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '70', required: true }
+        },
+        label: function() {
+            return this.name || ('HT16K33 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ht16k33-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HT16K33">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">I²C address (hex)</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="70">0x70</option>
+            <option value="71">0x71</option>
+            <option value="72">0x72</option>
+            <option value="73">0x73</option>
+            <option value="74">0x74</option>
+            <option value="75">0x75</option>
+            <option value="76">0x76</option>
+            <option value="77">0x77</option>
+        </select>
+    </div>
+</script>
+
+<!-- Node: pixels / raw RAM / brightness / blink / key matrix -->
+<script type="text/javascript">
+    RED.nodes.registerType('ht16k33', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ht16k33-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-th',
+        label:   function() { return this.name || 'HT16K33'; },
+        paletteLabel: 'HT16K33'
+    });
+</script>
+
+<script type="text/html" data-template-name="ht16k33">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HT16K33">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ht16k33">
+    <p>Controls a HT16K33 16 × 8 LED matrix driver over I²C: set pixels, write the display RAM, change brightness and blink rate, and read the 13 × 3 key matrix.</p>
+    <p>The device is configured via a <b>ht16k33-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pixels <span class="property-type">[[com, row, 0|1], ...]</span></dt>
+        <dd>Sets (1) or clears (0) pixels, COM 0–7 and ROW 0–15, then writes the display RAM.</dd>
+        <dt>payload.raw <span class="property-type">number[]</span></dt>
+        <dd>Writes up to 16 raw bytes to the display RAM starting at address 0.</dd>
+        <dt>payload.brightness <span class="property-type">number</span></dt>
+        <dd>Dimming level 0–15 (duty (level + 1)/16).</dd>
+        <dt>payload.blink <span class="property-type">number</span></dt>
+        <dd>Blink frequency in Hz: 0 (off), 0.5, 1 or 2.</dd>
+        <dt>payload.keys <span class="property-type">true</span></dt>
+        <dd>Reads (and clears) the key data RAM.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.keys <span class="property-type">number</span></dt>
+        <dd>For a <code>keys</code> request: the key bitmask, bit <code>k * 13 + (K − 1)</code> for key input K (1–13) on key source KS<i>k</i> (0–2). Other requests pass the incoming message through after the write succeeds.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's 7-bit address (0x70–0x77) in the device config node.</p>
+</script>

@@ -1,0 +1,1 @@
+_periph_icm20948.configure_sample_rate(int(${_gyro_div}), int(${_accel_div}))

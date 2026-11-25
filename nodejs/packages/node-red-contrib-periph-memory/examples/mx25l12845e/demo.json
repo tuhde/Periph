@@ -1,0 +1,144 @@
+[
+    {
+        "id": "tab-mx25-demo",
+        "type": "tab",
+        "label": "MX25L12845E flash reader",
+        "disabled": false,
+        "info": "Reads the JEDEC ID and the first 16 bytes of an MX25L12845E every 5 seconds. Read-only: nothing is written to the chip."
+    },
+    {
+        "id": "cfg-mx25",
+        "type": "mx25l12845e-device",
+        "name": "MX25L12845E",
+        "bus": "0",
+        "device": "0",
+        "speed": "8000000"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-mx25-demo",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "make-id"
+            ]
+        ]
+    },
+    {
+        "id": "make-id",
+        "type": "function",
+        "name": "Read ID",
+        "func": "msg.op = 'id';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-mx25-demo",
+        "x": 290,
+        "y": 120,
+        "wires": [
+            [
+                "mx-id"
+            ]
+        ]
+    },
+    {
+        "id": "mx-id",
+        "type": "mx25l12845e",
+        "name": "ID",
+        "device": "cfg-mx25",
+        "z": "tab-mx25-demo",
+        "x": 430,
+        "y": 120,
+        "wires": [
+            [
+                "dbg-id",
+                "make-read"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-id",
+        "type": "debug",
+        "name": "JEDEC ID",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-mx25-demo",
+        "x": 620,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "make-read",
+        "type": "function",
+        "name": "Read 16 bytes",
+        "func": "msg.op = 'read';\nmsg.address = 0;\nmsg.length = 16;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-mx25-demo",
+        "x": 420,
+        "y": 180,
+        "wires": [
+            [
+                "mx-read"
+            ]
+        ]
+    },
+    {
+        "id": "mx-read",
+        "type": "mx25l12845e",
+        "name": "Read",
+        "device": "cfg-mx25",
+        "z": "tab-mx25-demo",
+        "x": 580,
+        "y": 180,
+        "wires": [
+            [
+                "hex"
+            ]
+        ]
+    },
+    {
+        "id": "hex",
+        "type": "function",
+        "name": "As hex",
+        "func": "msg.payload = msg.payload.toString('hex');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-mx25-demo",
+        "x": 730,
+        "y": 180,
+        "wires": [
+            [
+                "dbg-read"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-read",
+        "type": "debug",
+        "name": "first 16 bytes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-mx25-demo",
+        "x": 900,
+        "y": 180,
+        "wires": []
+    }
+]

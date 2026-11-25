@@ -1,0 +1,276 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "apds9250_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init APDS9250",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_read_red",
+      "type": "value",
+      "params": [
+        {
+          "name": "APDS9250 red count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_read_green",
+      "type": "value",
+      "params": [
+        {
+          "name": "APDS9250 green count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_read_blue",
+      "type": "value",
+      "params": [
+        {
+          "name": "APDS9250 blue count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_read_ir",
+      "type": "value",
+      "params": [
+        {
+          "name": "APDS9250 IR count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "APDS9250 data ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 colour mode (1 = RGB+IR, 0 = ALS/IR)",
+          "type": "label"
+        },
+        {
+          "name": "_colour",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_enable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 enable",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_disable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 disable",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 resolution",
+          "type": "label"
+        },
+        {
+          "name": "bits (13, 16-20)",
+          "type": "label"
+        },
+        {
+          "name": "_bits",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_measurement_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 measurement rate",
+          "type": "label"
+        },
+        {
+          "name": "rate (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 gain",
+          "type": "label"
+        },
+        {
+          "name": "gain (1, 3, 6, 9, 18)",
+          "type": "label"
+        },
+        {
+          "name": "_gain",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 thresholds",
+          "type": "label"
+        },
+        {
+          "name": "low (counts)",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        },
+        {
+          "name": "high (counts)",
+          "type": "label"
+        },
+        {
+          "name": "_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_interrupt_channel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 interrupt channel (0 IR, 1 green, 2 red, 3 blue)",
+          "type": "label"
+        },
+        {
+          "name": "channel",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_set_persistence",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 persistence",
+          "type": "label"
+        },
+        {
+          "name": "events (1-16)",
+          "type": "label"
+        },
+        {
+          "name": "_count",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 enable interrupt (1 = variation, 0 = threshold)",
+          "type": "label"
+        },
+        {
+          "name": "_variation",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 disable interrupt",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "APDS9250 status byte",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "apds9250_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "APDS9250 software reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

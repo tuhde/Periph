@@ -311,13 +311,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/espidf/io_expander/TPIC6B595/complete/main/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/espidf/io_expander/TPIC6B595/demo/main/main.cpp` — Tier-1 + Tier-3
 - [ ] Examples `cpp/examples/picosdk/io_expander/TPIC6B595/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/io_expander/TPIC6B595/minimal/Core/Src/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/io_expander/TPIC6B595/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/io_expander/TPIC6B595/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/io_expander/TPIC6B595/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/io_expander/TPIC6B595/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/io_expander/tpic6b595_test/tpic6b595_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/io_expander/tpic6b595_test_linux/tpic6b595_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/io_expander/tpic6b595_test_zephyr/src/main.cpp` (Zephyr)
 - [ ] Tests `cpp/tests/io_expander/tpic6b595_test_espidf/main/main.cpp` (ESP-IDF)
 - [ ] Tests `cpp/tests/io_expander/tpic6b595_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/io_expander/tpic6b595_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Unit test `cpp/tests/io_expander/tpic6b595_test_unit/tpic6b595_test_unit.cpp` — deferred, same reason as Python
 
 ### Node.js

@@ -1,0 +1,367 @@
+{
+  "category": "CAT5171",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_CAT5171_LANGUAGES = {\n  \"CUSTOM_CAT5171_INIT\": {\n    \"en\": \"%1 init bus %2 RAB (ohm) %3\"\n  },\n  \"CUSTOM_CAT5171_SET_WIPER\": {\n    \"en\": \"%1 set wiper code (0-255) %2\"\n  },\n  \"CUSTOM_CAT5171_GET_WIPER\": {\n    \"en\": \"%1 wiper code\"\n  },\n  \"CUSTOM_CAT5171_SET_RESISTANCE\": {\n    \"en\": \"%1 set W-B resistance ohms %2\"\n  },\n  \"CUSTOM_CAT5171_GET_RESISTANCE\": {\n    \"en\": \"%1 W-B resistance (ohm)\"\n  },\n  \"CUSTOM_CAT5171_SET_RATIO\": {\n    \"en\": \"%1 set ratio (0-1) %2\"\n  },\n  \"CUSTOM_CAT5171_GET_RATIO\": {\n    \"en\": \"%1 ratio\"\n  },\n  \"CUSTOM_CAT5171_SET_RESISTANCE_WA\": {\n    \"en\": \"%1 set W-A resistance ohms %2\"\n  },\n  \"CUSTOM_CAT5171_GET_RESISTANCE_WA\": {\n    \"en\": \"%1 W-A resistance (ohm)\"\n  },\n  \"CUSTOM_CAT5171_INCREMENT\": {\n    \"en\": \"%1 step wiper steps %2\"\n  },\n  \"CUSTOM_CAT5171_MIDSCALE\": {\n    \"en\": \"%1 move to midscale\"\n  },\n  \"CUSTOM_CAT5171_SHUTDOWN\": {\n    \"en\": \"%1 shutdown\"\n  },\n  \"CUSTOM_CAT5171_RESUME\": {\n    \"en\": \"%1 resume\"\n  },\n  \"CUSTOM_CAT5171_IS_SHUTDOWN\": {\n    \"en\": \"%1 is shut down\"\n  },\n  \"CUSTOM_CAT5171_RESET\": {\n    \"en\": \"%1 reset to midscale\"\n  },\n  \"CUSTOM_CAT5171_SET_RAB\": {\n    \"en\": \"%1 set RAB (ohm) %2 RW (ohm) %3\"\n  }\n};\n\nconst initType = 'custom_cat5171_init';\nBlockly.BlockRegExpList['custom_cat5171'] = {\n  regexp: new RegExp(/^custom_cat5171_/),\n  code: \"from CAT5171 import CAT5171\",\n  initBlockType: initType,\n  categoryId: 'custom_cat5171',\n}\nBlockly.utils.registerLanguages(CUSTOM_CAT5171_LANGUAGES)\n\nBlockly.Msg.CUSTOM_CAT5171_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_CAT5171 = 'CAT5171'\n\nBlockly.utils.getcustom_cat5171Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['cat5171_0', 'cat5171_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_cat5171_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_cat5171Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'cat5171_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_ab'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_ab = Blockly.Python.valueToCode(block, 'r_ab', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = CAT5171(${bus}, ${r_ab})\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_set_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_SET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_set_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wiper(${code})\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_get_wiper\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_GET_WIPER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_get_wiper\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_wiper()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_cat5171_set_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_SET_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ohms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_set_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ohms = Blockly.Python.valueToCode(block, 'ohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resistance(${ohms})\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_get_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_GET_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_get_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resistance()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_cat5171_set_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_SET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ratio'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_set_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ratio = Blockly.Python.valueToCode(block, 'ratio', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ratio(${ratio})\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_get_ratio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_GET_RATIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_get_ratio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_ratio()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_cat5171_set_resistance_wa\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_SET_RESISTANCE_WA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ohms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_set_resistance_wa\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ohms = Blockly.Python.valueToCode(block, 'ohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resistance_wa(${ohms})\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_get_resistance_wa\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_GET_RESISTANCE_WA,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_get_resistance_wa\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resistance_wa()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_cat5171_increment\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_INCREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_increment\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.increment(${steps})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_cat5171_midscale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_MIDSCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_midscale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.midscale()\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.shutdown()\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_resume\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_RESUME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_resume\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.resume()\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_is_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_IS_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_is_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_shutdown()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_cat5171_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_cat5171_set_rab\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CAT5171_SET_RAB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_cat5171Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_ab'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_wiper'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_cat5171_set_rab\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var r_ab = Blockly.Python.valueToCode(block, 'r_ab', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_wiper = Blockly.Python.valueToCode(block, 'r_wiper', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rab(${r_ab}, ${r_wiper})\\n`\n}\n",
+    "toolbox": "\n<category name=\"CAT5171\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_cat5171\">\n<title text=\"CAT5171\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_cat5171_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"r_ab\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100000.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_cat5171_set_wiper\">\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">128</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_cat5171_get_wiper\"/><block type=\"custom_cat5171_set_resistance\">\n  <value name=\"ohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50000.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_cat5171_get_resistance\"/><block type=\"custom_cat5171_set_ratio\">\n  <value name=\"ratio\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_cat5171_get_ratio\"/><block type=\"custom_cat5171_set_resistance_wa\">\n  <value name=\"ohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50000.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_cat5171_get_resistance_wa\"/><block type=\"custom_cat5171_increment\">\n  <value name=\"steps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_cat5171_midscale\"/><block type=\"custom_cat5171_shutdown\"/><block type=\"custom_cat5171_resume\"/><block type=\"custom_cat5171_is_shutdown\"/><block type=\"custom_cat5171_reset\"/><block type=\"custom_cat5171_set_rab\">\n  <value name=\"r_ab\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100000.0</field>\n    </shadow>\n  </value>\n  <value name=\"r_wiper\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50.0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_cat5171",
+    "block_type": [
+      "custom_cat5171___init__",
+      "custom_cat5171_set_wiper",
+      "custom_cat5171_get_wiper",
+      "custom_cat5171_set_resistance",
+      "custom_cat5171_get_resistance",
+      "custom_cat5171_set_ratio",
+      "custom_cat5171_get_ratio",
+      "custom_cat5171_set_resistance_wa",
+      "custom_cat5171_get_resistance_wa",
+      "custom_cat5171_increment",
+      "custom_cat5171_midscale",
+      "custom_cat5171_shutdown",
+      "custom_cat5171_resume",
+      "custom_cat5171_is_shutdown",
+      "custom_cat5171_reset",
+      "custom_cat5171_set_rab"
+    ]
+  },
+  "data": {
+    "name": "CAT5171",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "CAT5171",
+      "time": "2026-11-11",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.cat5171 import CAT5171Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 RAB (ohm) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_ab",
+            "type": "float",
+            "default": "100000.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(0x2C, bus=bus)\n        self._driver = CAT5171Full(connection, r_ab)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 set wiper code (0-255) %2"
+        },
+        "params": [
+          {
+            "name": "code",
+            "type": "int",
+            "default": "128",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wiper(code)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_wiper",
+        "note": {},
+        "label": {
+          "en": "%1 wiper code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_wiper()",
+        "ast_return": {
+          "code": "self._driver.get_wiper()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 set W-B resistance ohms %2"
+        },
+        "params": [
+          {
+            "name": "ohms",
+            "type": "float",
+            "default": "50000.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resistance(ohms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 W-B resistance (ohm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resistance()",
+        "ast_return": {
+          "code": "self._driver.get_resistance()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 set ratio (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "ratio",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ratio(ratio)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_ratio",
+        "note": {},
+        "label": {
+          "en": "%1 ratio"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_ratio()",
+        "ast_return": {
+          "code": "self._driver.get_ratio()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resistance_wa",
+        "note": {},
+        "label": {
+          "en": "%1 set W-A resistance ohms %2"
+        },
+        "params": [
+          {
+            "name": "ohms",
+            "type": "float",
+            "default": "50000.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resistance_wa(ohms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resistance_wa",
+        "note": {},
+        "label": {
+          "en": "%1 W-A resistance (ohm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resistance_wa()",
+        "ast_return": {
+          "code": "self._driver.get_resistance_wa()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "increment",
+        "note": {},
+        "label": {
+          "en": "%1 step wiper steps %2"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.increment(steps)",
+        "ast_return": {
+          "code": "self._driver.increment(steps)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "midscale",
+        "note": {},
+        "label": {
+          "en": "%1 move to midscale"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.midscale()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 shutdown"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.shutdown()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "resume",
+        "note": {},
+        "label": {
+          "en": "%1 resume"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.resume()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 is shut down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_shutdown()",
+        "ast_return": {
+          "code": "self._driver.is_shutdown()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset to midscale"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rab",
+        "note": {},
+        "label": {
+          "en": "%1 set RAB (ohm) %2 RW (ohm) %3"
+        },
+        "params": [
+          {
+            "name": "r_ab",
+            "type": "float",
+            "default": "100000.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_wiper",
+            "type": "float",
+            "default": "50.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rab(r_ab, r_wiper)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "cat5171"
+  },
+  "pyCode": "\"\"\"\nfile     CAT5171\ntime     2026-11-11\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.cat5171 import CAT5171Full\n\n\nclass CAT5171:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, r_ab: float = 100000.0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 RAB (ohm) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            r_ab:\n                name: r_ab\n                type: float\n                default: '100000.0'\n                field: number\n        \"\"\"\n        connection = I2CConnection(0x2C, bus=bus)\n        self._driver = CAT5171Full(connection, r_ab)\n\n    def set_wiper(self, code: int):\n        \"\"\"\n        label:\n            en: '%1 set wiper code (0-255) %2'\n        params:\n            code:\n                name: code\n                type: int\n                default: '128'\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.set_wiper(code)\n\n    def get_wiper(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 wiper code'\n        \"\"\"\n        return self._driver.get_wiper()\n\n    def set_resistance(self, ohms: float):\n        \"\"\"\n        label:\n            en: '%1 set W-B resistance ohms %2'\n        params:\n            ohms:\n                name: ohms\n                type: float\n                default: '50000.0'\n                field: number\n        \"\"\"\n        self._driver.set_resistance(ohms)\n\n    def get_resistance(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 W-B resistance (ohm)'\n        \"\"\"\n        return self._driver.get_resistance()\n\n    def set_ratio(self, ratio: float):\n        \"\"\"\n        label:\n            en: '%1 set ratio (0-1) %2'\n        params:\n            ratio:\n                name: ratio\n                type: float\n                default: '0.5'\n                field: number\n        \"\"\"\n        self._driver.set_ratio(ratio)\n\n    def get_ratio(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 ratio'\n        \"\"\"\n        return self._driver.get_ratio()\n\n    def set_resistance_wa(self, ohms: float):\n        \"\"\"\n        label:\n            en: '%1 set W-A resistance ohms %2'\n        params:\n            ohms:\n                name: ohms\n                type: float\n                default: '50000.0'\n                field: number\n        \"\"\"\n        self._driver.set_resistance_wa(ohms)\n\n    def get_resistance_wa(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 W-A resistance (ohm)'\n        \"\"\"\n        return self._driver.get_resistance_wa()\n\n    def increment(self, steps: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 step wiper steps %2'\n        params:\n            steps:\n                name: steps\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.increment(steps)\n\n    def midscale(self):\n        \"\"\"\n        label:\n            en: '%1 move to midscale'\n        \"\"\"\n        self._driver.midscale()\n\n    def shutdown(self):\n        \"\"\"\n        label:\n            en: '%1 shutdown'\n        \"\"\"\n        self._driver.shutdown()\n\n    def resume(self):\n        \"\"\"\n        label:\n            en: '%1 resume'\n        \"\"\"\n        self._driver.resume()\n\n    def is_shutdown(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is shut down'\n        \"\"\"\n        return self._driver.is_shutdown()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset to midscale'\n        \"\"\"\n        self._driver.reset()\n\n    def set_rab(self, r_ab: float, r_wiper: float):\n        \"\"\"\n        label:\n            en: '%1 set RAB (ohm) %2 RW (ohm) %3'\n        params:\n            r_ab:\n                name: r_ab\n                type: float\n                default: '100000.0'\n                field: number\n            r_wiper:\n                name: r_wiper\n                type: float\n                default: '50.0'\n                field: number\n        \"\"\"\n        self._driver.set_rab(r_ab, r_wiper)\n",
+  "version": "alpha2"
+}

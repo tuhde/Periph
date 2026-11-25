@@ -1,0 +1,1 @@
+_periph_fxos8700.set_freefall_motion(bool(int(${_motion})), threshold_g=float(${_threshold_g}), debounce_ms=float(${_debounce_ms}), latch=bool(int(${_latch})))

@@ -12,6 +12,9 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #define LPS33HW_DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
+#elif __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+#define LPS33HW_DELAY_MS(ms) HAL_Delay(ms)
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 #define LPS33HW_DELAY_MS(ms) sleep_ms(ms)

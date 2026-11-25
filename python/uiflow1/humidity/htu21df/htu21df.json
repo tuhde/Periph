@@ -1,0 +1,138 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "htu21df_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init HTU21D-F",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU21D-F temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU21D-F relative humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_humidity_compensated",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU21D-F compensated humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_dew_point",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU21D-F dew point (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTU21D-F resolution (0=12/14 1=8/12 2=10/13 3=11/11 bit RH/T)",
+          "type": "label"
+        },
+        {
+          "name": "level",
+          "type": "label"
+        },
+        {
+          "name": "_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_set_heater",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTU21D-F heater (1=on 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_heater_on",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU21D-F heater on (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_battery_low",
+      "type": "value",
+      "params": [
+        {
+          "name": "HTU21D-F battery low (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "htu21df_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "HTU21D-F soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

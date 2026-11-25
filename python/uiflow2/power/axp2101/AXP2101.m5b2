@@ -1,0 +1,312 @@
+{
+  "category": "AXP2101",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_AXP2101_LANGUAGES = {\n  \"CUSTOM_AXP2101_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_AXP2101_BATTERY_VOLTAGE\": {\n    \"en\": \"%1 battery voltage (V)\"\n  },\n  \"CUSTOM_AXP2101_BATTERY_PERCENT\": {\n    \"en\": \"%1 battery level (%)\"\n  },\n  \"CUSTOM_AXP2101_CHARGE_STATE\": {\n    \"en\": \"%1 charge state (0=trickle 1=pre 2=CC 3=CV 4=done 5=none)\"\n  },\n  \"CUSTOM_AXP2101_VBUS_PRESENT\": {\n    \"en\": \"%1 VBUS present?\"\n  },\n  \"CUSTOM_AXP2101_VBUS_VOLTAGE\": {\n    \"en\": \"%1 VBUS voltage (V)\"\n  },\n  \"CUSTOM_AXP2101_SYSTEM_VOLTAGE\": {\n    \"en\": \"%1 system voltage (V)\"\n  },\n  \"CUSTOM_AXP2101_DIE_TEMPERATURE\": {\n    \"en\": \"%1 die temperature (C)\"\n  },\n  \"CUSTOM_AXP2101_SET_CHARGING\": {\n    \"en\": \"%1 charging (0=off 1=on) %2\"\n  },\n  \"CUSTOM_AXP2101_SET_CHARGE_VOLTAGE\": {\n    \"en\": \"%1 set charge voltage (V: 4.0 4.1 4.2 4.35 4.4) %2\"\n  },\n  \"CUSTOM_AXP2101_SET_CHARGE_CURRENT\": {\n    \"en\": \"%1 set charge current (A, 0 to 1.5) %2\"\n  },\n  \"CUSTOM_AXP2101_SET_INPUT_CURRENT_LIMIT\": {\n    \"en\": \"%1 set input current limit (A: 0.1 0.5 0.9 1.0 1.5 2.0) %2\"\n  },\n  \"CUSTOM_AXP2101_SET_GPIO1\": {\n    \"en\": \"%1 GPIO1 (0=Hi-Z 1=drive low) %2\"\n  }\n};\n\nconst initType = 'custom_axp2101_init';\nBlockly.BlockRegExpList['custom_axp2101'] = {\n  regexp: new RegExp(/^custom_axp2101_/),\n  code: \"from AXP2101 import AXP2101\",\n  initBlockType: initType,\n  categoryId: 'custom_axp2101',\n}\nBlockly.utils.registerLanguages(CUSTOM_AXP2101_LANGUAGES)\n\nBlockly.Msg.CUSTOM_AXP2101_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_AXP2101 = 'AXP2101'\n\nBlockly.utils.getcustom_axp2101Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['axp2101_0', 'axp2101_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_axp2101_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_axp2101Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'axp2101_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = AXP2101(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_axp2101_battery_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_BATTERY_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_battery_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.battery_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_battery_percent\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_BATTERY_PERCENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_battery_percent\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.battery_percent()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_charge_state\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_CHARGE_STATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_charge_state\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.charge_state()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_vbus_present\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_VBUS_PRESENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_vbus_present\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.vbus_present()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_vbus_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_VBUS_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_vbus_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.vbus_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_system_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_SYSTEM_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_system_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.system_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_die_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_DIE_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_die_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.die_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_axp2101_set_charging\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_SET_CHARGING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_set_charging\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_charging(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_axp2101_set_charge_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_SET_CHARGE_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'volts'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_set_charge_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var volts = Blockly.Python.valueToCode(block, 'volts', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_charge_voltage(${volts})\\n`\n}\n\nBlockly.Blocks[\"custom_axp2101_set_charge_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_SET_CHARGE_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'amps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_set_charge_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var amps = Blockly.Python.valueToCode(block, 'amps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_charge_current(${amps})\\n`\n}\n\nBlockly.Blocks[\"custom_axp2101_set_input_current_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_SET_INPUT_CURRENT_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'amps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_set_input_current_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var amps = Blockly.Python.valueToCode(block, 'amps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_input_current_limit(${amps})\\n`\n}\n\nBlockly.Blocks[\"custom_axp2101_set_gpio1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AXP2101_SET_GPIO1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_axp2101Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_axp2101_set_gpio1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gpio1(${low})\\n`\n}\n",
+    "toolbox": "\n<category name=\"AXP2101\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_axp2101\">\n<title text=\"AXP2101\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_axp2101_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">52</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_axp2101_battery_voltage\"/><block type=\"custom_axp2101_battery_percent\"/><block type=\"custom_axp2101_charge_state\"/><block type=\"custom_axp2101_vbus_present\"/><block type=\"custom_axp2101_vbus_voltage\"/><block type=\"custom_axp2101_system_voltage\"/><block type=\"custom_axp2101_die_temperature\"/><block type=\"custom_axp2101_set_charging\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_axp2101_set_charge_voltage\">\n  <value name=\"volts\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4.2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_axp2101_set_charge_current\">\n  <value name=\"amps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_axp2101_set_input_current_limit\">\n  <value name=\"amps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_axp2101_set_gpio1\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_axp2101",
+    "block_type": [
+      "custom_axp2101___init__",
+      "custom_axp2101_battery_voltage",
+      "custom_axp2101_battery_percent",
+      "custom_axp2101_charge_state",
+      "custom_axp2101_vbus_present",
+      "custom_axp2101_vbus_voltage",
+      "custom_axp2101_system_voltage",
+      "custom_axp2101_die_temperature",
+      "custom_axp2101_set_charging",
+      "custom_axp2101_set_charge_voltage",
+      "custom_axp2101_set_charge_current",
+      "custom_axp2101_set_input_current_limit",
+      "custom_axp2101_set_gpio1"
+    ]
+  },
+  "data": {
+    "name": "AXP2101",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "AXP2101",
+      "time": "2026-11-08",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.axp2101 import AXP2101Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "52",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = AXP2101Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "battery_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 battery voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.battery_voltage()",
+        "ast_return": {
+          "code": "self._driver.battery_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "battery_percent",
+        "note": {},
+        "label": {
+          "en": "%1 battery level (%)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.battery_percent()",
+        "ast_return": {
+          "code": "self._driver.battery_percent()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "charge_state",
+        "note": {},
+        "label": {
+          "en": "%1 charge state (0=trickle 1=pre 2=CC 3=CV 4=done 5=none)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.charge_state()",
+        "ast_return": {
+          "code": "self._driver.charge_state()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "vbus_present",
+        "note": {},
+        "label": {
+          "en": "%1 VBUS present?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.vbus_present()",
+        "ast_return": {
+          "code": "self._driver.vbus_present()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "vbus_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 VBUS voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.vbus_voltage()",
+        "ast_return": {
+          "code": "self._driver.vbus_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "system_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 system voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.system_voltage()",
+        "ast_return": {
+          "code": "self._driver.system_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "die_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 die temperature (C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.die_temperature()",
+        "ast_return": {
+          "code": "self._driver.die_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_charging",
+        "note": {},
+        "label": {
+          "en": "%1 charging (0=off 1=on) %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_charging(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_charge_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 set charge voltage (V: 4.0 4.1 4.2 4.35 4.4) %2"
+        },
+        "params": [
+          {
+            "name": "volts",
+            "type": "float",
+            "default": "4.2",
+            "note": {},
+            "field": "number",
+            "max": "4.4",
+            "min": "4.0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_charge_voltage(volts)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_charge_current",
+        "note": {},
+        "label": {
+          "en": "%1 set charge current (A, 0 to 1.5) %2"
+        },
+        "params": [
+          {
+            "name": "amps",
+            "type": "float",
+            "default": "0.5",
+            "note": {},
+            "field": "number",
+            "max": "1.5",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_charge_current(amps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_input_current_limit",
+        "note": {},
+        "label": {
+          "en": "%1 set input current limit (A: 0.1 0.5 0.9 1.0 1.5 2.0) %2"
+        },
+        "params": [
+          {
+            "name": "amps",
+            "type": "float",
+            "default": "1.5",
+            "note": {},
+            "field": "number",
+            "max": "2.0",
+            "min": "0.1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_input_current_limit(amps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gpio1",
+        "note": {},
+        "label": {
+          "en": "%1 GPIO1 (0=Hi-Z 1=drive low) %2"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gpio1(bool(low))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "axp2101"
+  },
+  "pyCode": "\"\"\"\nfile     AXP2101\ntime     2026-11-08\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.axp2101 import AXP2101Full\n\n\nclass AXP2101:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 52):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '52'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = AXP2101Full(connection)\n\n    def battery_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 battery voltage (V)'\n        \"\"\"\n        return self._driver.battery_voltage()\n\n    def battery_percent(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 battery level (%)'\n        \"\"\"\n        return self._driver.battery_percent()\n\n    def charge_state(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 charge state (0=trickle 1=pre 2=CC 3=CV 4=done 5=none)'\n        \"\"\"\n        return self._driver.charge_state()\n\n    def vbus_present(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 VBUS present?'\n        \"\"\"\n        return self._driver.vbus_present()\n\n    def vbus_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 VBUS voltage (V)'\n        \"\"\"\n        return self._driver.vbus_voltage()\n\n    def system_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 system voltage (V)'\n        \"\"\"\n        return self._driver.system_voltage()\n\n    def die_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 die temperature (C)'\n        \"\"\"\n        return self._driver.die_temperature()\n\n    def set_charging(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 charging (0=off 1=on) %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_charging(bool(enabled))\n\n    def set_charge_voltage(self, volts: float):\n        \"\"\"\n        label:\n            en: '%1 set charge voltage (V: 4.0 4.1 4.2 4.35 4.4) %2'\n        params:\n            volts:\n                name: volts\n                type: float\n                default: '4.2'\n                field: number\n                max: '4.4'\n                min: '4.0'\n        \"\"\"\n        self._driver.set_charge_voltage(volts)\n\n    def set_charge_current(self, amps: float):\n        \"\"\"\n        label:\n            en: '%1 set charge current (A, 0 to 1.5) %2'\n        params:\n            amps:\n                name: amps\n                type: float\n                default: '0.5'\n                field: number\n                max: '1.5'\n                min: '0'\n        \"\"\"\n        self._driver.set_charge_current(amps)\n\n    def set_input_current_limit(self, amps: float):\n        \"\"\"\n        label:\n            en: '%1 set input current limit (A: 0.1 0.5 0.9 1.0 1.5 2.0) %2'\n        params:\n            amps:\n                name: amps\n                type: float\n                default: '1.5'\n                field: number\n                max: '2.0'\n                min: '0.1'\n        \"\"\"\n        self._driver.set_input_current_limit(amps)\n\n    def set_gpio1(self, low: int):\n        \"\"\"\n        label:\n            en: '%1 GPIO1 (0=Hi-Z 1=drive low) %2'\n        params:\n            low:\n                name: low\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_gpio1(bool(low))\n",
+  "version": "alpha2"
+}

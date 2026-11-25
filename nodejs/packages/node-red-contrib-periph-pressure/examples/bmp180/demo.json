@@ -8,7 +8,7 @@
     },
     {
         "id": "bmp180-read-1",
-        "type": "periph-bmp180",
+        "type": "bmp180",
         "name": "BMP180",
         "device": "bmp180-device-1",
         "seaLevelHpa": "1013.25",

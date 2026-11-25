@@ -1,6 +1,10 @@
 # node-red-contrib-periph-temperature
 
-Node-RED nodes for temperature sensor chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for temperature sensor chips: MCP9808, TMP102, TMP117 — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+**Supported chips (3):** MCP9808, TMP102, TMP117.
+
+Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-temperature/examples).
 
 ## Install
 
@@ -16,8 +20,12 @@ npm install node-red-contrib-periph-temperature
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-mcp9808` | input | Reads the ambient temperature from an MCP9808 ±0.5 °C digital temperature sensor over I²C, and optionally reports its TUPPER/TLOWER/TCRIT boundary alerts. |
-| `periph-tmp117` | input | Reads the temperature from a TMP117 ±0.1 °C high-accuracy digital temperature sensor over I²C, and optionally reports its THIGH/TLOW limit alerts. |
+| `mcp9808-device` | config | I²C bus and address for a MCP9808 |
+| `mcp9808` | input | Reads the ambient temperature from an MCP9808 ±0.5 °C digital temperature sensor over I²C, and optionally reports its TUPPER/TLOWER/TCRIT boundary alerts. |
+| `tmp102-device` | config | I²C bus and address for a TMP102 |
+| `tmp102` | input | Reads the temperature from a TMP102 12-bit digital temperature sensor over I²C. |
+| `tmp117-device` | config | I²C bus and address for a TMP117 |
+| `tmp117` | input | Reads the temperature from a TMP117 ±0.1 °C high-accuracy digital temperature sensor over I²C, and optionally reports its THIGH/TLOW limit alerts. |
 
 ## Links
 

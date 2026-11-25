@@ -1,0 +1,79 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "23x1024_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init 23X1024", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "CS pin", "type": "label" },
+        { "name": "_cs_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "23x1024_read_byte",
+      "type": "value",
+      "params": [
+        { "name": "23X1024 read byte", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "23x1024_write_byte",
+      "type": "execute",
+      "params": [
+        { "name": "23X1024 write byte", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "23x1024_fill",
+      "type": "execute",
+      "params": [
+        { "name": "23X1024 fill", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "length", "type": "label" },
+        { "name": "_length", "type": "number" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "23x1024_size",
+      "type": "value",
+      "params": [
+        { "name": "23X1024 size (bytes)", "type": "label" }
+      ]
+    },
+    {
+      "name": "23x1024_set_mode",
+      "type": "execute",
+      "params": [
+        { "name": "23X1024 set mode — 0 byte, 128 page, 64 sequential", "type": "label" },
+        { "name": "_mode", "type": "variable" }
+      ]
+    },
+    {
+      "name": "23x1024_get_mode",
+      "type": "value",
+      "params": [
+        { "name": "23X1024 mode (0 byte, 128 page, 64 sequential)", "type": "label" }
+      ]
+    },
+    {
+      "name": "23x1024_reset_io",
+      "type": "execute",
+      "params": [
+        { "name": "23X1024 reset I/O (back to SPI mode)", "type": "label" }
+      ]
+    }
+  ]
+}

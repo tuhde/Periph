@@ -19,7 +19,8 @@
  *      - Caller responsible for respecting the ≥ 2 s sampling interval
  *
  *  @tparam Connection DHTxx connection type (DHTxxConnection, DHTxxConnectionLinux,
- *                    DHTxxConnectionZephyr, DHTxxConnectionESPIDF, or DHTxxConnectionPicoSDK).
+ *                    DHTxxConnectionZephyr, DHTxxConnectionESPIDF, DHTxxConnectionPicoSDK, or
+ *                    DHTxxConnectionSTM32Cube).
  */
 template<typename Connection>
 class DHT11Minimal {

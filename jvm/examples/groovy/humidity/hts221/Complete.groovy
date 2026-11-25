@@ -1,0 +1,94 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.5.4
+//DEPS it.uhde:periph-groovy:1.5.4
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.humidity.Hts221Full
+
+def bus  = System.getenv().getOrDefault("I2C_BUS", "1") as int
+def addr = Integer.parseInt(System.getenv().getOrDefault("I2C_ADDR", "0x5F").replaceFirst("^0[xX]", ""), 16)
+
+def connection = new I2CConnection(bus, addr)
+try {
+    def sensor = new Hts221Full(connection)                                                           // Create HTS221 driver, (connection) → void
+    // reads the factory calibration and starts one-shot mode
+
+    def id = sensor.whoAmI()                                                                          // Read WHO_AM_I, () → int (0xBC)
+    // identifies the chip on the bus
+    System.out.printf("who am i 0x%02X%n", id)
+    def v = sensor.read()                                                                             // Read temperature and humidity, () → double[] {°C, %rH}
+    // one-shot conversion, converted with the calibration
+    System.out.printf("%.2f C, %.1f %%rH%n", v[0], v[1])
+    def h = sensor.readHumidity()                                                                     // Read humidity only, () → double %rH
+    // one-shot conversion, clamped to 0–100
+    def t = sensor.readTemperature()                                                                  // Read temperature only, () → double °C
+    // one-shot conversion
+    System.out.printf("humidity %.1f temperature %.2f%n", h, t)
+    def rawH = sensor.readRawHumidity()                                                               // Read raw humidity, () → int
+    // signed 16-bit ADC output
+    def rawT = sensor.readRawTemperature()                                                            // Read raw temperature, () → int
+    // signed 16-bit ADC output
+    System.out.println("raw " + rawH + " " + rawT)
+    def cal = sensor.readCalibration()                                                                // Read calibration, () → double[] {H0_rH, H1_rH, T0_degC, T1_degC, H0_T0_OUT, H1_T0_OUT, T0_OUT, T1_OUT}
+    // decoded two-point coefficients
+    System.out.println("calibration " + java.util.Arrays.toString(cal))
+    def dew = sensor.dewPoint()                                                                       // Compute dew point, () → double °C
+    // Magnus formula over one measurement
+    System.out.printf("dew point %.2f C%n", dew)
+    def st = sensor.status()                                                                          // Read STATUS_REG, () → int
+    // H_DA = 0x02, T_DA = 0x01
+    def ready = sensor.dataReady()                                                                    // Check data available, () → boolean
+    // both H_DA and T_DA set
+    System.out.printf("status 0x%02X ready %b%n", st, ready)
+
+    sensor.setOutputDataRate(1)                                                                       // Set output data rate, (hz 0|1|7|12.5) → void
+    // continuous sampling at 1 Hz
+    def hz = sensor.getOutputDataRate()                                                               // Get output data rate, () → double Hz
+    // decodes CTRL_REG1.ODR
+    System.out.println("rate " + hz + " Hz")
+    Thread.sleep(1200)
+    def c = sensor.readContinuous()                                                                   // Read latest sample, () → double[] {°C, %rH}
+    // no conversion is started
+    System.out.printf("continuous %.2f C %.1f %%rH%n", c[0], c[1])
+    sensor.setOutputDataRate(0)                                                                       // Set output data rate, (hz 0|1|7|12.5) → void
+    // back to one-shot mode
+
+    sensor.setAveraging(32, 64)                                                                       // Set averaging, (temperatureSamples 2–256, humiditySamples 4–512) → void
+    // more samples lower the noise and lengthen the conversion
+    def avg = sensor.getAveraging()                                                                   // Get averaging, () → int[] {temperature samples, humidity samples}
+    // decodes AV_CONF
+    System.out.println("averaging " + avg[0] + " " + avg[1])
+    sensor.setAveraging(16, 32)
+    sensor.setBlockDataUpdate(true)                                                                   // Set block data update, (enabled) → void
+    // keeps LSB/MSB of one sample consistent
+
+    sensor.setHeater(true)                                                                            // Switch the heater, (on) → void
+    // drives off condensation; do not measure while on
+    def on = sensor.isHeaterOn()                                                                      // Heater state, () → boolean
+    // reads CTRL_REG2.HEATER
+    System.out.println("heater on: " + on)
+    sensor.setHeater(false)
+
+    sensor.configureDrdy(true, true, false)                                                           // Configure DRDY pin, (enabled, activeHigh, openDrain) → void
+    // routes data-ready to the DRDY pin
+    def ps = sensor.pollInterrupt()                                                                   // Poll interrupt status, () → int
+    // STATUS_REG; flags clear when the data is read
+    System.out.printf("poll 0x%02X%n", ps)
+    sensor.configureDrdy(false, true, false)
+
+    sensor.powerDown()                                                                                // Power down, () → void
+    // clears CTRL_REG1.PD
+    sensor.powerUp()                                                                                  // Power up, () → void
+    // sets CTRL_REG1.PD
+    sensor.onInterrupt({ int s -> printf("DRDY status 0x%02X%n", s) } as java.util.function.IntConsumer)  // Subscribe to data-ready, (callback IntConsumer) → void
+    // edge on the pin or a polling thread
+    Thread.sleep(2000)
+    sensor.offInterrupt()                                                                             // Unsubscribe, () → void
+    // disables the DRDY output
+    sensor.reboot()                                                                                   // Reload trimming, () → void
+    // sets BOOT, waits, re-reads the calibration
+} finally {
+    connection.close()
+}

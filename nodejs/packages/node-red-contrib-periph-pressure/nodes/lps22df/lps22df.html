@@ -79,7 +79,7 @@
 
 <!--Read node: trigger -> measurements -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-lps22df', {
+    RED.nodes.registerType('lps22df', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -95,7 +95,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-lps22df">
+<script type="text/html" data-template-name="lps22df">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -110,7 +110,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-lps22df">
+<script type="text/html" data-help-name="lps22df">
     <p>Reads pressure, temperature, and altitude from an LPS22DF absolute pressure sensor.</p>
     <p>Any input message triggers a measurement. The device is configured via an <b>lps22df-device</b> config node.</p>
 

@@ -1,5 +1,6 @@
 pub mod accelerometer;
 pub mod adc_dac;
+pub mod color;
 pub mod comms;
 pub mod display;
 pub mod humidity;

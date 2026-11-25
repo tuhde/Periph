@@ -88,23 +88,25 @@ async function main() {
 
     // --- identity probes ---
     const bme = { 0xd0: 0x60 };
-    let d = await only(new FakeBus({ 0x76: bme }));
+    // HT16K33 (0x70-0x77) is write-sensitive, so identification at 0x76 needs active: true.
+    let d = await only(new FakeBus({ 0x76: bme }), { active: true });
     checkTrue('bme280_identified', d.identified === 'bme280' && same(d.candidates, ['bme280']) && d.driver === 'bme280');
 
     const table = [['bmp280', 0xd0, 0x58, 0x76], ['bme680', 0xd0, 0x61, 0x77], ['bmp384', 0x00, 0x50, 0x76],
         ['mpu6050', 0x75, 0x68, 0x68], ['mpu9250', 0x75, 0x71, 0x68], ['mpu9255', 0x75, 0x73, 0x69],
-        ['l3g4200d', 0x0f, 0xd3, 0x68], ['lps33hw', 0x0f, 0xb1, 0x5c], ['adxl345', 0x00, 0xe5, 0x53],
+        ['l3g4200d', 0x0f, 0xd3, 0x68], ['adxl345', 0x00, 0xe5, 0x53],
         ['vl53l0x', 0xc0, 0xee, 0x29], ['mfrc522', 0x37, 0x92, 0x28]];
     for (const [id, reg, value, addr] of table) {
-        // 0x28-0x2F also hosts the write-sensitive DS1881, so those need active: true.
-        d = await only(new FakeBus({ [addr]: { [reg]: value } }), { active: addr === 0x28 || addr === 0x29 });
+        // Many of these addresses also host write-sensitive chips (DS1881 at 0x28-0x2F,
+        // HT16K33 at 0x70-0x77, MCP3422 at 0x68, ...), so identification needs active: true.
+        d = await only(new FakeBus({ [addr]: { [reg]: value } }), { active: true });
         checkTrue('identify_' + id, d.identified === id);
     }
     d = await only(new FakeBus({ 0x52: { 0x00: 0x60, 0x01: 0x01 } }));
     checkTrue('identify_ens160_little_endian', d.identified === 'ens160');
-    d = await only(new FakeBus({ 0x40: { 0xff: 0x22, 0x100: 0x60 } }));
+    d = await only(new FakeBus({ 0x43: { 0xff: 0x22, 0x100: 0x60 } }));
     checkTrue('identify_ina226_die_id', d.identified === 'ina226');
-    d = await only(new FakeBus({ 0x40: { 0xff: 0x32, 0x100: 0x20 } }));
+    d = await only(new FakeBus({ 0x43: { 0xff: 0x32, 0x100: 0x20 } }));
     checkTrue('identify_ina3221_die_id', d.identified === 'ina3221');
     bus = new FakeBus({ 0x48: { 0x0f: 0x01, 0x10: 0x17 } });
     d = await only(bus);
@@ -132,26 +134,31 @@ async function main() {
     checkTrue('apds_skipped_without_active', d.identified === null && d.probeSkippedReason === 'write_sensitive_candidate');
 
     // --- ambiguity is a final answer ---
-    d = await only(new FakeBus({ 0x5c: { 0x0f: 0xb4 } }));
+    d = await only(new FakeBus({ 0x5c: { 0x0f: 0xb4 } }), { active: true });
     checkTrue('lps22df_lps28dfw_ambiguous', d.identified === null && same(d.candidates, ['lps22df', 'lps28dfw']));
-    d = await only(new FakeBus({ 0x77: { 0xd0: 0x55 } }));
+    // LPS22HB and LPS33HW both answer WHO_AM_I = 0xB1 (registry/known_ambiguities.json).
+    d = await only(new FakeBus({ 0x5c: { 0x0f: 0xb1 } }), { active: true });
+    checkTrue('lps22hb_lps33hw_ambiguous', d.identified === null && same(d.candidates, ['lps22hb', 'lps33hw']));
+    d = await only(new FakeBus({ 0x77: { 0xd0: 0x55 } }), { active: true });
     checkTrue('bmp085_bmp180_ambiguous', d.identified === null && same(d.candidates, ['bmp085', 'bmp180']));
 
     // --- no ID match falls back to ID-less candidates ---
     d = await only(new FakeBus({ 0x68: {} }));
-    checkTrue('ds3231_pcf8523_remain', d.identified === null && same(d.candidates, ['drv8830', 'ds3231', 'pcf8523']));
+    // 0x68 hosts the write-sensitive MCP3422, so a passive scan skips probing there.
+    checkTrue('0x68_candidates_unprobed', d.identified === null && d.probeSkippedReason === 'write_sensitive_candidate'
+        && same(d.candidates, ['bq32000', 'drv8830', 'ds1307', 'ds1371', 'ds3231', 'icm20948', 'itg3200', 'l3g4200d', 'ltc4151', 'mcp3422', 'mpu6050', 'mpu9250', 'mpu9255', 'pca9685', 'pcf8523', 'pcf8573']));
     d = await only(new FakeBus({ 0x40: {} }));
-    checkTrue('ina219_by_elimination', d.identified === null && same(d.candidates, ['ina219']));
+    checkTrue('x40_candidates_include_write_sensitive_si7021', d.identified === null && same(d.candidates, ['bma180', 'hdc1008', 'hdc1080', 'htu21df', 'htu31d', 'ina219', 'ina226', 'ina260', 'ina3221', 'lm25066', 'pca9685', 'si7021', 'tmp007']));
     d = await only(new FakeBus({ 0x36: {} }));
     checkTrue('as5600_sole_candidate_unconfirmed', d.identified === null && same(d.candidates, ['as5600']));
     d = await only(new FakeBus({ 0x0b: {} }));
-    checkTrue('unknown_device', d.candidates.length === 0 && d.identified === null);
+    checkTrue('unknown_device', same(d.candidates, ['lc709203f']) && d.identified === null);
 
     // --- write-sensitive gating ---
     bus = new FakeBus({ 0x38: {} });
     d = await only(bus);
-    checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht21', 'pcf8574', 'pcf8576']));
-    checkTrue('no_probe_when_nothing_to_probe', d.probeSkippedReason === null && bus.writes.length === 0);
+    checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht10', 'aht20', 'aht21', 'bma150', 'pcf8574', 'pcf8576', 'rrh46410', 'saa1064', 'uc1611s', 'veml6070']));
+    checkTrue('no_probe_when_write_sensitive_candidate', d.probeSkippedReason === 'write_sensitive_candidate' && bus.writes.length === 0);
 
     const custom = [
         { id: 'pcf-like', driver: null, writeSensitive: true, aliased: false, addresses: [0x20], probe: null },
@@ -173,12 +180,14 @@ async function main() {
     checkTrue('kernel_bound_not_probed', bus.writes.every(([a]) => a !== 0x77));
 
     // --- failed identity read ---
-    d = await only(new FakeBus({ 0x76: bme }, { readError: true }));
-    checkTrue('failed_read_is_no_match', d.identified === null && d.candidates.length === 0);
+    d = await only(new FakeBus({ 0x76: bme }, { readError: true }), { active: true });
+    // Chips without an identity register stay candidates: nothing can rule them out.
+    const noId = new Set(CHIPS.filter(c => c.probe === null).map(c => c.id));
+    checkTrue('failed_read_is_no_match', d.identified === null && d.candidates.every(c => noId.has(c)));
 
     // --- aliased 24AA02UID ---
     let list = await discover(new FakeBus(addrs([0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57])));
-    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid', 'mb85rc'])
+    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid', 'at24c02n', 'at24c64', 'cat24c512', 'lm25066', 'mb85rc', 'pca9685'])
         && same(list[0].aliases, [0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57]));
     list = await discover(new FakeBus(addrs([0x50, 0x51])));
     checkTrue('partial_alias_reported_individually', same(list.map(x => x.address), [0x50, 0x51]) && list.every(x => x.aliases.length === 0));

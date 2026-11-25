@@ -23,6 +23,9 @@ static unsigned long _now_ms_zephyr() { return (unsigned long)k_uptime_get(); }
 #elif defined(PICO_SDK_VERSION_MAJOR) || defined(LIB_PICO_STDLIB)
 #include "pico/stdlib.h"
 #define _millis() ((unsigned long)to_ms_since_boot(get_absolute_time()))
+#elif __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+#define _millis() ((unsigned long)HAL_GetTick())
 #else
 #include <chrono>
 static unsigned long _now_ms_host() {
@@ -281,6 +284,8 @@ void _RFM9xBase::_delay_ms(unsigned long ms) {
     usleep((useconds_t)ms * 1000);
 #elif defined(PICO_SDK_VERSION_MAJOR) || defined(LIB_PICO_STDLIB)
     sleep_ms(ms);
+#elif __has_include(<stm32f4xx_hal.h>)
+    HAL_Delay(ms);
 #else
     struct timespec ts;
     ts.tv_sec  = (time_t)(ms / 1000);

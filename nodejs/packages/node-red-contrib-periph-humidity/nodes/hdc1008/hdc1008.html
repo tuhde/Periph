@@ -1,0 +1,88 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('hdc1008-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '0x40' },
+            resolution: { value: '14/14' }
+        },
+        label: function() {
+            return this.name || ('HDC1008 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="hdc1008-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HDC1008">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x40"> &nbsp;(0x40 – 0x43, set by ADR0/ADR1)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-resolution"><i class="fa fa-cog"></i> Resolution</label>
+        <select id="node-config-input-resolution" style="width:200px">
+            <option value="14/14" selected>T 14 bit / RH 14 bit</option>
+            <option value="14/11">T 14 bit / RH 11 bit</option>
+            <option value="14/8">T 14 bit / RH 8 bit</option>
+            <option value="11/14">T 11 bit / RH 14 bit</option>
+            <option value="11/11">T 11 bit / RH 11 bit</option>
+            <option value="11/8">T 11 bit / RH 8 bit</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('hdc1008', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device: { value: '', type: 'hdc1008-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'HDC1008'; },
+        paletteLabel: 'HDC1008'
+    });
+</script>
+
+<script type="text/html" data-template-name="hdc1008">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HDC1008">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="hdc1008">
+    <p>Reads temperature and relative humidity from a Texas Instruments HDC1008 over I²C (addresses 0x40–0x43)
+    with one sequence measurement (temperature then humidity) per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH (0 to 100).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x40–0x43) and the temperature / humidity resolution (bits).</p>
+</script>

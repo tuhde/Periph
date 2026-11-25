@@ -1,0 +1,92 @@
+[
+  {
+    "id": "as7262-tab",
+    "type": "tab",
+    "label": "AS7262 spectrometer",
+    "disabled": false,
+    "info": "Reads the six calibrated spectral channels and the temperature from an AS7262 every 2 s, picks the dominant channel and prints it. Each message triggers one one-shot conversion (gain 16x, 165.2 ms integration per bank)."
+  },
+  {
+    "id": "as7262-inject",
+    "type": "inject",
+    "z": "as7262-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "as7262-node"
+      ]
+    ]
+  },
+  {
+    "id": "as7262-device-1",
+    "type": "as7262-device",
+    "name": "AS7262",
+    "gain": "16",
+    "bus": "1",
+    "address": "0x49",
+    "integrationTime": "165.2"
+  },
+  {
+    "id": "as7262-node",
+    "type": "as7262",
+    "z": "as7262-tab",
+    "name": "AS7262",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "as7262-format"
+      ]
+    ],
+    "device": "as7262-device-1"
+  },
+  {
+    "id": "as7262-format",
+    "type": "function",
+    "z": "as7262-tab",
+    "name": "Dominant channel",
+    "func": "const p = msg.payload;\nconst ch = ['violet', 'blue', 'green', 'yellow', 'orange', 'red'];\nconst top = ch.reduce((a, b) => (p[a] >= p[b] ? a : b));\nmsg.payload = top + ' (' + p[top].toFixed(1) + '), ' + p.temperature + ' °C';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "as7262-debug"
+      ]
+    ]
+  },
+  {
+    "id": "as7262-debug",
+    "type": "debug",
+    "z": "as7262-tab",
+    "name": "Dominant",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

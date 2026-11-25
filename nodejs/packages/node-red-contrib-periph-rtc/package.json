@@ -1,23 +1,41 @@
 {
   "name": "node-red-contrib-periph-rtc",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for real-time clock chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for real-time clock chips: DS3231, PCF85063A, PCF8523",
   "keywords": [
     "node-red",
     "rtc",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "ds3231",
+    "pcf85063a",
+    "pcf8523"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "ds3231": "nodes/ds3231/ds3231.js",
+      "pcf85063a": "nodes/pcf85063a/pcf85063a.js",
       "pcf8523": "nodes/pcf8523/pcf8523.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-rtc#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-rtc"
+  }
 }

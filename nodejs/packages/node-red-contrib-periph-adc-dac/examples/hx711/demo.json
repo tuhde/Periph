@@ -20,7 +20,11 @@
         "z": "tab-hx711-demo",
         "x": 140,
         "y": 100,
-        "wires": [["hx711"]]
+        "wires": [
+            [
+                "hx711"
+            ]
+        ]
     },
     {
         "id": "inj-read",
@@ -36,21 +40,36 @@
         "z": "tab-hx711-demo",
         "x": 140,
         "y": 200,
-        "wires": [["hx711"]]
+        "wires": [
+            [
+                "hx711"
+            ]
+        ]
+    },
+    {
+        "id": "hx711-device-1",
+        "type": "hx711-device",
+        "name": "HX711",
+        "doutPin": "5",
+        "tareOffset": "0",
+        "scaleFactor": "420.0",
+        "gain": "128",
+        "pdSckPin": "6"
     },
     {
         "id": "hx711",
-        "type": "periph-hx711",
+        "type": "hx711",
         "name": "HX711",
-        "doutPin": "5",
-        "pdSckPin": "6",
-        "gain": "128",
-        "scaleFactor": "420.0",
-        "tareOffset": "0",
         "z": "tab-hx711-demo",
         "x": 360,
         "y": 200,
-        "wires": [["dbg-weight", "gauge-weight"]]
+        "wires": [
+            [
+                "dbg-weight",
+                "gauge-weight"
+            ]
+        ],
+        "device": "hx711-device-1"
     },
     {
         "id": "dbg-weight",
@@ -83,7 +102,11 @@
         "format": "{{payload.weight | number:1}}",
         "min": "0",
         "max": "1000",
-        "colors": ["#00b500", "#e6e600", "#ca3838"],
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
         "seg1": "500",
         "seg2": "800",
         "className": "",

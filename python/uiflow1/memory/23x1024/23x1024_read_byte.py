@@ -1,0 +1,1 @@
+_periph_23x1024.read_byte(${_address})

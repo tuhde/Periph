@@ -1,0 +1,1 @@
+_periph_icm20948.enable_fifo(True, True, False)

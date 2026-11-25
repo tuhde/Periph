@@ -21,7 +21,7 @@ const path = require('path');
 const SRC_DIR = path.join(__dirname, '..', 'src');
 const HEADER_PATH = path.join(SRC_DIR, 'Periph.h');
 
-const NON_ARDUINO_HEADER = /(Linux|Zephyr|ESPIDF|PicoSDK|Mock)\.h$/;
+const NON_ARDUINO_HEADER = /(Linux|Zephyr|ESPIDF|PicoSDK|STM32Cube|Mock)\.h$/;
 
 function listHeaders(dir) {
     const out = [];

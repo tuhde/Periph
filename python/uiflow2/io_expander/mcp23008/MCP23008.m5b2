@@ -1,0 +1,330 @@
+{
+  "category": "MCP23008",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MCP23008_LANGUAGES = {\n  \"CUSTOM_MCP23008_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MCP23008_SET_PIN_MODE\": {\n    \"en\": \"%1 set pin mode: IN=0, OUT=1 pin %2 mode %3\"\n  },\n  \"CUSTOM_MCP23008_WRITE_PIN\": {\n    \"en\": \"%1 write pin value (0/1) pin %2 value %3\"\n  },\n  \"CUSTOM_MCP23008_READ_PIN\": {\n    \"en\": \"%1 read pin pin %2\"\n  },\n  \"CUSTOM_MCP23008_READ_PORT\": {\n    \"en\": \"%1 read port (8 pins)\"\n  },\n  \"CUSTOM_MCP23008_WRITE_PORT\": {\n    \"en\": \"%1 write port mask (0-255) mask %2\"\n  },\n  \"CUSTOM_MCP23008_CONFIGURE_PULLUP\": {\n    \"en\": \"%1 pull-up mask (0-255) mask %2\"\n  },\n  \"CUSTOM_MCP23008_CONFIGURE_POLARITY\": {\n    \"en\": \"%1 input polarity mask (0-255) mask %2\"\n  },\n  \"CUSTOM_MCP23008_SET_DEFAULT_VALUE\": {\n    \"en\": \"%1 interrupt default value (0-255) mask %2\"\n  },\n  \"CUSTOM_MCP23008_ENABLE_PIN_INTERRUPT\": {\n    \"en\": \"%1 interrupt-enable mask (0-255) mask %2\"\n  },\n  \"CUSTOM_MCP23008_POLL_INTERRUPT\": {\n    \"en\": \"%1 poll interrupt flags (clears INT)\"\n  },\n  \"CUSTOM_MCP23008_READ_CAPTURE\": {\n    \"en\": \"%1 read interrupt capture (clears INT)\"\n  },\n  \"CUSTOM_MCP23008_RESET\": {\n    \"en\": \"%1 reset registers to defaults\"\n  }\n};\n\nconst initType = 'custom_mcp23008_init';\nBlockly.BlockRegExpList['custom_mcp23008'] = {\n  regexp: new RegExp(/^custom_mcp23008_/),\n  code: \"from MCP23008 import MCP23008\",\n  initBlockType: initType,\n  categoryId: 'custom_mcp23008',\n}\nBlockly.utils.registerLanguages(CUSTOM_MCP23008_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MCP23008_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MCP23008 = 'MCP23008'\n\nBlockly.utils.getcustom_mcp23008Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mcp23008_0', 'mcp23008_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mcp23008_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mcp23008Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mcp23008_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MCP23008(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_set_pin_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_SET_PIN_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_set_pin_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pin_mode(${pin}, ${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_write_pin\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_WRITE_PIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_write_pin\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_pin(${pin}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_read_pin\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_READ_PIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_read_pin\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_pin(${pin})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp23008_read_port\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_READ_PORT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_read_port\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_port()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp23008_write_port\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_WRITE_PORT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_write_port\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_port(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_configure_pullup\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_CONFIGURE_PULLUP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_configure_pullup\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_pullup(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_configure_polarity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_CONFIGURE_POLARITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_configure_polarity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_polarity(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_set_default_value\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_SET_DEFAULT_VALUE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_set_default_value\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_default_value(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_enable_pin_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_ENABLE_PIN_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_enable_pin_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_pin_interrupt(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp23008_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp23008_read_capture\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_READ_CAPTURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_read_capture\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_capture()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp23008_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP23008_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp23008Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp23008_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"MCP23008\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mcp23008\">\n<title text=\"MCP23008\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mcp23008_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">32</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_set_pin_mode\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_write_pin\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_read_pin\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_read_port\"/><block type=\"custom_mcp23008_write_port\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_configure_pullup\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_configure_polarity\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_set_default_value\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_enable_pin_interrupt\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp23008_poll_interrupt\"/><block type=\"custom_mcp23008_read_capture\"/><block type=\"custom_mcp23008_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_mcp23008",
+    "block_type": [
+      "custom_mcp23008___init__",
+      "custom_mcp23008_set_pin_mode",
+      "custom_mcp23008_write_pin",
+      "custom_mcp23008_read_pin",
+      "custom_mcp23008_read_port",
+      "custom_mcp23008_write_port",
+      "custom_mcp23008_configure_pullup",
+      "custom_mcp23008_configure_polarity",
+      "custom_mcp23008_set_default_value",
+      "custom_mcp23008_enable_pin_interrupt",
+      "custom_mcp23008_poll_interrupt",
+      "custom_mcp23008_read_capture",
+      "custom_mcp23008_reset"
+    ]
+  },
+  "data": {
+    "name": "MCP23008",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MCP23008",
+      "time": "2026-11-05",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.io_expander.mcp23008 import Mcp23008Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "32",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = Mcp23008Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pin_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set pin mode: IN=0, OUT=1 pin %2 mode %3"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mode",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.pin(pin).init(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_pin",
+        "note": {},
+        "label": {
+          "en": "%1 write pin value (0/1) pin %2 value %3"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.pin(pin).value(bool(value))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_pin",
+        "note": {},
+        "label": {
+          "en": "%1 read pin pin %2"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return bool(self._driver.pin(pin).value())",
+        "ast_return": {
+          "code": "bool(self._driver.pin(pin).value())",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_port",
+        "note": {},
+        "label": {
+          "en": "%1 read port (8 pins)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_port()",
+        "ast_return": {
+          "code": "self._driver.read_port()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_port",
+        "note": {},
+        "label": {
+          "en": "%1 write port mask (0-255) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_port(0, mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_pullup",
+        "note": {},
+        "label": {
+          "en": "%1 pull-up mask (0-255) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_pullup(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_polarity",
+        "note": {},
+        "label": {
+          "en": "%1 input polarity mask (0-255) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_polarity(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_default_value",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt default value (0-255) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_default_value(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_pin_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt-enable mask (0-255) mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_pin_interrupt(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 poll interrupt flags (clears INT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_capture",
+        "note": {},
+        "label": {
+          "en": "%1 read interrupt capture (clears INT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_capture()",
+        "ast_return": {
+          "code": "self._driver.read_capture()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset registers to defaults"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mcp23008"
+  },
+  "pyCode": "\"\"\"\nfile     MCP23008\ntime     2026-11-05\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.io_expander.mcp23008 import Mcp23008Full\n\n\nclass MCP23008:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 32):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '32'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = Mcp23008Full(connection)\n\n    def set_pin_mode(self, pin: int, mode: int):\n        \"\"\"\n        label:\n            en: '%1 set pin mode: IN=0, OUT=1 pin %2 mode %3'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n            mode:\n                name: mode\n                type: int\n                field: number\n        \"\"\"\n        self._driver.pin(pin).init(mode)\n\n    def write_pin(self, pin: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write pin value (0/1) pin %2 value %3'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.pin(pin).value(bool(value))\n\n    def read_pin(self, pin: int) -> bool:\n        \"\"\"\n        label:\n            en: '%1 read pin pin %2'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n        \"\"\"\n        return bool(self._driver.pin(pin).value())\n\n    def read_port(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read port (8 pins)'\n        \"\"\"\n        return self._driver.read_port()\n\n    def write_port(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 write port mask (0-255) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_port(0, mask)\n\n    def configure_pullup(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 pull-up mask (0-255) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.configure_pullup(mask)\n\n    def configure_polarity(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 input polarity mask (0-255) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.configure_polarity(mask)\n\n    def set_default_value(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 interrupt default value (0-255) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_default_value(mask)\n\n    def enable_pin_interrupt(self, mask: int):\n        \"\"\"\n        label:\n            en: '%1 interrupt-enable mask (0-255) mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.enable_pin_interrupt(mask)\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 poll interrupt flags (clears INT)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def read_capture(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read interrupt capture (clears INT)'\n        \"\"\"\n        return self._driver.read_capture()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset registers to defaults'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

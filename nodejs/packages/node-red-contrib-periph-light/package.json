@@ -1,22 +1,47 @@
 {
   "name": "node-red-contrib-periph-light",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for light sensor chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132",
   "keywords": [
     "node-red",
     "light",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "apds9250",
+    "apds-9930",
+    "apds9960",
+    "bh1750",
+    "max44009",
+    "si1132"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
-      "apds9960": "nodes/apds9960/apds9960.js"
+      "apds-9930": "nodes/apds-9930/apds-9930.js",
+      "apds9250": "nodes/apds9250/apds9250.js",
+      "apds9960": "nodes/apds9960/apds9960.js",
+      "bh1750": "nodes/bh1750/bh1750.js",
+      "max44009": "nodes/max44009/max44009.js",
+      "si1132": "nodes/si1132/si1132.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-light#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-light"
+  }
 }

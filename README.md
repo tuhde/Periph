@@ -7,7 +7,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | Language | Platforms | Status |
 |----------|-----------|--------|
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 1 + UIFlow 2 (Blockly custom blocks) | Active |
-| C++ | Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK | Active |
+| C++ | Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK, STM32Cube | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
 | Go | Linux (`go build`, `golang.org/x/sys/unix`) and TinyGo (Raspberry Pi Pico W) | Active |
@@ -103,89 +103,222 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Go | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|----|-----|--------|
+| 23X1024 | Serial SRAM (1 Mbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 24AA02UID | 2 Kbit EEPROM with unique ID | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AD5243 | Dual digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
-| AD5248 | Dual digital rheostat (256-pos) |  |  |  |  |  |  |  |  |
+| 47XXX | EERAM 47L04/47C04/47L16/47C16 (4/16 Kbit SRAM with EEPROM backup) |  |  |  |  |  |  |  |  |
+| AD5243 | Dual digital potentiometer (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AD5248 | Dual digital rheostat (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AD5251 | Dual 64-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AD5252 | Dual 256-position digital potentiometer, I²C, nonvolatile wiper memory (EEMEM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD7705 | 16-bit sigma-delta ADC (2-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD7706 | 16-bit sigma-delta ADC (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADE7953 | Energy meter (2-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| ADS1013 | 12-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
-| ADS1014 | 12-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
+| ADS1013 | 12-bit ADC (1-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1014 | 12-bit ADC (1-ch, PGA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADS1015 | 12-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
-| ADS1113 | 16-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
-| ADS1114 | 16-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
-| ADS1115 | 16-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
-| ADS7828 | 12-bit ADC (8-ch) |  |  |  |  |  |  |  |  |
+| ADS1113 | 16-bit ADC (1-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1114 | 16-bit ADC (1-ch, PGA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1115 | 16-bit ADC (4-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS7828 | 12-bit ADC (8-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADXL345 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADXL362 | Accelerometer (3-axis, ultra-low power) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AHT10 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AHT20 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AK8975 | 3-axis electronic compass (Hall, 13-bit, ±1229 µT, self-test, DRDY) |  |  |  |  |  |  |  |  |
+| AM2315 | Temperature/humidity probe (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AM2320 | Temperature/humidity sensor (Modbus-style I²C, CRC-16, sleeps between reads) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APA102 | LED (addressable RGB, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| APDS-9250 | Digital RGB, IR and ambient light sensor (20-bit, five gains, threshold/variation interrupt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS-9930 | Proximity/ALS | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| BMA150 | Accelerometer (3-axis) |  |  |  |  |  |  |  |  |
-| BMA180 | Accelerometer (3-axis) |  |  |  |  |  |  |  |  |
+| AS7262 | 6-channel visible spectral sensor (450–650 nm, calibrated floats, LED drivers) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AT24C02N | I²C EEPROM 2 Kbit (256 B, 8-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AT24C64 | I²C EEPROM 64 Kbit (8 KiB, 32-byte page) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AXP2101 | Power management IC (single-cell charger, 15 rails, fuel gauge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BH1750FVI | Digital ambient light sensor (16-bit, 1 lx / 0.5 lx / 4 lx modes, adjustable sensitivity) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMA150 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMA180 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME680 | Environmental (T/P/H/gas) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BME688 | Gas, pressure, temperature and humidity sensor (forced + parallel mode) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP085 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP384 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP581 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| CAT5171 | Digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
-| CS43L22 | Stereo audio DAC with HP/speaker amps |  |  |  |  |  |  |  |  |
+| BNO055 | 9-axis absolute-orientation sensor (fusion: Euler, quaternion, linear accel., gravity) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BQ32000 | Real-time clock (calendar, backup supply, trickle charger, calibration) |  |  |  |  |  |  |  |  |
+| BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
+| CAT24C512 | I²C EEPROM 512 Kbit (64 KiB, 128-byte page, 1 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| CAT5171 | Digital potentiometer (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| CCS811 | Indoor air quality gas sensor (eCO₂, TVOC, MOx, 4 drive modes, I²C, nINT) | | | | | | | | |
+| CS43L22 | Stereo audio DAC with HP/speaker amps | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| DRV2605 | Haptic driver (ERM/LRA) |  |  |  |  |  |  |  |  |
+| DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV8830 | DC motor driver (H-bridge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| DS1881 | Digital potentiometer (dual audio taper) |  |  |  |  |  |  |  |  |
+| DS1307 | Real-time clock (I²C, 56-byte battery-backed RAM, square-wave output) | | | | | | | | |
+| DS1371 | 32-bit binary counter clock with alarm/watchdog counter (I²C) | | | | | | | | |
+| DS1881 | Digital potentiometer (dual audio taper) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DS3231 | Real-time clock (TCXO) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| DS3502 | Digital potentiometer (7-bit, nonvolatile, high-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ES8311 | Audio codec (mono ADC + DAC, I²C control) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| FXAS21002C | 3-axis gyroscope (±250…±2000/±4000 dps, 800 Hz, FIFO, rate threshold) |  |  |  |  |  |  |  |  |
+| FXOS8700 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HDC1008 | Humidity and temperature sensor (14-bit, heater, DRDYn) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HDC1080 | Humidity and temperature sensor (14-bit, heater, ID registers) |  |  |  |  |  |  |  |  |
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HS30xx | Humidity and temperature sensor (14-bit, HS3001/3002/3003) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HS40xx | Humidity and temperature sensor (CRC, periodic mode, alert pin; HS4001/HS4003 only — HS4002 and HS401x are physical variants without a separate alias) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HT16K33 | LED matrix driver 16x8 with key scan (dimming, blink, INT) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HTS221 | Capacitive humidity and temperature sensor (16-bit, factory calibration, heater, DRDY) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HTU21D-F | Humidity + temperature sensor (±2 %RH, ±0.3 °C, heater, CRC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HTU31D | Digital humidity and temperature sensor (16-bit, OSR 0–3, CRC-8, heater, diagnostic) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| ICM-20948 | IMU (9-axis) |  |  |  |  |  |  |  |  |
+| HY3131 | DMM analog front end (24-bit ADC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ICM-20948 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IL0376F | E-paper display controller (200×300, B/W/R, 4 gray) |  |  |  |  |  |  |  |  |
+| IL0398 | E-paper display controller (400×300, B/W) |  |  |  |  |  |  |  |  |
+| IL3820 | E-paper display controller (240×320, B/W) |  |  |  |  |  |  |  |  |
+| IL91874 | E-paper display controller (320×300, B/W/R) |  |  |  |  |  |  |  |  |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| INA260 | Power monitor (integrated shunt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IS31FL3731 | 144-LED matrix driver (9×16, per-LED 8-bit PWM, 8 frames, auto-play, breath, audio modulation) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ISL29125 | RGB colour light sensor with IR blocking (12/16-bit, two ranges, interrupt window) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IST8310 | 3-axis AMR magnetometer (±1600/±2500 µT, 0.3 µT/LSB, DRDY, up to 200 Hz) |  |  |  |  |  |  |  |  |
+| ITG3200 | Gyroscope (3-axis, ±2000 °/s, 16-bit, DLPF, temperature, data-ready interrupt) |  |  |  |  |  |  |  |  |
 | L3G4200D | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | L3GD20H (L3GD20) | Gyroscope (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| LIS3DH | Accelerometer (3-axis) |  |  |  |  |  |  |  |  |
-| LSM303 | Accelerometer (3-axis) + magnetometer (3-axis) |  |  |  |  |  |  |  |  |
+| LC709203F | Battery fuel gauge (1-cell Li-ion, no sense resistor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LIS3DH | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LM25066 | Hot-swap controller / power monitor (PMBus, VIN/VOUT/IIN/PIN/temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LM75B | Temperature sensor with thermal watchdog (11-bit, 0.125 °C) |  |  |  |  |  |  |  |  |
 | LPS22DF | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LPS22HB | Pressure sensor (MEMS nano, 24-bit, FIFO) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS28DFW | Pressure sensor (water-resistant, dual FS) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS33HW | Pressure sensor (water-resistant) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MB85RC | FRAM (256 Kbit) |  |  |  |  |  |  |  |  |
+| LSM303 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LTC4151 | High-voltage (7–80 V) high-side current/voltage/power monitor (12-bit, snapshot mode, ADIN) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MAG3110 | 3-axis digital magnetometer (±1000 µT, 80 Hz, INT1) |  |  |  |  |  |  |  |  |
+| MAX17048 | 1-cell/2-cell (MAX17049) lithium fuel gauge, ModelGauge, no sense resistor (alerts, hibernate/sleep) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MAX31341 | Low-current real-time clock (180 nA, two alarms, countdown timer, trickle charger, I²C) | | | | | | | | |
+| MAX44009 | Ambient light sensor (ultra-low power, lux output) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP2515 | CAN controller (SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP3422 | 18-bit ΔΣ ADC (2-ch, PGA, internal reference) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP4XXX (MCP453X/454X/455X/456X/463X/464X/465X/466X) | Digital potentiometer / rheostat (7/8-bit, 1/2-ch, volatile and EEPROM) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP7940N | Battery-backed RTC (2 alarms, SRAM, trim, power-fail time-stamp) |  |  |  |  |  |  |  |  |
 | MCP9808 | Temperature sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MCP23008 | IO expander (8-bit) |  |  |  |  |  |  |  |  |
-| MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MMA8451Q | Accelerometer (3-axis) |  |  |  |  |  |  |  |  |
+| MLX90614 | IR thermometer (object −70…380 °C + ambient, 0.02 °C, SMBus + PEC, emissivity) |  |  |  |  |  |  |  |  |
+| MLX90632 | Contactless FIR thermometer (object and ambient temperature, medical/extended range, I²C) | | | | | | | | |
+| MLX90640 | 32×24 thermal IR array (768 pixels, 55°/110° FOV, 0.5–64 Hz, I²C) | | | | | | | | |
+| MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MPL115A2 | Barometer (50–115 kPa, 10-bit, calibration coefficients) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MPL3115A2 | Pressure/altitude + temperature sensor (20-bit, FIFO, 2 INT pins) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPR121 | Capacitive touch sensor (12-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9255 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MS5607 | Barometric pressure sensor (10–2000 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MS5611 | Barometric pressure sensor (10–1200 mbar, 24-bit ADC, OSR 256–4096, PROM calibration) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MX25L12845E | NOR flash (128 Mbit, SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCA6408A | IO expander (8-bit, low-voltage) |  |  |  |  |  |  |  |  |
-| PCA9536 | IO expander (4-bit) |  |  |  |  |  |  |  |  |
+| PCA6408A | IO expander (8-bit, low-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCA6416A | IO expander (16-bit, low-voltage) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCA9536 | IO expander (4-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCA9539 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCA9541 | I²C master selector (2-to-1, dual-master failover) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCA9685 | 16-channel 12-bit PWM LED/servo controller (I²C, 24–1526 Hz, phase shift, all-call) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF2116 | LCD controller/driver (character, 24x2 / 12x4, PCF2116/PCF2114 family) |  |  |  |  |  |  |  |  |
+| PCF85063A | Real-time clock (alarm, timer) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8563 | Real-time clock/calendar (alarm, timer, CLKOUT, voltage-low flag) |  |  |  |  |  |  |  |  |
+| PCF8566 | LCD segment driver (24 segments, static to 1:4 mux, write-only) |  |  |  |  |  |  |  |  |
+| PCF8573 | Clock/calendar with power-fail detector (minutes–months, alarm register, flags) |  |  |  |  |  |  |  |  |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCF8578 | LCD dot-matrix row/column driver |  |  |  |  |  |  |  |  |
-| PCF8579 | LCD dot-matrix column driver |  |  |  |  |  |  |  |  |
+| PCF8577C | LCD driver (32 segments direct / 64 duplex, write-only) |  |  |  |  |  |  |  |  |
+| PCF8578 | LCD dot-matrix row/column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8579 | LCD dot-matrix column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8591 | 8-bit ADC (4-ch) + DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PN532 | NFC/RFID reader/writer controller (ISO 14443 A/B, FeliCa, NFC P2P/card emulation; I²C frame protocol) | | | | | | | | |
+| QMI8658A | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| SH1106 | OLED display (132×64) |  |  |  |  |  |  |  |  |
+| RRH46410 | Indoor air quality and TVOC sensor module (IAQ index, TVOC, eCO₂, I²C command protocol) | | | | | | | | |
+| RRH62000 | All-in-one air quality module (PM1/PM2.5/PM10, TVOC, IAQ, eCO₂, temperature, humidity, I²C) | | | | | | | | |
+| SAA1064 | 4-digit LED driver (7-segment, multiplexed, 21 mA sinks) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SCD30 | NDIR CO₂, humidity and temperature sensor module (I²C, ASC/FRC calibration) | | | | | | | | |
+| SCD40 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–2000 ppm, I²C) | | | | | | | | |
+| SCD41 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–5000 ppm, single-shot mode, I²C) | | | | | | | | |
+| SD card (SPI mode) | SD / SDHC / microSD block storage | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SGP30 | MOx gas sensor (TVOC, CO₂eq, baseline, humidity compensation, 1.8 V, I²C) | | | | | | | | |
+| SGP40 | MOx VOC sensor (raw signal + VOC Index via Gas Index Algorithm, humidity compensation, I²C) | | | | | | | | |
+| SH1106 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SH1107 | OLED display (128×128, monochrome) |  |  |  |  |  |  |  |  |
+| SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SHTC3 | Humidity and temperature sensor (±2 %RH, ±0.2 °C, sleep mode) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Si1132 | UV index and ambient light sensor (Si114x family, command interface, interrupt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Si1133 | UV index and ambient light sensor (six measurement channels, 24-bit results, interrupt, preliminary datasheet) | | | | | | | | |
+| Si1145 | Proximity, UV index and ambient light sensor (Si1145/46/47, IR LED driver, interrupt) | | | | | | | | |
+| Si7021 | Humidity + temperature sensor (±3 %RH, ±0.4 °C, heater, command protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SPL06-007 | Barometric pressure and temperature sensor (24-bit, 300–1100 hPa, FIFO, interrupt, I²C/SPI) | | | | | | | | |
+| SPS30 | Laser particulate matter sensor (PM1/2.5/4/10, number concentration, fan cleaning, I²C) | | | | | | | | |
+| SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1309 | OLED display (128×64, monochrome, external VCC; SSD1306 alias) |  |  |  |  |  |  |  |  |
+| SSD1312 | OLED display (128×64, monochrome; SSD1306 alias) |  |  |  |  |  |  |  |  |
+| SSD1315 | OLED display (128×64, monochrome; SSD1306 alias) |  |  |  |  |  |  |  |  |
+| SSD1327 | OLED display (128×128, 16 gray levels) |  |  |  |  |  |  |  |  |
+| SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1351 | OLED display (128×128, RGB565) |  |  |  |  |  |  |  |  |
+| SSD1675A | E-paper display controller (160×296, B/W/R; IL3897) |  |  |  |  |  |  |  |  |
+| SSD1677 | E-paper display controller (960×680, B/W/R) |  |  |  |  |  |  |  |  |
+| SSD1680 | E-paper display controller (176×296, B/W/R) |  |  |  |  |  |  |  |  |
+| SSD1681 | E-paper display controller (200×200, B/W/R) |  |  |  |  |  |  |  |  |
+| SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
+| ST25DV | Dynamic NFC/RFID Type 5 tag with 4/16/64 Kbit EEPROM, I²C, mailbox and GPO (ST25DV04K/16K/64K) | | | | | | | | |
+| ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| STDS75 | Digital temperature sensor (9–12-bit, thermostat OS/INT, LM75-compatible) |  |  |  |  |  |  |  |  |
+| TCA9554 | IO expander (8-bit, internal pull-ups) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TMC2130 | Stepper motor driver (Step/Dir, SPI, StallGuard2) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TMC2208 | Stepper motor driver (Step/Dir, UART; TMC2202/2208/2224) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TMC2209 | Stepper motor driver (Step/Dir, UART, StallGuard4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TMC5160 | Stepper motor controller/driver (ramp generator, SPI/UART, StallGuard2) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TMP007 | IR thermopile non-contact temperature sensor with math engine (object + die) |  |  |  |  |  |  |  |  |
+| TMP102 | Digital temperature sensor (12-bit, ±0.5 °C, ALERT, 1.4–3.6 V) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| TSL2561 | Ambient light sensor (two photodiodes, lux, interrupt) |  |  |  |  |  |  |  |  |
+| TSL2591 | High-dynamic-range ambient light sensor (600 M:1, 16-bit dual-channel, interrupt) | | | | | | | | |
+| UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| UC8176 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
+| UC8179 | E-paper display controller (800×600, B/W/R) |  |  |  |  |  |  |  |  |
+| UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| VCNL4040 | Proximity (up to 200 mm) and ambient light sensor (16-bit, white channel, interrupt, I²C) | | | | | | | | |
+| VCNL4200 | Long-distance proximity (up to 1.5 m) and ambient light sensor (16-bit, interrupt, I²C) | | | | | | | | |
+| VEML6070 | UVA light sensor (16-bit, ACK alert output, two-address command/data protocol) | | | | | | | | |
+| VEML6075 | UVA/UVB light sensor (16-bit, UV index compensation channels, I²C) | | | | | | | | |
+| VEML7700 | Ambient light sensor (16-bit, 0.0042 lx/step, white channel) |  |  |  |  |  |  |  |  |
 | VL53L0X | Time-of-flight distance sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | VL53L1X | Time-of-flight distance sensor (long range) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| VL6180X | Time-of-flight proximity (0–100 mm) + ambient light sensor, interrupts | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | WS2814 | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
@@ -207,7 +340,7 @@ The spec (`specs/<category>/<chip>.md`) is the reference documentation — regis
 
 ## UIFlow
 
-Blockly custom blocks wrap 27 of the MicroPython chip drivers for M5Stack's UIFlow app — see
+Blockly custom blocks wrap 124 of the MicroPython chip drivers for M5Stack's UIFlow app — see
 `python/uiflow1/<category>/<chip>/`. Each chip's `<chip>.m5b` is committed and ready to import via
 **Extension → Import**; no local tooling required. Details, the full chip list, and how to regenerate
 after an edit: [python/uiflow1/README.md](python/uiflow1/README.md).
@@ -215,7 +348,7 @@ after an edit: [python/uiflow1/README.md](python/uiflow1/README.md).
 This targets **UIFlow 1**'s `.m5b` format. UIFlow 1 and the current
 [UIFlow 2](https://uiflow2.m5stack.com/) web IDE don't interoperate — a `.m5b` doesn't import into UIFlow 2
 and vice versa — so every chip also needs a native UIFlow 2 `.m5b2`, hand-built in the UIFlow 2 Block
-Designer (no generator exists for this format). All 27 chips are implemented, but only AHT21 has
+Designer (no generator exists for this format). Every chip has a `.m5b2`, but only AHT21 has
 actually been round-tripped through the real Block Designer — the rest extend that verified template
 to new parameter combinations and are unverified until checked; see
 [python/uiflow2/README.md](python/uiflow2/README.md) for the chip list, verification status, and
@@ -274,6 +407,7 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
 | ESP-IDF | `cpp/test_espidf.sh power/ina226` | Builds with idf.py, flashes, reads serial |
 | Raspberry Pi Pico SDK | `cpp/test_picosdk.sh power/ina226` | Builds with CMake, flashes UF2, reads serial |
+| STM32Cube (NUCLEO-F411RE) | `cpp/test_stm32cube.sh accelerometer/adxl345` | Builds with CMake, flashes via `st-flash`, reads ST-LINK serial |
 | Rust (Linux) | `rust/test_linux.sh power/ina226` | Builds with cargo, runs on host |
 | Rust (ESP32-S3) | `rust/test_esp32s3.sh power/ina226` | Builds with esp toolchain, flashes, reads serial |
 | Go (Linux) | `go/test_linux.sh power/ina226` | Builds with go, runs on host |
@@ -281,7 +415,7 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | JVM (Linux) | `jvm/test.sh power/ina226 [--lang kotlin\|groovy]` | Runs via JBang on Linux host |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
-`--compile-only` is supported by the Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK runners.
+`--compile-only` is supported by the Arduino, Linux GCC, Zephyr, ESP-IDF, Pico SDK, and STM32Cube runners.
 
 ## Architecture and workflow
 

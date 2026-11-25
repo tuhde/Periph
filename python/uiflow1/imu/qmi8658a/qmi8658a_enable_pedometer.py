@@ -1,0 +1,1 @@
+_periph_qmi8658a.enable_pedometer(bool(${_enabled}))

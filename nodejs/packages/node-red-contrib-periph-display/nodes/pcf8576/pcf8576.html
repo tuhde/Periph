@@ -51,7 +51,7 @@
 
 <!-- Write node: trigger → write digits or raw data -->
 <script type="text/javascript">
-    RED.nodes.registerType('periph-pcf8576', {
+    RED.nodes.registerType('pcf8576', {
         category:  'Peripheral',
         color:     '#C084FC',
         defaults: {
@@ -66,7 +66,7 @@
     });
 </script>
 
-<script type="text/html" data-template-name="periph-pcf8576">
+<script type="text/html" data-template-name="pcf8576">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <input type="text" id="node-input-device">
@@ -77,7 +77,7 @@
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-pcf8576">
+<script type="text/html" data-help-name="pcf8576">
     <p>Writes 7-segment digits or raw data to a PCF8576 40x4 universal LCD segment driver over I²C. The chip is write-only; any incoming message triggers a single write to display RAM.</p>
     <p>The device is configured via a <b>pcf8576-device</b> config node.</p>
 

@@ -1,0 +1,1 @@
+_periph_hts221.power_down()

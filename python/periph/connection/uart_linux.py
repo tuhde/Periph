@@ -114,6 +114,14 @@ class UARTConnection(Connection):
         self._write(data)
         return self._read(n)
 
+    def flush(self):
+        """Discard any bytes received but not yet read.
+
+        Chip drivers call this after a framing error before retrying a
+        transaction (e.g. the TMC2208 after a CRC failure).
+        """
+        self._ser.reset_input_buffer()
+
     def close(self):
         """Release the serial port and, if applicable, the DE GPIO."""
         self._ser.close()

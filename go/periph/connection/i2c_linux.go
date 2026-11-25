@@ -90,14 +90,15 @@ func (t *I2CConnection) Write(data []byte) error {
 	if !t.IsEnabled() {
 		return nil
 	}
-	if len(data) == 0 {
-		return nil
-	}
+	// An empty slice is sent as a zero-length write message (address byte only,
+	// like an SMBus quick write) — some chips treat that as a command.
 	msg := i2cMsg{
 		addr:  t.addr,
 		flags: 0,
 		len:   uint16(len(data)),
-		buf:   uintptr(unsafe.Pointer(&data[0])),
+	}
+	if len(data) > 0 {
+		msg.buf = uintptr(unsafe.Pointer(&data[0]))
 	}
 	data0 := i2cRdwrIoctlData{
 		msgs: uintptr(unsafe.Pointer(&msg)),

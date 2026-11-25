@@ -499,13 +499,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/espidf/accelerometer/LIS3DH/complete/main/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/espidf/accelerometer/LIS3DH/demo/main/main.cpp` — Tier-1 + Tier-3
 - [ ] Examples `cpp/examples/picosdk/accelerometer/LIS3DH/minimal/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/stm32cube/accelerometer/LIS3DH/minimal/Core/Src/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/accelerometer/LIS3DH/complete/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/stm32cube/accelerometer/LIS3DH/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/accelerometer/LIS3DH/demo/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/stm32cube/accelerometer/LIS3DH/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/accelerometer/lis3dh_test/lis3dh_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/accelerometer/lis3dh_test_linux/lis3dh_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/accelerometer/lis3dh_test_zephyr/src/main.cpp` (Zephyr)
 - [ ] Tests `cpp/tests/accelerometer/lis3dh_test_espidf/main/main.cpp` (ESP-IDF)
 - [ ] Tests `cpp/tests/accelerometer/lis3dh_test_picosdk/src/main.cpp` (Pico SDK)
+- [ ] Tests `cpp/tests/accelerometer/lis3dh_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Unit test `cpp/tests/accelerometer/lis3dh_test_unit/lis3dh_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js

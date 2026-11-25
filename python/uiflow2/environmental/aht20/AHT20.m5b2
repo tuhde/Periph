@@ -1,0 +1,106 @@
+{
+  "category": "AHT20",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_AHT20_LANGUAGES = {\n  \"CUSTOM_AHT20_INIT\": {\n    \"en\": \"%1 init I2C bus %2 address %3\"\n  },\n  \"CUSTOM_AHT20_READ_TEMPERATURE\": {\n    \"en\": \"%1 read temperature (°C)\"\n  },\n  \"CUSTOM_AHT20_READ_HUMIDITY\": {\n    \"en\": \"%1 read humidity (%)\"\n  }\n};\n\nconst initType = 'custom_aht20_init';\nBlockly.BlockRegExpList['custom_aht20'] = {\n  regexp: new RegExp(/^custom_aht20_/),\n  code: \"from AHT20 import AHT20\",\n  initBlockType: initType,\n  categoryId: 'custom_aht20',\n}\nBlockly.utils.registerLanguages(CUSTOM_AHT20_LANGUAGES)\n\nBlockly.Msg.CUSTOM_AHT20_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_AHT20 = 'AHT20'\n\nBlockly.utils.getcustom_aht20Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['aht20_0', 'aht20_0']\n  ];\n  return options;\n}\n\n\nBlockly.Blocks[\"custom_aht20_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AHT20_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_aht20Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'aht20_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        }, {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_aht20_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = AHT20(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_aht20_read_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AHT20_READ_TEMPERATURE,\n      'args0': [{\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_aht20Options\n        },\n\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_aht20_read_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_aht20_read_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AHT20_READ_HUMIDITY,\n      'args0': [{\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_aht20Options\n        },\n\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_aht20_read_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_humidity()`, Blockly.Python.ORDER_NONE]\n}",
+    "toolbox": "\n<category name=\"AHT20\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_aht20\">\n<title text=\"AHT20\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_aht20_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">56</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_aht20_read_temperature\"/><block type=\"custom_aht20_read_humidity\"/>\n</category>\n",
+    "toolboxitemid": "custom_aht20",
+    "block_type": [
+      "custom_aht20___init__",
+      "custom_aht20_read_temperature",
+      "custom_aht20_read_humidity"
+    ]
+  },
+  "data": {
+    "name": "AHT20",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "AHT20",
+      "time": "2026-11-17",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.aht20 import AHT20Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init I2C bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "56",
+            "note": {},
+            "field": "number",
+            "max": "127",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = AHT20Full(I2CConnection(address, bus=bus))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 read temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 read humidity (%)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "aht20"
+  },
+  "pyCode": "\n\"\"\"\nfile     AHT20\ntime     2026-11-17\nauthor   \nemail   \nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.aht20 import AHT20Full\n\nclass AHT20:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n\n\n\n    def __init__(self, bus: int = 0, address: int = 56):\n        \"\"\"\n        label:\n            en: '%1 init I2C bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                max: '7'\n                min: '0'\n            address:\n                name: address\n                type: int\n                default: '56'\n                field: number\n                max: '127'\n                min: '0'\n        \"\"\"\n        self._driver = AHT20Full(I2CConnection(address, bus=bus))\n\n    def read_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def read_humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read humidity (%)'\n        \"\"\"\n        return self._driver.read_humidity()\n\n\n",
+  "version": "alpha2"
+}

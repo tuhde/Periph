@@ -436,8 +436,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `cpp/examples/espidf/comms/RFM9x/complete/main/main.cpp` — Tier-1 + Tier-2
 - [x] Examples `cpp/examples/espidf/comms/RFM9x/demo/main/main.cpp` — Tier-1 + Tier-3
 - [x] Examples `cpp/examples/picosdk/comms/RFM9x/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/comms/RFM9x/minimal/Core/Src/main.cpp` — Tier-1
 - [x] Examples `cpp/examples/picosdk/comms/RFM9x/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/comms/RFM9x/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [x] Examples `cpp/examples/picosdk/comms/RFM9x/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/comms/RFM9x/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [x] Tests `cpp/tests/comms/rfm9x_test/rfm9x_test.ino` (Arduino)
 - [x] Tests `cpp/tests/comms/rfm9x_test_linux/rfm9x_test_linux.cpp` (Linux GCC)
 - [x] Tests `cpp/tests/comms/rfm9x_test_zephyr/src/main.cpp` (Zephyr)

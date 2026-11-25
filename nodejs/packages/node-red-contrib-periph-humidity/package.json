@@ -1,22 +1,57 @@
 {
   "name": "node-red-contrib-periph-humidity",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for humidity sensor chips",
+  "version": "1.5.4",
+  "description": "Node-RED nodes for humidity sensor chips: DHT11, HDC1008, HDC1080, HS30XX, HS40XX, HTS221, HTU21DF, HTU31D, SHT31, SHTC3, SI7021",
   "keywords": [
     "node-red",
     "humidity",
     "i2c",
     "spi",
     "sensor",
-    "peripheral"
+    "peripheral",
+    "node-red-contrib",
+    "dht11",
+    "hdc1008",
+    "hdc1080",
+    "hs30xx",
+    "hs40xx",
+    "hts221",
+    "htu21df",
+    "htu31d",
+    "sht31",
+    "shtc3",
+    "si7021"
   ],
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
-      "dht11": "nodes/dht11/dht11.js"
+      "dht11": "nodes/dht11/dht11.js",
+      "hdc1008": "nodes/hdc1008/hdc1008.js",
+      "hdc1080": "nodes/hdc1080/hdc1080.js",
+      "hs30xx": "nodes/hs30xx/hs30xx.js",
+      "hs40xx": "nodes/hs40xx/hs40xx.js",
+      "hts221": "nodes/hts221/hts221.js",
+      "htu21df": "nodes/htu21df/htu21df.js",
+      "htu31d": "nodes/htu31d/htu31d.js",
+      "sht31": "nodes/sht31/sht31.js",
+      "shtc3": "nodes/shtc3/shtc3.js",
+      "si7021": "nodes/si7021/si7021.js"
     }
   },
   "dependencies": {
     "periph": "*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/tuhde/Periph/issues"
+  },
+  "homepage": "https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-humidity#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuhde/Periph.git",
+    "directory": "nodejs/packages/node-red-contrib-periph-humidity"
+  }
 }

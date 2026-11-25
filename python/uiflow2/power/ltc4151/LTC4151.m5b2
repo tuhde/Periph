@@ -1,0 +1,436 @@
+{
+  "category": "LTC4151",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_LTC4151_LANGUAGES = {\n  \"CUSTOM_LTC4151_INIT\": {\n    \"en\": \"%1 init bus %2 address %3 sense resistor (mOhm) %4\"\n  },\n  \"CUSTOM_LTC4151_VOLTAGE\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_CURRENT\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_POWER\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_SENSE_VOLTAGE\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_ADIN_VOLTAGE\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_READ_RAW\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_SET_SENSE_RESISTOR\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_GET_SENSE_RESISTOR\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_SNAPSHOT\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_SET_CONTINUOUS\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_IS_SNAPSHOT_MODE\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_IS_BUSY\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_SET_STUCK_BUS_TIMER\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_SET_PAGE_RW\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_READ_CONTROL\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_WRITE_CONTROL\": {\n    \"en\": \"{l}\"\n  },\n  \"CUSTOM_LTC4151_TEMPERATURE_FROM_ADIN\": {\n    \"en\": \"{l}\"\n  }\n};\n\nconst initType = 'custom_ltc4151_init';\nBlockly.BlockRegExpList['custom_ltc4151'] = {\n  regexp: new RegExp(/^custom_ltc4151_/),\n  code: \"from LTC4151 import LTC4151\",\n  initBlockType: initType,\n  categoryId: 'custom_ltc4151',\n}\nBlockly.utils.registerLanguages(CUSTOM_LTC4151_LANGUAGES)\n\nBlockly.Msg.CUSTOM_LTC4151_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_LTC4151 = 'LTC4151'\n\nBlockly.utils.getcustom_ltc4151Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ltc4151_0', 'ltc4151_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ltc4151_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ltc4151Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ltc4151_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sense_milliohms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sense_milliohms = Blockly.Python.valueToCode(block, 'sense_milliohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = LTC4151(${bus}, ${address}, ${sense_milliohms})\\n`\n}\n\nBlockly.Blocks[\"custom_ltc4151_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.current()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_power\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_POWER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_power\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.power()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_sense_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_SENSE_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_sense_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.sense_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_adin_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_ADIN_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_adin_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.adin_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_raw(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_set_sense_resistor\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_SET_SENSE_RESISTOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'milliohms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_set_sense_resistor\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var milliohms = Blockly.Python.valueToCode(block, 'milliohms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sense_resistor(${milliohms})\\n`\n}\n\nBlockly.Blocks[\"custom_ltc4151_get_sense_resistor\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_GET_SENSE_RESISTOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_get_sense_resistor\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_sense_resistor()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_snapshot\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_SNAPSHOT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_snapshot\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.snapshot(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_set_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_SET_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_set_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.set_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_ltc4151_is_snapshot_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_IS_SNAPSHOT_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_is_snapshot_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_snapshot_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_is_busy\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_IS_BUSY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_is_busy\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.is_busy(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_set_stuck_bus_timer\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_SET_STUCK_BUS_TIMER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_set_stuck_bus_timer\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_stuck_bus_timer(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_ltc4151_set_page_rw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_SET_PAGE_RW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_set_page_rw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_page_rw(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_ltc4151_read_control\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_READ_CONTROL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_read_control\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_control()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ltc4151_write_control\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_WRITE_CONTROL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_write_control\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_control(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_ltc4151_temperature_from_adin\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LTC4151_TEMPERATURE_FROM_ADIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ltc4151Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'adin_code'\n        },\n        {\n          'type': 'input_value',\n          'name': 'vin_code'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ltc4151_temperature_from_adin\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var adin_code = Blockly.Python.valueToCode(block, 'adin_code', Blockly.Python.ORDER_FUNCTION_CALL);\n  var vin_code = Blockly.Python.valueToCode(block, 'vin_code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.temperature_from_adin(${adin_code}, ${vin_code})`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"LTC4151\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ltc4151\">\n<title text=\"LTC4151\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ltc4151_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">106</field>\n    </shadow>\n  </value>\n  <value name=\"sense_milliohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_voltage\"/><block type=\"custom_ltc4151_current\"/><block type=\"custom_ltc4151_power\"/><block type=\"custom_ltc4151_sense_voltage\"/><block type=\"custom_ltc4151_adin_voltage\"/><block type=\"custom_ltc4151_read_raw\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_set_sense_resistor\">\n  <value name=\"milliohms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_get_sense_resistor\"/><block type=\"custom_ltc4151_snapshot\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_set_continuous\"/><block type=\"custom_ltc4151_is_snapshot_mode\"/><block type=\"custom_ltc4151_is_busy\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_set_stuck_bus_timer\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_set_page_rw\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_read_control\"/><block type=\"custom_ltc4151_write_control\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">12</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ltc4151_temperature_from_adin\">\n  <value name=\"adin_code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">900</field>\n    </shadow>\n  </value>\n  <value name=\"vin_code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1200</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_ltc4151",
+    "block_type": [
+      "custom_ltc4151___init__",
+      "custom_ltc4151_voltage",
+      "custom_ltc4151_current",
+      "custom_ltc4151_power",
+      "custom_ltc4151_sense_voltage",
+      "custom_ltc4151_adin_voltage",
+      "custom_ltc4151_read_raw",
+      "custom_ltc4151_set_sense_resistor",
+      "custom_ltc4151_get_sense_resistor",
+      "custom_ltc4151_snapshot",
+      "custom_ltc4151_set_continuous",
+      "custom_ltc4151_is_snapshot_mode",
+      "custom_ltc4151_is_busy",
+      "custom_ltc4151_set_stuck_bus_timer",
+      "custom_ltc4151_set_page_rw",
+      "custom_ltc4151_read_control",
+      "custom_ltc4151_write_control",
+      "custom_ltc4151_temperature_from_adin"
+    ]
+  },
+  "data": {
+    "name": "LTC4151",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "LTC4151",
+      "time": "2026-11-17",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ltc4151 import LTC4151Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3 sense resistor (mOhm) %4"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "106",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sense_milliohms",
+            "type": "float",
+            "default": "20",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = LTC4151Full(connection, sense_milliohms / 1000.0)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "voltage",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.voltage()",
+        "ast_return": {
+          "code": "self._driver.voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "current",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.current()",
+        "ast_return": {
+          "code": "self._driver.current()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.power()",
+        "ast_return": {
+          "code": "self._driver.power()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sense_voltage",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.sense_voltage()",
+        "ast_return": {
+          "code": "self._driver.sense_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "adin_voltage",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.adin_voltage()",
+        "ast_return": {
+          "code": "self._driver.adin_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_raw(channel)",
+        "ast_return": {
+          "code": "self._driver.read_raw(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sense_resistor",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "milliohms",
+            "type": "float",
+            "default": "20",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sense_resistor(milliohms / 1000.0)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_sense_resistor",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_sense_resistor()",
+        "ast_return": {
+          "code": "self._driver.get_sense_resistor()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "snapshot",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.snapshot(channel)",
+        "ast_return": {
+          "code": "self._driver.snapshot(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_continuous",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.set_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_snapshot_mode",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.is_snapshot_mode())",
+        "ast_return": {
+          "code": "int(self._driver.is_snapshot_mode())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_busy",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return int(self._driver.is_busy(channel))",
+        "ast_return": {
+          "code": "int(self._driver.is_busy(channel))",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_stuck_bus_timer",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_stuck_bus_timer(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_page_rw",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_page_rw(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_control",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_control()",
+        "ast_return": {
+          "code": "self._driver.read_control()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_control",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "12",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_control(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature_from_adin",
+        "note": {},
+        "label": {
+          "en": "{l}"
+        },
+        "params": [
+          {
+            "name": "adin_code",
+            "type": "int",
+            "default": "900",
+            "note": {},
+            "field": "number",
+            "max": "4095",
+            "min": "0"
+          },
+          {
+            "name": "vin_code",
+            "type": "int",
+            "default": "1200",
+            "note": {},
+            "field": "number",
+            "max": "4095",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.temperature_from_adin(adin_code, vin_code)",
+        "ast_return": {
+          "code": "self._driver.temperature_from_adin(adin_code, vin_code)",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ltc4151"
+  },
+  "pyCode": "\"\"\"\nfile     LTC4151\ntime     2026-11-17\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ltc4151 import LTC4151Full\n\n\nclass LTC4151:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 106, sense_milliohms: float = 20):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3 sense resistor (mOhm) %4'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '106'\n                field: number\n            sense_milliohms:\n                name: sense_milliohms\n                type: float\n                default: '20'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = LTC4151Full(connection, sense_milliohms / 1000.0)\n\n    def voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.voltage()\n\n    def current(self) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.current()\n\n    def power(self) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.power()\n\n    def sense_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.sense_voltage()\n\n    def adin_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.adin_voltage()\n\n    def read_raw(self, channel: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        return self._driver.read_raw(channel)\n\n    def set_sense_resistor(self, milliohms: float = 20):\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            milliohms:\n                name: milliohms\n                type: float\n                default: '20'\n                field: number\n        \"\"\"\n        self._driver.set_sense_resistor(milliohms / 1000.0)\n\n    def get_sense_resistor(self) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.get_sense_resistor()\n\n    def snapshot(self, channel: int = 1) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        return self._driver.snapshot(channel)\n\n    def set_continuous(self):\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        self._driver.set_continuous()\n\n    def is_snapshot_mode(self) -> int:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return int(self._driver.is_snapshot_mode())\n\n    def is_busy(self, channel: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '2'\n                min: '0'\n        \"\"\"\n        return int(self._driver.is_busy(channel))\n\n    def set_stuck_bus_timer(self, enabled: int = 1):\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_stuck_bus_timer(bool(enabled))\n\n    def set_page_rw(self, enabled: int = 1):\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '1'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_page_rw(bool(enabled))\n\n    def read_control(self) -> int:\n        \"\"\"\n        label:\n            en: '{l}'\n        \"\"\"\n        return self._driver.read_control()\n\n    def write_control(self, value: int = 12):\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            value:\n                name: value\n                type: int\n                default: '12'\n                field: number\n                max: '255'\n                min: '0'\n        \"\"\"\n        self._driver.write_control(value)\n\n    def temperature_from_adin(self, adin_code: int = 900, vin_code: int = 1200) -> float:\n        \"\"\"\n        label:\n            en: '{l}'\n        params:\n            adin_code:\n                name: adin_code\n                type: int\n                default: '900'\n                field: number\n                max: '4095'\n                min: '0'\n            vin_code:\n                name: vin_code\n                type: int\n                default: '1200'\n                field: number\n                max: '4095'\n                min: '1'\n        \"\"\"\n        return self._driver.temperature_from_adin(adin_code, vin_code)\n",
+  "version": "alpha2"
+}

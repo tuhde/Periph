@@ -54,7 +54,7 @@ public:
      *  @param len  Number of bytes in @p data.
      */
     virtual void write(uint32_t reg, const uint8_t* data, size_t len) {
-        uint8_t payload[20];  // up to 4 addr bytes + up to 16 data bytes
+        uint8_t payload[36];  // up to 4 addr bytes + up to 32 data bytes
         for (uint8_t i = 0; i < _regBytes; i++)
             payload[i] = (reg >> (8 * (_regBytes - 1 - i))) & 0xFF;
         memcpy(payload + _regBytes, data, len);

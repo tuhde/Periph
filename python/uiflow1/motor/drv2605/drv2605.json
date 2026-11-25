@@ -1,0 +1,816 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "drv2605_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init DRV2605",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "actuator (0 = ERM, 1 = LRA)",
+          "type": "label"
+        },
+        {
+          "name": "_lra",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_play_effect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 play effect",
+          "type": "label"
+        },
+        {
+          "name": "effect (1-123)",
+          "type": "label"
+        },
+        {
+          "name": "_effect",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_play_sequence",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 play sequence",
+          "type": "label"
+        },
+        {
+          "name": "steps, e.g. 1,w100,10 (wN = wait N ms)",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_stop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 stop",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_is_playing",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 is playing",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_wait_done",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 wait until done",
+          "type": "label"
+        },
+        {
+          "name": "timeout (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_timeout",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_library",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set library",
+          "type": "label"
+        },
+        {
+          "name": "library (0-6)",
+          "type": "label"
+        },
+        {
+          "name": "_library",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set mode",
+          "type": "label"
+        },
+        {
+          "name": "mode (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_standby",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 standby",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 wake",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_hi_z",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set high-impedance",
+          "type": "label"
+        },
+        {
+          "name": "enabled (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_actuator",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set actuator",
+          "type": "label"
+        },
+        {
+          "name": "LRA (0 = ERM, 1 = LRA)",
+          "type": "label"
+        },
+        {
+          "name": "_lra",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_open_loop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set open loop",
+          "type": "label"
+        },
+        {
+          "name": "enabled (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_bidirectional",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set bidirectional input",
+          "type": "label"
+        },
+        {
+          "name": "enabled (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_rtp_level",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 RTP level",
+          "type": "label"
+        },
+        {
+          "name": "level (0.0-1.0)",
+          "type": "label"
+        },
+        {
+          "name": "_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_rtp_write",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 RTP raw write",
+          "type": "label"
+        },
+        {
+          "name": "value (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_rtp_format",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set RTP format",
+          "type": "label"
+        },
+        {
+          "name": "unsigned (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_unsigned",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_input",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set input",
+          "type": "label"
+        },
+        {
+          "name": "analog (0 = PWM, 1 = analog)",
+          "type": "label"
+        },
+        {
+          "name": "_analog",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_rated_voltage",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set rated voltage",
+          "type": "label"
+        },
+        {
+          "name": "volts (V)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        },
+        {
+          "name": "LRA frequency (Hz, 0 = ERM)",
+          "type": "label"
+        },
+        {
+          "name": "_freq",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_overdrive_clamp",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set overdrive clamp",
+          "type": "label"
+        },
+        {
+          "name": "volts (V)",
+          "type": "label"
+        },
+        {
+          "name": "_volts",
+          "type": "number"
+        },
+        {
+          "name": "LRA frequency (Hz, 0 = not needed)",
+          "type": "label"
+        },
+        {
+          "name": "_freq",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_drive_time",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set drive time",
+          "type": "label"
+        },
+        {
+          "name": "time (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_feedback",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set feedback",
+          "type": "label"
+        },
+        {
+          "name": "brake factor (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_brake",
+          "type": "number"
+        },
+        {
+          "name": "loop gain (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_loop",
+          "type": "number"
+        },
+        {
+          "name": "BEMF gain (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_bemf",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_advanced",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set advanced",
+          "type": "label"
+        },
+        {
+          "name": "startup boost (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_boost",
+          "type": "number"
+        },
+        {
+          "name": "brake stabilizer (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_stab",
+          "type": "number"
+        },
+        {
+          "name": "sample time (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_sample",
+          "type": "number"
+        },
+        {
+          "name": "blanking time (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_blank",
+          "type": "number"
+        },
+        {
+          "name": "idiss time (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_idiss",
+          "type": "number"
+        },
+        {
+          "name": "LRA drive twice (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_twice",
+          "type": "number"
+        },
+        {
+          "name": "supply compensation (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_comp",
+          "type": "number"
+        },
+        {
+          "name": "noise gate (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_gate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_time_offsets",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set time offsets",
+          "type": "label"
+        },
+        {
+          "name": "overdrive (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_od",
+          "type": "number"
+        },
+        {
+          "name": "sustain + (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_sp",
+          "type": "number"
+        },
+        {
+          "name": "sustain - (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_sn",
+          "type": "number"
+        },
+        {
+          "name": "brake (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_br",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_calibrate",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 calibrate (1 = OK)",
+          "type": "label"
+        },
+        {
+          "name": "LRA (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_lra",
+          "type": "number"
+        },
+        {
+          "name": "rated voltage (V)",
+          "type": "label"
+        },
+        {
+          "name": "_rated",
+          "type": "number"
+        },
+        {
+          "name": "overdrive voltage (V)",
+          "type": "label"
+        },
+        {
+          "name": "_od",
+          "type": "number"
+        },
+        {
+          "name": "LRA frequency (Hz, 0 = ERM)",
+          "type": "label"
+        },
+        {
+          "name": "_freq",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_calibration_comp",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 calibration compensation",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_calibration_bemf",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 calibration back-EMF",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_calibration_bemf_gain",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 calibration BEMF gain",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_calibration",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 set calibration",
+          "type": "label"
+        },
+        {
+          "name": "compensation (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_comp",
+          "type": "number"
+        },
+        {
+          "name": "back-EMF (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_bemf",
+          "type": "number"
+        },
+        {
+          "name": "BEMF gain (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_gain",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_diagnose",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 diagnose (1 = actuator OK)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_set_audio_to_vibe",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 audio to vibe",
+          "type": "label"
+        },
+        {
+          "name": "AC coupled (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_ac",
+          "type": "number"
+        },
+        {
+          "name": "peak time (10/20/30/40 ms)",
+          "type": "label"
+        },
+        {
+          "name": "_peak",
+          "type": "number"
+        },
+        {
+          "name": "filter (100/125/150/200 Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_filter",
+          "type": "number"
+        },
+        {
+          "name": "min input (V)",
+          "type": "label"
+        },
+        {
+          "name": "_minin",
+          "type": "number"
+        },
+        {
+          "name": "max input (V)",
+          "type": "label"
+        },
+        {
+          "name": "_maxin",
+          "type": "number"
+        },
+        {
+          "name": "min drive (0.0-1.0)",
+          "type": "label"
+        },
+        {
+          "name": "_mindrv",
+          "type": "number"
+        },
+        {
+          "name": "max drive (0.0-1.0)",
+          "type": "label"
+        },
+        {
+          "name": "_maxdrv",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_diag_failed",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 diagnostics failed (clears)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_fb_timeout",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 feedback timeout (clears)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_over_temp",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 over-temperature (clears)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_over_current",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 over-current",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_device_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 device id",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_supply_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 supply voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_get_lra_frequency",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 LRA frequency (Hz, 0 = n/a)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_program_otp",
+      "type": "execute",
+      "params": [
+        {
+          "name": "DRV2605 program OTP (IRREVERSIBLE)",
+          "type": "label"
+        },
+        {
+          "name": "confirm (1 to burn)",
+          "type": "label"
+        },
+        {
+          "name": "_confirm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "drv2605_otp_programmed",
+      "type": "value",
+      "params": [
+        {
+          "name": "DRV2605 OTP programmed",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

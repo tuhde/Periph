@@ -1,0 +1,1 @@
+_periph_lsm303.set_free_fall(int(${_generator}), float(${_threshold_g}), float(${_duration_ms}))

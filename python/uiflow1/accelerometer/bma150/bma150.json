@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "bma150_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init BMA150", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "bma150_x",
+      "type": "value",
+      "params": [{ "name": "BMA150 acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "bma150_y",
+      "type": "value",
+      "params": [{ "name": "BMA150 acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "bma150_z",
+      "type": "value",
+      "params": [{ "name": "BMA150 acceleration Z (g)", "type": "label" }]
+    }
+  ]
+}

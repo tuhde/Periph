@@ -1,0 +1,166 @@
+{
+  "category": "L3G4200D",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_L3G4200D_LANGUAGES = {\n  \"CUSTOM_L3G4200D_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_L3G4200D_ANGULAR_RATE\": {\n    \"en\": \"%1 angular rate (rad/s)\"\n  },\n  \"CUSTOM_L3G4200D_TEMPERATURE\": {\n    \"en\": \"%1 temperature (counts)\"\n  },\n  \"CUSTOM_L3G4200D_WHO_AM_I\": {\n    \"en\": \"%1 WHO_AM_I\"\n  },\n  \"CUSTOM_L3G4200D_DATA_READY\": {\n    \"en\": \"%1 data ready\"\n  },\n  \"CUSTOM_L3G4200D_STATUS\": {\n    \"en\": \"%1 STATUS_REG\"\n  },\n  \"CUSTOM_L3G4200D_FIFO_SAMPLES\": {\n    \"en\": \"%1 FIFO samples\"\n  }\n};\n\nconst initType = 'custom_l3g4200d_init';\nBlockly.BlockRegExpList['custom_l3g4200d'] = {\n  regexp: new RegExp(/^custom_l3g4200d_/),\n  code: \"from L3G4200D import L3G4200D\",\n  initBlockType: initType,\n  categoryId: 'custom_l3g4200d',\n}\nBlockly.utils.registerLanguages(CUSTOM_L3G4200D_LANGUAGES)\n\nBlockly.Msg.CUSTOM_L3G4200D_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_L3G4200D = 'L3G4200D'\n\nBlockly.utils.getcustom_l3g4200dOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['l3g4200d_0', 'l3g4200d_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_l3g4200d_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_l3g4200dOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'l3g4200d_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = L3G4200D(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_l3g4200d_angular_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_ANGULAR_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3g4200dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_angular_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.angular_rate()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3g4200d_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3g4200dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3g4200d_who_am_i\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_WHO_AM_I,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3g4200dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_who_am_i\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.who_am_i()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3g4200d_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3g4200dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3g4200d_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3g4200dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3g4200d_fifo_samples\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3G4200D_FIFO_SAMPLES,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3g4200dOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3g4200d_fifo_samples\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_samples()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"L3G4200D\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_l3g4200d\">\n<title text=\"L3G4200D\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_l3g4200d_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">104</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3g4200d_angular_rate\"/><block type=\"custom_l3g4200d_temperature\"/><block type=\"custom_l3g4200d_who_am_i\"/><block type=\"custom_l3g4200d_data_ready\"/><block type=\"custom_l3g4200d_status\"/><block type=\"custom_l3g4200d_fifo_samples\"/>\n</category>\n",
+    "toolboxitemid": "custom_l3g4200d",
+    "block_type": [
+      "custom_l3g4200d___init__",
+      "custom_l3g4200d_angular_rate",
+      "custom_l3g4200d_temperature",
+      "custom_l3g4200d_who_am_i",
+      "custom_l3g4200d_data_ready",
+      "custom_l3g4200d_status",
+      "custom_l3g4200d_fifo_samples"
+    ]
+  },
+  "data": {
+    "name": "L3G4200D",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "L3G4200D",
+      "time": "2026-09-15",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gyroscope.l3g4200d import L3G4200DFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "104",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = L3G4200DFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "angular_rate",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.angular_rate()",
+        "ast_return": {
+          "code": "self._driver.angular_rate()",
+          "id": "tuple"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "who_am_i",
+        "note": {},
+        "label": {
+          "en": "%1 WHO_AM_I"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.who_am_i()",
+        "ast_return": {
+          "code": "self._driver.who_am_i()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 STATUS_REG"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.status()",
+        "ast_return": {
+          "code": "self._driver.status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_samples",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO samples"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.fifo_samples()",
+        "ast_return": {
+          "code": "self._driver.fifo_samples()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "l3g4200d"
+  },
+  "pyCode": "\"\"\"\nfile     L3G4200D\ntime     2026-09-15\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gyroscope.l3g4200d import L3G4200DFull\n\n\nclass L3G4200D:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 0x68):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '104'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = L3G4200DFull(connection)\n\n    def angular_rate(self) -> tuple:\n        \"\"\"\n        label:\n            en: '%1 angular rate (rad/s)'\n        \"\"\"\n        return self._driver.angular_rate()\n\n    def temperature(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 temperature (counts)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def who_am_i(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 WHO_AM_I'\n        \"\"\"\n        return self._driver.who_am_i()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 STATUS_REG'\n        \"\"\"\n        return self._driver.status()\n\n    def fifo_samples(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO samples'\n        \"\"\"\n        return self._driver.fifo_samples()\n",
+  "version": "alpha2"
+}

@@ -1,0 +1,372 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tmc2209_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init TMC2209",
+          "type": "label"
+        },
+        {
+          "name": "UART port",
+          "type": "label"
+        },
+        {
+          "name": "_port",
+          "type": "number"
+        },
+        {
+          "name": "baudrate",
+          "type": "label"
+        },
+        {
+          "name": "_baudrate",
+          "type": "number"
+        },
+        {
+          "name": "TX pin",
+          "type": "label"
+        },
+        {
+          "name": "_tx",
+          "type": "number"
+        },
+        {
+          "name": "RX pin",
+          "type": "label"
+        },
+        {
+          "name": "_rx",
+          "type": "number"
+        },
+        {
+          "name": "sense resistor (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_rsense",
+          "type": "number"
+        },
+        {
+          "name": "node address",
+          "type": "label"
+        },
+        {
+          "name": "_addr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_enable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 enable driver",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_disable",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 disable driver",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set run current",
+          "type": "label"
+        },
+        {
+          "name": "current (A RMS)",
+          "type": "label"
+        },
+        {
+          "name": "_current",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_hold_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set hold current",
+          "type": "label"
+        },
+        {
+          "name": "current (A RMS)",
+          "type": "label"
+        },
+        {
+          "name": "_current",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_run",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 run",
+          "type": "label"
+        },
+        {
+          "name": "full steps/s (- = reverse)",
+          "type": "label"
+        },
+        {
+          "name": "_speed",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_stop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 stop",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_microsteps",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set microsteps",
+          "type": "label"
+        },
+        {
+          "name": "microsteps (1-256)",
+          "type": "label"
+        },
+        {
+          "name": "_n",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_interpolation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set interpolation",
+          "type": "label"
+        },
+        {
+          "name": "enabled (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_en",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_chopper_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set chopper mode",
+          "type": "label"
+        },
+        {
+          "name": "SpreadCycle (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_sc",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_stealthchop_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set StealthChop threshold",
+          "type": "label"
+        },
+        {
+          "name": "TPWMTHRS",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_direction_inverted",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 invert direction",
+          "type": "label"
+        },
+        {
+          "name": "inverted (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_inv",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_freewheel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set freewheel mode",
+          "type": "label"
+        },
+        {
+          "name": "mode (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_is_standstill",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 standstill?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_read_fault",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 fault bitmask",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_microstep_position",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 microstep position",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_read_current_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 current scale (CS_ACTUAL)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_read_tstep",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 TSTEP",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_read_temperature_flags",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 temperature flags",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_read_ifcnt",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 write counter (IFCNT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_stall_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set StallGuard threshold",
+          "type": "label"
+        },
+        {
+          "name": "SGTHRS",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_set_coolstep_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMC2209 set CoolStep/stall threshold",
+          "type": "label"
+        },
+        {
+          "name": "TCOOLTHRS",
+          "type": "label"
+        },
+        {
+          "name": "_t",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmc2209_read_stallguard",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMC2209 SG_RESULT",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,22 @@
       "github:tuhde/Periph/python/periph/chips/led/apa102.py"
     ],
     [
+      "periph/chips/led/ht16k33.py",
+      "github:tuhde/Periph/python/periph/chips/led/ht16k33.py"
+    ],
+    [
+      "periph/chips/led/is31fl3731.py",
+      "github:tuhde/Periph/python/periph/chips/led/is31fl3731.py"
+    ],
+    [
+      "periph/chips/led/pca9685.py",
+      "github:tuhde/Periph/python/periph/chips/led/pca9685.py"
+    ],
+    [
+      "periph/chips/led/saa1064.py",
+      "github:tuhde/Periph/python/periph/chips/led/saa1064.py"
+    ],
+    [
       "periph/chips/led/sk6812rgbw.py",
       "github:tuhde/Periph/python/periph/chips/led/sk6812rgbw.py"
     ],
@@ -39,6 +55,14 @@
     [
       "periph/connection/base.py",
       "github:tuhde/Periph/python/periph/connection/base.py"
+    ],
+    [
+      "periph/connection/i2c_auto.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_auto.py"
+    ],
+    [
+      "periph/connection/i2c_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_micropython.py"
     ],
     [
       "periph/connection/input_pin.py",
@@ -79,5 +103,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

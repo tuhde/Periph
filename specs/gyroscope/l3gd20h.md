@@ -285,13 +285,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/espidf/gyroscope/L3gd20h/complete/main/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/espidf/gyroscope/L3gd20h/demo/main/main.cpp` — Tier-1 + Tier-3
 - [ ] Examples `cpp/examples/picosdk/gyroscope/L3gd20h/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/gyroscope/L3gd20h/minimal/Core/Src/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/gyroscope/L3gd20h/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/gyroscope/L3gd20h/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/gyroscope/L3gd20h/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/gyroscope/L3gd20h/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test/l3gd20h_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_linux/l3gd20h_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_zephyr/src/main.cpp` (Zephyr)
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_espidf/main/main.cpp` (ESP-IDF)
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/gyroscope/l3gd20h_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Unit test `cpp/tests/gyroscope/l3gd20h_test_unit/l3gd20h_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh`
 
 ### Node.js

@@ -1,0 +1,1 @@
+_periph_htu31d.set_heater(bool(int(${_on})))

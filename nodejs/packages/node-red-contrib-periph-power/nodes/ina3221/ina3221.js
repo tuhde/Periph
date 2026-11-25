@@ -51,5 +51,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-ina3221', INA3221ReadNode);
+    RED.nodes.registerType('ina3221', INA3221ReadNode);
 };

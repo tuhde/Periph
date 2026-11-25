@@ -1,0 +1,86 @@
+[
+    {
+        "id": "tab-bma150-demo",
+        "type": "tab",
+        "label": "BMA150 Tilt + Temperature Logger",
+        "disabled": false,
+        "info": "Reads 3-axis acceleration and on-chip temperature from a BMA150 every 100 ms. A function node computes the magnitude √(x²+y²+z²), showing how the total vector stays near 1 g even as the static gravity component shifts between X, Y, and Z when the sensor is tilted. The BMA150's on-chip temperature is included in the payload. Demonstrates continuous tilt/orientation monitoring and per-sample die-temperature reading. Adjust the measurement range (±2/±4/±8 g) and digital bandwidth (25–1500 Hz) in the device config node to match the application's dynamic range and bandwidth."
+    },
+    {
+        "id": "cfg-bma150",
+        "type": "bma150-device",
+        "name": "BMA150",
+        "bus": "1",
+        "address": "38",
+        "range": "2",
+        "bandwidth": "100"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-bma150-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["read-bma150"]]
+    },
+    {
+        "id": "read-bma150",
+        "type": "bma150",
+        "name": "BMA150 read",
+        "device": "cfg-bma150",
+        "z": "tab-bma150-demo",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn-magnitude", "dbg-axes"]]
+    },
+    {
+        "id": "fn-magnitude",
+        "type": "function",
+        "name": "magnitude √(x²+y²+z²)",
+        "func": "const {x, y, z, temperature} = msg.payload;\nmsg.payload = { x, y, z, temperature, magnitude: Math.sqrt(x*x + y*y + z*z) };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-bma150-demo",
+        "x": 540,
+        "y": 100,
+        "wires": [["dbg-magnitude"]]
+    },
+    {
+        "id": "dbg-axes",
+        "type": "debug",
+        "name": "x, y, z, T",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-bma150-demo",
+        "x": 520,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-magnitude",
+        "type": "debug",
+        "name": "magnitude + T",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-bma150-demo",
+        "x": 770,
+        "y": 100,
+        "wires": []
+    }
+]

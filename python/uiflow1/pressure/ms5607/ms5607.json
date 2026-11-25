@@ -1,0 +1,110 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ms5607_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MS5607",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "MS5607 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_pressure",
+      "type": "value",
+      "params": [
+        {
+          "name": "MS5607 pressure (Pa)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_altitude",
+      "type": "value",
+      "params": [
+        {
+          "name": "MS5607 altitude vs 101325 Pa (m)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_set_oversampling",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MS5607 oversampling ratio (256-4096)",
+          "type": "label"
+        },
+        {
+          "name": "osr",
+          "type": "label"
+        },
+        {
+          "name": "_osr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_serial_code",
+      "type": "value",
+      "params": [
+        {
+          "name": "MS5607 serial code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_prom_crc_ok",
+      "type": "value",
+      "params": [
+        {
+          "name": "MS5607 PROM CRC ok (1=yes 0=no)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ms5607_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MS5607 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

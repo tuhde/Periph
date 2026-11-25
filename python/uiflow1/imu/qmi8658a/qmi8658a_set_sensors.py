@@ -1,0 +1,1 @@
+_periph_qmi8658a.set_sensors(bool(${_accel}), bool(${_gyro}))

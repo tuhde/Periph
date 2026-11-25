@@ -1,0 +1,286 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tmp102_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init TMP102",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x48-0x4B)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_read_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_read_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 raw count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_read_config",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 CONFIGURATION",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_write_config",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 write CONFIGURATION",
+          "type": "label"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_conversion_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 set conversion rate (0.25/1/4/8 Hz)",
+          "type": "label"
+        },
+        {
+          "name": "hz",
+          "type": "label"
+        },
+        {
+          "name": "_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_extended_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 extended 13-bit mode (1=on, 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "on",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_t_high",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 set T_HIGH (°C)",
+          "type": "label"
+        },
+        {
+          "name": "celsius",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_get_t_high",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 T_HIGH (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_t_low",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 set T_LOW (°C)",
+          "type": "label"
+        },
+        {
+          "name": "celsius",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_get_t_low",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 T_LOW (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_fault_queue",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 set fault queue (1/2/4/6)",
+          "type": "label"
+        },
+        {
+          "name": "count",
+          "type": "label"
+        },
+        {
+          "name": "_count",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_polarity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 ALERT active high (1=high, 0=low)",
+          "type": "label"
+        },
+        {
+          "name": "active high",
+          "type": "label"
+        },
+        {
+          "name": "_active_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_set_thermostat_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 interrupt thermostat mode (1=interrupt, 0=comparator)",
+          "type": "label"
+        },
+        {
+          "name": "interrupt",
+          "type": "label"
+        },
+        {
+          "name": "_interrupt",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 shutdown",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 wake",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_one_shot",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 one-shot temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_alert_state",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 alert active",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP102 poll interrupt (alert active)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp102_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP102 general-call reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

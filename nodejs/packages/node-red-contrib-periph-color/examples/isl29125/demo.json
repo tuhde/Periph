@@ -1,0 +1,82 @@
+[
+  {
+    "id": "tab-isl29125-demo",
+    "type": "tab",
+    "label": "ISL29125 Colour Demo",
+    "disabled": false,
+    "info": "Colour sampling with an ISL29125 RGB light sensor. An inject node fires every 2 s into isl29125; a function node normalises the red, green and blue counts to an #rrggbb colour; a debug node shows the result."
+  },
+  {
+    "id": "inj-read",
+    "type": "inject",
+    "name": "Read every 2 s",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "2",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1,
+    "z": "tab-isl29125-demo",
+    "x": 150,
+    "y": 100,
+    "wires": [
+      [
+        "isl29125-node"
+      ]
+    ]
+  },
+  {
+    "id": "isl29125-device-1",
+    "type": "isl29125-device",
+    "name": "ISL29125",
+    "bus": "1",
+    "range": "10000",
+    "resolution": "16"
+  },
+  {
+    "id": "isl29125-node",
+    "type": "isl29125",
+    "name": "ISL29125",
+    "z": "tab-isl29125-demo",
+    "x": 400,
+    "y": 140,
+    "wires": [
+      [
+        "fn-colour"
+      ]
+    ],
+    "device": "isl29125-device-1"
+  },
+  {
+    "id": "fn-colour",
+    "type": "function",
+    "name": "counts to #rrggbb",
+    "func": "// Normalise R/G/B to the strongest channel.\nconst p = msg.payload;\nconst top = Math.max(p.red, p.green, p.blue, 1);\nconst h = (v) => Math.floor(v * 255 / top).toString(16).padStart(2, '0');\np.colour = '#' + h(p.red) + h(p.green) + h(p.blue);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "z": "tab-isl29125-demo",
+    "x": 640,
+    "y": 140,
+    "wires": [
+      [
+        "dbg-isl29125"
+      ]
+    ]
+  },
+  {
+    "id": "dbg-isl29125",
+    "type": "debug",
+    "name": "colour",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "z": "tab-isl29125-demo",
+    "x": 860,
+    "y": 140,
+    "wires": []
+  }
+]

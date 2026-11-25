@@ -1,0 +1,1 @@
+_periph_hdc1080.software_reset()

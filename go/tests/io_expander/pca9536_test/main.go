@@ -1,0 +1,115 @@
+//go:build linux && !tinygo
+
+// PCA9536 hardware test — Linux host.
+//
+// Reads from /dev/i2c-N and runs the PCA9536 check sequence. Prints
+// PASS/FAIL per check and ends with the standard ===DONE: ... === line.
+// Exits 0 on full pass, 1 on any failure.
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/tuhde/Periph/go/periph/chips/io_expander"
+	"github.com/tuhde/Periph/go/periph/connection"
+)
+
+func main() {
+	bus, err := strconv.Atoi(envOr("I2C_BUS", "1"))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "I2C_BUS:", err)
+		os.Exit(2)
+	}
+	addrArg, err := strconv.ParseUint(envOr("I2C_ADDR", "0x41"), 0, 8)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "I2C_ADDR:", err)
+		os.Exit(2)
+	}
+	ADDR := uint8(addrArg)
+
+	conn, err := connection.NewI2CConnection(bus, ADDR, nil, nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "connection:", err)
+		os.Exit(2)
+	}
+	defer conn.Close()
+
+	chip, err := ioexpander.NewPCA9536Minimal(conn, ADDR)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "new:", err)
+		os.Exit(2)
+	}
+
+	passed, failed := 0, 0
+	check := func(label string, cond bool) {
+		if cond {
+			fmt.Println("PASS", label)
+			passed++
+		} else {
+			fmt.Println("FAIL", label)
+			failed++
+		}
+	}
+
+	// Wiring for the loopback checks: jumper P0–P1 to P2–P3 (Pn <-> Pn+2).
+	port, err := chip.ReadPort(0)
+	check("read_port", err == nil && port <= 0x0F)
+	check("write_port", chip.WritePort(0, 0x05) == nil)
+	_ = chip.WritePort(0, 0x0F)
+
+	p3 := chip.Pin(3)
+	check("pin3_output", p3.Mode(ioexpander.PCA9536Output) == nil)
+	check("pin3_high", p3.Write(true) == nil)
+	check("pin3_toggle", p3.Toggle() == nil)
+	check("pin3_pullup_rejected", p3.Mode(ioexpander.PCA9536InputPullup) == ioexpander.ErrPCA9536NoPullup)
+	_ = p3.Mode(ioexpander.PCA9536Input)
+
+	full, err := ioexpander.NewPCA9536Full(conn, ADDR)
+	if err != nil {
+		fmt.Printf("FAIL new_full: %v\n", err)
+		fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed+1)
+		os.Exit(1)
+	}
+
+	check("config_write", full.SetDirection(0x0C) == nil)
+	config, _ := full.ReadRegister(0x03)
+	check("config_readback", config&0x0F == 0x0C)
+	for _, pattern := range []uint8{0x01, 0x02, 0x00} {
+		_ = full.WritePort(0, pattern)
+		v, _ := full.ReadPort(0)
+		check(fmt.Sprintf("loopback_%#x", pattern), (v>>2)&0x03 == pattern)
+	}
+
+	_ = full.ConfigurePolarity(0x0C)
+	pol, _ := full.ReadRegister(0x02)
+	check("polarity_readback", pol&0x0F == 0x0C)
+	v, _ := full.ReadPort(0)
+	check("polarity_inverted", (v>>2)&0x03 == 0x03)
+	_ = full.ConfigurePolarity(0x00)
+
+	_, _ = full.PollChanges()
+	_ = full.WritePort(0, 0x01)
+	changed, err := full.PollChanges()
+	check("poll_changes_changed", err == nil && changed == 0x04)
+	_ = full.WritePort(0, 0x00)
+
+	check("reset", full.Reset() == nil)
+	config, _ = full.ReadRegister(0x03)
+	check("reset_config", config&0x0F == 0x0F)
+	out, _ := full.ReadRegister(0x01)
+	check("reset_output", out&0x0F == 0x0F)
+
+	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
+	if failed != 0 {
+		os.Exit(1)
+	}
+}
+
+func envOr(k, def string) string {
+	if v, ok := os.LookupEnv(k); ok {
+		return v
+	}
+	return def
+}

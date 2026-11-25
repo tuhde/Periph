@@ -1,0 +1,200 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "at24c64_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init AT24C64",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_read_byte",
+      "type": "value",
+      "params": [
+        {
+          "name": "AT24C64 read byte",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_write_byte",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AT24C64 write byte",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_read",
+      "type": "value",
+      "params": [
+        {
+          "name": "AT24C64 read (hex string)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "length",
+          "type": "label"
+        },
+        {
+          "name": "_length",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_write",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AT24C64 write (data hex)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "data",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_fill",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AT24C64 fill",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "length",
+          "type": "label"
+        },
+        {
+          "name": "_length",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_size",
+      "type": "value",
+      "params": [
+        {
+          "name": "AT24C64 size (bytes)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_page_size",
+      "type": "value",
+      "params": [
+        {
+          "name": "AT24C64 page size (bytes)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "at24c64_wait_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "AT24C64 ready within (ms)",
+          "type": "label"
+        },
+        {
+          "name": "timeout",
+          "type": "label"
+        },
+        {
+          "name": "_timeout",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

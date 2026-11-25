@@ -1,0 +1,1 @@
+_periph_bno055.set_power_mode(['normal', 'low_power', 'suspend'][int(${_mode})])

@@ -1,0 +1,1 @@
+_periph_as7262.set_gain(int(${_gain}) if int(${_gain}) != 1 else 3.7)

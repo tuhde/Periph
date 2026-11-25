@@ -69,6 +69,11 @@ func (p *GpioInputPin) OnEdge(trigger Trigger, handler func()) (unsubscribe func
 	}
 }
 
+// IsHigh returns the current pin level.
+func (p *GpioInputPin) IsHigh() (bool, error) {
+	return p.pin.Get(), nil
+}
+
 // Close disables the interrupt. TinyGo's machine.Pin has no explicit
 // "unconfigure"; this simply stops future dispatch.
 func (p *GpioInputPin) Close() error {

@@ -81,6 +81,7 @@ class VL53L1XTest {
         override fun offEdge(handler: EdgeHandler) {
             this.handler = null
         }
+        override fun isHigh(): Boolean = false
         override fun close() {}
     }
 

@@ -11,6 +11,9 @@ static void periph_delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static void periph_delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
+#elif __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+static void periph_delay_ms(unsigned ms) { HAL_Delay(ms); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 static void periph_delay_ms(unsigned ms) { sleep_ms(ms); }

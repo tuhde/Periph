@@ -1,0 +1,343 @@
+{
+  "category": "PCA9541",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCA9541_LANGUAGES = {\n  \"CUSTOM_PCA9541_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PCA9541_HAS_CONTROL\": {\n    \"en\": \"%1 this master has the bus\"\n  },\n  \"CUSTOM_PCA9541_ACQUIRE\": {\n    \"en\": \"%1 take the bus (1 = with bus init) %2 timeout (ms) %3\"\n  },\n  \"CUSTOM_PCA9541_RELEASE\": {\n    \"en\": \"%1 give the bus to the other master\"\n  },\n  \"CUSTOM_PCA9541_RECOVER_BUS\": {\n    \"en\": \"%1 recover and take the bus timeout (ms) %2\"\n  },\n  \"CUSTOM_PCA9541_IS_CONNECTED\": {\n    \"en\": \"%1 downstream bus connected\"\n  },\n  \"CUSTOM_PCA9541_CONNECT\": {\n    \"en\": \"%1 connect downstream bus\"\n  },\n  \"CUSTOM_PCA9541_DISCONNECT\": {\n    \"en\": \"%1 disconnect downstream bus\"\n  },\n  \"CUSTOM_PCA9541_GET_CONTROL\": {\n    \"en\": \"%1 CONTROL register\"\n  },\n  \"CUSTOM_PCA9541_SET_INTERRUPT_MASK\": {\n    \"en\": \"%1 mask interrupts (1 = masked) bus lost %2 bus not idle %3 bus init %4 INT_IN %5\"\n  },\n  \"CUSTOM_PCA9541_GET_INTERRUPT_MASK\": {\n    \"en\": \"%1 interrupt mask\"\n  },\n  \"CUSTOM_PCA9541_TEST_INTERRUPT\": {\n    \"en\": \"%1 INT test (1 = drive low) own %2 other %3\"\n  },\n  \"CUSTOM_PCA9541_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status\"\n  }\n};\n\nconst initType = 'custom_pca9541_init';\nBlockly.BlockRegExpList['custom_pca9541'] = {\n  regexp: new RegExp(/^custom_pca9541_/),\n  code: \"from PCA9541 import PCA9541\",\n  initBlockType: initType,\n  categoryId: 'custom_pca9541',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCA9541_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCA9541_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCA9541 = 'PCA9541'\n\nBlockly.utils.getcustom_pca9541Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pca9541_0', 'pca9541_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pca9541_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pca9541Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pca9541_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = PCA9541(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9541_has_control\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_HAS_CONTROL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_has_control\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.has_control()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9541_acquire\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_ACQUIRE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus_init'\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_ms'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_acquire\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus_init = Blockly.Python.valueToCode(block, 'bus_init', Blockly.Python.ORDER_FUNCTION_CALL);\n  var timeout_ms = Blockly.Python.valueToCode(block, 'timeout_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.acquire(${bus_init}, ${timeout_ms})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9541_release\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_RELEASE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_release\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.release()\\n`\n}\n\nBlockly.Blocks[\"custom_pca9541_recover_bus\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_RECOVER_BUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_ms'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_recover_bus\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var timeout_ms = Blockly.Python.valueToCode(block, 'timeout_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.recover_bus(${timeout_ms})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9541_is_connected\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_IS_CONNECTED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_is_connected\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_connected()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9541_connect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_CONNECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_connect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.connect()\\n`\n}\n\nBlockly.Blocks[\"custom_pca9541_disconnect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_DISCONNECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_disconnect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disconnect()\\n`\n}\n\nBlockly.Blocks[\"custom_pca9541_get_control\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_GET_CONTROL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_get_control\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_control()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9541_set_interrupt_mask\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_SET_INTERRUPT_MASK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus_lost'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus_not_idle'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus_init'\n        },\n        {\n          'type': 'input_value',\n          'name': 'int_in'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_set_interrupt_mask\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus_lost = Blockly.Python.valueToCode(block, 'bus_lost', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bus_not_idle = Blockly.Python.valueToCode(block, 'bus_not_idle', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bus_init = Blockly.Python.valueToCode(block, 'bus_init', Blockly.Python.ORDER_FUNCTION_CALL);\n  var int_in = Blockly.Python.valueToCode(block, 'int_in', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interrupt_mask(${bus_lost}, ${bus_not_idle}, ${bus_init}, ${int_in})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9541_get_interrupt_mask\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_GET_INTERRUPT_MASK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_get_interrupt_mask\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_interrupt_mask()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pca9541_test_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_TEST_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'own'\n        },\n        {\n          'type': 'input_value',\n          'name': 'other'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_test_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var own = Blockly.Python.valueToCode(block, 'own', Blockly.Python.ORDER_FUNCTION_CALL);\n  var other = Blockly.Python.valueToCode(block, 'other', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.test_interrupt(${own}, ${other})\\n`\n}\n\nBlockly.Blocks[\"custom_pca9541_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCA9541_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pca9541Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pca9541_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"PCA9541\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pca9541\">\n<title text=\"PCA9541\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pca9541_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">112</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9541_has_control\"/><block type=\"custom_pca9541_acquire\">\n  <value name=\"bus_init\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"timeout_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9541_release\"/><block type=\"custom_pca9541_recover_bus\">\n  <value name=\"timeout_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9541_is_connected\"/><block type=\"custom_pca9541_connect\"/><block type=\"custom_pca9541_disconnect\"/><block type=\"custom_pca9541_get_control\"/><block type=\"custom_pca9541_set_interrupt_mask\">\n  <value name=\"bus_lost\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"bus_not_idle\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"bus_init\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"int_in\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9541_get_interrupt_mask\"/><block type=\"custom_pca9541_test_interrupt\">\n  <value name=\"own\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"other\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pca9541_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_pca9541",
+    "block_type": [
+      "custom_pca9541___init__",
+      "custom_pca9541_has_control",
+      "custom_pca9541_acquire",
+      "custom_pca9541_release",
+      "custom_pca9541_recover_bus",
+      "custom_pca9541_is_connected",
+      "custom_pca9541_connect",
+      "custom_pca9541_disconnect",
+      "custom_pca9541_get_control",
+      "custom_pca9541_set_interrupt_mask",
+      "custom_pca9541_get_interrupt_mask",
+      "custom_pca9541_test_interrupt",
+      "custom_pca9541_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "PCA9541",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "PCA9541",
+      "time": "2026-11-13",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.other.pca9541 import PCA9541Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "112",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PCA9541Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "has_control",
+        "note": {},
+        "label": {
+          "en": "%1 this master has the bus"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.has_control()",
+        "ast_return": {
+          "code": "self._driver.has_control()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "acquire",
+        "note": {},
+        "label": {
+          "en": "%1 take the bus (1 = with bus init) %2 timeout (ms) %3"
+        },
+        "params": [
+          {
+            "name": "bus_init",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "timeout_ms",
+            "type": "float",
+            "default": "20.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.acquire(bool(bus_init), timeout_ms)",
+        "ast_return": {
+          "code": "self._driver.acquire(bool(bus_init), timeout_ms)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "release",
+        "note": {},
+        "label": {
+          "en": "%1 give the bus to the other master"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.release()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "recover_bus",
+        "note": {},
+        "label": {
+          "en": "%1 recover and take the bus timeout (ms) %2"
+        },
+        "params": [
+          {
+            "name": "timeout_ms",
+            "type": "float",
+            "default": "20.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.recover_bus(timeout_ms)",
+        "ast_return": {
+          "code": "self._driver.recover_bus(timeout_ms)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_connected",
+        "note": {},
+        "label": {
+          "en": "%1 downstream bus connected"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_connected()",
+        "ast_return": {
+          "code": "self._driver.is_connected()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "connect",
+        "note": {},
+        "label": {
+          "en": "%1 connect downstream bus"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.connect()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disconnect",
+        "note": {},
+        "label": {
+          "en": "%1 disconnect downstream bus"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disconnect()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_control",
+        "note": {},
+        "label": {
+          "en": "%1 CONTROL register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_control()",
+        "ast_return": {
+          "code": "self._driver.get_control()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interrupt_mask",
+        "note": {},
+        "label": {
+          "en": "%1 mask interrupts (1 = masked) bus lost %2 bus not idle %3 bus init %4 INT_IN %5"
+        },
+        "params": [
+          {
+            "name": "bus_lost",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "bus_not_idle",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "bus_init",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "int_in",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interrupt_mask(bool(bus_lost), bool(bus_not_idle), bool(bus_init), bool(int_in))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_interrupt_mask",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt mask"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_interrupt_mask()",
+        "ast_return": {
+          "code": "self._driver.get_interrupt_mask()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "test_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 INT test (1 = drive low) own %2 other %3"
+        },
+        "params": [
+          {
+            "name": "own",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "other",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.test_interrupt(bool(own), bool(other))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pca9541"
+  },
+  "pyCode": "\"\"\"\nfile     PCA9541\ntime     2026-11-13\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.other.pca9541 import PCA9541Full\n\n\nclass PCA9541:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 112):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '112'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PCA9541Full(connection)\n\n    def has_control(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 this master has the bus'\n        \"\"\"\n        return self._driver.has_control()\n\n    def acquire(self, bus_init: int, timeout_ms: float) -> bool:\n        \"\"\"\n        label:\n            en: '%1 take the bus (1 = with bus init) %2 timeout (ms) %3'\n        params:\n            bus_init:\n                name: bus_init\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n            timeout_ms:\n                name: timeout_ms\n                type: float\n                default: '20.0'\n                field: number\n        \"\"\"\n        return self._driver.acquire(bool(bus_init), timeout_ms)\n\n    def release(self):\n        \"\"\"\n        label:\n            en: '%1 give the bus to the other master'\n        \"\"\"\n        self._driver.release()\n\n    def recover_bus(self, timeout_ms: float) -> bool:\n        \"\"\"\n        label:\n            en: '%1 recover and take the bus timeout (ms) %2'\n        params:\n            timeout_ms:\n                name: timeout_ms\n                type: float\n                default: '20.0'\n                field: number\n        \"\"\"\n        return self._driver.recover_bus(timeout_ms)\n\n    def is_connected(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 downstream bus connected'\n        \"\"\"\n        return self._driver.is_connected()\n\n    def connect(self):\n        \"\"\"\n        label:\n            en: '%1 connect downstream bus'\n        \"\"\"\n        self._driver.connect()\n\n    def disconnect(self):\n        \"\"\"\n        label:\n            en: '%1 disconnect downstream bus'\n        \"\"\"\n        self._driver.disconnect()\n\n    def get_control(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 CONTROL register'\n        \"\"\"\n        return self._driver.get_control()\n\n    def set_interrupt_mask(self, bus_lost: int, bus_not_idle: int, bus_init: int, int_in: int):\n        \"\"\"\n        label:\n            en: '%1 mask interrupts (1 = masked) bus lost %2 bus not idle %3 bus init %4 INT_IN %5'\n        params:\n            bus_lost:\n                name: bus_lost\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n            bus_not_idle:\n                name: bus_not_idle\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n            bus_init:\n                name: bus_init\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n            int_in:\n                name: int_in\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_interrupt_mask(bool(bus_lost), bool(bus_not_idle), bool(bus_init), bool(int_in))\n\n    def get_interrupt_mask(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt mask'\n        \"\"\"\n        return self._driver.get_interrupt_mask()\n\n    def test_interrupt(self, own: int, other: int):\n        \"\"\"\n        label:\n            en: '%1 INT test (1 = drive low) own %2 other %3'\n        params:\n            own:\n                name: own\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n            other:\n                name: other\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.test_interrupt(bool(own), bool(other))\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}

@@ -1,0 +1,90 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('hs40xx-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x54' }
+        },
+        label: function() {
+            return this.name || ('HS40XX @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="hs40xx-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HS40XX">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x54"> &nbsp;(fixed, 0x54)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('hs40xx', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device: { value: '', type: 'hs40xx-device', required: true },
+            resolution: { value: '14' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'HS40XX'; },
+        paletteLabel: 'HS40XX'
+    });
+</script>
+
+<script type="text/html" data-template-name="hs40xx">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HS40XX">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resolution"><i class="fa fa-sliders"></i> Resolution</label>
+        <select id="node-input-resolution" style="width:100px">
+            <option value="8">8 bit</option>
+            <option value="10">10 bit</option>
+            <option value="12">12 bit</option>
+            <option value="14">14 bit</option>
+        </select> &nbsp;(humidity and temperature)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="hs40xx">
+    <p>Reads temperature and relative humidity from a Renesas HS4001 or HS4003 (the HS40xx family, one protocol)
+    over I²C (fixed address 0x54) with one no-hold measurement per message. HS4002 and the HS401x variants are
+    physically different versions of the same part and are not offered separately.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement (command 0xF5, 3 ms wait, 5-byte read, CRC check).</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH (0 to 100).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x54) and the measurement resolution (8, 10, 12 or 14 bit for humidity and
+    temperature). A resolution other than 14 bit is written to the sensor before the first measurement; the
+    registers are volatile and return to 14 bit whenever the sensor loses power. A measurement whose CRC is wrong
+    after one retry raises an error.</p>
+</script>

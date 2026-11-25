@@ -1,0 +1,564 @@
+{
+  "category": "ADS1014",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ADS1014_LANGUAGES = {\n  \"CUSTOM_ADS1014_INIT\": {\n    \"en\": \"%1 init bus %2 address (72-75) %3\"\n  },\n  \"CUSTOM_ADS1014_READ_RAW\": {\n    \"en\": \"%1 raw code\"\n  },\n  \"CUSTOM_ADS1014_READ_VOLTAGE\": {\n    \"en\": \"%1 voltage (V)\"\n  },\n  \"CUSTOM_ADS1014_SET_GAIN\": {\n    \"en\": \"%1 set gain (0=6.144 V 1=4.096 V 2=2.048 V 3=1.024 V 4=0.512 V 5=0.256 V) %2\"\n  },\n  \"CUSTOM_ADS1014_GET_GAIN\": {\n    \"en\": \"%1 gain code\"\n  },\n  \"CUSTOM_ADS1014_FULL_SCALE\": {\n    \"en\": \"%1 full scale (V)\"\n  },\n  \"CUSTOM_ADS1014_LSB\": {\n    \"en\": \"%1 LSB (V)\"\n  },\n  \"CUSTOM_ADS1014_SET_DATA_RATE\": {\n    \"en\": \"%1 set data rate (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS) %2\"\n  },\n  \"CUSTOM_ADS1014_GET_DATA_RATE\": {\n    \"en\": \"%1 data rate code\"\n  },\n  \"CUSTOM_ADS1014_DATA_RATE_SPS\": {\n    \"en\": \"%1 data rate (SPS)\"\n  },\n  \"CUSTOM_ADS1014_START_CONTINUOUS\": {\n    \"en\": \"%1 start continuous\"\n  },\n  \"CUSTOM_ADS1014_READ_CONTINUOUS_RAW\": {\n    \"en\": \"%1 continuous raw code\"\n  },\n  \"CUSTOM_ADS1014_READ_CONTINUOUS\": {\n    \"en\": \"%1 continuous voltage (V)\"\n  },\n  \"CUSTOM_ADS1014_STOP_CONTINUOUS\": {\n    \"en\": \"%1 stop continuous\"\n  },\n  \"CUSTOM_ADS1014_IS_CONVERTING\": {\n    \"en\": \"%1 is converting\"\n  },\n  \"CUSTOM_ADS1014_READ_CONFIG\": {\n    \"en\": \"%1 CONFIG register\"\n  },\n  \"CUSTOM_ADS1014_RESET\": {\n    \"en\": \"%1 reset\"\n  },\n  \"CUSTOM_ADS1014_CONFIGURE_COMPARATOR\": {\n    \"en\": \"%1 configure comparator mode (0=traditional 1=window) %2 polarity (0=low 1=high) %3 latch (0/1) %4 queue (0/1/2 = 1/2/4 conversions) %5\"\n  },\n  \"CUSTOM_ADS1014_DISABLE_COMPARATOR\": {\n    \"en\": \"%1 disable comparator\"\n  },\n  \"CUSTOM_ADS1014_SET_LOW_THRESHOLD_RAW\": {\n    \"en\": \"%1 set low threshold code %2\"\n  },\n  \"CUSTOM_ADS1014_SET_HIGH_THRESHOLD_RAW\": {\n    \"en\": \"%1 set high threshold code %2\"\n  },\n  \"CUSTOM_ADS1014_SET_THRESHOLDS\": {\n    \"en\": \"%1 set thresholds low (V) %2 high (V) %3\"\n  },\n  \"CUSTOM_ADS1014_CLEAR_ALERT\": {\n    \"en\": \"%1 clear alert\"\n  },\n  \"CUSTOM_ADS1014_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt (1=conversion ready 2=comparator) %2\"\n  },\n  \"CUSTOM_ADS1014_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt (1=conversion ready 2=comparator) %2\"\n  },\n  \"CUSTOM_ADS1014_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status (1=ready 2=comparator)\"\n  }\n};\n\nconst initType = 'custom_ads1014_init';\nBlockly.BlockRegExpList['custom_ads1014'] = {\n  regexp: new RegExp(/^custom_ads1014_/),\n  code: \"from ADS1014 import ADS1014\",\n  initBlockType: initType,\n  categoryId: 'custom_ads1014',\n}\nBlockly.utils.registerLanguages(CUSTOM_ADS1014_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ADS1014_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ADS1014 = 'ADS1014'\n\nBlockly.utils.getcustom_ads1014Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ads1014_0', 'ads1014_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ads1014_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ads1014Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ads1014_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ADS1014(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_READ_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_set_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_SET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pga'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_set_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pga = Blockly.Python.valueToCode(block, 'pga', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain(${pga})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_get_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_GET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_get_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_gain()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_full_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_FULL_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_full_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.full_scale()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_lsb\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_LSB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_lsb\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lsb()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_set_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_SET_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'dr'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_set_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var dr = Blockly.Python.valueToCode(block, 'dr', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_data_rate(${dr})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_get_data_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_GET_DATA_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_get_data_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_data_rate()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_data_rate_sps\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_DATA_RATE_SPS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_data_rate_sps\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_rate_sps()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_start_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_START_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_start_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.start_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_read_continuous_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_READ_CONTINUOUS_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_read_continuous_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_read_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_READ_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_read_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_stop_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_STOP_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_stop_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_is_converting\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_IS_CONVERTING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_is_converting\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_converting()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_read_config\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_READ_CONFIG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_read_config\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_config()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ads1014_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_configure_comparator\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_CONFIGURE_COMPARATOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'polarity'\n        },\n        {\n          'type': 'input_value',\n          'name': 'latch'\n        },\n        {\n          'type': 'input_value',\n          'name': 'queue'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_configure_comparator\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var polarity = Blockly.Python.valueToCode(block, 'polarity', Blockly.Python.ORDER_FUNCTION_CALL);\n  var latch = Blockly.Python.valueToCode(block, 'latch', Blockly.Python.ORDER_FUNCTION_CALL);\n  var queue = Blockly.Python.valueToCode(block, 'queue', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_comparator(${mode}, ${polarity}, ${latch}, ${queue})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_disable_comparator\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_DISABLE_COMPARATOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_disable_comparator\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_comparator()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_set_low_threshold_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_SET_LOW_THRESHOLD_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'raw'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_set_low_threshold_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var raw = Blockly.Python.valueToCode(block, 'raw', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_low_threshold_raw(${raw})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_set_high_threshold_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_SET_HIGH_THRESHOLD_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'raw'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_set_high_threshold_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var raw = Blockly.Python.valueToCode(block, 'raw', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_high_threshold_raw(${raw})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_set_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_SET_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_set_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_thresholds(${low}, ${high})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_clear_alert\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_CLEAR_ALERT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_clear_alert\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_alert()\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_ads1014_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADS1014_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ads1014Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ads1014_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"ADS1014\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ads1014\">\n<title text=\"ADS1014\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ads1014_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">72</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_read_raw\"/><block type=\"custom_ads1014_read_voltage\"/><block type=\"custom_ads1014_set_gain\">\n  <value name=\"pga\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_get_gain\"/><block type=\"custom_ads1014_full_scale\"/><block type=\"custom_ads1014_lsb\"/><block type=\"custom_ads1014_set_data_rate\">\n  <value name=\"dr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_get_data_rate\"/><block type=\"custom_ads1014_data_rate_sps\"/><block type=\"custom_ads1014_start_continuous\"/><block type=\"custom_ads1014_read_continuous_raw\"/><block type=\"custom_ads1014_read_continuous\"/><block type=\"custom_ads1014_stop_continuous\"/><block type=\"custom_ads1014_is_converting\"/><block type=\"custom_ads1014_read_config\"/><block type=\"custom_ads1014_reset\"/><block type=\"custom_ads1014_configure_comparator\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"polarity\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"latch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"queue\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_disable_comparator\"/><block type=\"custom_ads1014_set_low_threshold_raw\">\n  <value name=\"raw\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_set_high_threshold_raw\">\n  <value name=\"raw\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_set_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-0.1</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_clear_alert\"/><block type=\"custom_ads1014_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ads1014_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_ads1014",
+    "block_type": [
+      "custom_ads1014___init__",
+      "custom_ads1014_read_raw",
+      "custom_ads1014_read_voltage",
+      "custom_ads1014_set_gain",
+      "custom_ads1014_get_gain",
+      "custom_ads1014_full_scale",
+      "custom_ads1014_lsb",
+      "custom_ads1014_set_data_rate",
+      "custom_ads1014_get_data_rate",
+      "custom_ads1014_data_rate_sps",
+      "custom_ads1014_start_continuous",
+      "custom_ads1014_read_continuous_raw",
+      "custom_ads1014_read_continuous",
+      "custom_ads1014_stop_continuous",
+      "custom_ads1014_is_converting",
+      "custom_ads1014_read_config",
+      "custom_ads1014_reset",
+      "custom_ads1014_configure_comparator",
+      "custom_ads1014_disable_comparator",
+      "custom_ads1014_set_low_threshold_raw",
+      "custom_ads1014_set_high_threshold_raw",
+      "custom_ads1014_set_thresholds",
+      "custom_ads1014_clear_alert",
+      "custom_ads1014_enable_interrupt",
+      "custom_ads1014_disable_interrupt",
+      "custom_ads1014_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "ADS1014",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ADS1014",
+      "time": "2026-11-05",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ads1014 import ADS1014Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address (72-75) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "72",
+            "note": {},
+            "field": "number",
+            "max": "75",
+            "min": "72"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = ADS1014Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()",
+        "ast_return": {
+          "code": "self._driver.read_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_voltage()",
+        "ast_return": {
+          "code": "self._driver.read_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain",
+        "note": {},
+        "label": {
+          "en": "%1 set gain (0=6.144 V 1=4.096 V 2=2.048 V 3=1.024 V 4=0.512 V 5=0.256 V) %2"
+        },
+        "params": [
+          {
+            "name": "pga",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain(pga)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_gain",
+        "note": {},
+        "label": {
+          "en": "%1 gain code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_gain()",
+        "ast_return": {
+          "code": "self._driver.get_gain()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "full_scale",
+        "note": {},
+        "label": {
+          "en": "%1 full scale (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.full_scale()",
+        "ast_return": {
+          "code": "self._driver.full_scale()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lsb",
+        "note": {},
+        "label": {
+          "en": "%1 LSB (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.lsb()",
+        "ast_return": {
+          "code": "self._driver.lsb()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set data rate (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS) %2"
+        },
+        "params": [
+          {
+            "name": "dr",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_data_rate(dr)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_data_rate",
+        "note": {},
+        "label": {
+          "en": "%1 data rate code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_data_rate()",
+        "ast_return": {
+          "code": "self._driver.get_data_rate()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_rate_sps",
+        "note": {},
+        "label": {
+          "en": "%1 data rate (SPS)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_rate_sps()",
+        "ast_return": {
+          "code": "self._driver.data_rate_sps()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.start_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous_raw",
+        "note": {},
+        "label": {
+          "en": "%1 continuous raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous_raw()",
+        "ast_return": {
+          "code": "self._driver.read_continuous_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 continuous voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous()",
+        "ast_return": {
+          "code": "self._driver.read_continuous()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_converting",
+        "note": {},
+        "label": {
+          "en": "%1 is converting"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_converting()",
+        "ast_return": {
+          "code": "self._driver.is_converting()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_config",
+        "note": {},
+        "label": {
+          "en": "%1 CONFIG register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_config()",
+        "ast_return": {
+          "code": "self._driver.read_config()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_comparator",
+        "note": {},
+        "label": {
+          "en": "%1 configure comparator mode (0=traditional 1=window) %2 polarity (0=low 1=high) %3 latch (0/1) %4 queue (0/1/2 = 1/2/4 conversions) %5"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "polarity",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "latch",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "queue",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_comparator(mode, polarity, latch, queue)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_comparator",
+        "note": {},
+        "label": {
+          "en": "%1 disable comparator"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_comparator()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_low_threshold_raw",
+        "note": {},
+        "label": {
+          "en": "%1 set low threshold code %2"
+        },
+        "params": [
+          {
+            "name": "raw",
+            "type": "int",
+            "default": "-100",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_low_threshold_raw(raw)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_high_threshold_raw",
+        "note": {},
+        "label": {
+          "en": "%1 set high threshold code %2"
+        },
+        "params": [
+          {
+            "name": "raw",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_high_threshold_raw(raw)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 set thresholds low (V) %2 high (V) %3"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "float",
+            "default": "-0.1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "high",
+            "type": "float",
+            "default": "0.1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_thresholds(low, high)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_alert",
+        "note": {},
+        "label": {
+          "en": "%1 clear alert"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_alert()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt (1=conversion ready 2=comparator) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt (1=conversion ready 2=comparator) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status (1=ready 2=comparator)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ads1014"
+  },
+  "pyCode": "\"\"\"\nfile     ADS1014\ntime     2026-11-05\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.ads1014 import ADS1014Full\n\n\nclass ADS1014:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 72):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address (72-75) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '72'\n                field: number\n                min: '72'\n                max: '75'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = ADS1014Full(connection)\n\n    def read_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw code'\n        \"\"\"\n        return self._driver.read_raw()\n\n    def read_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 voltage (V)'\n        \"\"\"\n        return self._driver.read_voltage()\n\n    def set_gain(self, pga: int):\n        \"\"\"\n        label:\n            en: '%1 set gain (0=6.144 V 1=4.096 V 2=2.048 V 3=1.024 V 4=0.512 V 5=0.256 V) %2'\n        params:\n            pga:\n                name: pga\n                type: int\n                default: '2'\n                field: number\n        \"\"\"\n        self._driver.set_gain(pga)\n\n    def get_gain(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 gain code'\n        \"\"\"\n        return self._driver.get_gain()\n\n    def full_scale(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 full scale (V)'\n        \"\"\"\n        return self._driver.full_scale()\n\n    def lsb(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 LSB (V)'\n        \"\"\"\n        return self._driver.lsb()\n\n    def set_data_rate(self, dr: int):\n        \"\"\"\n        label:\n            en: '%1 set data rate (0=128 1=250 2=490 3=920 4=1600 5=2400 6=3300 SPS) %2'\n        params:\n            dr:\n                name: dr\n                type: int\n                default: '4'\n                field: number\n        \"\"\"\n        self._driver.set_data_rate(dr)\n\n    def get_data_rate(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 data rate code'\n        \"\"\"\n        return self._driver.get_data_rate()\n\n    def data_rate_sps(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 data rate (SPS)'\n        \"\"\"\n        return self._driver.data_rate_sps()\n\n    def start_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 start continuous'\n        \"\"\"\n        self._driver.start_continuous()\n\n    def read_continuous_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 continuous raw code'\n        \"\"\"\n        return self._driver.read_continuous_raw()\n\n    def read_continuous(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 continuous voltage (V)'\n        \"\"\"\n        return self._driver.read_continuous()\n\n    def stop_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous'\n        \"\"\"\n        self._driver.stop_continuous()\n\n    def is_converting(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is converting'\n        \"\"\"\n        return self._driver.is_converting()\n\n    def read_config(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 CONFIG register'\n        \"\"\"\n        return self._driver.read_config()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n\n    def configure_comparator(self, mode: int, polarity: int, latch: int, queue: int):\n        \"\"\"\n        label:\n            en: '%1 configure comparator mode (0=traditional 1=window) %2 polarity (0=low 1=high) %3 latch (0/1) %4 queue (0/1/2 = 1/2/4 conversions) %5'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n            polarity:\n                name: polarity\n                type: int\n                default: '0'\n                field: number\n            latch:\n                name: latch\n                type: int\n                default: '0'\n                field: number\n            queue:\n                name: queue\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.configure_comparator(mode, polarity, latch, queue)\n\n    def disable_comparator(self):\n        \"\"\"\n        label:\n            en: '%1 disable comparator'\n        \"\"\"\n        self._driver.disable_comparator()\n\n    def set_low_threshold_raw(self, raw: int):\n        \"\"\"\n        label:\n            en: '%1 set low threshold code %2'\n        params:\n            raw:\n                name: raw\n                type: int\n                default: '-100'\n                field: number\n        \"\"\"\n        self._driver.set_low_threshold_raw(raw)\n\n    def set_high_threshold_raw(self, raw: int):\n        \"\"\"\n        label:\n            en: '%1 set high threshold code %2'\n        params:\n            raw:\n                name: raw\n                type: int\n                default: '100'\n                field: number\n        \"\"\"\n        self._driver.set_high_threshold_raw(raw)\n\n    def set_thresholds(self, low: float, high: float):\n        \"\"\"\n        label:\n            en: '%1 set thresholds low (V) %2 high (V) %3'\n        params:\n            low:\n                name: low\n                type: float\n                default: '-0.1'\n                field: number\n            high:\n                name: high\n                type: float\n                default: '0.1'\n                field: number\n        \"\"\"\n        self._driver.set_thresholds(low, high)\n\n    def clear_alert(self):\n        \"\"\"\n        label:\n            en: '%1 clear alert'\n        \"\"\"\n        self._driver.clear_alert()\n\n    def enable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt (1=conversion ready 2=comparator) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.enable_interrupt(source)\n\n    def disable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt (1=conversion ready 2=comparator) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.disable_interrupt(source)\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status (1=ready 2=comparator)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}

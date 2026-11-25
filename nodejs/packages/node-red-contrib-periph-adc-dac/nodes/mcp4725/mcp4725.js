@@ -46,5 +46,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-mcp4725', MCP4725WriteNode);
+    RED.nodes.registerType('mcp4725', MCP4725WriteNode);
 };

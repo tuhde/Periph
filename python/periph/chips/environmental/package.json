@@ -5,8 +5,24 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/environmental/aht10.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/aht10.py"
+    ],
+    [
+      "periph/chips/environmental/aht20.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/aht20.py"
+    ],
+    [
       "periph/chips/environmental/aht21.py",
       "github:tuhde/Periph/python/periph/chips/environmental/aht21.py"
+    ],
+    [
+      "periph/chips/environmental/am2315.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/am2315.py"
+    ],
+    [
+      "periph/chips/environmental/am2320.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/am2320.py"
     ],
     [
       "periph/chips/environmental/bme280.py",
@@ -15,6 +31,10 @@
     [
       "periph/chips/environmental/bme680.py",
       "github:tuhde/Periph/python/periph/chips/environmental/bme680.py"
+    ],
+    [
+      "periph/chips/environmental/bme688.py",
+      "github:tuhde/Periph/python/periph/chips/environmental/bme688.py"
     ],
     [
       "periph/connection/__init__.py",
@@ -63,5 +83,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

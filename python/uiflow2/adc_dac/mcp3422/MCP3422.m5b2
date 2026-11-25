@@ -1,0 +1,386 @@
+{
+  "category": "MCP3422",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MCP3422_LANGUAGES = {\n  \"CUSTOM_MCP3422_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MCP3422_READ_RAW\": {\n    \"en\": \"%1 raw code channel (0-1) %2\"\n  },\n  \"CUSTOM_MCP3422_READ_VOLTAGE\": {\n    \"en\": \"%1 voltage (V) channel (0-1) %2\"\n  },\n  \"CUSTOM_MCP3422_SET_RESOLUTION\": {\n    \"en\": \"%1 resolution (12/14/16/18 bit) %2\"\n  },\n  \"CUSTOM_MCP3422_GET_RESOLUTION\": {\n    \"en\": \"%1 resolution (bit)\"\n  },\n  \"CUSTOM_MCP3422_SET_GAIN\": {\n    \"en\": \"%1 gain (1/2/4/8) %2\"\n  },\n  \"CUSTOM_MCP3422_GET_GAIN\": {\n    \"en\": \"%1 gain\"\n  },\n  \"CUSTOM_MCP3422_SET_CHANNEL\": {\n    \"en\": \"%1 continuous channel (0-1) %2\"\n  },\n  \"CUSTOM_MCP3422_START_CONTINUOUS\": {\n    \"en\": \"%1 start continuous channel (0-1) %2\"\n  },\n  \"CUSTOM_MCP3422_STOP_CONTINUOUS\": {\n    \"en\": \"%1 stop continuous\"\n  },\n  \"CUSTOM_MCP3422_IS_CONTINUOUS\": {\n    \"en\": \"%1 continuous mode\"\n  },\n  \"CUSTOM_MCP3422_READ_CONTINUOUS_RAW\": {\n    \"en\": \"%1 continuous raw code\"\n  },\n  \"CUSTOM_MCP3422_READ_CONTINUOUS\": {\n    \"en\": \"%1 continuous voltage (V)\"\n  },\n  \"CUSTOM_MCP3422_IS_READY\": {\n    \"en\": \"%1 result ready\"\n  },\n  \"CUSTOM_MCP3422_GENERAL_CALL_RESET\": {\n    \"en\": \"%1 general call reset\"\n  },\n  \"CUSTOM_MCP3422_LSB\": {\n    \"en\": \"%1 LSB (V)\"\n  },\n  \"CUSTOM_MCP3422_FULL_SCALE\": {\n    \"en\": \"%1 full scale (V)\"\n  }\n};\n\nconst initType = 'custom_mcp3422_init';\nBlockly.BlockRegExpList['custom_mcp3422'] = {\n  regexp: new RegExp(/^custom_mcp3422_/),\n  code: \"from MCP3422 import MCP3422\",\n  initBlockType: initType,\n  categoryId: 'custom_mcp3422',\n}\nBlockly.utils.registerLanguages(CUSTOM_MCP3422_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MCP3422_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MCP3422 = 'MCP3422'\n\nBlockly.utils.getcustom_mcp3422Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mcp3422_0', 'mcp3422_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mcp3422_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mcp3422Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mcp3422_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MCP3422(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_raw(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_READ_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_voltage(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'bits'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bits = Blockly.Python.valueToCode(block, 'bits', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(${bits})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_get_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_GET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_get_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resolution()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_set_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_SET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_set_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gain = Blockly.Python.valueToCode(block, 'gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain(${gain})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_get_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_GET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_get_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_gain()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_set_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_SET_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_set_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_channel(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_start_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_START_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_start_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_continuous(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_stop_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_STOP_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_stop_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_is_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_IS_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_is_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_continuous()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_read_continuous_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_READ_CONTINUOUS_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_read_continuous_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_read_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_READ_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_read_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_is_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_IS_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_is_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_general_call_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_GENERAL_CALL_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_general_call_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.general_call_reset()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp3422_lsb\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_LSB,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_lsb\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lsb()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp3422_full_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP3422_FULL_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp3422Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp3422_full_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.full_scale()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"MCP3422\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mcp3422\">\n<title text=\"MCP3422\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mcp3422_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">104</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_read_raw\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_read_voltage\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_set_resolution\">\n  <value name=\"bits\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_get_resolution\"/><block type=\"custom_mcp3422_set_gain\">\n  <value name=\"gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_get_gain\"/><block type=\"custom_mcp3422_set_channel\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_start_continuous\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp3422_stop_continuous\"/><block type=\"custom_mcp3422_is_continuous\"/><block type=\"custom_mcp3422_read_continuous_raw\"/><block type=\"custom_mcp3422_read_continuous\"/><block type=\"custom_mcp3422_is_ready\"/><block type=\"custom_mcp3422_general_call_reset\"/><block type=\"custom_mcp3422_lsb\"/><block type=\"custom_mcp3422_full_scale\"/>\n</category>\n",
+    "toolboxitemid": "custom_mcp3422",
+    "block_type": [
+      "custom_mcp3422___init__",
+      "custom_mcp3422_read_raw",
+      "custom_mcp3422_read_voltage",
+      "custom_mcp3422_set_resolution",
+      "custom_mcp3422_get_resolution",
+      "custom_mcp3422_set_gain",
+      "custom_mcp3422_get_gain",
+      "custom_mcp3422_set_channel",
+      "custom_mcp3422_start_continuous",
+      "custom_mcp3422_stop_continuous",
+      "custom_mcp3422_is_continuous",
+      "custom_mcp3422_read_continuous_raw",
+      "custom_mcp3422_read_continuous",
+      "custom_mcp3422_is_ready",
+      "custom_mcp3422_general_call_reset",
+      "custom_mcp3422_lsb",
+      "custom_mcp3422_full_scale"
+    ]
+  },
+  "data": {
+    "name": "MCP3422",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MCP3422",
+      "time": "2026-11-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.mcp3422 import MCP3422Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "104",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MCP3422Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw code channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_raw(channel)",
+        "ast_return": {
+          "code": "self._driver.read_raw(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 voltage (V) channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_voltage(channel)",
+        "ast_return": {
+          "code": "self._driver.read_voltage(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 resolution (12/14/16/18 bit) %2"
+        },
+        "params": [
+          {
+            "name": "bits",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "18",
+            "min": "12"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(bits)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 resolution (bit)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resolution()",
+        "ast_return": {
+          "code": "self._driver.get_resolution()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain",
+        "note": {},
+        "label": {
+          "en": "%1 gain (1/2/4/8) %2"
+        },
+        "params": [
+          {
+            "name": "gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "8",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain(gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_gain",
+        "note": {},
+        "label": {
+          "en": "%1 gain"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_gain()",
+        "ast_return": {
+          "code": "self._driver.get_gain()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_channel",
+        "note": {},
+        "label": {
+          "en": "%1 continuous channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_channel(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous channel (0-1) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_continuous(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 continuous mode"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_continuous()",
+        "ast_return": {
+          "code": "self._driver.is_continuous()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous_raw",
+        "note": {},
+        "label": {
+          "en": "%1 continuous raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous_raw()",
+        "ast_return": {
+          "code": "self._driver.read_continuous_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 continuous voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous()",
+        "ast_return": {
+          "code": "self._driver.read_continuous()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_ready",
+        "note": {},
+        "label": {
+          "en": "%1 result ready"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_ready()",
+        "ast_return": {
+          "code": "self._driver.is_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "general_call_reset",
+        "note": {},
+        "label": {
+          "en": "%1 general call reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.general_call_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lsb",
+        "note": {},
+        "label": {
+          "en": "%1 LSB (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.lsb()",
+        "ast_return": {
+          "code": "self._driver.lsb()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "full_scale",
+        "note": {},
+        "label": {
+          "en": "%1 full scale (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.full_scale()",
+        "ast_return": {
+          "code": "self._driver.full_scale()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mcp3422"
+  },
+  "pyCode": "\"\"\"\nfile     MCP3422\ntime     2026-11-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.mcp3422 import MCP3422Full\n\n\nclass MCP3422:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 104):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '104'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MCP3422Full(connection)\n\n    def read_raw(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw code channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.read_raw(channel)\n\n    def read_voltage(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 voltage (V) channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        return self._driver.read_voltage(channel)\n\n    def set_resolution(self, bits: int):\n        \"\"\"\n        label:\n            en: '%1 resolution (12/14/16/18 bit) %2'\n        params:\n            bits:\n                name: bits\n                type: int\n                default: '16'\n                field: number\n                max: '18'\n                min: '12'\n        \"\"\"\n        self._driver.set_resolution(bits)\n\n    def get_resolution(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 resolution (bit)'\n        \"\"\"\n        return self._driver.get_resolution()\n\n    def set_gain(self, gain: int):\n        \"\"\"\n        label:\n            en: '%1 gain (1/2/4/8) %2'\n        params:\n            gain:\n                name: gain\n                type: int\n                default: '1'\n                field: number\n                max: '8'\n                min: '1'\n        \"\"\"\n        self._driver.set_gain(gain)\n\n    def get_gain(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 gain'\n        \"\"\"\n        return self._driver.get_gain()\n\n    def set_channel(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 continuous channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.set_channel(channel)\n\n    def start_continuous(self, channel: int):\n        \"\"\"\n        label:\n            en: '%1 start continuous channel (0-1) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n                max: '1'\n                min: '0'\n        \"\"\"\n        self._driver.start_continuous(channel)\n\n    def stop_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous'\n        \"\"\"\n        self._driver.stop_continuous()\n\n    def is_continuous(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 continuous mode'\n        \"\"\"\n        return self._driver.is_continuous()\n\n    def read_continuous_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 continuous raw code'\n        \"\"\"\n        return self._driver.read_continuous_raw()\n\n    def read_continuous(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 continuous voltage (V)'\n        \"\"\"\n        return self._driver.read_continuous()\n\n    def is_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 result ready'\n        \"\"\"\n        return self._driver.is_ready()\n\n    def general_call_reset(self):\n        \"\"\"\n        label:\n            en: '%1 general call reset'\n        \"\"\"\n        self._driver.general_call_reset()\n\n    def lsb(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 LSB (V)'\n        \"\"\"\n        return self._driver.lsb()\n\n    def full_scale(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 full scale (V)'\n        \"\"\"\n        return self._driver.full_scale()\n",
+  "version": "alpha2"
+}

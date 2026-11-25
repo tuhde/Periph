@@ -1,0 +1,1 @@
+_periph_fxos8700.set_mag_offset(float(${_x_ut}), float(${_y_ut}), float(${_z_ut}))

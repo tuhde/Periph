@@ -1,0 +1,1 @@
+_periph_hts221.set_averaging(int(${_tsamples}), int(${_hsamples}))

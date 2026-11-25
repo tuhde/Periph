@@ -25,7 +25,7 @@ const KEYWORDS_PATH = path.join(CPP_DIR, 'keywords.txt');
 const HOST_ONLY_DIR = path.join(SRC_DIR, 'discovery');
 
 // Connection headers for other platforms never reach an Arduino sketch.
-const NON_ARDUINO_HEADER = /(Linux|Zephyr|ESPIDF|PicoSDK|Mock)\.h$/;
+const NON_ARDUINO_HEADER = /(Linux|Zephyr|ESPIDF|PicoSDK|STM32Cube|Mock)\.h$/;
 
 const KIND_PRIORITY = { KEYWORD1: 3, LITERAL1: 2, KEYWORD2: 1 };
 

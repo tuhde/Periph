@@ -1,0 +1,352 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "qmi8658a_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init QMI8658A",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_accel_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A acceleration X (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_accel_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A acceleration Y (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_accel_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A acceleration Z (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_gyro_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A angular rate X (rad/s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_gyro_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A angular rate Y (rad/s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_gyro_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A angular rate Z (rad/s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A die temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A new data ready?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_timestamp",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A sample counter",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_configure_accel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A set accel range: 0=±2, 1=±4, 2=±8, 3=±16 g",
+          "type": "label"
+        },
+        {
+          "name": "range code",
+          "type": "label"
+        },
+        {
+          "name": "_full_scale",
+          "type": "number"
+        },
+        {
+          "name": "ODR code (5 = 224 Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_odr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_configure_gyro",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A set gyro range: 0=±16 … 7=±2048 dps",
+          "type": "label"
+        },
+        {
+          "name": "range code",
+          "type": "label"
+        },
+        {
+          "name": "_full_scale",
+          "type": "number"
+        },
+        {
+          "name": "ODR code (5 = 224 Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_odr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_set_sensors",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A enable sensors",
+          "type": "label"
+        },
+        {
+          "name": "accel (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_accel",
+          "type": "number"
+        },
+        {
+          "name": "gyro (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_gyro",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_set_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A power down (1) or wake (0)",
+          "type": "label"
+        },
+        {
+          "name": "power down",
+          "type": "label"
+        },
+        {
+          "name": "_down",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_fifo_count",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A FIFO bytes available",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_reset_fifo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A reset FIFO",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_enable_pedometer",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A pedometer on (1) or off (0)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_step_count",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A step count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_reset_step_count",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A reset step count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_enable_tap",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A tap detection on (1) or off (0)",
+          "type": "label"
+        },
+        {
+          "name": "enabled",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_tap_count",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A last tap count (0, 1 single, 2 double)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_tap_axis",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A last tap axis (0 none, 1 X, 2 Y, 3 Z)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "QMI8658A interrupt status flags",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_set_wake_on_motion",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A wake-on-motion threshold in mg (0 = off)",
+          "type": "label"
+        },
+        {
+          "name": "threshold mg",
+          "type": "label"
+        },
+        {
+          "name": "_threshold",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "qmi8658a_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "QMI8658A soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

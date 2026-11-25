@@ -1,0 +1,1 @@
+_periph_bno055.set_mode(int(${_mode}))

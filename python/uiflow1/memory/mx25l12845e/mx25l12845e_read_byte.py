@@ -1,0 +1,1 @@
+_periph_mx25l12845e.read_bytes(${_address}, 1)[0]

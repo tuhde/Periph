@@ -1,0 +1,1 @@
+_periph_hts221.set_output_data_rate(float(${_hz}))

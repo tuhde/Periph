@@ -52,5 +52,5 @@ module.exports = function(RED) {
             }
         });
     }
-    RED.nodes.registerType('periph-bmp384', BMP384ReadNode);
+    RED.nodes.registerType('bmp384', BMP384ReadNode);
 };

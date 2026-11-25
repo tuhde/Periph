@@ -1,0 +1,1 @@
+_periph_bno055.set_axis_remap(int(${_config}), int(${_sign}))

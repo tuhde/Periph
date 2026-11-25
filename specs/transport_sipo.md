@@ -132,6 +132,9 @@ No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns 
 | `spi` | Pico SDK | `spi_inst_t*` | Hardware mode: SPI controller (`spi0` or `spi1`), configured via `spi_init()` at 1 MHz, mode 0 |
 | `ser_in`, `srck` | Pico SDK | `uint` (GPIO pin number) | Software mode: connection bit-bangs these two pins instead of using `spi_inst_t*` |
 | `rck`, `srclr`, `g` | Pico SDK | `uint` (GPIO pin number, or `-1` to disable) | Always required/optional as before; `gpio_set_dir(pin, GPIO_OUT)` in `init` |
+| `hspi` | STM32Cube | `SPI_HandleTypeDef*` | Hardware mode: SPI peripheral, initialised via `HAL_SPI_Init()` at 1 MHz, mode 0 |
+| `serInPort`/`serInPin`, `srckPort`/`srckPin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | Software mode: connection bit-bangs these two pins instead of using `SPI_HandleTypeDef*` |
+| `rckPort`/`rckPin`, `srclrPort`/`srclrPin`, `gPort`/`gPin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | Latch (required) and optional clear / output-enable pins, driven with `HAL_GPIO_WritePin()`; a `nullptr` port disables SRCLR/G (not `-1`) |
 
 | `dev` | ESP-IDF | `spi_device_handle_t` | Hardware mode: SPI device, already added to a bus via `spi_bus_add_device()` at 1 MHz, mode 0 |
 | `ser_in`, `srck` | ESP-IDF | `int` (`gpio_num_t`) | Software mode: connection bit-bangs these two pins instead of using `spi_device_handle_t` |
@@ -210,6 +213,16 @@ Two constructor modes (bare-metal `pico-sdk`, no Arduino core, no RTOS — unlik
 Both then do `gpio_put(rck, 1); gpio_put(rck, 0);` to latch. RCK/SRCLR/G are plain GPIO pin numbers in both modes (`-1` disables the optional SRCLR/G pin), the same convention `SiPoConnection` (Arduino) already uses.
 
 File: `cpp/src/connection/SiPoConnectionPicoSDK.h` (header-only)
+
+### STM32Cube
+
+Two constructor modes (bare-metal STM32 HAL; a constructor-overload choice, as on Pico SDK):
+- **Hardware:** an `SPI_HandleTypeDef*` initialised via `HAL_SPI_Init()` at 1 MHz, mode 0, plus GPIO port/pin pairs for RCK/SRCLR/G. `write()` calls `HAL_SPI_Transmit(hspi, data, len, 1000)`.
+- **Software:** SER IN and SRCK port/pin pairs instead of the SPI handle. `write()` bit-bangs the MSB-first, mode-0 loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) with `HAL_GPIO_WritePin()`.
+
+Both then pulse RCK high and low to latch. Write-only.
+
+File: `cpp/src/connection/SiPoConnectionSTM32Cube.h` (header-only)
 
 ### Node.js
 
@@ -310,6 +323,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/SiPoConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/connection/sipo.js` — JSDoc on class and every exported method

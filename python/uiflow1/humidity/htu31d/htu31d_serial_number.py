@@ -1,0 +1,1 @@
+_periph_htu31d.serial_number()

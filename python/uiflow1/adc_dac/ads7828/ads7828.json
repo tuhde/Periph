@@ -1,0 +1,68 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ads7828_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init ADS7828", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "external vref in V (0 = internal 2.5 V)", "type": "label" },
+        { "name": "_vref", "type": "number" }
+      ]
+    },
+    {
+      "name": "ads7828_read_raw",
+      "type": "value",
+      "params": [
+        { "name": "ADS7828 read channel (raw 0-4095)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ads7828_read_voltage",
+      "type": "value",
+      "params": [
+        { "name": "ADS7828 read channel voltage (V)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ads7828_read_differential",
+      "type": "value",
+      "params": [
+        { "name": "ADS7828 read differential pair (0-3) voltage (V)", "type": "label" },
+        { "name": "_pair", "type": "number" },
+        { "name": "inverted (0/1)", "type": "label" },
+        { "name": "_inverted", "type": "number" }
+      ]
+    },
+    {
+      "name": "ads7828_read_signed_differential",
+      "type": "value",
+      "params": [
+        { "name": "ADS7828 read signed differential pair (0-3) (V)", "type": "label" },
+        { "name": "_pair", "type": "number" }
+      ]
+    },
+    {
+      "name": "ads7828_set_reference",
+      "type": "execute",
+      "params": [
+        { "name": "ADS7828 set reference in V (0 = internal 2.5 V)", "type": "label" },
+        { "name": "_vref", "type": "number" }
+      ]
+    },
+    {
+      "name": "ads7828_power_down",
+      "type": "execute",
+      "params": [
+        { "name": "ADS7828 power down", "type": "label" }
+      ]
+    }
+  ]
+}

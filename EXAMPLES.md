@@ -283,6 +283,37 @@ Monitor serial output (USB CDC):
 minicom -D /dev/ttyACM0 -b 115200
 ```
 
+### STM32Cube (NUCLEO-F411RE)
+
+**File layout:**
+```
+cpp/examples/stm32cube/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/stm32cube/<category>/<Chip>/minimal/Core/Src/main.cpp
+```
+
+Each STM32Cube example is a standalone bare-metal CMake project (no RTOS, no CubeIDE project files) built with `arm-none-eabi-gcc` against a local STM32CubeF4 checkout. It needs `STM32CUBE_FW_PATH` set, see `TOOLCHAINS.md` section 2f:
+
+```
+export STM32CUBE_FW_PATH=$HOME/STM32CubeF4
+cd cpp/examples/stm32cube/accelerometer/ADXL345/minimal
+cmake -S . -B build
+cmake --build build
+```
+
+Flash the resulting `.bin` through the board's on-board ST-LINK (`stlink-tools`):
+
+```
+st-flash --reset write build/adxl345_minimal_stm32cube.bin 0x8000000
+```
+
+Output goes over USART2 (PA2/PA3), which the ST-LINK exposes as a USB virtual COM port:
+
+```
+minicom -D /dev/ttyACM0 -b 115200
+```
+
+The default I²C bus is I2C1 on PB8 (SCL) / PB9 (SDA), the Arduino-header D15/D14 pins. Pin and bus setup lives in the file-scope `i2c1_init()` at the top of `main.cpp`; edit it to match your wiring.
+
 Pin numbers (I²C SDA/SCL, SPI MOSI/MISO/SCK/CS) are defined as constants at the top of `src/main.cpp`; edit them to match your wiring.
 
 ---

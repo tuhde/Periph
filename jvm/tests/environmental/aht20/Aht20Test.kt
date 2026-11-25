@@ -1,0 +1,56 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.5.4
+//DEPS it.uhde:periph-kotlin:1.5.4
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.environmental.Aht20Full
+
+var passed = 0
+var failed = 0
+
+fun checkTrue(label: String, condition: Boolean) {
+    if (condition) { println("PASS $label"); passed++ }
+    else           { println("FAIL $label"); failed++ }
+}
+
+fun main() {
+    val bus  = System.getenv("I2C_BUS")?.toInt() ?: 1
+    val addr = System.getenv("I2C_ADDR")?.removePrefix("0x")?.removePrefix("0X")?.toInt(16) ?: 0x38
+
+    I2CConnection(bus, addr).use { connection ->
+
+        val aht = Aht20Full(connection)
+
+        checkTrue("isCalibrated", aht.isCalibrated())
+        checkTrue("not busy at idle", !aht.isBusy())
+
+        val (t, h) = aht.read()
+        checkTrue("temperature range", t in -40.0..120.0)
+        checkTrue("humidity range", h in 0.0..100.0)
+
+        val tr = aht.readTemperature()
+        checkTrue("readTemperature range", tr in -40.0..120.0)
+
+        val hr = aht.readHumidity()
+        checkTrue("readHumidity range", hr in 0.0..100.0)
+
+        val (rawRh, rawT) = aht.readRaw()
+        checkTrue("readRaw range", rawRh in 0..1048575 && rawT in 0..1048575)
+        checkTrue("readStatusByte calibrated", (aht.readStatusByte() and 0x08) != 0)
+        val dew = aht.dewPoint()
+        checkTrue("dewPoint range", dew > -60.0 && dew < 120.0)
+
+        aht.softReset()
+        Thread.sleep(50)
+        checkTrue("calibrated after reset", aht.isCalibrated())
+
+        val (t2, h2) = aht.read()
+        checkTrue("read after reset: temperature range", t2 in -40.0..120.0)
+        checkTrue("read after reset: humidity range", h2 in 0.0..100.0)
+    }
+
+    println("===DONE: $passed passed, $failed failed===")
+    System.exit(if (failed == 0) 0 else 1)
+}

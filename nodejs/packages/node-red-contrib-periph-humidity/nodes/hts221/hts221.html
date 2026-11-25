@@ -1,0 +1,110 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('hts221-device', {
+        category: 'config',
+        defaults: {
+            name:               { value: '' },
+            bus:                { value: '1', required: true, validate: RED.validators.number() },
+            address:            { value: '0x5F' },
+            temperatureSamples: { value: '16' },
+            humiditySamples:    { value: '32' },
+            heater:             { value: false }
+        },
+        label: function() {
+            return this.name || ('HTS221 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="hts221-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HTS221">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <input type="text" id="node-config-input-address" style="width:80px" placeholder="0x5F"> &nbsp;(fixed 0x5F)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-temperatureSamples"><i class="fa fa-cog"></i> Temperature averaging</label>
+        <select id="node-config-input-temperatureSamples" style="width:120px">
+            <option value="2">2 samples</option>
+            <option value="4">4 samples</option>
+            <option value="8">8 samples</option>
+            <option value="16" selected>16 samples</option>
+            <option value="32">32 samples</option>
+            <option value="64">64 samples</option>
+            <option value="128">128 samples</option>
+            <option value="256">256 samples</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-humiditySamples"><i class="fa fa-cog"></i> Humidity averaging</label>
+        <select id="node-config-input-humiditySamples" style="width:120px">
+            <option value="4">4 samples</option>
+            <option value="8">8 samples</option>
+            <option value="16">16 samples</option>
+            <option value="32" selected>32 samples</option>
+            <option value="64">64 samples</option>
+            <option value="128">128 samples</option>
+            <option value="256">256 samples</option>
+            <option value="512">512 samples</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-heater"><i class="fa fa-fire"></i> Heater</label>
+        <input type="checkbox" id="node-config-input-heater" style="width:auto"> &nbsp;on (do not measure while heating)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('hts221', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'hts221-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'HTS221'; },
+        paletteLabel: 'HTS221'
+    });
+</script>
+
+<script type="text/html" data-template-name="hts221">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HTS221">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="hts221">
+    <p>Reads temperature and relative humidity from an STMicroelectronics HTS221 over I²C (address 0x5F)
+    with one factory-calibrated one-shot measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %rH (0 to 100).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x5F), the temperature and humidity averaging (number of samples) and the
+    internal heater, set in the <b>hts221-device</b> config node.</p>
+</script>

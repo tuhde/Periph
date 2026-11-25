@@ -60,7 +60,7 @@
   },
   {
     "id": "ws2814-node",
-    "type": "periph-ws2814",
+    "type": "ws2814",
     "z": "ws2814-demo-tab",
     "name": "WS2814",
     "device": "ws2814-device-1",

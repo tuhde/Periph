@@ -1,5 +1,6 @@
 module it.uhde.periph {
     exports it.uhde.periph.discovery;
+    exports it.uhde.periph.storage;
     exports it.uhde.periph.chips.accelerometer;
     exports it.uhde.periph.chips.adc_dac;
     exports it.uhde.periph.chips.comms;

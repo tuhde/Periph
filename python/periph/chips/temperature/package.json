@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/temperature/mcp9808.py"
     ],
     [
+      "periph/chips/temperature/tmp102.py",
+      "github:tuhde/Periph/python/periph/chips/temperature/tmp102.py"
+    ],
+    [
       "periph/chips/temperature/tmp117.py",
       "github:tuhde/Periph/python/periph/chips/temperature/tmp117.py"
     ],
@@ -59,5 +63,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.5.4"
 }

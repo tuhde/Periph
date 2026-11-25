@@ -1,0 +1,1 @@
+_periph_fxos8700.self_test()[0]

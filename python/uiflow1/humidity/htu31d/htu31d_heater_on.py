@@ -1,0 +1,1 @@
+int(_periph_htu31d.is_heater_on())

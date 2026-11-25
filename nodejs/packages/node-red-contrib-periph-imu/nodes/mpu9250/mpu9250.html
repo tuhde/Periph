@@ -1,18 +1,40 @@
-<script type="text/html" data-template-name="periph-mpu9250">
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpu9250-device', {
+        category: 'config',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            addr:      { value: '0x68', required: true },
+            gyroFs:    { value: '0' },
+            accelFs:   { value: '0' },
+            enableMag: { value: false }
+        },
+        label: function() {
+            return this.name || ('MPU9250 @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mpu9250-device">
     <div class="form-row">
-        <label for="node-input-connection"><i class="fa fa-link"></i> I2C Connection</label>
-        <input type="text" id="node-input-connection" placeholder="Select I2C connection node">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MPU9250">
     </div>
     <div class="form-row">
-        <label for="node-input-addr"><i class="fa fa-tag"></i> I2C Address</label>
-        <select id="node-input-addr">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr">I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
             <option value="0x68">0x68 (AD0 = GND)</option>
             <option value="0x69">0x69 (AD0 = VCC)</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-gyroFs"><i class="fa fa-cog"></i> Gyro Full-Scale</label>
-        <select id="node-input-gyroFs">
+        <label for="node-config-input-gyroFs"><i class="fa fa-cog"></i> Gyro full scale</label>
+        <select id="node-config-input-gyroFs">
             <option value="0">±250 dps</option>
             <option value="1">±500 dps</option>
             <option value="2">±1000 dps</option>
@@ -20,8 +42,8 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-accelFs"><i class="fa fa-cog"></i> Accel Full-Scale</label>
-        <select id="node-input-accelFs">
+        <label for="node-config-input-accelFs"><i class="fa fa-cog"></i> Accel full scale</label>
+        <select id="node-config-input-accelFs">
             <option value="0">±2 g</option>
             <option value="1">±4 g</option>
             <option value="2">±8 g</option>
@@ -29,12 +51,40 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-enableMag"><i class="fa fa-magnet"></i> Enable Magnetometer</label>
-        <input type="checkbox" id="node-input-enableMag">
+        <label for="node-config-input-enableMag"><i class="fa fa-magnet"></i> Magnetometer</label>
+        <input type="checkbox" id="node-config-input-enableMag" style="width:auto">
     </div>
 </script>
 
-<script type="text/html" data-help-name="periph-mpu9250">
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpu9250', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mpu9250-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-compass',
+        label:   function() { return this.name || 'MPU9250'; },
+        paletteLabel: 'MPU9250'
+    });
+</script>
+
+<script type="text/html" data-template-name="mpu9250">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MPU9250">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="mpu9250">
     <p>Reads bus voltage, load current, and power from an MPU-9250 9-axis MotionTracking device.</p>
     <h3>Inputs</h3>
     <dl class="message-properties">
@@ -55,9 +105,9 @@
         <dd>Y angular rate in rad/s.</dd>
         <dt>payload.gz <span class="property-type">number</span></dt>
         <dd>Z angular rate in rad/s.</dd>
+        <dt>payload.mx / my / mz <span class="property-type">number</span></dt>
+        <dd>Magnetic field in µT (only when the magnetometer is enabled).</dd>
     </dl>
     <h3>Configuration</h3>
-    <p>Select the I²C connection node, the chip's 7-bit address (default <code>0x68</code>),
-    the gyroscope full-scale range (±250/±500/±1000/±2000 dps), the accelerometer full-scale range (±2/±4/±8/±16 g),
-    and whether to enable the magnetometer.</p>
+    <p>Bus, address, ranges and magnetometer are set in the <b>mpu9250-device</b> config node. Default address is <code>0x68</code>.</p>
 </script>

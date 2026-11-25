@@ -1,0 +1,247 @@
+{
+  "category": "MB85RC",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MB85RC_LANGUAGES = {\n  \"CUSTOM_MB85RC_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MB85RC_READ_BYTE\": {\n    \"en\": \"%1 read byte address %2\"\n  },\n  \"CUSTOM_MB85RC_WRITE_BYTE\": {\n    \"en\": \"%1 write byte address %2 value %3\"\n  },\n  \"CUSTOM_MB85RC_READ\": {\n    \"en\": \"%1 read address %2 length %3 (hex)\"\n  },\n  \"CUSTOM_MB85RC_WRITE\": {\n    \"en\": \"%1 write address %2 data (hex) %3\"\n  },\n  \"CUSTOM_MB85RC_FILL\": {\n    \"en\": \"%1 fill address %2 length %3 value %4\"\n  },\n  \"CUSTOM_MB85RC_SIZE\": {\n    \"en\": \"%1 size (bytes)\"\n  },\n  \"CUSTOM_MB85RC_READ_DEVICE_ID\": {\n    \"en\": \"%1 device ID (hex, empty if 0x7C unavailable)\"\n  }\n};\n\nconst initType = 'custom_mb85rc_init';\nBlockly.BlockRegExpList['custom_mb85rc'] = {\n  regexp: new RegExp(/^custom_mb85rc_/),\n  code: \"from MB85RC import MB85RC\",\n  initBlockType: initType,\n  categoryId: 'custom_mb85rc',\n}\nBlockly.utils.registerLanguages(CUSTOM_MB85RC_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MB85RC_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MB85RC = 'MB85RC'\n\nBlockly.utils.getcustom_mb85rcOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mb85rc_0', 'mb85rc_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mb85rc_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mb85rcOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mb85rc_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MB85RC(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mb85rc_read_byte\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_READ_BYTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_read_byte\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_byte(${address})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mb85rc_write_byte\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_WRITE_BYTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_write_byte\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_byte(${address}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_mb85rc_read\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_READ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'length'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_read\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var length = Blockly.Python.valueToCode(block, 'length', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read(${address}, ${length})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mb85rc_write\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_WRITE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_write\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write(${address}, ${data})\\n`\n}\n\nBlockly.Blocks[\"custom_mb85rc_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'length'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var length = Blockly.Python.valueToCode(block, 'length', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${address}, ${length}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_mb85rc_size\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_SIZE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_size\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.size()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mb85rc_read_device_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MB85RC_READ_DEVICE_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mb85rcOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mb85rc_read_device_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_device_id()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"MB85RC\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mb85rc\"><title text=\"MB85RC\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mb85rc_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">80</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mb85rc_read_byte\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mb85rc_write_byte\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mb85rc_read\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"length\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mb85rc_write\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mb85rc_fill\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"length\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mb85rc_size\"/><block type=\"custom_mb85rc_read_device_id\"/>\n</category>\n",
+    "toolboxitemid": "custom_mb85rc",
+    "block_type": [
+      "custom_mb85rc___init__",
+      "custom_mb85rc_read_byte",
+      "custom_mb85rc_write_byte",
+      "custom_mb85rc_read",
+      "custom_mb85rc_write",
+      "custom_mb85rc_fill",
+      "custom_mb85rc_size",
+      "custom_mb85rc_read_device_id"
+    ]
+  },
+  "data": {
+    "name": "MB85RC",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MB85RC",
+      "time": "2026-11-03",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.memory.mb85rc import MB85RCFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "80",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._bus = bus\n        self._address = address\n        connection = I2CConnection(address, bus=bus, reg_bytes=2)\n        self._driver = MB85RCFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_byte",
+        "note": {},
+        "label": {
+          "en": "%1 read byte address %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_byte(address)",
+        "ast_return": {
+          "code": "self._driver.read_byte(address)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_byte",
+        "note": {},
+        "label": {
+          "en": "%1 write byte address %2 value %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_byte(address, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read",
+        "note": {},
+        "label": {
+          "en": "%1 read address %2 length %3 (hex)"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "length",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read(address, length).hex()",
+        "ast_return": {
+          "code": "self._driver.read(address, length).hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write",
+        "note": {},
+        "label": {
+          "en": "%1 write address %2 data (hex) %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write(address, bytes.fromhex(data))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill address %2 length %3 value %4"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "length",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(address, length, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "size",
+        "note": {},
+        "label": {
+          "en": "%1 size (bytes)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.size()",
+        "ast_return": {
+          "code": "self._driver.size()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_device_id",
+        "note": {},
+        "label": {
+          "en": "%1 device ID (hex, empty if 0x7C unavailable)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        try:\n            id_connection = I2CConnection(0x7C, bus=self._bus, reg_bytes=1)\n            m, d, p = self._driver.read_device_id(id_connection, self._address)\n        except OSError:\n            return ''\n        return '%03X%X%02X' % (m, d, p)",
+        "ast_return": {
+          "code": "'%03X%X%02X' % (m, d, p)",
+          "id": "str"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mb85rc"
+  },
+  "pyCode": "\"\"\"\nfile     MB85RC\ntime     2026-11-03\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.memory.mb85rc import MB85RCFull\n\n\nclass MB85RC:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 80):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '80'\n                field: number\n        \"\"\"\n        self._bus = bus\n        self._address = address\n        connection = I2CConnection(address, bus=bus, reg_bytes=2)\n        self._driver = MB85RCFull(connection)\n\n    def read_byte(self, address: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read byte address %2'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_byte(address)\n\n    def write_byte(self, address: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write byte address %2 value %3'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_byte(address, value)\n\n    def read(self, address: int, length: int) -> str:\n        \"\"\"\n        label:\n            en: '%1 read address %2 length %3 (hex)'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            length:\n                name: length\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read(address, length).hex()\n\n    def write(self, address: int, data: str):\n        \"\"\"\n        label:\n            en: '%1 write address %2 data (hex) %3'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            data:\n                name: data\n                type: str\n        \"\"\"\n        self._driver.write(address, bytes.fromhex(data))\n\n    def fill(self, address: int, length: int, value: int = 0):\n        \"\"\"\n        label:\n            en: '%1 fill address %2 length %3 value %4'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            length:\n                name: length\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.fill(address, length, value)\n\n    def size(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 size (bytes)'\n        \"\"\"\n        return self._driver.size()\n\n    def read_device_id(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 device ID (hex, empty if 0x7C unavailable)'\n        \"\"\"\n        try:\n            id_connection = I2CConnection(0x7C, bus=self._bus, reg_bytes=1)\n            m, d, p = self._driver.read_device_id(id_connection, self._address)\n        except OSError:\n            return ''\n        return '%03X%X%02X' % (m, d, p)\n",
+  "version": "alpha2"
+}

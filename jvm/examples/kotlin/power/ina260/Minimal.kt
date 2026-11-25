@@ -1,0 +1,23 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.5.4
+//DEPS it.uhde:periph-kotlin:1.5.4
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.power.Ina260Minimal
+
+fun main() {
+    I2CConnection(1, 0x40).use { connection ->                 // open I²C bus 1, device 0x40, (bus, address) → I2CConnection
+        val ina = Ina260Minimal(connection)               // construct driver, (connection) → Ina260Minimal
+
+        repeat(10) {
+            val v  = ina.voltage()       // read bus voltage, () → Double V
+            val c  = ina.current()       // read current, () → Double A
+            val p  = ina.power()         // read power, () → Double W
+            println("V=%.3f V  I=%.4f A  P=%.4f W".format(v, c, p))
+            Thread.sleep(1000)
+        }
+    }
+
+}

@@ -1,0 +1,88 @@
+[
+    {
+        "id": "tab-lm25066-demo",
+        "type": "tab",
+        "label": "LM25066 Hot-swap Rail Monitor",
+        "disabled": false,
+        "info": "Hot-swap rail monitor: every 1 s reads VIN, VOUT, input current, input power and MOSFET temperature from an LM25066 on a 12 V rail with a 1 mOhm sense resistor, and shows a formatted string in the debug panel. The node never writes the control registers."
+    },
+    {
+        "id": "cfg-lm25066",
+        "type": "lm25066-device",
+        "name": "LM25066",
+        "bus": "1",
+        "address": "40",
+        "rsense": "1.0",
+        "climit": "25"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lm25066-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "read-lm25066"
+            ]
+        ]
+    },
+    {
+        "id": "read-lm25066",
+        "type": "lm25066",
+        "name": "LM25066",
+        "device": "cfg-lm25066",
+        "z": "tab-lm25066-demo",
+        "x": 320,
+        "y": 160,
+        "wires": [
+            [
+                "fmt-readings"
+            ]
+        ]
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format",
+        "func": "const p = msg.payload;\nmsg.payload = p.voltage_in_v.toFixed(2) + ' V in  ' + p.voltage_out_v.toFixed(2) + ' V out  ' + p.current_a.toFixed(3) + ' A  ' + p.power_w.toFixed(2) + ' W  ' + p.temperature_c.toFixed(1) + ' °C';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-lm25066-demo",
+        "x": 520,
+        "y": 160,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "rail",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-lm25066-demo",
+        "x": 700,
+        "y": 160,
+        "wires": []
+    }
+]

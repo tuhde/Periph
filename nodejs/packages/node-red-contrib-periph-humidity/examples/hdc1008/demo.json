@@ -1,0 +1,91 @@
+[
+  {
+    "id": "hdc1008-tab",
+    "type": "tab",
+    "label": "HDC1008 humidity logger",
+    "disabled": false,
+    "info": "Reads temperature and relative humidity from an HDC1008 every 2 s and formats them. Demonstrates the sequence-mode measurement (temperature then humidity in one read)."
+  },
+  {
+    "id": "hdc1008-inject",
+    "type": "inject",
+    "z": "hdc1008-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "hdc1008-node"
+      ]
+    ]
+  },
+  {
+    "id": "hdc1008-device-1",
+    "type": "hdc1008-device",
+    "name": "HDC1008",
+    "bus": "1",
+    "address": "0x40",
+    "resolution": "14/14"
+  },
+  {
+    "id": "hdc1008-node",
+    "type": "hdc1008",
+    "z": "hdc1008-tab",
+    "name": "HDC1008",
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "hdc1008-format"
+      ]
+    ],
+    "device": "hdc1008-device-1"
+  },
+  {
+    "id": "hdc1008-format",
+    "type": "function",
+    "z": "hdc1008-tab",
+    "name": "Format",
+    "func": "msg.payload = msg.payload.temperature_c.toFixed(2) + ' °C, ' + msg.payload.humidity_pct.toFixed(1) + ' %RH';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 160,
+    "wires": [
+      [
+        "hdc1008-debug"
+      ]
+    ]
+  },
+  {
+    "id": "hdc1008-debug",
+    "type": "debug",
+    "z": "hdc1008-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]
