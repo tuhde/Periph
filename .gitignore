@@ -17,8 +17,7 @@ jvm/testconfig
 go/testconfig
 go/testconfig_tinygo
 go/testconfig_wiring
-rust/target/
-rust/tests/power/ina226_test_esp32s3/target/
+rust/**/target/
 jvm/**/target/
 sigrok/CONFIGS.md
 uiflow/
