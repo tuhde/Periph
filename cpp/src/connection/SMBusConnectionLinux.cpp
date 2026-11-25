@@ -27,6 +27,10 @@ SMBusConnectionLinux::SMBusConnectionLinux(int bus, uint8_t addr, bool pec,
     }
 }
 
+SMBusConnectionLinux::SMBusConnectionLinux(AdoptFd, int fd, uint8_t addr, bool pec,
+                                            InputPin* intPin, OutputPin* enPin, uint8_t regBytes, bool enActiveHigh)
+    : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _fd(fd), _addr(addr), _pec(pec) {}
+
 SMBusConnectionLinux::~SMBusConnectionLinux() {
     if (_fd >= 0) close(_fd);
 }
@@ -42,6 +46,8 @@ uint8_t SMBusConnectionLinux::_crc8(const uint8_t* data, size_t len, uint8_t crc
 
 void SMBusConnectionLinux::_write(const uint8_t* data, size_t len) {
     _valid = true;
+    ssize_t n;
+    size_t want;
     if (_pec) {
         uint8_t addr_byte = _addr << 1;
         uint8_t crc = _crc8(&addr_byte, 1);
@@ -50,29 +56,35 @@ void SMBusConnectionLinux::_write(const uint8_t* data, size_t len) {
         uint8_t buf[256];
         memcpy(buf, data, len);
         buf[len] = crc;
-        if (::write(_fd, buf, len + 1) < 0)
-            throw std::runtime_error(std::string("SMBus write: ") + strerror(errno));
+        want = len + 1;
+        n = ::write(_fd, buf, want);
     } else {
-        if (::write(_fd, data, len) < 0)
-            throw std::runtime_error(std::string("SMBus write: ") + strerror(errno));
+        want = len;
+        n = ::write(_fd, data, want);
     }
+    if (n < 0) perror("SMBus write");
+    _setOk(n == static_cast<ssize_t>(want));
 }
 
 void SMBusConnectionLinux::_read(uint8_t* buf, size_t len) {
     _valid = true;
+    size_t want = _pec ? len + 1 : len;
+    uint8_t tmp[256];
+    ssize_t n = ::read(_fd, _pec ? tmp : buf, want);
+    if (n < 0) perror("SMBus read");
+    if (n != static_cast<ssize_t>(want)) {
+        memset(buf, 0, len);   // a short or failed read must not leave stale bytes behind
+        _setOk(false);
+        return;
+    }
     if (_pec) {
-        uint8_t tmp[256];
-        if (::read(_fd, tmp, len + 1) < 0)
-            throw std::runtime_error(std::string("SMBus read: ") + strerror(errno));
         memcpy(buf, tmp, len);
         uint8_t addr_byte = (_addr << 1) | 1;
         uint8_t crc = _crc8(&addr_byte, 1);
         crc = _crc8(buf, len, crc);
         _valid = (crc == tmp[len]);
-    } else {
-        if (::read(_fd, buf, len) < 0)
-            throw std::runtime_error(std::string("SMBus read: ") + strerror(errno));
     }
+    _setOk(_valid);
 }
 
 void SMBusConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
@@ -96,8 +108,12 @@ void SMBusConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
     rdwr.msgs  = msgs;
     rdwr.nmsgs = 2;
 
-    if (ioctl(_fd, I2C_RDWR, &rdwr) < 0)
-        throw std::runtime_error(std::string("SMBus write_read: ") + strerror(errno));
+    if (ioctl(_fd, I2C_RDWR, &rdwr) < 0) {
+        perror("SMBus ioctl I2C_RDWR");
+        memset(buf, 0, buf_len);
+        _setOk(false);
+        return;
+    }
 
     memcpy(buf, read_buf, buf_len);
 
@@ -110,5 +126,6 @@ void SMBusConnectionLinux::_write_read(const uint8_t* data, size_t data_len,
         crc = _crc8(buf, buf_len, crc);
         _valid = (crc == read_buf[buf_len]);
     }
+    _setOk(_valid);
 }
 #endif // __linux__

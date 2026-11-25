@@ -29,6 +29,10 @@ NeoPixelConnectionLinux::NeoPixelConnectionLinux(int bus_num, int device_num,
     }
 }
 
+NeoPixelConnectionLinux::NeoPixelConnectionLinux(AdoptFd, int fd, uint32_t speed_hz, InputPin* intPin,
+                                                 OutputPin* enPin, bool enActiveHigh)
+    : Connection(intPin, enPin, enActiveHigh), _fd(fd), _speed_hz(speed_hz) {}
+
 NeoPixelConnectionLinux::~NeoPixelConnectionLinux() {
     if (_fd >= 0) close(_fd);
 }
@@ -53,6 +57,9 @@ void NeoPixelConnectionLinux::_write(const uint8_t* data, size_t len) {
     tr.len           = static_cast<uint32_t>(len * 3 + 16);
     tr.speed_hz      = _speed_hz;
     tr.bits_per_word = 8;
-    if (ioctl(_fd, SPI_IOC_MESSAGE(1), &tr) < 0) perror("SPI_IOC_MESSAGE write");
+    if (ioctl(_fd, SPI_IOC_MESSAGE(1), &tr) < 0) {
+        _setOk(false);
+        throw std::runtime_error(std::string("SPI_IOC_MESSAGE write: ") + strerror(errno));
+    }
 }
 #endif // __linux__

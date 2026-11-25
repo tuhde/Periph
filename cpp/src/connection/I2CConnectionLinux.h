@@ -16,6 +16,17 @@ class I2CConnectionLinux : public RegisterConnection {
 public:
     I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
                        uint8_t regBytes = 1, bool enActiveHigh = true);
+
+    /** @brief Tag selecting the constructor that adopts an already-open file descriptor. */
+    struct AdoptFd {};
+
+    /** @brief Adopt an already-open descriptor (closed by the destructor) instead of opening /dev/i2c-N.
+     *
+     *  No I2C_SLAVE ioctl is issued. Intended for unit tests that stand in a pipe or socketpair for the
+     *  bus to exercise short transfers and failures; @p addr is only used for I2C_RDWR messages.
+     */
+    I2CConnectionLinux(AdoptFd, int fd, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                       uint8_t regBytes = 1, bool enActiveHigh = true);
     ~I2CConnectionLinux();
 
 protected:

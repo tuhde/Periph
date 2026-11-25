@@ -21,6 +21,18 @@ public:
     SMBusConnectionLinux(int bus, uint8_t addr, bool pec = false,
                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
                          uint8_t regBytes = 1, bool enActiveHigh = true);
+
+    /** @brief Tag selecting the constructor that adopts an already-open file descriptor. */
+    struct AdoptFd {};
+
+    /** @brief Adopt an already-open descriptor (closed by the destructor) instead of opening /dev/i2c-N.
+     *
+     *  No address check and no I2C_SLAVE ioctl. Intended for unit tests that stand in a pipe or
+     *  socketpair for the bus to exercise short transfers and failures.
+     */
+    SMBusConnectionLinux(AdoptFd, int fd, uint8_t addr, bool pec = false,
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                         uint8_t regBytes = 1, bool enActiveHigh = true);
     ~SMBusConnectionLinux();
 
     /** @brief Returns false if the last read or write_read produced a PEC mismatch. */
