@@ -1,0 +1,1 @@
+_periph_ccs811.set_thresholds(int(${_low_medium}), int(${_medium_high}), int(${_hysteresis}))

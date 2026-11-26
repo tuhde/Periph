@@ -1,0 +1,136 @@
+[
+  {
+    "id": "ccs811-tab",
+    "type": "tab",
+    "label": "CCS811 air quality",
+    "disabled": false,
+    "info": "Indoor air-quality monitor with a CCS811. An inject node fires every 5 s and asks for the latest eCO2 and TVOC sample (the node waits for the next one if none is ready). A function node classifies the eCO2 level (good below 1000 ppm, fair up to 1500 ppm, poor above 1500 ppm) and feeds a dashboard gauge; the debug node shows the full reading in ppm and ppb. Feed msg.humidity and msg.temperature from another sensor to improve the compensation."
+  },
+  {
+    "id": "ccs811-inject",
+    "type": "inject",
+    "z": "ccs811-tab",
+    "name": "every 5 s",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "5",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "ccs811-node"
+      ]
+    ]
+  },
+  {
+    "id": "ccs811-device-1",
+    "type": "ccs811-device",
+    "name": "CCS811",
+    "bus": "1",
+    "address": "0x5A",
+    "mode": "1"
+  },
+  {
+    "id": "ccs811-node",
+    "type": "ccs811",
+    "z": "ccs811-tab",
+    "name": "CCS811",
+    "device": "ccs811-device-1",
+    "x": 340,
+    "y": 160,
+    "wires": [
+      [
+        "ccs811-classify"
+      ]
+    ]
+  },
+  {
+    "id": "ccs811-classify",
+    "type": "function",
+    "z": "ccs811-tab",
+    "name": "Classify eCO2",
+    "func": "const eco2 = msg.payload.eco2_ppm;\nmsg.payload.quality = eco2 < 1000 ? 'good' : (eco2 <= 1500 ? 'fair' : 'poor');\nreturn [msg, { payload: eco2 }];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 160,
+    "wires": [
+      [
+        "ccs811-debug"
+      ],
+      [
+        "ccs811-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "ccs811-debug",
+    "type": "debug",
+    "z": "ccs811-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 750,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ccs811-gauge",
+    "type": "ui_gauge",
+    "z": "ccs811-tab",
+    "name": "eCO2 gauge",
+    "group": "ccs811-group-1",
+    "order": 1,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "eCO2",
+    "label": "ppm",
+    "format": "{{value}}",
+    "min": 400,
+    "max": 2500,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "1000",
+    "seg2": "1500",
+    "x": 750,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ccs811-group-1",
+    "type": "ui_group",
+    "name": "CCS811 Air Quality",
+    "tab": "ccs811-ui-tab-1",
+    "order": 1,
+    "disp": true,
+    "width": 6
+  },
+  {
+    "id": "ccs811-ui-tab-1",
+    "type": "ui_tab",
+    "name": "CCS811 Demo",
+    "icon": "dashboard",
+    "order": 1
+  }
+]

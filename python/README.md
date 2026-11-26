@@ -93,6 +93,7 @@ Each chip exposes two classes:
 | BNO055 | IMU | Fused Euler angles. |
 | CAT24C512 | Memory | 512 Kbit (64 KiB) I2C EEPROM |
 | CAT5171 | ADC/DAC | Digital potentiometer |
+| CCS811 | Gas sensor | I²C indoor air quality gas sensor (ScioSense / ams) |
 | CS43L22 | ADC/DAC | Stereo DAC |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |
 | DRV2605 | Motor driver | Haptic driver |

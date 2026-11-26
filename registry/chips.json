@@ -2906,7 +2906,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ccs811",
       "datasheet": "datasheets/gas/ccs811.pdf"
     },
     {

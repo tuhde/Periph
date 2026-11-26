@@ -113,6 +113,9 @@ CAT24C512Full	KEYWORD1
 CAT24C512Minimal	KEYWORD1
 CAT5171Full	KEYWORD1
 CAT5171Minimal	KEYWORD1
+CCS811Full	KEYWORD1
+CCS811Minimal	KEYWORD1
+CCS811Version	KEYWORD1
 CS43L22Clocking	KEYWORD1
 CS43L22Full	KEYWORD1
 CS43L22Minimal	KEYWORD1
@@ -794,6 +797,7 @@ erase_block_32k	KEYWORD2
 erase_block_64k	KEYWORD2
 erase_sector	KEYWORD2
 erase_size	KEYWORD2
+error	KEYWORD2
 error_count	KEYWORD2
 euler	KEYWORD2
 exit_programming_mode	KEYWORD2
@@ -884,6 +888,7 @@ get_apa	KEYWORD2
 get_apt	KEYWORD2
 get_averaging	KEYWORD2
 get_b_constant	KEYWORD2
+get_baseline	KEYWORD2
 get_brightness	KEYWORD2
 get_calibration	KEYWORD2
 get_current_direction	KEYWORD2
@@ -1078,6 +1083,7 @@ newMagData	KEYWORD2
 new_data_available	KEYWORD2
 nop	KEYWORD2
 normalized	KEYWORD2
+ntc_resistance	KEYWORD2
 nvm_read	KEYWORD2
 nvm_write	KEYWORD2
 ocr	KEYWORD2
@@ -1297,6 +1303,7 @@ read_manufacturer_code	KEYWORD2
 read_min_max	KEYWORD2
 read_mode	KEYWORD2
 read_motion_source	KEYWORD2
+read_ntc	KEYWORD2
 read_nvm	KEYWORD2
 read_oneshot	KEYWORD2
 read_orientation	KEYWORD2
@@ -1746,6 +1753,7 @@ set_double_tap	KEYWORD2
 set_duration	KEYWORD2
 set_duty	KEYWORD2
 set_entry_mode	KEYWORD2
+set_environment	KEYWORD2
 set_external_clock	KEYWORD2
 set_external_sample_trigger	KEYWORD2
 set_fifo	KEYWORD2
@@ -1930,6 +1938,7 @@ set_temperature_sensor	KEYWORD2
 set_temperature_source	KEYWORD2
 set_terminals	KEYWORD2
 set_threshold	KEYWORD2
+set_thresholds	KEYWORD2
 set_transient	KEYWORD2
 set_tristate	KEYWORD2
 set_tx_power	KEYWORD2
@@ -2999,10 +3008,13 @@ SRC_NORMAL	LITERAL1
 SRC_SWAPPED	LITERAL1
 STATUS_ALERT_PHASE	LITERAL1
 STATUS_ALL_ON	LITERAL1
+STATUS_APP_VALID	LITERAL1
 STATUS_BLANK	LITERAL1
 STATUS_BROWNOUT	LITERAL1
 STATUS_CONVERSION	LITERAL1
 STATUS_DATA_READY	LITERAL1
+STATUS_ERROR	LITERAL1
+STATUS_FW_MODE	LITERAL1
 STATUS_GAS_MEASURING	LITERAL1
 STATUS_GAS_VALID	LITERAL1
 STATUS_HEATER_STABLE	LITERAL1

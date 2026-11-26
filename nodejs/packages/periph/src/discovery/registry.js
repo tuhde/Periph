@@ -193,7 +193,7 @@ const CHIPS = [
     {"id":"veml6075","driver":null,"writeSensitive":false,"aliased":false,"addresses":[16],"probe":{"register":12,"regBytes":1,"length":2,"order":"little","mask":4095,"expected":[38]}},
     {"id":"sgp40","driver":null,"writeSensitive":true,"aliased":false,"addresses":[89],"probe":null},
     {"id":"isl29125","driver":"isl29125","writeSensitive":false,"aliased":false,"addresses":[68],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[125]}},
-    {"id":"ccs811","driver":null,"writeSensitive":false,"aliased":false,"addresses":[90,91],"probe":{"register":32,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[129]}},
+    {"id":"ccs811","driver":"ccs811","writeSensitive":false,"aliased":false,"addresses":[90,91],"probe":{"register":32,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[129]}},
     {"id":"vcnl4040","driver":null,"writeSensitive":false,"aliased":false,"addresses":[96],"probe":{"register":12,"regBytes":1,"length":2,"order":"little","mask":65535,"expected":[390]}},
     {"id":"veml6070","driver":null,"writeSensitive":true,"aliased":false,"addresses":[56,57],"probe":null},
     {"id":"sgp30","driver":null,"writeSensitive":true,"aliased":false,"addresses":[88],"probe":null},

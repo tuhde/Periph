@@ -2,3 +2,6 @@
 
 pub mod ens160;
 pub use ens160::{Ens160Minimal, Ens160Full, VALIDITY_OK, VALIDITY_WARMUP, VALIDITY_INITIAL_STARTUP, VALIDITY_INVALID};
+
+pub mod ccs811;
+pub use ccs811::{Ccs811Minimal, Ccs811Full, Ccs811Measurement, Ccs811Version};

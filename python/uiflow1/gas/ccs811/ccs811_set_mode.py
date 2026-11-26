@@ -1,0 +1,1 @@
+_periph_ccs811.set_mode(int(${_mode}))

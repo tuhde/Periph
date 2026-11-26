@@ -1,0 +1,299 @@
+{
+  "category": "Ccs811",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_CCS811_LANGUAGES = {\n  \"CUSTOM_CCS811_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_CCS811_ECO2\": {\n    \"en\": \"%1 eCO2 (ppm)\"\n  },\n  \"CUSTOM_CCS811_TVOC\": {\n    \"en\": \"%1 TVOC (ppb)\"\n  },\n  \"CUSTOM_CCS811_DATA_READY\": {\n    \"en\": \"%1 data ready\"\n  },\n  \"CUSTOM_CCS811_SET_MODE\": {\n    \"en\": \"%1 drive mode (0-4) %2\"\n  },\n  \"CUSTOM_CCS811_SET_ENVIRONMENT\": {\n    \"en\": \"%1 environment humidity (%RH) %2 temperature (°C) %3\"\n  },\n  \"CUSTOM_CCS811_SET_THRESHOLDS\": {\n    \"en\": \"%1 thresholds low/medium (ppm) %2 medium/high (ppm) %3 hysteresis (ppm) %4\"\n  },\n  \"CUSTOM_CCS811_BASELINE\": {\n    \"en\": \"%1 baseline\"\n  },\n  \"CUSTOM_CCS811_SET_BASELINE\": {\n    \"en\": \"%1 set baseline %2\"\n  },\n  \"CUSTOM_CCS811_STATUS\": {\n    \"en\": \"%1 status\"\n  },\n  \"CUSTOM_CCS811_ERROR\": {\n    \"en\": \"%1 error ID\"\n  },\n  \"CUSTOM_CCS811_SOFT_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_ccs811_init';\nBlockly.BlockRegExpList['custom_ccs811'] = {\n  regexp: new RegExp(/^custom_ccs811_/),\n  code: \"from Ccs811 import Ccs811\",\n  initBlockType: initType,\n  categoryId: 'custom_ccs811',\n}\nBlockly.utils.registerLanguages(CUSTOM_CCS811_LANGUAGES)\n\nBlockly.Msg.CUSTOM_CCS811_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_CCS811 = 'Ccs811'\n\nBlockly.utils.getcustom_ccs811Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ccs811_0', 'ccs811_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ccs811_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ccs811Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ccs811_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Ccs811(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_ccs811_eco2\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_ECO2,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_eco2\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.eco2()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ccs811_tvoc\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_TVOC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_tvoc\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.tvoc()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ccs811_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ccs811_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_ccs811_set_environment\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_SET_ENVIRONMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'humidity'\n        },\n        {\n          'type': 'input_value',\n          'name': 'temperature'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_set_environment\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var humidity = Blockly.Python.valueToCode(block, 'humidity', Blockly.Python.ORDER_FUNCTION_CALL);\n  var temperature = Blockly.Python.valueToCode(block, 'temperature', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_environment(${humidity}, ${temperature})\\n`\n}\n\nBlockly.Blocks[\"custom_ccs811_set_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_SET_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low_medium'\n        },\n        {\n          'type': 'input_value',\n          'name': 'medium_high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hysteresis'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_set_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low_medium = Blockly.Python.valueToCode(block, 'low_medium', Blockly.Python.ORDER_FUNCTION_CALL);\n  var medium_high = Blockly.Python.valueToCode(block, 'medium_high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hysteresis = Blockly.Python.valueToCode(block, 'hysteresis', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_thresholds(${low_medium}, ${medium_high}, ${hysteresis})\\n`\n}\n\nBlockly.Blocks[\"custom_ccs811_baseline\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_BASELINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_baseline\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.baseline()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ccs811_set_baseline\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_SET_BASELINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'baseline'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_set_baseline\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var baseline = Blockly.Python.valueToCode(block, 'baseline', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_baseline(${baseline})\\n`\n}\n\nBlockly.Blocks[\"custom_ccs811_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ccs811_error\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_ERROR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_error\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.error()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ccs811_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_CCS811_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ccs811Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ccs811_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}",
+    "toolbox": "\n<category name=\"Ccs811\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ccs811\">\n<title text=\"Ccs811\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ccs811_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">90</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ccs811_eco2\"/><block type=\"custom_ccs811_tvoc\"/><block type=\"custom_ccs811_data_ready\"/><block type=\"custom_ccs811_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ccs811_set_environment\">\n  <value name=\"humidity\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50.0</field>\n    </shadow>\n  </value>\n  <value name=\"temperature\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">25.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ccs811_set_thresholds\">\n  <value name=\"low_medium\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1500</field>\n    </shadow>\n  </value>\n  <value name=\"medium_high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2500</field>\n    </shadow>\n  </value>\n  <value name=\"hysteresis\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ccs811_baseline\"/><block type=\"custom_ccs811_set_baseline\">\n  <value name=\"baseline\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ccs811_status\"/><block type=\"custom_ccs811_error\"/><block type=\"custom_ccs811_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_ccs811",
+    "block_type": [
+      "custom_ccs811___init__",
+      "custom_ccs811_eco2",
+      "custom_ccs811_tvoc",
+      "custom_ccs811_data_ready",
+      "custom_ccs811_set_mode",
+      "custom_ccs811_set_environment",
+      "custom_ccs811_set_thresholds",
+      "custom_ccs811_baseline",
+      "custom_ccs811_set_baseline",
+      "custom_ccs811_status",
+      "custom_ccs811_error",
+      "custom_ccs811_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "Ccs811",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Ccs811",
+      "time": "2026-11-26",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gas.ccs811 import CCS811Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "90",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = CCS811Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "eco2",
+        "note": {},
+        "label": {
+          "en": "%1 eCO2 (ppm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_eco2()",
+        "ast_return": {
+          "code": "self._driver.read_eco2()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tvoc",
+        "note": {},
+        "label": {
+          "en": "%1 TVOC (ppb)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_tvoc()",
+        "ast_return": {
+          "code": "self._driver.read_tvoc()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 drive mode (0-4) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_environment",
+        "note": {},
+        "label": {
+          "en": "%1 environment humidity (%RH) %2 temperature (°C) %3"
+        },
+        "params": [
+          {
+            "name": "humidity",
+            "type": "float",
+            "default": "50.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "temperature",
+            "type": "float",
+            "default": "25.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_environment(humidity, temperature)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 thresholds low/medium (ppm) %2 medium/high (ppm) %3 hysteresis (ppm) %4"
+        },
+        "params": [
+          {
+            "name": "low_medium",
+            "type": "int",
+            "default": "1500",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "medium_high",
+            "type": "int",
+            "default": "2500",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "hysteresis",
+            "type": "int",
+            "default": "50",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_thresholds(low_medium, medium_high, hysteresis)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "baseline",
+        "note": {},
+        "label": {
+          "en": "%1 baseline"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_baseline()",
+        "ast_return": {
+          "code": "self._driver.get_baseline()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_baseline",
+        "note": {},
+        "label": {
+          "en": "%1 set baseline %2"
+        },
+        "params": [
+          {
+            "name": "baseline",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_baseline(baseline)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.status()",
+        "ast_return": {
+          "code": "self._driver.status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "error",
+        "note": {},
+        "label": {
+          "en": "%1 error ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.error()",
+        "ast_return": {
+          "code": "self._driver.error()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ccs811"
+  },
+  "pyCode": "\"\"\"\nfile     Ccs811\ntime     2026-11-26\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gas.ccs811 import CCS811Full\n\n\nclass Ccs811:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 90):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '90'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = CCS811Full(connection)\n        self._driver.init()\n\n    def eco2(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 eCO2 (ppm)'\n        \"\"\"\n        return self._driver.read_eco2()\n\n    def tvoc(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 TVOC (ppb)'\n        \"\"\"\n        return self._driver.read_tvoc()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def set_mode(self, mode: int = 1):\n        \"\"\"\n        label:\n            en: '%1 drive mode (0-4) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def set_environment(self, humidity: float = 50.0, temperature: float = 25.0):\n        \"\"\"\n        label:\n            en: '%1 environment humidity (%RH) %2 temperature (°C) %3'\n        params:\n            humidity:\n                name: humidity\n                type: float\n                default: '50.0'\n                field: number\n            temperature:\n                name: temperature\n                type: float\n                default: '25.0'\n                field: number\n        \"\"\"\n        self._driver.set_environment(humidity, temperature)\n\n    def set_thresholds(self, low_medium: int = 1500, medium_high: int = 2500, hysteresis: int = 50):\n        \"\"\"\n        label:\n            en: '%1 thresholds low/medium (ppm) %2 medium/high (ppm) %3 hysteresis (ppm) %4'\n        params:\n            low_medium:\n                name: low_medium\n                type: int\n                default: '1500'\n                field: number\n            medium_high:\n                name: medium_high\n                type: int\n                default: '2500'\n                field: number\n            hysteresis:\n                name: hysteresis\n                type: int\n                default: '50'\n                field: number\n        \"\"\"\n        self._driver.set_thresholds(low_medium, medium_high, hysteresis)\n\n    def baseline(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 baseline'\n        \"\"\"\n        return self._driver.get_baseline()\n\n    def set_baseline(self, baseline: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set baseline %2'\n        params:\n            baseline:\n                name: baseline\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_baseline(baseline)\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 status'\n        \"\"\"\n        return self._driver.status()\n\n    def error(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 error ID'\n        \"\"\"\n        return self._driver.error()\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.soft_reset()\n",
+  "version": "alpha2"
+}

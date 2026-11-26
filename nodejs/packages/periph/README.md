@@ -75,6 +75,7 @@ Each chip exposes two classes:
 | BNO055 | IMU | `periph/src/chips/imu/bno055` |
 | CAT24C512 | Memory | `periph/src/chips/memory/cat24c512` |
 | CAT5171 | ADC/DAC | `periph/src/chips/adc_dac/cat5171` |
+| CCS811 | Gas sensor | `periph/src/chips/gas/ccs811` |
 | CS43L22 | ADC/DAC | `periph/src/chips/adc_dac/cs43l22` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | DRV2605 | Motor driver | `periph/src/chips/motor/drv2605` |

@@ -1,0 +1,182 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ccs811_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init CCS811",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_read_eco2",
+      "type": "value",
+      "params": [
+        {
+          "name": "CCS811 eCO2 (ppm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_read_tvoc",
+      "type": "value",
+      "params": [
+        {
+          "name": "CCS811 TVOC (ppb)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "CCS811 data ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CCS811 drive mode (0-4)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_set_environment",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CCS811 environment humidity (%RH)",
+          "type": "label"
+        },
+        {
+          "name": "_humidity",
+          "type": "number"
+        },
+        {
+          "name": "temperature (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_temperature",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_set_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CCS811 thresholds low/medium (ppm)",
+          "type": "label"
+        },
+        {
+          "name": "_low_medium",
+          "type": "number"
+        },
+        {
+          "name": "medium/high (ppm)",
+          "type": "label"
+        },
+        {
+          "name": "_medium_high",
+          "type": "number"
+        },
+        {
+          "name": "hysteresis (ppm)",
+          "type": "label"
+        },
+        {
+          "name": "_hysteresis",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_get_baseline",
+      "type": "value",
+      "params": [
+        {
+          "name": "CCS811 baseline",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_set_baseline",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CCS811 set baseline",
+          "type": "label"
+        },
+        {
+          "name": "_baseline",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "CCS811 status",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_error",
+      "type": "value",
+      "params": [
+        {
+          "name": "CCS811 error ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ccs811_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "CCS811 soft reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
