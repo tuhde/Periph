@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <hardware/uart.h>
 #include <hardware/gpio.h>
 #include <pico/time.h>
@@ -90,9 +91,8 @@ protected:
     /** @brief Receive @p len bytes; blocks (sleeping 1 ms between polls)
      *         until all bytes have arrived or a 1 s total timeout expires.
      *
-     *  On timeout, fewer than @p len bytes may have been written to
-     *  @p buf — call available() to check how many bytes are buffered
-     *  before deciding how much of @p buf is valid.
+     *  On timeout, fewer than @p len bytes arrive: the remainder of
+     *  @p buf is zero-filled and ok() reports false.
      *
      *  @param buf Destination buffer; must be at least @p len bytes.
      *  @param len Number of bytes to read.
@@ -109,6 +109,8 @@ protected:
                 sleep_ms(1);
             }
         }
+        if (got < len) memset(buf + got, 0, len - got);   // never leave stale bytes behind
+        _setOk(got == len);
     }
 
     /** @brief Transmit bytes then receive @p buf_len bytes.
@@ -123,7 +125,7 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
         _write(data, data_len);
-        _read(buf, buf_len);
+        _read(buf, buf_len);   // sets ok() for the read phase; the write phase cannot fail on pico-sdk
     }
 
 private:

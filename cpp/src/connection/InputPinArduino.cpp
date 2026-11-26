@@ -13,13 +13,21 @@ InputPinArduino::InputPinArduino(uint8_t pin) : _pin(pin) {
 bool InputPinArduino::onEdge(Handler handler, uint8_t trigger) {
     bool added = addHandler(_handlers, handler);
     if (added && !_armed) {
+        int irq = digitalPinToInterrupt(_pin);
+#ifdef NOT_AN_INTERRUPT
+        if (irq == NOT_AN_INTERRUPT) {   // pin cannot raise interrupts on this board
+            _setOk(false);
+            return added;
+        }
+#endif
         int slot = claimSlot(this);
+        _setOk(slot >= 0);               // all kMaxInstances trampolines in use
         if (slot >= 0) {
             // RHS RISING/CHANGE/FALLING are Arduino's own macros (attachInterrupt's
             // native mode values); LHS trigger/kRising/kChange are our InputPin
             // abstraction's values — the two encodings are unrelated numerically.
             int mode = trigger == kRising ? RISING : (trigger == kChange ? CHANGE : FALLING);
-            attachInterrupt(digitalPinToInterrupt(_pin), kTrampolines[slot], mode);
+            attachInterrupt(irq, kTrampolines[slot], mode);
             _armed = true;
         }
     }

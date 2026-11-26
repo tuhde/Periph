@@ -42,9 +42,9 @@ protected:
             uint8_t crc = _crc8(&addr_byte, 1);
             crc = _crc8(data, len, crc);
             buf[len] = crc;
-            i2c_write(_dev, buf, len + 1, _addr);
+            _setOk(i2c_write(_dev, buf, len + 1, _addr) == 0);
         } else {
-            i2c_write(_dev, data, len, _addr);
+            _setOk(i2c_write(_dev, data, len, _addr) == 0);
         }
     }
 
@@ -57,14 +57,18 @@ protected:
         _valid = true;
         if (_pec) {
             uint8_t tmp[256];
-            i2c_read(_dev, tmp, len + 1, _addr);
+            bool xfer_ok = i2c_read(_dev, tmp, len + 1, _addr) == 0;
+            if (!xfer_ok) memset(tmp, 0, len + 1);
             memcpy(buf, tmp, len);
             uint8_t addr_byte = (_addr << 1) | 1;
             uint8_t crc = _crc8(&addr_byte, 1);
             crc = _crc8(buf, len, crc);
             _valid = (crc == tmp[len]);
+            _setOk(xfer_ok && _valid);
         } else {
-            i2c_read(_dev, buf, len, _addr);
+            bool xfer_ok = i2c_read(_dev, buf, len, _addr) == 0;
+            if (!xfer_ok) memset(buf, 0, len);
+            _setOk(xfer_ok);
         }
     }
 
@@ -78,7 +82,8 @@ protected:
         _valid = true;
         if (_pec) {
             uint8_t tmp[256];
-            i2c_write_read(_dev, _addr, data, data_len, tmp, buf_len + 1);
+            bool xfer_ok = i2c_write_read(_dev, _addr, data, data_len, tmp, buf_len + 1) == 0;
+            if (!xfer_ok) memset(tmp, 0, buf_len + 1);
             memcpy(buf, tmp, buf_len);
             uint8_t aw = _addr << 1;
             uint8_t ar = (_addr << 1) | 1;
@@ -87,8 +92,11 @@ protected:
             crc = _crc8(&ar, 1, crc);
             crc = _crc8(buf, buf_len, crc);
             _valid = (crc == tmp[buf_len]);
+            _setOk(xfer_ok && _valid);
         } else {
-            i2c_write_read(_dev, _addr, data, data_len, buf, buf_len);
+            bool xfer_ok = i2c_write_read(_dev, _addr, data, data_len, buf, buf_len) == 0;
+            if (!xfer_ok) memset(buf, 0, buf_len);
+            _setOk(xfer_ok);
         }
     }
 

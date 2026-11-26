@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <stm32f4xx_hal.h>
 #include "Connection.h"
 
@@ -45,16 +46,24 @@ protected:
      */
     void _write(const uint8_t* data, size_t len) override {
         if (_dePort) HAL_GPIO_WritePin(_dePort, _dePin, GPIO_PIN_SET);
-        HAL_UART_Transmit(_huart, const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS);
+        HAL_StatusTypeDef st = HAL_UART_Transmit(_huart, const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS);
         if (_dePort) HAL_GPIO_WritePin(_dePort, _dePin, GPIO_PIN_RESET);
+        _setOk(st == HAL_OK);
     }
 
     /** @brief Receive @p len bytes; blocks up to a 1000 ms total timeout.
+     *  On timeout or a HAL error, @p buf is zero-filled and ok() reports false.
      *  @param buf Destination buffer; must be at least @p len bytes.
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        HAL_UART_Receive(_huart, buf, static_cast<uint16_t>(len), _TIMEOUT_MS);
+        HAL_StatusTypeDef st = HAL_UART_Receive(_huart, buf, static_cast<uint16_t>(len), _TIMEOUT_MS);
+        if (st != HAL_OK) {
+            // HAL does not report how many bytes arrived before the timeout,
+            // so the whole buffer is discarded.
+            memset(buf, 0, len);
+        }
+        _setOk(st == HAL_OK);
     }
 
     /** @brief Transmit bytes then receive @p buf_len bytes. DE, if wired,
@@ -67,7 +76,9 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
         _write(data, data_len);
+        bool wrote = ok();
         _read(buf, buf_len);
+        if (!wrote) _setOk(false);
     }
 
 private:

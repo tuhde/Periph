@@ -12,7 +12,7 @@
 class InputPinZephyr : public InputPin {
 public:
     explicit InputPinZephyr(const struct gpio_dt_spec& pin) : _pin(pin) {
-        gpio_pin_configure_dt(&_pin, GPIO_INPUT);
+        _setOk(gpio_pin_configure_dt(&_pin, GPIO_INPUT) == 0);
         gpio_init_callback(&_cb, &InputPinZephyr::isrTrampoline, BIT(_pin.pin));
     }
 
@@ -22,9 +22,10 @@ public:
             gpio_flags_t flags = trigger == kRising ? GPIO_INT_EDGE_RISING
                                 : trigger == kChange  ? GPIO_INT_EDGE_BOTH
                                                       : GPIO_INT_EDGE_FALLING;
-            gpio_pin_interrupt_configure_dt(&_pin, flags);
-            gpio_add_callback(_pin.port, &_cb);
-            _armed = true;
+            bool good = gpio_pin_interrupt_configure_dt(&_pin, flags) == 0;
+            good = good && gpio_add_callback(_pin.port, &_cb) == 0;
+            _setOk(good);
+            _armed = good;   // retry on the next onEdge() if arming failed
         }
         return added;
     }
@@ -35,7 +36,9 @@ public:
 
     /** @brief Raw level via gpio_pin_get_raw() (ignores the devicetree active-low flag). */
     bool isHigh() override {
-        return gpio_pin_get_raw(_pin.port, _pin.pin) > 0;
+        int v = gpio_pin_get_raw(_pin.port, _pin.pin);
+        _setOk(v >= 0);
+        return v > 0;
     }
 
 private:

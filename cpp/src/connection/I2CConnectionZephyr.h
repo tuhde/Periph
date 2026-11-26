@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <zephyr/drivers/i2c.h>
 #include "RegisterConnection.h"
 
@@ -35,7 +36,9 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        _setOk(i2c_read(_dev, buf, len, _addr) == 0);
+        bool good = i2c_read(_dev, buf, len, _addr) == 0;
+        if (!good) memset(buf, 0, len);   // never leave stale bytes behind
+        _setOk(good);
     }
 
     /** @brief Write then read via i2c_write_read (repeated start).
@@ -46,7 +49,9 @@ protected:
      */
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
-        _setOk(i2c_write_read(_dev, _addr, data, data_len, buf, buf_len) == 0);
+        bool good = i2c_write_read(_dev, _addr, data, data_len, buf, buf_len) == 0;
+        if (!good) memset(buf, 0, buf_len);
+        _setOk(good);
     }
 
 private:

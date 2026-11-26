@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <hardware/i2c.h>
 #include "RegisterConnection.h"
 
@@ -44,7 +45,9 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        _setOk(i2c_read_blocking(_i2c, _addr, buf, len, false) == static_cast<int>(len));
+        bool good = i2c_read_blocking(_i2c, _addr, buf, len, false) == static_cast<int>(len);
+        if (!good) memset(buf, 0, len);   // never leave stale bytes behind
+        _setOk(good);
     }
 
     /** @brief Write then read with a repeated start between phases.
@@ -62,7 +65,9 @@ protected:
                      uint8_t* buf, size_t buf_len) override {
         int w = i2c_write_blocking(_i2c, _addr, data, data_len, true);
         int r = i2c_read_blocking(_i2c, _addr, buf, buf_len, false);
-        _setOk(w == static_cast<int>(data_len) && r == static_cast<int>(buf_len));
+        bool good = w == static_cast<int>(data_len) && r == static_cast<int>(buf_len);
+        if (!good) memset(buf, 0, buf_len);
+        _setOk(good);
     }
 
     /** @brief Underlying I²C controller pointer, exposed so derived

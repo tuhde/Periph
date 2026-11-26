@@ -79,10 +79,8 @@ protected:
 
     /** @brief Receive @p len bytes from the RX ring buffer; blocks (sleeping
      *         1 ms between polls) until all bytes have arrived or a 1 s
-     *         total timeout expires. On timeout, fewer than @p len bytes may
-     *         have been written to @p buf — call available() to check how
-     *         many bytes are buffered before deciding how much of @p buf is
-     *         valid.
+     *         total timeout expires. On timeout the rest of @p buf is
+     *         zero-filled and ok() reports false.
      *  @param buf Destination buffer; must be at least @p len bytes.
      *  @param len Number of bytes to read.
      */
@@ -99,6 +97,8 @@ protected:
                 k_sleep(K_MSEC(1));
             }
         }
+        if (got < len) memset(buf + got, 0, len - got);   // never leave stale bytes behind
+        _setOk(got == len);
     }
 
     /** @brief Transmit bytes then receive @p buf_len bytes.

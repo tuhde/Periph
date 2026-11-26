@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <stm32f4xx_hal.h>
 #include "RegisterConnection.h"
 
@@ -74,6 +75,7 @@ protected:
     void _read(uint8_t* buf, size_t len) override {
         _record(HAL_I2C_Master_Receive(_hi2c, static_cast<uint16_t>(_addr << 1),
                                        buf, static_cast<uint16_t>(len), _timeoutMs));
+        if (!ok()) memset(buf, 0, len);   // never leave stale bytes behind
     }
 
     /** @brief Write then read; see the class comment for why this is a

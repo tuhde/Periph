@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <driver/i2c_master.h>
 #include "RegisterConnection.h"
 
@@ -50,7 +51,9 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        _setOk(i2c_master_receive(_dev, buf, len, -1) == ESP_OK);
+        bool good = i2c_master_receive(_dev, buf, len, -1) == ESP_OK;
+        if (!good) memset(buf, 0, len);   // never leave stale bytes behind
+        _setOk(good);
     }
 
     /** @brief Write then read with a repeated start via `i2c_master_transmit_receive`.
@@ -66,7 +69,9 @@ protected:
      */
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
-        _setOk(i2c_master_transmit_receive(_dev, data, data_len, buf, buf_len, -1) == ESP_OK);
+        bool good = i2c_master_transmit_receive(_dev, data, data_len, buf, buf_len, -1) == ESP_OK;
+        if (!good) memset(buf, 0, buf_len);
+        _setOk(good);
     }
 
     /** @brief Underlying I²C device handle, exposed so derived connections
