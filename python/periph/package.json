@@ -605,6 +605,10 @@
       "github:tuhde/Periph/python/periph/chips/pressure/ms5611.py"
     ],
     [
+      "periph/chips/pressure/spl06.py",
+      "github:tuhde/Periph/python/periph/chips/pressure/spl06.py"
+    ],
+    [
       "periph/chips/rfid/mfrc522.py",
       "github:tuhde/Periph/python/periph/chips/rfid/mfrc522.py"
     ],
