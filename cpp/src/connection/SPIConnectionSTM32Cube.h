@@ -118,8 +118,9 @@ protected:
      */
     void _write(const uint8_t* data, size_t len) override {
         _csAssert();
-        HAL_SPI_Transmit(_hspi, const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS);
+        HAL_StatusTypeDef st = HAL_SPI_Transmit(_hspi, const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS);
         _csRelease();
+        _setOk(st == HAL_OK);
     }
 
     /** @brief Read bytes from the device via `HAL_SPI_Receive`, with manual CS.
@@ -128,8 +129,9 @@ protected:
      */
     void _read(uint8_t* buf, size_t len) override {
         _csAssert();
-        _receive(buf, len);
+        bool good = _receive(buf, len);
         _csRelease();
+        _setOk(good);
     }
 
     /** @brief Write then read with CS held low across both phases.
@@ -141,9 +143,14 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
         _csAssert();
-        HAL_SPI_Transmit(_hspi, const_cast<uint8_t*>(data), static_cast<uint16_t>(data_len), _TIMEOUT_MS);
-        _receive(buf, buf_len);
+        bool good = HAL_SPI_Transmit(_hspi, const_cast<uint8_t*>(data), static_cast<uint16_t>(data_len), _TIMEOUT_MS) == HAL_OK;
+        if (good) {
+            good = _receive(buf, buf_len);
+        } else {
+            memset(buf, 0, buf_len);   // never leave stale bytes behind
+        }
         _csRelease();
+        _setOk(good);
     }
 
 private:
@@ -155,14 +162,21 @@ private:
     // Clock 0xFF on MOSI while reading. HAL_SPI_Receive in 2-line master mode
     // would transmit the (uninitialised) receive buffer, which an SD card
     // reads as command traffic (specs/transport_spi.md "MOSI idle level").
-    void _receive(uint8_t* buf, size_t len) {
+    // Returns false (and zero-fills all of buf) if any chunk fails.
+    bool _receive(uint8_t* buf, size_t len) {
+        uint8_t* const start = buf;
+        const size_t total = len;
         while (len) {
             uint16_t chunk = len > 0xFFFF ? 0xFFFF : static_cast<uint16_t>(len);
             memset(buf, 0xFF, chunk);
-            HAL_SPI_TransmitReceive(_hspi, buf, buf, chunk, _TIMEOUT_MS);
+            if (HAL_SPI_TransmitReceive(_hspi, buf, buf, chunk, _TIMEOUT_MS) != HAL_OK) {
+                memset(start, 0, total);
+                return false;
+            }
             buf += chunk;
             len -= chunk;
         }
+        return true;
     }
 
     bool _held = false;

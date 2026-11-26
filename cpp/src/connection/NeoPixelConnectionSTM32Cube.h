@@ -45,7 +45,7 @@ protected:
             return;
         }
         _encode(data, len, encoded);
-        HAL_SPI_Transmit(_hspi, encoded, static_cast<uint16_t>(len * 3 + 16), _TIMEOUT_MS);
+        _setOk(HAL_SPI_Transmit(_hspi, encoded, static_cast<uint16_t>(len * 3 + 16), _TIMEOUT_MS) == HAL_OK);
     }
 
     void _read(uint8_t* /*buf*/, size_t /*len*/) override {}
@@ -79,13 +79,18 @@ private:
         constexpr size_t CHUNK = 64;
         uint8_t encoded[3 * CHUNK + 16];
         size_t pos = 0;
+        bool good = true;
         while (pos < len) {
             size_t n = (len - pos < CHUNK) ? (len - pos) : CHUNK;
             bool last = (pos + n == len);
             _encode(data + pos, n, encoded);
             size_t tx_len = n * 3 + (last ? 16 : 0);
-            HAL_SPI_Transmit(_hspi, encoded, static_cast<uint16_t>(tx_len), _TIMEOUT_MS);
+            if (HAL_SPI_Transmit(_hspi, encoded, static_cast<uint16_t>(tx_len), _TIMEOUT_MS) != HAL_OK) {
+                good = false;
+                break;
+            }
             pos += n;
         }
+        _setOk(good);
     }
 };

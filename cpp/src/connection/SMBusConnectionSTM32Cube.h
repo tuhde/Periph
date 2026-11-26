@@ -33,7 +33,7 @@ public:
 
     /** @brief Returns false if the address was out of range or the last
      *         read/write_read had a PEC mismatch. */
-    bool valid() const { return _valid; }
+    bool valid() const { return _valid; }   // a PEC mismatch also makes ok() false
 
 protected:
     /** @brief Send bytes to the device, appending a PEC byte if enabled. */
@@ -67,6 +67,7 @@ protected:
             uint8_t crc = _crc8(&addr_byte, 1);
             crc = _crc8(buf, len, crc);
             _valid = (crc == tmp[len]);
+            if (!_valid) _setOk(false);
         } else {
             I2CConnectionSTM32Cube::_read(buf, len);
         }
@@ -84,7 +85,10 @@ protected:
         if (_pec) {
             uint8_t tmp[256];
             I2CConnectionSTM32Cube::_write(data, data_len);
-            I2CConnectionSTM32Cube::_read(tmp, buf_len + 1);
+            bool wrote = ok();
+            I2CConnectionSTM32Cube::_read(tmp, buf_len + 1);   // zero-fills tmp on failure
+            bool xfer_ok = wrote && ok();
+            if (!xfer_ok) memset(tmp, 0, buf_len + 1);
             memcpy(buf, tmp, buf_len);
             uint8_t aw = _addr << 1;
             uint8_t ar = (_addr << 1) | 1;
@@ -93,6 +97,7 @@ protected:
             crc = _crc8(&ar, 1, crc);
             crc = _crc8(buf, buf_len, crc);
             _valid = (crc == tmp[buf_len]);
+            _setOk(xfer_ok && _valid);
         } else {
             I2CConnectionSTM32Cube::_write_read(data, data_len, buf, buf_len);
         }
