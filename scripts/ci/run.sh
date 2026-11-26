@@ -202,6 +202,7 @@ case "$JOB" in
         step "Check UIFlow 1 .m5b files" python/uiflow1/generate.sh --check
         step "Check python/README.md" node python/scripts/generate-readme.js --check
         step "Check mip packages" python3 python/scripts/generate-mip-packages.py --check
+        PYTHONPATH=python step "Python UART write unit test" python3 python/tests/connection/uart_write_test_unit.py
         ;;
 
     registry)
