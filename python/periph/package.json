@@ -249,6 +249,10 @@
       "github:tuhde/Periph/python/periph/chips/environmental/bme688.py"
     ],
     [
+      "periph/chips/gas/ccs811.py",
+      "github:tuhde/Periph/python/periph/chips/gas/ccs811.py"
+    ],
+    [
       "periph/chips/gas/ens160.py",
       "github:tuhde/Periph/python/periph/chips/gas/ens160.py"
     ],
