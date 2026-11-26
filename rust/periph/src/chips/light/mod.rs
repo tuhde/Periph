@@ -25,3 +25,9 @@ pub use bh1750::{
 
 pub mod si1132;
 pub use si1132::{Si1132Minimal, Si1132Full, Reading as Si1132Reading, Error as Si1132Error};
+
+pub mod si1133;
+pub use si1133::{
+    Si1133Minimal, Si1133Full, Reading as Si1133Reading, Response as Si1133Response,
+    Channels as Si1133Channels, Error as Si1133Error,
+};
