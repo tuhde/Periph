@@ -177,6 +177,7 @@ Each chip exposes two classes:
 | Si1132 | Light sensor | `chips/light/Si1132.h` |
 | Si7021 | Humidity sensor | `chips/humidity/Si7021.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
+| Spl06 | Pressure sensor | `chips/pressure/Spl06.h` |
 | SSD1305 | Display driver | `chips/display/SSD1305.h` |
 | SSD1306 | Display driver | `chips/display/SSD1306.h` |
 | TCA9554 | IO expander | `chips/io_expander/TCA9554.h` |

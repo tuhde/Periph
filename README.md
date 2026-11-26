@@ -277,7 +277,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | Si1145 | Proximity, UV index and ambient light sensor (Si1145/46/47, IR LED driver, interrupt) | | | | | | | | |
 | Si7021 | Humidity + temperature sensor (±3 %RH, ±0.4 °C, heater, command protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| SPL06-007 | Barometric pressure and temperature sensor (24-bit, 300–1100 hPa, FIFO, interrupt, I²C/SPI) | | | | | | | | |
+| SPL06-007 | Barometric pressure and temperature sensor (24-bit, 300–1100 hPa, FIFO, interrupt, I²C/SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SPS30 | Laser particulate matter sensor (PM1/2.5/4/10, number concentration, fan cleaning, I²C) | | | | | | | | |
 | SSD1305 | OLED display (132×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1306 | OLED display (128×64) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

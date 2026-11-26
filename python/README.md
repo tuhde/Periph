@@ -183,6 +183,7 @@ Each chip exposes two classes:
 | SI1132 | Light sensor | UV index and ambient light sensor |
 | SI7021 | Humidity sensor | Humidity and temperature sensor |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
+| SPL06 | Pressure sensor | SPL06-007 I²C barometric pressure and temperature sensor (Goertek) |
 | SSD1305 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1306 | Display driver | 128 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
