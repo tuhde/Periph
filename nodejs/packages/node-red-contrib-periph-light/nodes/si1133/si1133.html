@@ -1,0 +1,81 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('si1133-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x55' }
+        },
+        label: function() {
+            return this.name || ('Si1133 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="si1133-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Si1133">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:120px">
+            <option value="0x55">0x55 (AD high)</option>
+            <option value="0x52">0x52 (AD low)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('si1133', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'si1133-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'Si1133'; },
+        paletteLabel: 'Si1133'
+    });
+</script>
+
+<script type="text/html" data-template-name="si1133">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Si1133">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="si1133">
+    <p>Reads the raw UV and white-light counts from a Silicon Labs Si1133 over I²C (address 0x55 or 0x52)
+    with one forced measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.uv <span class="property-type">number</span></dt>
+        <dd>Signed 24-bit raw count of the UV channel (UV photodiode, HW_GAIN 9).</dd>
+        <dt>payload.white <span class="property-type">number</span></dt>
+        <dd>Signed 24-bit raw count of the white-light channel (white photodiode, HW_GAIN 7).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number and I²C address (0x55 with AD pulled up, 0x52 with AD pulled down), set in the
+    <b>si1133-device</b> config node. The counts are raw ADC values; the datasheet gives no lux or
+    UV-index formula.</p>
+</script>
