@@ -429,6 +429,8 @@ ST7036Minimal	KEYWORD1
 SequenceStep	KEYWORD1
 Si1132Full	KEYWORD1
 Si1132Minimal	KEYWORD1
+Si1133Full	KEYWORD1
+Si1133Minimal	KEYWORD1
 Si7021Full	KEYWORD1
 Si7021Minimal	KEYWORD1
 SiPoConnection	KEYWORD1
@@ -641,6 +643,7 @@ configure_als	KEYWORD2
 configure_any_motion	KEYWORD2
 configure_autoconfig	KEYWORD2
 configure_baseline_filter	KEYWORD2
+configure_channel	KEYWORD2
 configure_clock	KEYWORD2
 configure_debounce	KEYWORD2
 configure_device	KEYWORD2
@@ -766,6 +769,7 @@ enable_als_interrupt	KEYWORD2
 enable_axes	KEYWORD2
 enable_blink	KEYWORD2
 enable_channel	KEYWORD2
+enable_channels	KEYWORD2
 enable_drdy_interrupt	KEYWORD2
 enable_fifo	KEYWORD2
 enable_fifo_interrupt	KEYWORD2
@@ -1264,6 +1268,7 @@ read_capture	KEYWORD2
 read_channel	KEYWORD2
 read_channel_raw	KEYWORD2
 read_channel_voltage	KEYWORD2
+read_channels	KEYWORD2
 read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
 read_config	KEYWORD2
@@ -1295,6 +1300,7 @@ read_id	KEYWORD2
 read_infrared	KEYWORD2
 read_int_source	KEYWORD2
 read_interrupt_source	KEYWORD2
+read_ir	KEYWORD2
 read_keys	KEYWORD2
 read_low_power	KEYWORD2
 read_lpf_raw	KEYWORD2
@@ -1311,6 +1317,7 @@ read_otp	KEYWORD2
 read_packet	KEYWORD2
 read_page	KEYWORD2
 read_parallel	KEYWORD2
+read_parameter	KEYWORD2
 read_peak	KEYWORD2
 read_periodic	KEYWORD2
 read_port	KEYWORD2
@@ -1352,6 +1359,7 @@ read_uid	KEYWORD2
 read_ultralight_page	KEYWORD2
 read_user_register	KEYWORD2
 read_user_registers	KEYWORD2
+read_uv	KEYWORD2
 read_uv_index	KEYWORD2
 read_vcom	KEYWORD2
 read_vdd_raw	KEYWORD2
@@ -1360,6 +1368,7 @@ read_virtual	KEYWORD2
 read_visible	KEYWORD2
 read_voltage	KEYWORD2
 read_weight	KEYWORD2
+read_white	KEYWORD2
 read_with_crc	KEYWORD2
 reboot	KEYWORD2
 recalibrate	KEYWORD2
@@ -1711,7 +1720,10 @@ set_booster	KEYWORD2
 set_both	KEYWORD2
 set_breath	KEYWORD2
 set_brightness	KEYWORD2
+set_burst	KEYWORD2
 set_calibration	KEYWORD2
+set_channel_counter	KEYWORD2
+set_channel_threshold	KEYWORD2
 set_channels	KEYWORD2
 set_charge_pump	KEYWORD2
 set_click	KEYWORD2
@@ -2120,6 +2132,7 @@ write_function_register	KEYWORD2
 write_icon	KEYWORD2
 write_lut	KEYWORD2
 write_page	KEYWORD2
+write_parameter	KEYWORD2
 write_port	KEYWORD2
 write_ram	KEYWORD2
 write_ram_cascade	KEYWORD2
@@ -2726,6 +2739,13 @@ MODE_STANDBY	LITERAL1
 MODE_STATIC	LITERAL1
 MODULE_TYPE	LITERAL1
 MUX_AIN0_AIN1	LITERAL1
+MUX_LARGE_IR	LITERAL1
+MUX_LARGE_WHITE	LITERAL1
+MUX_MEDIUM_IR	LITERAL1
+MUX_SMALL_IR	LITERAL1
+MUX_UV	LITERAL1
+MUX_UV_DEEP	LITERAL1
+MUX_WHITE	LITERAL1
 NOISE_LOW	LITERAL1
 NOISE_NORMAL	LITERAL1
 NOISE_ULTRALOW	LITERAL1
@@ -2842,6 +2862,10 @@ REG_POLARITY	LITERAL1
 REPEATABILITY_HIGH	LITERAL1
 REPEATABILITY_LOW	LITERAL1
 REPEATABILITY_MEDIUM	LITERAL1
+RESP_CMD_ERR	LITERAL1
+RESP_RUNNING	LITERAL1
+RESP_SLEEP	LITERAL1
+RESP_SUSPEND	LITERAL1
 RETRY_DELAY_MS	LITERAL1
 ROWS	LITERAL1
 RX_GAIN_18_DB	LITERAL1
@@ -2889,6 +2913,12 @@ SOURCE_BUS_INIT	LITERAL1
 SOURCE_BUS_LOST	LITERAL1
 SOURCE_BUS_NOT_IDLE	LITERAL1
 SOURCE_CB_FAULT	LITERAL1
+SOURCE_CHANNEL0	LITERAL1
+SOURCE_CHANNEL1	LITERAL1
+SOURCE_CHANNEL2	LITERAL1
+SOURCE_CHANNEL3	LITERAL1
+SOURCE_CHANNEL4	LITERAL1
+SOURCE_CHANNEL5	LITERAL1
 SOURCE_CHARGER_TIMER	LITERAL1
 SOURCE_CHARGE_DONE	LITERAL1
 SOURCE_CHARGE_START	LITERAL1

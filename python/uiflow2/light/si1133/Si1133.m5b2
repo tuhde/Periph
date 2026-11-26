@@ -1,0 +1,469 @@
+{
+  "category": "Si1133",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SI1133_LANGUAGES = {\n  \"CUSTOM_SI1133_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_SI1133_UV\": {\n    \"en\": \"%1 UV (counts)\"\n  },\n  \"CUSTOM_SI1133_WHITE\": {\n    \"en\": \"%1 white light (counts)\"\n  },\n  \"CUSTOM_SI1133_READ_IR\": {\n    \"en\": \"%1 IR (counts) photodiode (0-2) %2\"\n  },\n  \"CUSTOM_SI1133_CONFIGURE_CHANNEL\": {\n    \"en\": \"%1 channel %2 photodiode mux %3 hw gain (0-11) %4 sw gain (0-7) %5\"\n  },\n  \"CUSTOM_SI1133_ENABLE_CHANNELS\": {\n    \"en\": \"%1 enable channels mask %2\"\n  },\n  \"CUSTOM_SI1133_READ_CHANNEL\": {\n    \"en\": \"%1 channel result index %2\"\n  },\n  \"CUSTOM_SI1133_FORCE\": {\n    \"en\": \"%1 force measurement\"\n  },\n  \"CUSTOM_SI1133_START_AUTONOMOUS\": {\n    \"en\": \"%1 start autonomous rate (s) %2 counters %3 %4 %5\"\n  },\n  \"CUSTOM_SI1133_PAUSE\": {\n    \"en\": \"%1 pause\"\n  },\n  \"CUSTOM_SI1133_SET_BURST\": {\n    \"en\": \"%1 burst readings (0 = off) %2\"\n  },\n  \"CUSTOM_SI1133_SET_THRESHOLD\": {\n    \"en\": \"%1 threshold index (0-2) %2 value %3\"\n  },\n  \"CUSTOM_SI1133_SET_CHANNEL_THRESHOLD\": {\n    \"en\": \"%1 channel %2 threshold select (0 = off, 1-3) %3\"\n  },\n  \"CUSTOM_SI1133_DATA_READY\": {\n    \"en\": \"%1 data ready mask\"\n  },\n  \"CUSTOM_SI1133_READ_PARAMETER\": {\n    \"en\": \"%1 parameter %2\"\n  },\n  \"CUSTOM_SI1133_WRITE_PARAMETER\": {\n    \"en\": \"%1 set parameter %2 value %3\"\n  },\n  \"CUSTOM_SI1133_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_si1133_init';\nBlockly.BlockRegExpList['custom_si1133'] = {\n  regexp: new RegExp(/^custom_si1133_/),\n  code: \"from Si1133 import Si1133\",\n  initBlockType: initType,\n  categoryId: 'custom_si1133',\n}\nBlockly.utils.registerLanguages(CUSTOM_SI1133_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SI1133_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SI1133 = 'Si1133'\n\nBlockly.utils.getcustom_si1133Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['si1133_0', 'si1133_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_si1133_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_si1133Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'si1133_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Si1133(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_uv\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_UV,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_uv\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.uv()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1133_white\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_WHITE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_white\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.white()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1133_read_ir\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_READ_IR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'photodiode'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_read_ir\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var photodiode = Blockly.Python.valueToCode(block, 'photodiode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_ir(${photodiode})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1133_configure_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_CONFIGURE_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'adcmux'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hw_gain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sw_gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_configure_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var adcmux = Blockly.Python.valueToCode(block, 'adcmux', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hw_gain = Blockly.Python.valueToCode(block, 'hw_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sw_gain = Blockly.Python.valueToCode(block, 'sw_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_channel(${channel}, ${adcmux}, ${hw_gain}, ${sw_gain})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_enable_channels\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_ENABLE_CHANNELS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_enable_channels\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_channels(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_read_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_READ_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_read_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_channel(${index})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1133_force\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_FORCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_force\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.force()\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_start_autonomous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_START_AUTONOMOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate'\n        },\n        {\n          'type': 'input_value',\n          'name': 'count0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'count1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'count2'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_start_autonomous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate = Blockly.Python.valueToCode(block, 'rate', Blockly.Python.ORDER_FUNCTION_CALL);\n  var count0 = Blockly.Python.valueToCode(block, 'count0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var count1 = Blockly.Python.valueToCode(block, 'count1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var count2 = Blockly.Python.valueToCode(block, 'count2', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_autonomous(${rate}, ${count0}, ${count1}, ${count2})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_pause\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_PAUSE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_pause\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.pause()\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_set_burst\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_SET_BURST,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'count'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_set_burst\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var count = Blockly.Python.valueToCode(block, 'count', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_burst(${count})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_set_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_SET_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_set_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_threshold(${index}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_set_channel_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_SET_CHANNEL_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_set_channel_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_channel_threshold(${channel}, ${index})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1133_read_parameter\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_READ_PARAMETER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_read_parameter\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_parameter(${address})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1133_write_parameter\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_WRITE_PARAMETER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_write_parameter\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_parameter(${address}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_si1133_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1133_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1133Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1133_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}",
+    "toolbox": "\n<category name=\"Si1133\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_si1133\">\n<title text=\"Si1133\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_si1133_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">85</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_uv\"/><block type=\"custom_si1133_white\"/><block type=\"custom_si1133_read_ir\">\n  <value name=\"photodiode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_configure_channel\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n  <value name=\"adcmux\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">11</field>\n    </shadow>\n  </value>\n  <value name=\"hw_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">7</field>\n    </shadow>\n  </value>\n  <value name=\"sw_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_enable_channels\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_read_channel\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_force\"/><block type=\"custom_si1133_start_autonomous\">\n  <value name=\"rate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.0</field>\n    </shadow>\n  </value>\n  <value name=\"count0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"count1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"count2\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_pause\"/><block type=\"custom_si1133_set_burst\">\n  <value name=\"count\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_set_threshold\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_set_channel_threshold\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_data_ready\"/><block type=\"custom_si1133_read_parameter\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_write_parameter\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1133_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_si1133",
+    "block_type": [
+      "custom_si1133___init__",
+      "custom_si1133_uv",
+      "custom_si1133_white",
+      "custom_si1133_read_ir",
+      "custom_si1133_configure_channel",
+      "custom_si1133_enable_channels",
+      "custom_si1133_read_channel",
+      "custom_si1133_force",
+      "custom_si1133_start_autonomous",
+      "custom_si1133_pause",
+      "custom_si1133_set_burst",
+      "custom_si1133_set_threshold",
+      "custom_si1133_set_channel_threshold",
+      "custom_si1133_data_ready",
+      "custom_si1133_read_parameter",
+      "custom_si1133_write_parameter",
+      "custom_si1133_reset"
+    ]
+  },
+  "data": {
+    "name": "Si1133",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Si1133",
+      "time": "2026-11-26",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.si1133 import Si1133Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "85",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = Si1133Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "uv",
+        "note": {},
+        "label": {
+          "en": "%1 UV (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()['uv']",
+        "ast_return": {
+          "code": "self._driver.read()['uv']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "white",
+        "note": {},
+        "label": {
+          "en": "%1 white light (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()['white']",
+        "ast_return": {
+          "code": "self._driver.read()['white']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_ir",
+        "note": {},
+        "label": {
+          "en": "%1 IR (counts) photodiode (0-2) %2"
+        },
+        "params": [
+          {
+            "name": "photodiode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_ir(photodiode)",
+        "ast_return": {
+          "code": "self._driver.read_ir(photodiode)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_channel",
+        "note": {},
+        "label": {
+          "en": "%1 channel %2 photodiode mux %3 hw gain (0-11) %4 sw gain (0-7) %5"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "adcmux",
+            "type": "int",
+            "default": "11",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "hw_gain",
+            "type": "int",
+            "default": "7",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sw_gain",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_channel(channel, adcmux, hw_gain, sw_gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_channels",
+        "note": {},
+        "label": {
+          "en": "%1 enable channels mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_channels(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_channel",
+        "note": {},
+        "label": {
+          "en": "%1 channel result index %2"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_channels()[index]",
+        "ast_return": {
+          "code": "self._driver.read_channels()[index]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "force",
+        "note": {},
+        "label": {
+          "en": "%1 force measurement"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.force()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_autonomous",
+        "note": {},
+        "label": {
+          "en": "%1 start autonomous rate (s) %2 counters %3 %4 %5"
+        },
+        "params": [
+          {
+            "name": "rate",
+            "type": "float",
+            "default": "1.0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "count0",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "count1",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "count2",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_autonomous(rate, (count0, count1, count2))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pause",
+        "note": {},
+        "label": {
+          "en": "%1 pause"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.pause()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_burst",
+        "note": {},
+        "label": {
+          "en": "%1 burst readings (0 = off) %2"
+        },
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_burst(count)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 threshold index (0-2) %2 value %3"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "1000",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_threshold(index, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_channel_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 channel %2 threshold select (0 = off, 1-3) %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "index",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_channel_threshold(channel, index)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready mask"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_parameter",
+        "note": {},
+        "label": {
+          "en": "%1 parameter %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_parameter(address)",
+        "ast_return": {
+          "code": "self._driver.read_parameter(address)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_parameter",
+        "note": {},
+        "label": {
+          "en": "%1 set parameter %2 value %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_parameter(address, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "si1133"
+  },
+  "pyCode": "\"\"\"\nfile     Si1133\ntime     2026-11-26\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.si1133 import Si1133Full\n\n\nclass Si1133:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 85):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '85'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = Si1133Full(connection)\n        self._driver.init()\n\n    def uv(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 UV (counts)'\n        \"\"\"\n        return self._driver.read()['uv']\n\n    def white(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 white light (counts)'\n        \"\"\"\n        return self._driver.read()['white']\n\n    def read_ir(self, photodiode: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '%1 IR (counts) photodiode (0-2) %2'\n        params:\n            photodiode:\n                name: photodiode\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        return self._driver.read_ir(photodiode)\n\n    def configure_channel(self, channel: int = 2, adcmux: int = 11, hw_gain: int = 7, sw_gain: int = 0):\n        \"\"\"\n        label:\n            en: '%1 channel %2 photodiode mux %3 hw gain (0-11) %4 sw gain (0-7) %5'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '2'\n                field: number\n            adcmux:\n                name: adcmux\n                type: int\n                default: '11'\n                field: number\n            hw_gain:\n                name: hw_gain\n                type: int\n                default: '7'\n                field: number\n            sw_gain:\n                name: sw_gain\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.configure_channel(channel, adcmux, hw_gain, sw_gain)\n\n    def enable_channels(self, mask: int = 3):\n        \"\"\"\n        label:\n            en: '%1 enable channels mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                default: '3'\n                field: number\n        \"\"\"\n        self._driver.enable_channels(mask)\n\n    def read_channel(self, index: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '%1 channel result index %2'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        return self._driver.read_channels()[index]\n\n    def force(self):\n        \"\"\"\n        label:\n            en: '%1 force measurement'\n        \"\"\"\n        self._driver.force()\n\n    def start_autonomous(self, rate: float = 1.0, count0: int = 1, count1: int = 1, count2: int = 1):\n        \"\"\"\n        label:\n            en: '%1 start autonomous rate (s) %2 counters %3 %4 %5'\n        params:\n            rate:\n                name: rate\n                type: float\n                default: '1.0'\n                field: number\n            count0:\n                name: count0\n                type: int\n                default: '1'\n                field: number\n            count1:\n                name: count1\n                type: int\n                default: '1'\n                field: number\n            count2:\n                name: count2\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.start_autonomous(rate, (count0, count1, count2))\n\n    def pause(self):\n        \"\"\"\n        label:\n            en: '%1 pause'\n        \"\"\"\n        self._driver.pause()\n\n    def set_burst(self, count: int = 0):\n        \"\"\"\n        label:\n            en: '%1 burst readings (0 = off) %2'\n        params:\n            count:\n                name: count\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_burst(count)\n\n    def set_threshold(self, index: int = 0, value: int = 1000):\n        \"\"\"\n        label:\n            en: '%1 threshold index (0-2) %2 value %3'\n        params:\n            index:\n                name: index\n                type: int\n                default: '0'\n                field: number\n            value:\n                name: value\n                type: int\n                default: '1000'\n                field: number\n        \"\"\"\n        self._driver.set_threshold(index, value)\n\n    def set_channel_threshold(self, channel: int = 0, index: int = 1):\n        \"\"\"\n        label:\n            en: '%1 channel %2 threshold select (0 = off, 1-3) %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n            index:\n                name: index\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_channel_threshold(channel, index)\n\n    def data_ready(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 data ready mask'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def read_parameter(self, address: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 parameter %2'\n        params:\n            address:\n                name: address\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.read_parameter(address)\n\n    def write_parameter(self, address: int = 1, value: int = 3):\n        \"\"\"\n        label:\n            en: '%1 set parameter %2 value %3'\n        params:\n            address:\n                name: address\n                type: int\n                default: '1'\n                field: number\n            value:\n                name: value\n                type: int\n                default: '3'\n                field: number\n        \"\"\"\n        self._driver.write_parameter(address, value)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

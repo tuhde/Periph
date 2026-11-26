@@ -1,0 +1,1 @@
+_periph_si1133.start_autonomous(float(${_rate}), (int(${_count0}), int(${_count1}), int(${_count2})))

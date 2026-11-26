@@ -1,0 +1,296 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "si1133_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init Si1133",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_uv",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1133 UV (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1133_white",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1133 white light (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1133_read_ir",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1133 IR (counts) photodiode (0-2)",
+          "type": "label"
+        },
+        {
+          "name": "_photodiode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_configure_channel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 channel",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "photodiode mux",
+          "type": "label"
+        },
+        {
+          "name": "_adcmux",
+          "type": "number"
+        },
+        {
+          "name": "hw gain (0-11)",
+          "type": "label"
+        },
+        {
+          "name": "_hw_gain",
+          "type": "number"
+        },
+        {
+          "name": "sw gain (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_sw_gain",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_enable_channels",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 enable channels mask",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_read_channel",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1133 channel result index",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_force",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 force measurement",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1133_start_autonomous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 start autonomous rate (s)",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        },
+        {
+          "name": "counters",
+          "type": "label"
+        },
+        {
+          "name": "_count0",
+          "type": "number"
+        },
+        {
+          "name": "_count1",
+          "type": "number"
+        },
+        {
+          "name": "_count2",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_pause",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 pause",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1133_set_burst",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 burst readings (0 = off)",
+          "type": "label"
+        },
+        {
+          "name": "_count",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_set_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 threshold index (0-2)",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_set_channel_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 channel",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "threshold select (0 = off, 1-3)",
+          "type": "label"
+        },
+        {
+          "name": "_index",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1133 data ready mask",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1133_read_parameter",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1133 parameter",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_write_parameter",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 set parameter",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1133_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1133 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

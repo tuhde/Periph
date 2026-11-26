@@ -1,0 +1,1 @@
+_periph_si1133.set_channel_threshold(int(${_channel}), int(${_index}))

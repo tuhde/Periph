@@ -2606,7 +2606,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "si1133",
       "datasheet": "datasheets/light/si1133.pdf"
     },
     {

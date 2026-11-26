@@ -166,6 +166,7 @@ Each chip exposes two classes:
 | SHT31 | Humidity sensor | `periph/src/chips/humidity/sht31` |
 | SHTC3 | Humidity sensor | `periph/src/chips/humidity/shtc3` |
 | SI1132 | Light sensor | `periph/src/chips/light/si1132` |
+| SI1133 | Light sensor | `periph/src/chips/light/si1133` |
 | SI7021 | Humidity sensor | `periph/src/chips/humidity/si7021` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | SPL06 | Pressure sensor | `periph/src/chips/pressure/spl06` |

@@ -1,0 +1,135 @@
+[
+  {
+    "id": "si1133-tab",
+    "type": "tab",
+    "label": "Si1133 UV monitor",
+    "disabled": false,
+    "info": "Reads the raw UV and white-light counts from an Si1133 every 2 s, scales the UV count to a 0-100 bar and shows it on a dashboard gauge; the full reading goes to the debug sidebar. The counts are raw ADC values (no UV-index calibration), so the bar shows the trend."
+  },
+  {
+    "id": "si1133-inject",
+    "type": "inject",
+    "z": "si1133-tab",
+    "name": "2 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "si1133-node"
+      ]
+    ]
+  },
+  {
+    "id": "si1133-device-1",
+    "type": "si1133-device",
+    "name": "Si1133",
+    "bus": "1",
+    "address": "0x55"
+  },
+  {
+    "id": "si1133-node",
+    "type": "si1133",
+    "z": "si1133-tab",
+    "name": "Si1133",
+    "x": 360,
+    "y": 160,
+    "wires": [
+      [
+        "si1133-scale"
+      ]
+    ],
+    "device": "si1133-device-1"
+  },
+  {
+    "id": "si1133-scale",
+    "type": "function",
+    "z": "si1133-tab",
+    "name": "Scale UV to bar",
+    "func": "// Full scale chosen for bright daylight at HW_GAIN 9; adjust for your window.\nconst FULL_SCALE = 20000;\nconst bar = Math.max(0, Math.min(100, Math.round(msg.payload.uv * 100 / FULL_SCALE)));\nmsg.payload.uv_bar = bar;\nreturn [msg, { payload: bar }];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 160,
+    "wires": [
+      [
+        "si1133-debug"
+      ],
+      [
+        "si1133-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "si1133-debug",
+    "type": "debug",
+    "z": "si1133-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 770,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "si1133-gauge",
+    "type": "ui_gauge",
+    "z": "si1133-tab",
+    "name": "UV bar",
+    "group": "si1133-group-1",
+    "order": 1,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "UV",
+    "label": "%",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 100,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "33",
+    "seg2": "66",
+    "x": 760,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "si1133-group-1",
+    "type": "ui_group",
+    "name": "Si1133 UV",
+    "tab": "si1133-ui-tab-1",
+    "order": 1,
+    "disp": true,
+    "width": 6
+  },
+  {
+    "id": "si1133-ui-tab-1",
+    "type": "ui_tab",
+    "name": "Si1133 Demo",
+    "icon": "dashboard",
+    "order": 1
+  }
+]
