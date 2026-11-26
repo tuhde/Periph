@@ -1,0 +1,1 @@
+_periph_spl06.start_continuous()

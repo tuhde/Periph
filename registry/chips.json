@@ -2563,7 +2563,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "spl06",
       "datasheet": "datasheets/pressure/spl06.pdf"
     },
     {

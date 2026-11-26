@@ -177,6 +177,7 @@ Each chip exposes two structs:
 | SI1132 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
 | SI7021 | Humidity sensor | Relative humidity and temperature sensor (Silicon Labs). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
+| SPL06 | Pressure sensor | Barometric pressure and temperature sensor (Goertek). |
 | SSD1305 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
 | SSD1306 | Display driver | 128 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |

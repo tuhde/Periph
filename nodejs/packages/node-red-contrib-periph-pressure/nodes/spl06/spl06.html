@@ -1,0 +1,98 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('spl06-device', {
+        category: 'config',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '1', required: true, validate: RED.validators.number() },
+            address:      { value: '0x77' },
+            oversampling: { value: '16' }
+        },
+        label: function() {
+            return this.name || ('SPL06 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="spl06-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="SPL06">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:120px">
+            <option value="0x77" selected>0x77 (SDO high / open)</option>
+            <option value="0x76">0x76 (SDO low)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-oversampling"><i class="fa fa-cog"></i> Pressure oversampling</label>
+        <select id="node-config-input-oversampling" style="width:120px">
+            <option value="1">1×</option><option value="2">2×</option><option value="4">4×</option>
+            <option value="8">8×</option><option value="16" selected>16×</option><option value="32">32×</option>
+            <option value="64">64×</option><option value="128">128×</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('spl06', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'spl06-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'SPL06'; },
+        paletteLabel: 'SPL06'
+    });
+</script>
+
+<script type="text/html" data-template-name="spl06">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SPL06">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="spl06">
+    <p>Reads temperature and absolute pressure from a Goertek SPL06-007 over I²C (address 0x77 or 0x76),
+    one compensated measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one temperature and one pressure measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.pressure_pa <span class="property-type">number</span></dt>
+        <dd>Absolute pressure in pascals.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>I²C bus <span class="property-type">number</span></dt>
+        <dd>Linux bus number N of <code>/dev/i2c-N</code>.</dd>
+        <dt>I²C address <span class="property-type">0x76 | 0x77</span></dt>
+        <dd>0x77 with SDO high or open (default), 0x76 with SDO low.</dd>
+        <dt>Pressure oversampling <span class="property-type">1–128</span></dt>
+        <dd>More oversampling lowers the noise (16× ≈ 0.5 Pa RMS) but lengthens each measurement
+        (16×: about 28 ms, 128×: about 207 ms). The temperature always uses the external sensor at 1×.</dd>
+    </dl>
+    <h3>Details</h3>
+    <p>The chip stays in standby between messages. Its calibration coefficients are read once at start-up.</p>
+</script>

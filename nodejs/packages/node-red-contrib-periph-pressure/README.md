@@ -1,8 +1,8 @@
 # node-red-contrib-periph-pressure
 
-Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607, MS5611 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for pressure sensor chips: BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607, MS5611, SPL06 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (13):** BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607, MS5611.
+**Supported chips (14):** BMP085, BMP180, BMP280, BMP384, BMP581, LPS22DF, LPS22HB, LPS28DFW, LPS33HW, MPL115A2, MPL3115A2, MS5607, MS5611, SPL06.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-pressure/examples).
 
@@ -46,6 +46,8 @@ npm install node-red-contrib-periph-pressure
 | `ms5607` | input | Reads temperature and barometric pressure from a TE Connectivity MS5607 over I²C (address 0x77, or 0x76 with CSB high). Each message converts the temperature and then the pressure and applies the first- and second-order compensation. |
 | `ms5611-device` | config | I²C bus and address for a MS5611 |
 | `ms5611` | input | Reads temperature and barometric pressure from a TE Connectivity MS5611 over I²C (address 0x77, or 0x76 with CSB high). Each message converts the temperature and then the pressure and applies the first- and second-order compensation. |
+| `spl06-device` | config | I²C bus and address for a SPL06 |
+| `spl06` | input | Reads temperature and absolute pressure from a Goertek SPL06-007 over I²C (address 0x77 or 0x76), one compensated measurement per message. |
 
 ## Links
 

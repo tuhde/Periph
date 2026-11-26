@@ -167,6 +167,7 @@ Each chip exposes two classes:
 | SI1132 | Light sensor | `periph/src/chips/light/si1132` |
 | SI7021 | Humidity sensor | `periph/src/chips/humidity/si7021` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| SPL06 | Pressure sensor | `periph/src/chips/pressure/spl06` |
 | SSD1305 | Display driver | `periph/src/chips/display/ssd1305` |
 | SSD1306 | Display driver | `periph/src/chips/display/ssd1306` |
 | SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
