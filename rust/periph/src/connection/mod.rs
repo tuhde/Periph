@@ -14,3 +14,6 @@ pub mod uart;
 pub mod uart_mock;
 #[cfg(feature = "uart-linux")]
 pub mod uart_linux;
+
+#[cfg(test)]
+mod fault_conformance;

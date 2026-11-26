@@ -203,6 +203,7 @@ case "$JOB" in
         step "Check python/README.md" node python/scripts/generate-readme.js --check
         step "Check mip packages" python3 python/scripts/generate-mip-packages.py --check
         PYTHONPATH=python step "Python UART write unit test" python3 python/tests/connection/uart_write_test_unit.py
+        PYTHONPATH=python step "Python SPI fault-injection unit test" python3 python/tests/connection/spi_fault_test_unit.py
         ;;
 
     registry)
@@ -235,6 +236,7 @@ case "$JOB" in
         step "Compile workspace" cargo build --manifest-path rust/Cargo.toml
         step "Check rust README" node rust/scripts/generate-readme.js --check
         step "I2C discovery unit tests" cargo test --manifest-path rust/Cargo.toml -p periph --features std discovery
+        step "Connection fault-conformance tests" cargo test --manifest-path rust/Cargo.toml -p periph --features std fault_conformance
         ;;
 
     go-linux)
