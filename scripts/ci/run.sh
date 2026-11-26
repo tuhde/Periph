@@ -241,6 +241,7 @@ case "$JOB" in
         step "go build" go build ./...
         step "go vet" go vet ./...
         step "I2C discovery unit tests" go test ./periph/discovery/
+        step "Connection unit tests" go test ./periph/connection/
         ;;
 
     go-tinygo)

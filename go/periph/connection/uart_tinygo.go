@@ -6,6 +6,7 @@
 package connection
 
 import (
+	"fmt"
 	"machine"
 	"time"
 )
@@ -57,7 +58,9 @@ func (t *UARTConnection) Write(data []byte) error {
 		t.dePin.High()
 	}
 	n, err := t.uart.Write(data)
-	_ = n
+	if err == nil && n < len(data) {
+		err = fmt.Errorf("uart: write transferred %d of %d bytes", n, len(data))
+	}
 	if t.hasDE {
 		// Wait for the bytes to leave the UART at the configured baud rate.
 		// 10 bits per byte (8N1 + start + stop), plus a 100 µs safety margin.
