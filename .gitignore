@@ -19,6 +19,8 @@ go/testconfig_tinygo
 go/testconfig_wiring
 rust/**/target/
 jvm/**/target/
+cpp/**/build/
+cpp/**/b/
 sigrok/CONFIGS.md
 uiflow/
 
