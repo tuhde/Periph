@@ -11,7 +11,7 @@
 //! ```rust,ignore
 //! use periph::connection::hx711::HX711Connection;
 //!
-//! let mut connection = HX711Connection::new(dout_pin, pd_sck_pin);
+//! let mut connection = HX711Connection::new(dout_pin, pd_sck_pin)?;
 //!
 //! // Read Channel A, Gain 128 (next conversion will also use 128)
 //! let raw: i32 = connection.read_raw(25)?;
@@ -31,7 +31,7 @@
 //! use linux_embedded_hal::CdevPin;
 //!
 //! // Request DOUT as input and PD_SCK as output via gpiocdev, then:
-//! let mut connection = HX711Connection::new(dout, pd_sck);
+//! let mut connection = HX711Connection::new(dout, pd_sck)?;
 //! ```
 //!
 //! Add to `Cargo.toml`:
@@ -76,9 +76,15 @@ where
     ///
     /// * `dout`   – Pin connected to DOUT (data output from the chip).
     /// * `pd_sck` – Pin connected to PD_SCK (clock / power-down control).
-    pub fn new(dout: DI, mut pd_sck: CK) -> Self {
-        let _ = pd_sck.set_low();
-        Self { dout, pd_sck, enabled: true }
+    ///
+    /// # Errors
+    ///
+    /// [`HX711Error::Clock`] if PD_SCK cannot be driven LOW. A HIGH PD_SCK held
+    /// for more than 60 µs powers the chip down, so this is reported instead of
+    /// being ignored.
+    pub fn new(dout: DI, mut pd_sck: CK) -> Result<Self, HX711Error<DI::Error, CK::Error>> {
+        pd_sck.set_low().map_err(HX711Error::Clock)?;
+        Ok(Self { dout, pd_sck, enabled: true })
     }
 
     /// Resume conversions.
@@ -181,5 +187,36 @@ where
     /// Consume the connection and return the two pins.
     pub fn release(self) -> (DI, CK) {
         (self.dout, self.pd_sck)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::digital::{Mock as PinMock, State, Transaction as PinTransaction};
+    use embedded_hal_mock::eh1::MockError;
+    use std::io::ErrorKind;
+
+    #[test]
+    fn new_drives_pd_sck_low() {
+        let mut dout = PinMock::new(&[]);
+        let mut sck = PinMock::new(&[PinTransaction::set(State::Low)]);
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).expect("new");
+        drop(conn);
+        dout.done();
+        sck.done();
+    }
+
+    // #767: a failing PD_SCK used to be ignored (`let _ = set_low()`).
+    #[test]
+    fn new_reports_pd_sck_failure() {
+        let mut dout = PinMock::new(&[]);
+        let mut sck = PinMock::new(&[PinTransaction::set(State::Low).with_error(MockError::Io(ErrorKind::Other))]);
+        assert!(matches!(
+            HX711Connection::new(dout.clone(), sck.clone()),
+            Err(HX711Error::Clock(_))
+        ));
+        dout.done();
+        sck.done();
     }
 }

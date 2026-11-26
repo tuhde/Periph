@@ -17,7 +17,7 @@ fn main() -> ! {
 
     let dout   = Input::new(peripherals.GPIO5, Pull::None);
     let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
-    let connection = HX711Connection::new(dout, pd_sck);
+    let connection = HX711Connection::new(dout, pd_sck).expect("init HX711Connection");
     let mut delay = Delay::new();
 
     let mut chip = Hx711Minimal::new(connection).expect("init HX711");  // Create HX711 driver — discards first conversion, (connection) → Result<Hx711Minimal, _>

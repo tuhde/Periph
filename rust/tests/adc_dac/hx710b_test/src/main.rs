@@ -41,7 +41,7 @@ fn main() {
         let dout   = CdevPin::new(dout_handle).expect("dout pin");
         let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
-        let connection = HX711Connection::new(dout, pd_sck);
+        let connection = HX711Connection::new(dout, pd_sck).expect("init HX711Connection");
         let mut minimal = Hx710bMinimal::new(connection).expect("init Hx710bMinimal");
 
         let ready = minimal.is_ready();
@@ -69,7 +69,7 @@ fn main() {
         let dout   = CdevPin::new(dout_handle).expect("dout pin");
         let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
-        let connection = HX711Connection::new(dout, pd_sck);
+        let connection = HX711Connection::new(dout, pd_sck).expect("init HX711Connection");
         let mut full = Hx710bFull::new(connection).expect("init Hx710bFull");
 
         check_true!(full.is_ready().is_ok(), "full is_ready ok", passed, failed);
