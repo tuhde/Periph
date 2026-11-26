@@ -7,6 +7,7 @@
 //! See [`super::neopixel_rgb_base::MAX_PIXELS`].
 
 use embedded_hal::spi::SpiBus;
+use crate::connection::neopixel::NeoPixelError;
 use super::neopixel_rgb_base::{NeoPixelRgbMinimal, NeoPixelRgbFull};
 
 const CHANNEL_ORDER: [usize; 3] = [1, 0, 2]; // GRB: wire[0]=G, wire[1]=R, wire[2]=B
@@ -31,14 +32,14 @@ impl<SPI: SpiBus> Ws2812bMinimal<SPI> {
     ///
     /// Each channel is clamped to [0, 255]. Stores G, R, B in the internal
     /// buffer (GRB wire order) then transmits.
-    pub fn fill(&mut self, r: u8, g: u8, b: u8) -> Result<(), SPI::Error> {
+    pub fn fill(&mut self, r: u8, g: u8, b: u8) -> Result<(), NeoPixelError<SPI::Error>> {
         self.inner.fill(r, g, b)
     }
 
     /// Turn off all pixels (fill with black and send).
     ///
     /// Equivalent to `fill(0, 0, 0)`.
-    pub fn off(&mut self) -> Result<(), SPI::Error> {
+    pub fn off(&mut self) -> Result<(), NeoPixelError<SPI::Error>> {
         self.inner.off()
     }
 }
@@ -65,12 +66,12 @@ impl<SPI: SpiBus> Ws2812bFull<SPI> {
     }
 
     /// Fill every pixel with one colour and send to the strip immediately.
-    pub fn fill(&mut self, r: u8, g: u8, b: u8) -> Result<(), SPI::Error> {
+    pub fn fill(&mut self, r: u8, g: u8, b: u8) -> Result<(), NeoPixelError<SPI::Error>> {
         self.inner.fill(r, g, b)
     }
 
     /// Turn off all pixels (fill with black and send).
-    pub fn off(&mut self) -> Result<(), SPI::Error> {
+    pub fn off(&mut self) -> Result<(), NeoPixelError<SPI::Error>> {
         self.inner.off()
     }
 
@@ -84,7 +85,7 @@ impl<SPI: SpiBus> Ws2812bFull<SPI> {
     /// Transmit the current buffer to the strip, applying brightness scaling.
     ///
     /// Each channel is scaled: `sent = stored * brightness / 255`.
-    pub fn show(&mut self) -> Result<(), SPI::Error> {
+    pub fn show(&mut self) -> Result<(), NeoPixelError<SPI::Error>> {
         self.inner.show()
     }
 
@@ -110,7 +111,7 @@ impl<SPI: SpiBus> Ws2812bFull<SPI> {
     /// Fill every pixel with one HSV colour and send to the strip immediately.
     ///
     /// Converts HSV (all inputs 0.0–1.0) to RGB then calls [`fill`](Self::fill).
-    pub fn fill_hsv(&mut self, h: f32, s: f32, v: f32) -> Result<(), SPI::Error> {
+    pub fn fill_hsv(&mut self, h: f32, s: f32, v: f32) -> Result<(), NeoPixelError<SPI::Error>> {
         self.inner.fill_hsv(h, s, v)
     }
 }

@@ -18,6 +18,10 @@ class SPIConnectionMock:
     command-byte address (same convention as I2CConnectionMock), so a
     write followed by a read sees the write's effect.
 
+    Fault injection mirrors I2CConnectionMock: ``fail_next_writes`` and
+    ``fail_next_reads`` make the following transfers raise ``OSError``
+    (errno 5, EIO), the way spidev reports a failed ``SPI_IOC_MESSAGE``.
+
     Args:
         mode: SPI mode 0–3 (default 0). Recorded for completeness;
             the mock does not model clock polarity/phase.
@@ -31,6 +35,26 @@ class SPIConnectionMock:
         self._writes = []
         self._read_queue = []
         self.events = []
+        self._fail_writes = 0
+        self._fail_skip = 0
+        self._fail_reads = 0
+
+    def fail_next_writes(self, n, after=0):
+        """Make ``n`` write() / write_read() calls raise OSError after letting the next ``after``
+        succeed; the failing calls are still logged in ``writes``. Mirrors I2CConnectionMock."""
+        self._fail_writes = n
+        self._fail_skip = after
+
+    def fail_next_reads(self, n):
+        """Make the next ``n`` read() calls raise OSError; the read queue is not consumed."""
+        self._fail_reads = n
+
+    def _maybe_fail_write(self):
+        if self._fail_skip > 0:
+            self._fail_skip -= 1
+        elif self._fail_writes > 0:
+            self._fail_writes -= 1
+            raise OSError(5, 'SPI transfer failed (mock)')
 
     def idle_clocks(self, n):
         """Record an ``idle_clocks`` call on ``events``."""
@@ -82,12 +106,16 @@ class SPIConnectionMock:
     def write(self, data):
         data = bytes(data)
         self._writes.append(data)
+        self._maybe_fail_write()
         if len(data) >= 2:
             reg = data[0]
             for i, value in enumerate(data[1:]):
                 self._registers[reg + i] = value
 
     def read(self, n):
+        if self._fail_reads > 0:
+            self._fail_reads -= 1
+            raise OSError(5, 'SPI transfer failed (mock)')
         if self._read_queue:
             front = self._read_queue.pop(0)
             out = bytearray(n)
@@ -116,6 +144,7 @@ class SPIConnectionMock:
         """
         data = bytes(data)
         self._writes.append(data)
+        self._maybe_fail_write()
         out = bytearray(n)
         if len(data) == 2:
             reg = data[1]

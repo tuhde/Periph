@@ -109,14 +109,10 @@ public final class UARTConnection extends AbstractConnection implements Availabl
 
     private static final MethodHandle openMH;
     private static final MethodHandle ioctlAddrMH;
-    private static final MethodHandle ioctlLongMH;
     private static final MethodHandle tcgetattrMH;
     private static final MethodHandle tcsetattrMH;
     private static final MethodHandle cfsetispeedMH;
     private static final MethodHandle cfsetospeedMH;
-    private static final MethodHandle writeMH;
-    private static final MethodHandle readMH;
-    private static final MethodHandle tcdrainMH;
     private static final MethodHandle closeMH;
 
     static {
@@ -131,18 +127,16 @@ public final class UARTConnection extends AbstractConnection implements Availabl
             lookup.find("ioctl").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT,
                 ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
-        ioctlLongMH = linker.downcallHandle(
-            lookup.find("ioctl").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_LONG));
         tcgetattrMH = linker.downcallHandle(
             lookup.find("tcgetattr").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+                ValueLayout.JAVA_INT, ValueLayout.ADDRESS),
+            Linker.Option.captureCallState("errno"));
         tcsetattrMH = linker.downcallHandle(
             lookup.find("tcsetattr").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS));
+                ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS),
+            Linker.Option.captureCallState("errno"));
         cfsetispeedMH = linker.downcallHandle(
             lookup.find("cfsetispeed").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT,
@@ -151,23 +145,13 @@ public final class UARTConnection extends AbstractConnection implements Availabl
             lookup.find("cfsetospeed").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT,
                 ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-        writeMH = linker.downcallHandle(
-            lookup.find("write").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
-                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
-        readMH = linker.downcallHandle(
-            lookup.find("read").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
-                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
-        tcdrainMH = linker.downcallHandle(
-            lookup.find("tcdrain").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
         closeMH = linker.downcallHandle(
             lookup.find("close").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
     }
 
     private final int fd;
+    private final String port;
     private final boolean rs485Kernel;
     private final int dePinNum;
     private final int gpioFd;
@@ -192,6 +176,7 @@ public final class UARTConnection extends AbstractConnection implements Availabl
         super(intPin, enPin);
         int[] result = openDevice(port, baudRate, dataBits, stopBits, parity, timeoutMs, dePinNum);
         this.fd          = result[0];
+        this.port        = port;
         this.rs485Kernel = result[1] != 0;
         this.dePinNum    = dePinNum;
         this.gpioFd      = (!rs485Kernel && dePinNum >= 0) ? openGpioLine(dePinNum) : -1;
@@ -254,13 +239,14 @@ public final class UARTConnection extends AbstractConnection implements Availabl
                                      char parity, int timeoutMs, int dePinNum) throws IOException {
         int fd = -1;
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var pathSeg = arena.allocateFrom(port);
-            fd = (int) openMH.invoke(pathSeg, O_RDWR | O_NOCTTY);
-            if (fd < 0) throw new IOException("open(" + port + ") failed");
+            fd = (int) Libc.OPEN.invoke(cap, pathSeg, O_RDWR | O_NOCTTY);
+            if (fd < 0) throw Libc.error("open(" + port + ")", cap);
 
             var tty = arena.allocate(TERMIOS_SIZE, 4);
-            int rc = (int) tcgetattrMH.invoke(fd, tty);
-            if (rc < 0) throw new IOException("tcgetattr failed");
+            int rc = (int) tcgetattrMH.invoke(cap, fd, tty);
+            if (rc < 0) throw Libc.error("tcgetattr(" + port + ")", cap);
 
             // Raw mode: clear input, output, local flags
             tty.set(ValueLayout.JAVA_INT, TERMIOS_IFLAG,
@@ -302,8 +288,8 @@ public final class UARTConnection extends AbstractConnection implements Availabl
             tty.set(ValueLayout.JAVA_BYTE, TERMIOS_CC + VMIN,  (byte) 0);
             tty.set(ValueLayout.JAVA_BYTE, TERMIOS_CC + VTIME, (byte) ((timeoutMs + 99) / 100));
 
-            rc = (int) tcsetattrMH.invoke(fd, TCSANOW, tty);
-            if (rc < 0) throw new IOException("tcsetattr failed");
+            rc = (int) tcsetattrMH.invoke(cap, fd, TCSANOW, tty);
+            if (rc < 0) throw Libc.error("tcsetattr(" + port + ")", cap);
 
             // RS-485 kernel mode
             boolean kernelRs485 = false;
@@ -372,14 +358,24 @@ public final class UARTConnection extends AbstractConnection implements Availabl
     @Override
     protected void _write(byte[] data) throws IOException {
         try (var arena = Arena.ofConfined()) {
-            if (!rs485Kernel) deSet(1);
-            var buf = arena.allocate(data.length);
+            var cap = Libc.capture(arena);
+            var buf = arena.allocate(Math.max(data.length, 1));
             buf.copyFrom(MemorySegment.ofArray(data));
-            long n = (long) writeMH.invoke(fd, buf, (long) data.length);
-            if (n < 0) throw new IOException("write() failed: " + n);
-            int rc = (int) tcdrainMH.invoke(fd);
-            if (rc < 0) throw new IOException("tcdrain() failed");
-            if (!rs485Kernel) deSet(0);
+            if (!rs485Kernel) deSet(1);
+            try {
+                // write() on a tty may accept fewer bytes than requested; loop until all are queued.
+                long sent = 0;
+                while (sent < data.length) {
+                    long n = (long) Libc.WRITE.invoke(cap, fd, buf.asSlice(sent), (long) data.length - sent);
+                    if (n < 0) throw Libc.error("write(" + port + ")", cap);
+                    if (n == 0) throw Libc.shortTransfer("write(" + port + ")", sent, data.length);
+                    sent += n;
+                }
+                int rc = (int) Libc.TCDRAIN.invoke(cap, fd);
+                if (rc < 0) throw Libc.error("tcdrain(" + port + ")", cap);
+            } finally {
+                if (!rs485Kernel) deSet(0);
+            }
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -398,14 +394,16 @@ public final class UARTConnection extends AbstractConnection implements Availabl
     @Override
     protected byte[] _read(int n) throws IOException {
         try (var arena = Arena.ofConfined()) {
-            var buf = arena.allocate(n);
+            var cap = Libc.capture(arena);
+            var buf = arena.allocate(Math.max(n, 1));
             int got = 0;
             while (got < n) {
-                long r = (long) readMH.invoke(fd, buf.asSlice(got), (long) (n - got));
-                if (r <= 0) throw new IOException("UART read timeout after " + got + " of " + n + " bytes");
+                long r = (long) Libc.READ.invoke(cap, fd, buf.asSlice(got), (long) (n - got));
+                if (r < 0) throw Libc.error("read(" + port + ")", cap);
+                if (r == 0) throw new IOException("UART read timeout on " + port + " after " + got + " of " + n + " bytes");
                 got += (int) r;
             }
-            return buf.toArray(ValueLayout.JAVA_BYTE);
+            return buf.asSlice(0, n).toArray(ValueLayout.JAVA_BYTE);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -428,9 +426,10 @@ public final class UARTConnection extends AbstractConnection implements Availabl
      */
     public int available() throws IOException {
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var countSeg = arena.allocate(ValueLayout.JAVA_INT);
-            int rc = (int) ioctlAddrMH.invoke(fd, FIONREAD, countSeg);
-            if (rc < 0) throw new IOException("ioctl(FIONREAD) failed");
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, FIONREAD, countSeg);
+            if (rc < 0) throw Libc.error("FIONREAD ioctl(" + port + ")", cap);
             return countSeg.get(ValueLayout.JAVA_INT, 0);
         } catch (IOException e) {
             throw e;
@@ -465,10 +464,9 @@ public final class UARTConnection extends AbstractConnection implements Availabl
     @Override
     public void close() throws IOException {
         try {
-            closeMH.invoke(fd);
-            if (gpioFd >= 0) closeMH.invoke(gpioFd);
-        } catch (Throwable t) {
-            throw new IOException(t);
+            Libc.close(fd, port);
+        } finally {
+            Libc.closeQuietly(gpioFd);
         }
     }
 }

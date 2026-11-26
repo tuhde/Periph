@@ -2,53 +2,47 @@ package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
-import java.lang.invoke.*;
 
 /**
  * I²C connection backed by Linux i2c-dev via FFM (no native libraries required).
  *
  * <p>Opens {@code /dev/i2c-<bus>} and sets the device address with {@code I2C_SLAVE} ioctl.
  * Subsequent {@link #write} / {@link #read} calls map directly to libc {@code write} /
- * {@code read}. {@link #writeRead} issues a stop-then-start between them; use a
- * platform-specific connection if the chip requires a true repeated-start.
+ * {@code read}; a transfer that moves fewer bytes than requested throws, and every
+ * {@link IOException} carries {@code strerror(errno)}. {@link #writeRead} is one
+ * {@code I2C_RDWR} transaction (write message, repeated START, read message), so the
+ * bus is not released between the two phases.
  */
 public final class I2CConnection extends AbstractConnection implements RegisterConnection {
 
     private static final int O_RDWR = 2;
     private static final long I2C_SLAVE = 0x0703L;
+    private static final long I2C_RDWR  = 0x0707L;
+    private static final short I2C_M_RD = 0x0001;
 
-    private static final MethodHandle openMH;
-    private static final MethodHandle ioctlValueMH;
-    private static final MethodHandle writeMH;
-    private static final MethodHandle readMH;
-    private static final MethodHandle closeMH;
-
-    static {
-        var linker = Linker.nativeLinker();
-        var lookup  = linker.defaultLookup();
-        openMH = linker.downcallHandle(
-            lookup.find("open").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-        ioctlValueMH = linker.downcallHandle(
-            lookup.find("ioctl").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_LONG));
-        writeMH = linker.downcallHandle(
-            lookup.find("write").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
-                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
-        readMH = linker.downcallHandle(
-            lookup.find("read").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
-                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
-        closeMH = linker.downcallHandle(
-            lookup.find("close").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
-    }
+    /** {@code struct i2c_msg { __u16 addr; __u16 flags; __u16 len; __u8 *buf; }} */
+    private static final StructLayout I2C_MSG = MemoryLayout.structLayout(
+        ValueLayout.JAVA_SHORT.withName("addr"),
+        ValueLayout.JAVA_SHORT.withName("flags"),
+        ValueLayout.JAVA_SHORT.withName("len"),
+        MemoryLayout.paddingLayout(2),
+        ValueLayout.ADDRESS.withName("buf"));
+    /** {@code struct i2c_rdwr_ioctl_data { struct i2c_msg *msgs; __u32 nmsgs; }} */
+    private static final StructLayout I2C_RDWR_DATA = ValueLayout.ADDRESS.byteSize() == 8
+        ? MemoryLayout.structLayout(ValueLayout.ADDRESS.withName("msgs"),
+                                    ValueLayout.JAVA_INT.withName("nmsgs"),
+                                    MemoryLayout.paddingLayout(4))
+        : MemoryLayout.structLayout(ValueLayout.ADDRESS.withName("msgs"),
+                                    ValueLayout.JAVA_INT.withName("nmsgs"));
+    private static final long MSG_ADDR  = I2C_MSG.byteOffset(MemoryLayout.PathElement.groupElement("addr"));
+    private static final long MSG_FLAGS = I2C_MSG.byteOffset(MemoryLayout.PathElement.groupElement("flags"));
+    private static final long MSG_LEN   = I2C_MSG.byteOffset(MemoryLayout.PathElement.groupElement("len"));
+    private static final long MSG_BUF   = I2C_MSG.byteOffset(MemoryLayout.PathElement.groupElement("buf"));
 
     private final int fd;
+    private final int address;
     private final int regBytes;
+    private final String devPath;
 
     /**
      * Open an I²C device.
@@ -63,7 +57,9 @@ public final class I2CConnection extends AbstractConnection implements RegisterC
     public I2CConnection(int bus, int address, InputPin intPin, OutputPin enPin, int regBytes) throws IOException {
         super(intPin, enPin);
         this.fd = openDevice(bus, address);
+        this.address = address;
         this.regBytes = regBytes;
+        this.devPath = "/dev/i2c-" + bus;
     }
 
     /**
@@ -94,44 +90,39 @@ public final class I2CConnection extends AbstractConnection implements RegisterC
     public int regBytes() { return regBytes; }
 
     private static int openDevice(int bus, int address) throws IOException {
+        String path = "/dev/i2c-" + bus;
         int fd = -1;
         try (var arena = Arena.ofConfined()) {
-            var path = arena.allocateFrom("/dev/i2c-" + bus);
-            fd = (int) openMH.invoke(path, O_RDWR);
-            if (fd < 0) throw new IOException("open(/dev/i2c-" + bus + ") failed");
-            int rc = (int) ioctlValueMH.invoke(fd, I2C_SLAVE, (long) address);
-            if (rc < 0) throw new IOException("I2C_SLAVE ioctl failed: " + rc);
+            var cap = Libc.capture(arena);
+            fd = (int) Libc.OPEN.invoke(cap, arena.allocateFrom(path), O_RDWR);
+            if (fd < 0) throw Libc.error("open(" + path + ")", cap);
+            int rc = (int) Libc.IOCTL_LONG.invoke(cap, fd, I2C_SLAVE, (long) address);
+            if (rc < 0) throw Libc.error(String.format("I2C_SLAVE ioctl(%s, 0x%02X)", path, address), cap);
             return fd;
         } catch (IOException e) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw e;
         } catch (Throwable t) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw new IOException(t);
         }
     }
 
+    /**
+     * Send bytes to the device.
+     *
+     * @throws IOException if {@code write()} fails (e.g. NACK: {@code EREMOTEIO}) or sends
+     *                     fewer bytes than requested
+     */
     @Override
     protected void _write(byte[] data) throws IOException {
         try (var arena = Arena.ofConfined()) {
-            var buf = arena.allocate(data.length);
+            var cap = Libc.capture(arena);
+            var buf = arena.allocate(Math.max(data.length, 1));
             buf.copyFrom(MemorySegment.ofArray(data));
-            long n = (long) writeMH.invoke(fd, buf, (long) data.length);
-            if (n < 0) throw new IOException("write() failed: " + n);
-        } catch (IOException e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new IOException(t);
-        }
-    }
-
-    @Override
-    protected byte[] _read(int n) throws IOException {
-        try (var arena = Arena.ofConfined()) {
-            var buf = arena.allocate(n);
-            long got = (long) readMH.invoke(fd, buf, (long) n);
-            if (got < 0) throw new IOException("read() failed: " + got);
-            return buf.toArray(ValueLayout.JAVA_BYTE);
+            long n = (long) Libc.WRITE.invoke(cap, fd, buf, (long) data.length);
+            if (n < 0) throw Libc.error("write(" + devPath + ")", cap);
+            if (n != data.length) throw Libc.shortTransfer("write(" + devPath + ")", n, data.length);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -140,21 +131,69 @@ public final class I2CConnection extends AbstractConnection implements RegisterC
     }
 
     /**
-     * Writes then reads as two separate bus transactions (stop + start between them).
-     * For chips requiring a true repeated-start, use a platform-specific connection.
+     * Read bytes from the device.
+     *
+     * @throws IOException if {@code read()} fails or returns fewer bytes than requested
+     */
+    @Override
+    protected byte[] _read(int n) throws IOException {
+        try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
+            var buf = arena.allocate(Math.max(n, 1));
+            long got = (long) Libc.READ.invoke(cap, fd, buf, (long) n);
+            if (got < 0) throw Libc.error("read(" + devPath + ")", cap);
+            if (got != n) throw Libc.shortTransfer("read(" + devPath + ")", got, n);
+            return buf.asSlice(0, n).toArray(ValueLayout.JAVA_BYTE);
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
+        }
+    }
+
+    /**
+     * Write then read in one {@code I2C_RDWR} transaction with a repeated START between the
+     * phases (no STOP), as register reads on most chips expect.
+     *
+     * @throws IOException if the ioctl fails or completes fewer than both messages
      */
     @Override
     protected byte[] _writeRead(byte[] data, int n) throws IOException {
-        _write(data);
-        return _read(n);
+        try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
+            var wbuf = arena.allocate(Math.max(data.length, 1));
+            wbuf.copyFrom(MemorySegment.ofArray(data));
+            var rbuf = arena.allocate(Math.max(n, 1));
+
+            var msgs = arena.allocate(I2C_MSG, 2);
+            setMsg(msgs, 0, (short) 0, data.length, wbuf);
+            setMsg(msgs, 1, I2C_M_RD, n, rbuf);
+
+            var rdwr = arena.allocate(I2C_RDWR_DATA);
+            rdwr.set(ValueLayout.ADDRESS, 0, msgs);
+            rdwr.set(ValueLayout.JAVA_INT, ValueLayout.ADDRESS.byteSize(), 2);
+
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, I2C_RDWR, rdwr);
+            if (rc < 0) throw Libc.error("I2C_RDWR ioctl(" + devPath + ")", cap);
+            if (rc != 2) throw new IOException("I2C_RDWR ioctl(" + devPath + ") completed " + rc + " of 2 messages");
+            return rbuf.asSlice(0, n).toArray(ValueLayout.JAVA_BYTE);
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
+        }
+    }
+
+    private void setMsg(MemorySegment msgs, int i, short flags, int len, MemorySegment buf) {
+        long base = i * I2C_MSG.byteSize();
+        msgs.set(ValueLayout.JAVA_SHORT, base + MSG_ADDR,  (short) address);
+        msgs.set(ValueLayout.JAVA_SHORT, base + MSG_FLAGS, flags);
+        msgs.set(ValueLayout.JAVA_SHORT, base + MSG_LEN,   (short) len);
+        msgs.set(ValueLayout.ADDRESS,    base + MSG_BUF,   buf);
     }
 
     @Override
     public void close() throws IOException {
-        try {
-            closeMH.invoke(fd);
-        } catch (Throwable t) {
-            throw new IOException(t);
-        }
+        Libc.close(fd, devPath);
     }
 }

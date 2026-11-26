@@ -29,7 +29,7 @@ fn main() -> ! {
     let dout   = Input::new(peripherals.GPIO5, esp_hal::gpio::InputConfig::default().with_pull(Pull::None));
     let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low, esp_hal::gpio::OutputConfig::default());
 
-    let mut connection = HX711Connection::new(dout, pd_sck);
+    let mut connection = HX711Connection::new(dout, pd_sck).expect("init HX711Connection");
 
     let mut passed = 0i32;
     let mut failed = 0i32;

@@ -109,7 +109,7 @@ build_linux() {
     mapfile -t srcs < <(python3 "$SCRIPT_DIR/linux-sources.py" "$app")
     for s in "${srcs[@]}"; do
         objs+=("$out/$((i++)).o")
-        "${cc[@]}" -std=c++17 -Wall -Wextra -Werror -O1 -I"$app" "${LINUX_INCLUDES[@]}" \
+        "${cc[@]}" -std=c++17 -Wall -Wextra -Werror -Wunused-result -D_FORTIFY_SOURCE=2 -O1 -I"$app" "${LINUX_INCLUDES[@]}" \
             -c "$s" -o "${objs[-1]}" || return 1
     done
     g++ "${objs[@]}" -o "$out/app" -lgpiod -lpthread -lm || return 1

@@ -37,7 +37,7 @@ fn main() {
     let dout   = CdevPin::new(dout_handle).expect("dout pin");
     let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
-    let mut connection = HX711Connection::new(dout, pd_sck);
+    let mut connection = HX711Connection::new(dout, pd_sck).expect("init HX711Connection");
 
     let ready = connection.is_ready();
     check_true!(ready.is_ok(), "is_ready ok", passed, failed);

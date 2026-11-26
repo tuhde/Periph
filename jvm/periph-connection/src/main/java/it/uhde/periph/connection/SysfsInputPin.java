@@ -30,28 +30,16 @@ public final class SysfsInputPin implements InputPin {
     private static final int O_RDONLY = 0;
     private static final short POLLPRI = 0x0002;
 
-    private static final MethodHandle openMH;
     private static final MethodHandle pollMH;
-    private static final MethodHandle lseekMH;
-    private static final MethodHandle readMH;
     private static final MethodHandle closeMH;
 
     static {
         Linker linker = Linker.nativeLinker();
         var lookup = linker.defaultLookup();
-        openMH = linker.downcallHandle(
-            lookup.find("open").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
         // struct pollfd { int fd; short events; short revents; } — 8 bytes
         pollMH = linker.downcallHandle(
             lookup.find("poll").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT));
-        lseekMH = linker.downcallHandle(
-            lookup.find("lseek").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT));
-        readMH = linker.downcallHandle(
-            lookup.find("read").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
         closeMH = linker.downcallHandle(
             lookup.find("close").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
@@ -74,13 +62,18 @@ public final class SysfsInputPin implements InputPin {
         Path base = Path.of("/sys/class/gpio/gpio" + gpioNumber);
         this.valuePath = base.resolve("value");
         this.edgePath = base.resolve("edge");
+        int fd;
+        IOException failure = null;
         try (Arena arena = Arena.ofConfined()) {
+            MemorySegment cap = Libc.capture(arena);
             MemorySegment path = arena.allocateFrom(valuePath.toString());
-            this.valueFd = (int) openMH.invoke(path, O_RDONLY);
-            if (valueFd < 0) throw new UncheckedIOException(new IOException("open(" + valuePath + ") failed"));
+            fd = (int) Libc.OPEN.invoke(cap, path, O_RDONLY);
+            if (fd < 0) failure = Libc.error("open(" + valuePath + ")", cap);
         } catch (Throwable t) {
             throw new UncheckedIOException(new IOException(t));
         }
+        if (failure != null) throw new UncheckedIOException(failure);
+        this.valueFd = fd;
     }
 
     @Override
@@ -141,14 +134,15 @@ public final class SysfsInputPin implements InputPin {
     // The edge loop and isHigh() share valueFd, so lseek+read is one critical section.
     private int readLevel() throws IOException {
         synchronized (readLock) {
-            try {
-                lseekMH.invoke(valueFd, 0L, 0); // SEEK_SET
-                try (Arena arena = Arena.ofConfined()) {
-                    MemorySegment buf = arena.allocate(1);
-                    long n = (long) readMH.invoke(valueFd, buf, 1L);
-                    if (n <= 0) throw new IOException("read(" + valuePath + ") failed");
-                    return (buf.get(ValueLayout.JAVA_BYTE, 0) == '1') ? 1 : 0;
-                }
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment cap = Libc.capture(arena);
+                long off = (long) Libc.LSEEK.invoke(cap, valueFd, 0L, 0); // SEEK_SET
+                if (off < 0) throw Libc.error("lseek(" + valuePath + ")", cap);
+                MemorySegment buf = arena.allocate(1);
+                long n = (long) Libc.READ.invoke(cap, valueFd, buf, 1L);
+                if (n < 0) throw Libc.error("read(" + valuePath + ")", cap);
+                if (n == 0) throw Libc.shortTransfer("read(" + valuePath + ")", 0, 1);
+                return (buf.get(ValueLayout.JAVA_BYTE, 0) == '1') ? 1 : 0;
             } catch (IOException e) {
                 throw e;
             } catch (Throwable t) {

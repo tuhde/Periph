@@ -74,12 +74,14 @@ class UARTConnection(Connection):
         """
         if self._de_gpio is not None:
             self._de_gpio.write(True)
-        n = self._ser.write(data)
-        if n != len(data):
-            raise OSError('UART write failed: wrote %d of %d bytes' % (n, len(data)))
-        self._ser.flush()
-        if self._de_gpio is not None:
-            self._de_gpio.write(False)
+        try:
+            n = self._ser.write(data)
+            if n != len(data):
+                raise OSError('UART write failed: wrote %d of %d bytes' % (n, len(data)))
+            self._ser.flush()
+        finally:
+            if self._de_gpio is not None:
+                self._de_gpio.write(False)
 
     def _read(self, n):
         """Receive n bytes; blocks until n bytes arrive or the read timeout

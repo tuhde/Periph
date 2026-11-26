@@ -182,13 +182,16 @@ File: `nodejs/packages/periph/src/connection/neopixel.js`
 
 ### Rust (embedded-hal, bare-metal / ESP32-S3)
 
-Constructor wraps any `embedded_hal::spi::SpiBus` configured at 2.4 MHz. `write()` encodes the pixel buffer into a `Vec<u8>` (or a fixed-size stack buffer if `alloc` is unavailable) and calls `spi.write(&encoded)`.
+Constructor wraps any `embedded_hal::spi::SpiBus` configured at 2.4 MHz. `write()` / `write_ext()` encode the pixel buffer into a fixed-size stack buffer (`heapless::Vec`, sized for `MAX_DATA_BYTES` = 1024 data bytes, i.e. 256 RGBW pixels, plus up to `MAX_RESET_BYTES` = 128 reset bytes) and call `spi.write(&encoded)`. A payload above either limit returns `NeoPixelError::TooLong` and sends nothing; a bus failure returns `NeoPixelError::Spi(e)`.
 
 ```rust
+pub enum NeoPixelError<E> { Spi(E), TooLong { data_len: usize, reset_bytes: usize } }
+
 impl<SPI: SpiBus> NeoPixelConnection<SPI> {
-    pub fn write(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
-        let encoded = encode(data); // returns heapless::Vec or Vec
-        self.spi.write(&encoded)
+    pub fn write_ext(&mut self, data: &[u8], reset_bytes: usize) -> Result<(), NeoPixelError<SPI::Error>> {
+        let encoded = encode(data, reset_bytes)
+            .ok_or(NeoPixelError::TooLong { data_len: data.len(), reset_bytes })?;
+        self.spi.write(&encoded).map_err(NeoPixelError::Spi)
     }
 }
 ```

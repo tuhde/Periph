@@ -175,15 +175,31 @@ func (t *UARTConnection) Write(data []byte) error {
 		return nil
 	}
 	if t.dePin >= 0 {
-		_ = setGpio(t.dePin, true)
+		if err := setGpio(t.dePin, true); err != nil {
+			return fmt.Errorf("uart: assert RS-485 DE: %w", err)
+		}
+		// Release DE even when the write or drain fails.
+		defer func() { _ = setGpio(t.dePin, false) }()
 	}
-	_, err := unix.Write(t.fd, data)
+	// write() on a tty may accept fewer bytes than requested; loop until all are queued.
+	for sent := 0; sent < len(data); {
+		n, err := unix.Write(t.fd, data[sent:])
+		if err == unix.EINTR {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("uart: write: %w", err)
+		}
+		if n == 0 {
+			return fmt.Errorf("uart: write transferred %d of %d bytes", sent, len(data))
+		}
+		sent += n
+	}
 	// Wait for TX drain via TCSBRK/1 (this is what tcdrain() does).
-	_, _, _ = syscall.Syscall(syscall.SYS_IOCTL, uintptr(t.fd), uintptr(unix.TCSBRK), 1)
-	if t.dePin >= 0 {
-		_ = setGpio(t.dePin, false)
+	if _, _, errno := syscall.Syscall(syscall.SYS_IOCTL, uintptr(t.fd), uintptr(unix.TCSBRK), 1); errno != 0 {
+		return fmt.Errorf("uart: TCSBRK (drain): %w", errno)
 	}
-	return err
+	return nil
 }
 
 // Read reads up to n bytes from the device, relying on the VTIME-based

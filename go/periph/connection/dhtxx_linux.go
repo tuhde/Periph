@@ -69,28 +69,43 @@ func (t *DHTxxConnection) Read() ([]byte, error) {
 	// 1. Host start signal: drive LOW for >=18 ms.
 	if t.twoPin {
 		// Two-pin: drive open-drain output low, input line reads it.
-		_ = setGpioLine(t.dataOut, true) // high impedance = high
+		if err := setGpioLine(t.dataOut, true); err != nil { // high impedance = high
+			return nil, fmt.Errorf("dhtxx: drive data line: %w", err)
+		}
 	} else {
-		_ = setGpioLine(t.dataLine, false)
+		if err := setGpioLine(t.dataLine, false); err != nil {
+			return nil, fmt.Errorf("dhtxx: drive data line: %w", err)
+		}
 	}
 	time.Sleep(dhtStartLowMs * time.Millisecond)
 	if t.twoPin {
-		_ = setGpioLine(t.dataOut, false) // actively drive low
+		if err := setGpioLine(t.dataOut, false); err != nil { // actively drive low
+			return nil, fmt.Errorf("dhtxx: drive data line: %w", err)
+		}
 	} else {
-		_ = setGpioLine(t.dataLine, false)
+		if err := setGpioLine(t.dataLine, false); err != nil {
+			return nil, fmt.Errorf("dhtxx: drive data line: %w", err)
+		}
 	}
 	time.Sleep(dhtStartLowMs * time.Millisecond)
 	if t.twoPin {
-		_ = setGpioLine(t.dataOut, true) // release
+		if err := setGpioLine(t.dataOut, true); err != nil { // release
+			return nil, fmt.Errorf("dhtxx: drive data line: %w", err)
+		}
 	} else {
-		_ = setGpioLine(t.dataLine, true) // release
+		if err := setGpioLine(t.dataLine, true); err != nil { // release
+			return nil, fmt.Errorf("dhtxx: drive data line: %w", err)
+		}
 	}
 	time.Sleep(time.Microsecond * dhtReleaseWaitUs)
 
 	// 2. Wait for sensor to pull DATA LOW (response start).
 	deadline := time.Now().Add(time.Microsecond * dhtResponseTimeoutUs)
 	for {
-		v, _ := readGpioLine(t.dataLine)
+		v, err := readGpioLine(t.dataLine)
+		if err != nil {
+			return nil, fmt.Errorf("dhtxx: read data line: %w", err)
+		}
 		if !v {
 			break // LOW detected
 		}
@@ -102,7 +117,10 @@ func (t *DHTxxConnection) Read() ([]byte, error) {
 	// Wait for sensor to release DATA HIGH (response start of data).
 	deadline = time.Now().Add(time.Microsecond * dhtResponseTimeoutUs)
 	for {
-		v, _ := readGpioLine(t.dataLine)
+		v, err := readGpioLine(t.dataLine)
+		if err != nil {
+			return nil, fmt.Errorf("dhtxx: read data line: %w", err)
+		}
 		if v {
 			break
 		}
@@ -120,7 +138,10 @@ func (t *DHTxxConnection) Read() ([]byte, error) {
 			// Wait for the LOW pre-bit pulse to end.
 			deadline = time.Now().Add(time.Microsecond * dhtBitTimeoutUs)
 			for {
-				v, _ := readGpioLine(t.dataLine)
+				v, err := readGpioLine(t.dataLine)
+				if err != nil {
+					return nil, fmt.Errorf("dhtxx: read data line: %w", err)
+				}
 				if v {
 					break
 				}
@@ -133,7 +154,10 @@ func (t *DHTxxConnection) Read() ([]byte, error) {
 			highStart := time.Now()
 			deadline = time.Now().Add(time.Microsecond * dhtBitTimeoutUs)
 			for {
-				v, _ := readGpioLine(t.dataLine)
+				v, err := readGpioLine(t.dataLine)
+				if err != nil {
+					return nil, fmt.Errorf("dhtxx: read data line: %w", err)
+				}
 				if !v {
 					break
 				}

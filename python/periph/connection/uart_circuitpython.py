@@ -41,13 +41,23 @@ class UARTConnection(Connection):
 
         Args:
             data: Bytes to transmit.
+
+        Raises:
+            OSError: If the UART accepts fewer bytes than requested
+                (``write()`` returns ``None`` on a TX timeout).
         """
+        data = bytes(data)
         if self._de is not None:
             self._de.value = True
-        self._uart.write(bytes(data))
-        if self._de is not None:
-            time.sleep_us(self._drain_delay_us(len(data)))
-            self._de.value = False
+        try:
+            n = self._uart.write(data)
+            if n is None or n < len(data):
+                raise OSError('UART write: wrote %d of %d bytes' % (n or 0, len(data)))
+            if self._de is not None:
+                time.sleep(self._drain_delay_us(len(data)) / 1_000_000)  # CircuitPython has no sleep_us
+        finally:
+            if self._de is not None:
+                self._de.value = False
 
     def _read(self, n):
         """Receive n bytes; blocks until n bytes arrive or the UART times out.

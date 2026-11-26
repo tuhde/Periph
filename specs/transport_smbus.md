@@ -93,7 +93,7 @@ File: `cpp/src/connection/SMBusConnectionSTM32Cube.h` (header-only)
 
 Wraps `I2CConnection` (FFM-based, same approach as the Linux I²C connection) and adds address validation plus software PEC. Constructor signature: `SMBusConnection(int bus, int address, boolean pec)`.
 
-`I2CConnection.writeRead` performs a stop-then-start rather than a true repeated start, and `SMBusConnection` inherits that limitation.
+`I2CConnection.writeRead` is one `I2C_RDWR` transaction with a true repeated START, and `SMBusConnection` inherits it. Bus errors and short transfers throw `IOException` with `strerror(errno)` in the message.
 
 On a PEC mismatch, `read` and `writeRead` throw `IOException("SMBus PEC error")`.
 

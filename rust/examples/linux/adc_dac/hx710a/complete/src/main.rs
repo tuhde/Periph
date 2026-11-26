@@ -17,7 +17,7 @@ fn main() {
     let dout   = CdevPin::new(dout_handle).expect("dout pin");
     let pd_sck = CdevPin::new(sck_handle).expect("pd_sck pin");
 
-    let connection = HX711Connection::new(dout, pd_sck);
+    let connection = HX711Connection::new(dout, pd_sck).expect("init HX711Connection");
     let mut chip = Hx710aFull::new(connection).expect("init HX710A");  // Create HX710A driver — discards first conversion, (connection) → Result<Hx710aFull, _>
 
     loop {

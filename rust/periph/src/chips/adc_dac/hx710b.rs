@@ -16,7 +16,7 @@
 //! use periph::connection::hx711::HX711Connection;
 //! use periph::chips::adc_dac::{Hx710bMinimal, Hx710bFull};
 //!
-//! let connection = HX711Connection::new(dout_pin, pd_sck_pin);
+//! let connection = HX711Connection::new(dout_pin, pd_sck_pin)?;
 //! let mut chip = Hx710bFull::new(connection)?;
 //!
 //! chip.tare(10)?;
@@ -282,7 +282,7 @@ mod tests {
     fn minimal_init_discards_first_reading() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let before = *sck.highs.borrow();
         let _sensor = Hx710bMinimal::new(conn).unwrap();
         assert_eq!(*sck.highs.borrow() - before, 25, "init should discard one 25-pulse reading");
@@ -292,7 +292,7 @@ mod tests {
     fn minimal_read_raw_uses_10sps() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bMinimal::new(conn).unwrap();
 
         push_read(&dout.queue, 12345);
@@ -305,7 +305,7 @@ mod tests {
     fn full_read_raw_default_10sps() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         push_read(&dout.queue, 1000);
@@ -318,7 +318,7 @@ mod tests {
     fn set_rate_switches_pulse_count() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         // set_rate(40): 27 pulses. Issues one dummy read to apply it.
@@ -342,7 +342,7 @@ mod tests {
     fn set_rate_invalid_is_rejected() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         let before = *sck.highs.borrow();
@@ -360,7 +360,7 @@ mod tests {
     fn read_average_is_integer_division_mean() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         push_read(&dout.queue, 10);
@@ -373,7 +373,7 @@ mod tests {
     fn tare_and_read_weight() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         push_read(&dout.queue, 100);
@@ -395,7 +395,7 @@ mod tests {
     fn read_supply_diff_raw_uses_26_pulses() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         push_read(&dout.queue, 777);
@@ -408,7 +408,7 @@ mod tests {
     fn power_down_and_power_up() {
         let (dout, sck) = new_pins();
         push_read(&dout.queue, 0);
-        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let conn = HX711Connection::new(dout.clone(), sck.clone()).unwrap();
         let mut sensor = Hx710bFull::new(conn).unwrap();
 
         let before_high = *sck.highs.borrow();
