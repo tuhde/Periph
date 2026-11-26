@@ -29,6 +29,10 @@
       "github:tuhde/Periph/python/periph/chips/light/si1132.py"
     ],
     [
+      "periph/chips/light/si1133.py",
+      "github:tuhde/Periph/python/periph/chips/light/si1133.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],

@@ -445,6 +445,10 @@
       "github:tuhde/Periph/python/periph/chips/light/si1132.py"
     ],
     [
+      "periph/chips/light/si1133.py",
+      "github:tuhde/Periph/python/periph/chips/light/si1133.py"
+    ],
+    [
       "periph/chips/magnetometer/as5600.py",
       "github:tuhde/Periph/python/periph/chips/magnetometer/as5600.py"
     ],
