@@ -2,7 +2,6 @@ package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
-import java.lang.invoke.*;
 
 /**
  * SiPo (serial-in/parallel-out shift register) connection for cascadable SIPO
@@ -50,26 +49,6 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
     // struct gpiohandle_data: values[64] u8 (64 bytes)
     private static final int GD_SIZE     = 64;
 
-    private static final MethodHandle openMH;
-    private static final MethodHandle ioctlAddrMH;
-    private static final MethodHandle closeMH;
-
-    static {
-        var linker = Linker.nativeLinker();
-        var lookup  = linker.defaultLookup();
-        openMH = linker.downcallHandle(
-            lookup.find("open").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-        ioctlAddrMH = linker.downcallHandle(
-            lookup.find("ioctl").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
-        closeMH = linker.downcallHandle(
-            lookup.find("close").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
-    }
-
     private final int spiFd;    // -1 in software mode
     private final int serInFd;  // -1 in hardware mode
     private final int srckFd;   // -1 in hardware mode
@@ -114,7 +93,7 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
             int gFd = gLine >= 0 ? openGpioLine(gLine, 0) : -1;
             return new SiPoConnection(spiFd, -1, -1, rckFd, srclrFd, gFd, enPin);
         } catch (IOException e) {
-            try { closeMH.invoke(spiFd); } catch (Throwable ignored) {}
+            Libc.closeQuietly(spiFd);
             throw e;
         }
     }
@@ -178,28 +157,28 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
     private static int openSpiDevice(int busNumber, int deviceNumber) throws IOException {
         int fd = -1;
         try (var arena = Arena.ofConfined()) {
-            var path = arena.allocateFrom("/dev/spidev" + busNumber + "." + deviceNumber);
-            fd = (int) openMH.invoke(path, O_RDWR);
-            if (fd < 0) throw new IOException(
-                "open(/dev/spidev" + busNumber + "." + deviceNumber + ") failed");
+            var cap = Libc.capture(arena);
+            String devPath = "/dev/spidev" + busNumber + "." + deviceNumber;
+            fd = (int) Libc.OPEN.invoke(cap, arena.allocateFrom(devPath), O_RDWR);
+            if (fd < 0) throw Libc.error("open(" + devPath + ")", cap);
 
             var u8  = arena.allocate(ValueLayout.JAVA_BYTE);
             var u32 = arena.allocate(ValueLayout.JAVA_INT);
 
             u8.set(ValueLayout.JAVA_BYTE, 0, (byte) 0); // SPI_MODE_0
-            int rc = (int) ioctlAddrMH.invoke(fd, SPI_IOC_WR_MODE, u8);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MODE ioctl failed: " + rc);
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_WR_MODE, u8);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MODE ioctl", cap);
 
             u32.set(ValueLayout.JAVA_INT, 0, SPI_SPEED_HZ);
-            rc = (int) ioctlAddrMH.invoke(fd, SPI_IOC_WR_MAX_SPEED_HZ, u32);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MAX_SPEED_HZ ioctl failed: " + rc);
+            rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_WR_MAX_SPEED_HZ, u32);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MAX_SPEED_HZ ioctl", cap);
 
             return fd;
         } catch (IOException e) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw e;
         } catch (Throwable t) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw new IOException(t);
         }
     }
@@ -207,9 +186,10 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
     /** Open {@code /dev/gpiochip0} and request {@code lineNum} as an output line at {@code initialValue}. */
     private static int openGpioLine(int lineNum, int initialValue) throws IOException {
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var chipPath = arena.allocateFrom("/dev/gpiochip0");
-            int chipFd = (int) openMH.invoke(chipPath, O_RDWR);
-            if (chipFd < 0) throw new IOException("open(/dev/gpiochip0) failed");
+            int chipFd = (int) Libc.OPEN.invoke(cap, chipPath, O_RDWR);
+            if (chipFd < 0) throw Libc.error("open(/dev/gpiochip0)", cap);
             try {
                 var req = arena.allocate(GR_SIZE, 4);
                 req.fill((byte) 0);
@@ -217,11 +197,11 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
                 req.set(ValueLayout.JAVA_INT, GR_FLAGS, GPIOHANDLE_REQUEST_OUTPUT);
                 req.set(ValueLayout.JAVA_BYTE, GR_DEFAULTS, (byte) initialValue);
                 req.set(ValueLayout.JAVA_INT, GR_LINES, 1);
-                int rc = (int) ioctlAddrMH.invoke(chipFd, GPIO_GET_LINEHANDLE_IOCTL, req);
-                if (rc < 0) throw new IOException("GPIO_GET_LINEHANDLE_IOCTL failed for line " + lineNum);
+                int rc = (int) Libc.IOCTL_PTR.invoke(cap, chipFd, GPIO_GET_LINEHANDLE_IOCTL, req);
+                if (rc < 0) throw Libc.error("GPIO_GET_LINEHANDLE_IOCTL ioctl(line " + lineNum + ")", cap);
                 return req.get(ValueLayout.JAVA_INT, GR_FD);
             } finally {
-                closeMH.invoke(chipFd);
+                Libc.closeQuietly(chipFd);
             }
         } catch (IOException e) {
             throw e;
@@ -232,11 +212,12 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
 
     private static void gpioSet(int lineFd, int value) throws IOException {
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var data = arena.allocate(GD_SIZE, 1);
             data.fill((byte) 0);
             data.set(ValueLayout.JAVA_BYTE, 0, (byte) value);
-            int rc = (int) ioctlAddrMH.invoke(lineFd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, data);
-            if (rc < 0) throw new IOException("GPIOHANDLE_SET_LINE_VALUES_IOCTL failed");
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, lineFd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, data);
+            if (rc < 0) throw Libc.error("GPIOHANDLE_SET_LINE_VALUES_IOCTL ioctl", cap);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -274,6 +255,7 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
 
     private void writeSpi(byte[] data) throws IOException {
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var txBuf = arena.allocate(data.length);
             txBuf.copyFrom(MemorySegment.ofArray(data));
 
@@ -283,8 +265,9 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
             xfer.set(ValueLayout.JAVA_INT, 16, data.length);     // len
             xfer.set(ValueLayout.JAVA_INT, 20, SPI_SPEED_HZ);    // speed_hz
 
-            int rc = (int) ioctlAddrMH.invoke(spiFd, SPI_IOC_MESSAGE_1, xfer);
-            if (rc < 0) throw new IOException("SPI_IOC_MESSAGE ioctl failed: " + rc);
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, spiFd, SPI_IOC_MESSAGE_1, xfer);
+            if (rc < 0) throw Libc.error("SPI_IOC_MESSAGE ioctl", cap);
+            if (rc != data.length) throw Libc.shortTransfer("SPI_IOC_MESSAGE ioctl", rc, data.length);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -341,15 +324,15 @@ public final class SiPoConnection extends AbstractConnection implements SiPo {
      */
     @Override
     public void close() throws IOException {
-        try {
-            if (spiFd >= 0) closeMH.invoke(spiFd);
-            if (serInFd >= 0) closeMH.invoke(serInFd);
-            if (srckFd >= 0) closeMH.invoke(srckFd);
-            closeMH.invoke(rckFd);
-            if (srclrFd >= 0) closeMH.invoke(srclrFd);
-            if (gFd >= 0) closeMH.invoke(gFd);
-        } catch (Throwable t) {
-            throw new IOException(t);
+        // Close every handle even if one fails; report the first failure.
+        IOException first = null;
+        for (int fd : new int[] {spiFd, serInFd, srckFd, rckFd, srclrFd, gFd}) {
+            try {
+                Libc.close(fd, "SiPo fd " + fd);
+            } catch (IOException e) {
+                if (first == null) first = e;
+            }
         }
+        if (first != null) throw first;
     }
 }

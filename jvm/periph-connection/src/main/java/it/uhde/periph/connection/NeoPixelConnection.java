@@ -2,7 +2,6 @@ package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
-import java.lang.invoke.*;
 
 /**
  * NeoPixel connection for WS2812B-compatible addressable LEDs, using Linux spidev via FFM.
@@ -27,26 +26,6 @@ public final class NeoPixelConnection extends AbstractConnection implements Rese
     // _IOW('k', 0, char[sizeof(spi_ioc_transfer)=32])
     private static final long SPI_IOC_MESSAGE_1        = 0x40206b00L;
     private static final int  SPI_IOC_XFER_SIZE        = 32;
-
-    private static final MethodHandle openMH;
-    private static final MethodHandle ioctlPtrMH;
-    private static final MethodHandle closeMH;
-
-    static {
-        var linker = Linker.nativeLinker();
-        var lookup  = linker.defaultLookup();
-        openMH = linker.downcallHandle(
-            lookup.find("open").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-        ioctlPtrMH = linker.downcallHandle(
-            lookup.find("ioctl").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
-        closeMH = linker.downcallHandle(
-            lookup.find("close").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
-    }
 
     private final int fd;
 
@@ -77,32 +56,32 @@ public final class NeoPixelConnection extends AbstractConnection implements Rese
     private static int openDevice(int busNum, int deviceNum) throws IOException {
         int fd = -1;
         try (var arena = Arena.ofConfined()) {
-            var path = arena.allocateFrom("/dev/spidev" + busNum + "." + deviceNum);
-            fd = (int) openMH.invoke(path, O_RDWR);
-            if (fd < 0) throw new IOException(
-                "open(/dev/spidev" + busNum + "." + deviceNum + ") failed");
+            var cap = Libc.capture(arena);
+            String devPath = "/dev/spidev" + busNum + "." + deviceNum;
+            fd = (int) Libc.OPEN.invoke(cap, arena.allocateFrom(devPath), O_RDWR);
+            if (fd < 0) throw Libc.error("open(" + devPath + ")", cap);
 
             var u8  = arena.allocate(ValueLayout.JAVA_BYTE);
             var u32 = arena.allocate(ValueLayout.JAVA_INT);
 
             u8.set(ValueLayout.JAVA_BYTE, 0, (byte) 0); // SPI_MODE_0
-            int rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_MODE, u8);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MODE ioctl failed: " + rc);
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_WR_MODE, u8);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MODE ioctl", cap);
 
             u8.set(ValueLayout.JAVA_BYTE, 0, (byte) 8); // 8 bits per word
-            rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_BITS_PER_WORD, u8);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_BITS_PER_WORD ioctl failed: " + rc);
+            rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_WR_BITS_PER_WORD, u8);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_BITS_PER_WORD ioctl", cap);
 
             u32.set(ValueLayout.JAVA_INT, 0, 2_400_000); // 2.4 MHz
-            rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_MAX_SPEED_HZ, u32);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MAX_SPEED_HZ ioctl failed: " + rc);
+            rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_WR_MAX_SPEED_HZ, u32);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MAX_SPEED_HZ ioctl", cap);
 
             return fd;
         } catch (IOException e) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw e;
         } catch (Throwable t) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw new IOException(t);
         }
     }
@@ -140,6 +119,7 @@ public final class NeoPixelConnection extends AbstractConnection implements Rese
         if (!isEnabled()) return;
         byte[] encoded = encode(data, resetBytes);
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var txBuf = arena.allocate(encoded.length);
             txBuf.copyFrom(MemorySegment.ofArray(encoded));
 
@@ -151,8 +131,9 @@ public final class NeoPixelConnection extends AbstractConnection implements Rese
             xfer.set(ValueLayout.JAVA_INT,  20, 2_400_000);       // speed_hz
             // remaining fields (delay, bits_per_word, cs_change, etc.) left 0 → kernel defaults
 
-            int rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_MESSAGE_1, xfer);
-            if (rc < 0) throw new IOException("SPI_IOC_MESSAGE ioctl failed: " + rc);
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_MESSAGE_1, xfer);
+            if (rc < 0) throw Libc.error("SPI_IOC_MESSAGE ioctl", cap);
+            if (rc != encoded.length) throw Libc.shortTransfer("SPI_IOC_MESSAGE ioctl", rc, encoded.length);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -174,11 +155,7 @@ public final class NeoPixelConnection extends AbstractConnection implements Rese
 
     @Override
     public void close() throws IOException {
-        try {
-            closeMH.invoke(fd);
-        } catch (Throwable t) {
-            throw new IOException(t);
-        }
+        Libc.close(fd, "spidev");
     }
 
     // BCM2835 SPI0 uses DMA (gap-free) for transfers >= 96 bytes; below that it

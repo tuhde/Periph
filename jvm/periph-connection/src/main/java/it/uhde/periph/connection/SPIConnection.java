@@ -2,7 +2,6 @@ package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
-import java.lang.invoke.*;
 
 /**
  * SPI connection for Linux host (wraps spidev, opens /dev/spidevBUS.DEVICE).
@@ -33,27 +32,8 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
     private static final long SPI_IOC_MESSAGE_2       = 0x40206b02L;
     private static final int  SPI_IOC_XFER_SIZE       = 32;
 
-    private static final MethodHandle openMH;
-    private static final MethodHandle ioctlPtrMH;
-    private static final MethodHandle closeMH;
-
-    static {
-        var linker = Linker.nativeLinker();
-        var lookup  = linker.defaultLookup();
-        openMH = linker.downcallHandle(
-            lookup.find("open").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
-        ioctlPtrMH = linker.downcallHandle(
-            lookup.find("ioctl").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT,
-                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
-        closeMH = linker.downcallHandle(
-            lookup.find("close").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
-    }
-
     private final int _fd;
+    private final String _path;
     private final int _mode;
     private volatile int _speedHz;
     private final int _readBit;
@@ -108,6 +88,7 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
         this._readBit       = readBit;
         this._multiByteBit  = multiByteBit;
         this._cs            = csPin;
+        this._path          = "/dev/spidev" + busNum + "." + deviceNum;
         this._fd            = openDevice(busNum, deviceNum, mode | (csPin != null ? SPI_NO_CS : 0), maxSpeedHz);
         if (csPin != null) csPin.set(true);
     }
@@ -145,30 +126,30 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
     }
 
     private static int openDevice(int busNum, int deviceNum, int mode, int maxSpeedHz) throws IOException {
+        String devPath = "/dev/spidev" + busNum + "." + deviceNum;
         int fd = -1;
         try (var arena = Arena.ofConfined()) {
-            var path = arena.allocateFrom("/dev/spidev" + busNum + "." + deviceNum);
-            fd = (int) openMH.invoke(path, O_RDWR);
-            if (fd < 0) throw new IOException(
-                "open(/dev/spidev" + busNum + "." + deviceNum + ") failed");
+            var cap = Libc.capture(arena);
+            fd = (int) Libc.OPEN.invoke(cap, arena.allocateFrom(devPath), O_RDWR);
+            if (fd < 0) throw Libc.error("open(" + devPath + ")", cap);
 
             var u8  = arena.allocate(ValueLayout.JAVA_BYTE);
             var u32 = arena.allocate(ValueLayout.JAVA_INT);
 
             u8.set(ValueLayout.JAVA_BYTE, 0, (byte) mode);
-            int rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_MODE, u8);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MODE ioctl failed: " + rc);
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, SPI_IOC_WR_MODE, u8);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MODE ioctl(" + devPath + ")", cap);
 
             u32.set(ValueLayout.JAVA_INT, 0, maxSpeedHz);
-            rc = (int) ioctlPtrMH.invoke(fd, 0x40046b04L /* SPI_IOC_WR_MAX_SPEED_HZ */, u32);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MAX_SPEED_HZ ioctl failed: " + rc);
+            rc = (int) Libc.IOCTL_PTR.invoke(cap, fd, 0x40046b04L /* SPI_IOC_WR_MAX_SPEED_HZ */, u32);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MAX_SPEED_HZ ioctl(" + devPath + ")", cap);
 
             return fd;
         } catch (IOException e) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw e;
         } catch (Throwable t) {
-            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            Libc.closeQuietly(fd);
             throw new IOException(t);
         }
     }
@@ -202,6 +183,7 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
     /** One full-duplex transfer of {@code tx.length} bytes; returns the received bytes. */
     private byte[] transfer(byte[] tx) throws IOException {
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             int total = tx.length;
             var txBuf = arena.allocate(Math.max(total, 1));
             var rxBuf = arena.allocate(Math.max(total, 1));
@@ -213,8 +195,9 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
             xfer.set(ValueLayout.JAVA_INT,  20, _speedHz);         // speed_hz
             csLow();
             try {
-                int rc = (int) ioctlPtrMH.invoke(_fd, SPI_IOC_MESSAGE_1, xfer);
-                if (rc < 0) throw new IOException("SPI_IOC_MESSAGE failed: " + rc);
+                int rc = (int) Libc.IOCTL_PTR.invoke(cap, _fd, SPI_IOC_MESSAGE_1, xfer);
+                if (rc < 0) throw Libc.error("SPI_IOC_MESSAGE ioctl(" + _path + ")", cap);
+                if (rc != total) throw Libc.shortTransfer("SPI_IOC_MESSAGE ioctl(" + _path + ")", rc, total);
             } finally {
                 csHigh();
             }
@@ -279,10 +262,11 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
     @Override
     public void setSpeed(int hz) throws IOException {
         try (var arena = Arena.ofConfined()) {
+            var cap = Libc.capture(arena);
             var u32 = arena.allocate(ValueLayout.JAVA_INT);
             u32.set(ValueLayout.JAVA_INT, 0, hz);
-            int rc = (int) ioctlPtrMH.invoke(_fd, 0x40046b04L /* SPI_IOC_WR_MAX_SPEED_HZ */, u32);
-            if (rc < 0) throw new IOException("SPI_IOC_WR_MAX_SPEED_HZ ioctl failed: " + rc);
+            int rc = (int) Libc.IOCTL_PTR.invoke(cap, _fd, 0x40046b04L /* SPI_IOC_WR_MAX_SPEED_HZ */, u32);
+            if (rc < 0) throw Libc.error("SPI_IOC_WR_MAX_SPEED_HZ ioctl(" + _path + ")", cap);
             _speedHz = hz;
         } catch (IOException e) {
             throw e;
@@ -306,10 +290,6 @@ public final class SPIConnection implements RegisterConnection, SPIExtensions {
 
     @Override
     public void close() throws IOException {
-        try {
-            closeMH.invoke(_fd);
-        } catch (Throwable t) {
-            throw new IOException(t);
-        }
+        Libc.close(_fd, _path);
     }
 }
