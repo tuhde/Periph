@@ -176,6 +176,7 @@ Each chip exposes two structs:
 | SHT31 | Humidity sensor | Digital temperature and humidity sensor (Sensirion SHT3x-DIS family). |
 | SHTC3 | Humidity sensor | Relative humidity and temperature sensor (Sensirion). |
 | SI1132 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
+| SI1133 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
 | SI7021 | Humidity sensor | Relative humidity and temperature sensor (Silicon Labs). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SPL06 | Pressure sensor | Barometric pressure and temperature sensor (Goertek). |

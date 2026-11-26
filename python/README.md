@@ -182,6 +182,7 @@ Each chip exposes two classes:
 | SHT31 | Humidity sensor | Temperature and humidity sensor |
 | SHTC3 | Humidity sensor | Humidity and temperature sensor |
 | SI1132 | Light sensor | UV index and ambient light sensor |
+| SI1133 | Light sensor | UV and ambient light sensor |
 | SI7021 | Humidity sensor | Humidity and temperature sensor |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SPL06 | Pressure sensor | SPL06-007 I²C barometric pressure and temperature sensor (Goertek) |

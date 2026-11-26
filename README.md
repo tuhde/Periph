@@ -273,7 +273,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SHT31 | Humidity + temperature sensor (±2 %RH, ±0.2 °C, periodic mode, heater) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SHTC3 | Humidity and temperature sensor (±2 %RH, ±0.2 °C, sleep mode) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Si1132 | UV index and ambient light sensor (Si114x family, command interface, interrupt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Si1133 | UV index and ambient light sensor (six measurement channels, 24-bit results, interrupt, preliminary datasheet) | | | | | | | | |
+| Si1133 | UV index and ambient light sensor (six measurement channels, 24-bit results, interrupt, preliminary datasheet) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Si1145 | Proximity, UV index and ambient light sensor (Si1145/46/47, IR LED driver, interrupt) | | | | | | | | |
 | Si7021 | Humidity + temperature sensor (±3 %RH, ±0.4 °C, heater, command protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
