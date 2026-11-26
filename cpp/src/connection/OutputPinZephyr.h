@@ -11,11 +11,11 @@
 class OutputPinZephyr : public OutputPin {
 public:
     explicit OutputPinZephyr(const struct gpio_dt_spec& pin) : _pin(pin) {
-        gpio_pin_configure_dt(&_pin, GPIO_OUTPUT);
+        _setOk(gpio_pin_configure_dt(&_pin, GPIO_OUTPUT) == 0);
     }
 
     void set(bool high) override {
-        gpio_pin_set_dt(&_pin, high ? 1 : 0);
+        _setOk(gpio_pin_set_dt(&_pin, high ? 1 : 0) == 0);
     }
 
 private:

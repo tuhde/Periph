@@ -34,7 +34,7 @@ protected:
         _encode(data, len, encoded);
         struct spi_buf tx_buf  = { .buf = encoded, .len = len * 3 + 16 };
         struct spi_buf_set tx   = { .buffers = &tx_buf, .count = 1 };
-        spi_write(_dev, &_config, &tx);
+        _setOk(spi_write(_dev, &_config, &tx) == 0);
         delete[] encoded;
     }
 

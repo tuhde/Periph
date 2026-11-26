@@ -92,7 +92,7 @@ protected:
         struct spi_buf tx_buf  = { .buf = const_cast<uint8_t*>(data), .len = len };
         struct spi_buf_set tx  = { .buffers = &tx_buf, .count = 1 };
         struct spi_config cfg = _heldConfig();
-        spi_write(_dev, &cfg, &tx);
+        _setOk(spi_write(_dev, &cfg, &tx) == 0);
     }
 
     // Reads clock 0xFF on MOSI (SD cards read other levels as commands), in
@@ -103,6 +103,9 @@ protected:
             0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
             0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
             0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF };
+        uint8_t* const start = buf;
+        const size_t total = len;
+        bool good = true;
         while (len) {
             size_t chunk = len > sizeof(ff) ? sizeof(ff) : len;
             bool last = (chunk == len);
@@ -112,11 +115,13 @@ protected:
             struct spi_buf_set rx = { .buffers = &rx_buf, .count = 1 };
             struct spi_config cfg = _config;
             if (_held || !last) cfg.operation |= SPI_HOLD_ON_CS | SPI_LOCK_ON;
-            spi_transceive(_dev, &cfg, &tx, &rx);
+            if (spi_transceive(_dev, &cfg, &tx, &rx) != 0) good = false;
             if (!_held && last) spi_release(_dev, &_config);
             buf += chunk;
             len -= chunk;
         }
+        if (!good) memset(start, 0, total);   // never leave stale bytes behind
+        _setOk(good);
     }
 
     void _write_read(const uint8_t* data, size_t data_len,
@@ -135,7 +140,9 @@ protected:
         struct spi_buf_set tx_set = { .buffers = tx_bufs, .count = 2 };
         struct spi_buf_set rx_set = { .buffers = rx_bufs, .count = 2 };
         struct spi_config cfg = _heldConfig();
-        spi_transceive(_dev, &cfg, &tx_set, &rx_set);
+        bool good = spi_transceive(_dev, &cfg, &tx_set, &rx_set) == 0;
+        if (!good) memset(buf, 0, buf_len);
+        _setOk(good);
     }
 
 private:
