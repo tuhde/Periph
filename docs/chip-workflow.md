@@ -22,7 +22,7 @@ Orchestration procedure for new chips and transports. Referenced from `CLAUDE.md
 5. Claude Code lands steps 1–4 on `main` through a **no-CI prep PR**: commit on any branch (conventionally `prep/<chip>`), open a PR to `main`, and end every commit message **and** the PR title (which becomes the squash-merge message) with `[skip ci]`; squash-merge it. Nothing in this PR needs CI (no source code), and committing it directly to `main` would trigger a CI run (#230). Since CI is skipped, run `node registry/scripts/validate.js --check`, `node registry/scripts/generate.js --check`, and the `--check` mode of the README generators locally before opening the PR
 6. Claude Code posts a **"Ready for implementation"** comment on the issue — this is what OpenCode uses to find its work
 7. Claude Code removes the label `needs-spec` and adds the label `needs-implementation` and all relevant `transport:*` labels in the issue.
-8. The chosen coder tool implements against the spec on its own `impl/<chip>/<engine>-<model>` branch cut from `main` (no `feature/<chip>` branch exists) and opens a PR to `main` with CI enabled
+8. The chosen coder tool implements against the spec on its own `impl/<chip>/<engine>-<model>` branch cut from `main` (no `feature/<chip>` branch exists) and opens a PR to `main` with CI enabled. When it scaffolds from an existing chip, it copies only `git ls-files` output, never a recursive directory copy, and leaves no untracked files behind (`AGENTS.md`, "Pre-push CI checklist")
 
 ## Flow for transport issues
 1. Claude Code obtains the protocol reference from the issue (PDF attachment or URL); if it is a well-known standard with no single document, Claude Code uses its own knowledge
