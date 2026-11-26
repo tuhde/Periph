@@ -1,0 +1,1 @@
+_periph_si1133.set_burst(int(${_count}))

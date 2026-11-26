@@ -1,0 +1,1 @@
+_periph_si1133.set_threshold(int(${_index}), int(${_value}))

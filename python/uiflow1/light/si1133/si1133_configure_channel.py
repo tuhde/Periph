@@ -1,0 +1,1 @@
+_periph_si1133.configure_channel(int(${_channel}), int(${_adcmux}), int(${_hw_gain}), int(${_sw_gain}))

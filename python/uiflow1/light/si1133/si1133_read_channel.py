@@ -1,0 +1,1 @@
+_periph_si1133.read_channels()[int(${_index})]
