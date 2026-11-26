@@ -1,0 +1,105 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ccs811-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x5A' },
+            mode:    { value: '1' }
+        },
+        label: function() {
+            return this.name || ('CCS811 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ccs811-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="CCS811">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:120px">
+            <option value="0x5A" selected>0x5A (ADDR low)</option>
+            <option value="0x5B">0x5B (ADDR high)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mode"><i class="fa fa-cog"></i> Drive mode</label>
+        <select id="node-config-input-mode" style="width:220px">
+            <option value="1" selected>1: every 1 s (constant power)</option>
+            <option value="2">2: every 10 s (pulse heating)</option>
+            <option value="3">3: every 60 s (low-power pulse)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('ccs811', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ccs811-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'CCS811'; },
+        paletteLabel: 'CCS811'
+    });
+</script>
+
+<script type="text/html" data-template-name="ccs811">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="CCS811">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ccs811">
+    <p>Reads equivalent CO₂ (eCO₂) and total VOC (TVOC) from a ScioSense CCS811 over I²C
+    (address 0x5A or 0x5B), one sample per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message returns the next sample; if none is ready yet, the node waits for it.</dd>
+        <dt class="optional">humidity <span class="property-type">number</span></dt>
+        <dd>Relative humidity in % (0–100). With <code>msg.temperature</code>, written as environment data
+        before the read to improve the compensation.</dd>
+        <dt class="optional">temperature <span class="property-type">number</span></dt>
+        <dd>Ambient temperature in °C (-25 to 102), used together with <code>msg.humidity</code>.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.eco2_ppm <span class="property-type">number</span></dt>
+        <dd>Equivalent CO₂ in ppm (400–8192), estimated from the VOC level.</dd>
+        <dt>payload.tvoc_ppb <span class="property-type">number</span></dt>
+        <dd>Total volatile organic compounds in ppb (0–1187).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>I²C bus <span class="property-type">number</span></dt>
+        <dd>Linux bus number N of <code>/dev/i2c-N</code>. The chip stretches the clock; lower the bus
+        speed if the host does not support clock stretching.</dd>
+        <dt>I²C address <span class="property-type">0x5A | 0x5B</span></dt>
+        <dd>0x5A with ADDR low (default), 0x5B with ADDR high.</dd>
+        <dt>Drive mode <span class="property-type">1 | 2 | 3</span></dt>
+        <dd>Sample interval: 1 s, 10 s or 60 s. Slower modes use less power; with mode 2 or 3 a message
+        can wait up to one interval for its sample.</dd>
+    </dl>
+    <h3>Details</h3>
+    <p>The node starts the chip's application firmware at deploy. Tie nWAKE low. Values settle about
+    20 minutes after power-up; a new sensor needs a 48 h burn-in.</p>
+</script>
