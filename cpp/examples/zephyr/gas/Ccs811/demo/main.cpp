@@ -1,0 +1,121 @@
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include "I2CConnectionZephyr.h"
+#include "Ccs811.h"
+
+#define I2C_NODE DT_NODELABEL(i2c0)
+#define CCS811_ADDR 0x5A
+
+static const char* classify(uint16_t eco2) {
+    if (eco2 < 1000) return "good";
+    if (eco2 <= 1500) return "fair";
+    return "poor";
+}
+
+static void on_int(uint8_t status) {
+    printk("callback status 0x%02X\n", (unsigned)(status));
+}
+
+int main(void) {
+    const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
+    I2CConnectionZephyr connection(i2c_dev, CCS811_ADDR);
+    CCS811Full sensor(connection);                                 // Create CCS811 driver, (connection) → void
+    // --- Identity ---
+    // HW_ID 0x81 identifies the CCS81x family; the firmware versions tell which
+    // algorithm revision computes eCO2 and TVOC.
+    sensor.init();                                                 // Check HW_ID, start application, mode 1, () → bool
+    uint8_t hw_id = 0, hw_version = 0, st = 0, err = 0;
+    sensor.hardware_version(hw_id, hw_version);                    // Hardware ID and version, (hw_id&, hw_version&) → bool
+    CCS811Version boot = {0, 0, 0}, app = {0, 0, 0};
+    sensor.firmware_version(boot, app);                            // Firmware versions, (boot&, app&) → bool
+    sensor.status(st);                                             // STATUS, (status&) → bool
+    sensor.error(err);                                             // ERROR_ID, (error_id&) → bool
+    printk("hw 0x%02X/0x%02X boot %u.%u.%u app %u.%u.%u status 0x%02X error 0x%02X\n", (unsigned)(hw_id), (unsigned)(hw_version), (unsigned)(boot.major), (unsigned)(boot.minor), (unsigned)(boot.trivial), (unsigned)(app.major), (unsigned)(app.minor), (unsigned)(app.trivial), (unsigned)(st), (unsigned)(err));
+
+    // --- Air-quality monitor: 30 s at 1 Hz ---
+    // Mode 1 delivers a sample every second. Values settle after about 20 min of
+    // warm-up; a brand-new sensor needs a 48 h burn-in.
+    uint16_t eco2 = 0, tvoc = 0;
+    for (int i = 0; i < 30; i++) {
+        if (sensor.read(eco2, tvoc)) {                             // Next sample, (eco2_ppm&, tvoc_ppb&) → bool
+            printk("%u s eCO2 %u ppm TVOC %u ppb %s\n", (unsigned)(i), (unsigned)(eco2), (unsigned)(tvoc), classify(eco2));
+        }
+    }
+    sensor.read_eco2(eco2);                                        // eCO2 only, (eco2_ppm&) → bool
+    sensor.read_tvoc(tvoc);                                        // TVOC only, (tvoc_ppb&) → bool
+    printk("eCO2 %u ppm TVOC %u ppb\n", (unsigned)(eco2), (unsigned)(tvoc));
+
+    // --- Environment compensation ---
+    // Feeding the real temperature and humidity (e.g. from a BME280) corrects the
+    // algorithm; without it the chip assumes 25 C and 50 %RH.
+    sensor.set_environment(40.0f, 23.0f);                          // Compensation data, (humidity_rh, temperature_c) → bool
+    uint16_t v_ref = 0, v_ntc = 0;
+    sensor.read_ntc(v_ref, v_ntc);                                 // NTC voltages, (v_ref_mv&, v_ntc_mv&) → bool
+    float r_ntc = 0;
+    if (sensor.ntc_resistance(10000.0f, r_ntc)) {                  // NTC resistance, (r_ref_ohm, r_ntc_ohm&) → bool
+        printk("NTC %.0f ohm\n", (double)(r_ntc));
+    } else {
+        printk("no NTC circuit fitted\n");
+    }
+
+    // --- Threshold interrupt: only report zone changes ---
+    // With INT_THRESH the chip raises nINT only when eCO2 crosses 1000 or
+    // 2000 ppm by more than the hysteresis. Polling STATUS here shows each sample.
+    sensor.set_thresholds(1000, 2000, 50);                         // Zone boundaries, (low_medium_ppm, medium_high_ppm, hysteresis_ppm) → bool
+    sensor.enable_interrupt(CCS811Full::SOURCE_THRESHOLD);         // Threshold interrupt, (source) → bool
+    for (int i = 0; i < 5; i++) {
+        while (!(sensor.poll_interrupt() & CCS811Full::STATUS_DATA_READY)) { // STATUS, () → uint8_t
+            k_sleep(K_MSEC(100));
+        }
+        sensor.read(eco2, tvoc);                                   // Reading releases nINT, (eco2_ppm&, tvoc_ppb&) → bool
+        printk("event eCO2 %u ppm %s\n", (unsigned)(eco2), classify(eco2));
+    }
+    sensor.disable_interrupt(CCS811Full::SOURCE_THRESHOLD);        // Threshold interrupt off, (source) → bool
+
+    // --- Data-ready callback ---
+    // The callback gets the STATUS byte; it needs an INT pin on the connection.
+    sensor.enable_interrupt(CCS811Full::SOURCE_DATA_READY);        // Data-ready interrupt, (source) → bool
+    sensor.on_interrupt(on_int);                                   // Subscribe, (callback, intPin = nullptr) → void
+    k_sleep(K_MSEC(3000));
+    sensor.off_interrupt();                                        // Unsubscribe, () → void
+    sensor.disable_interrupt(CCS811Full::SOURCE_DATA_READY);       // Data-ready interrupt off, (source) → bool
+
+    // --- Raw sensor data ---
+    // The MOx sensor's current and voltage give its resistance; the algorithm
+    // derives eCO2 and TVOC from it.
+    uint8_t current = 0;
+    float voltage = 0;
+    sensor.read_raw(current, voltage);                             // Raw data, (current_ua&, voltage_v&) → bool
+    float r_sensor = current ? voltage / (current * 1e-6f) : 0.0f;
+    printk("raw %u uA %.3f V %.0f ohm\n", (unsigned)(current), (double)(voltage), (double)(r_sensor));
+
+    // --- Slower sampling: mode 2 (every 10 s) ---
+    // Pulse heating saves power; pass through idle when changing modes.
+    sensor.set_mode(0);                                            // Idle, (mode) → bool
+    sensor.set_mode(2);                                            // Every 10 s, (mode) → bool
+    for (int i = 0; i < 2; i++) {
+        sensor.read(eco2, tvoc);                                   // Next sample, (eco2_ppm&, tvoc_ppb&) → bool
+        bool ready = false;
+        sensor.data_ready(ready);                                  // Ready flag, (ready&) → bool
+        printk("mode 2 eCO2 %u ppm TVOC %u ppb ready %u\n", (unsigned)(eco2), (unsigned)(tvoc), (unsigned)(ready));
+    }
+    sensor.set_mode(0);                                            // Idle, (mode) → bool
+    sensor.set_mode(1);                                            // Back to every second, (mode) → bool
+
+    // --- Baseline ---
+    // Save the baseline daily and restore it after a power cycle, but only after
+    // about 20 min of warm-up; otherwise the chip relearns it from scratch.
+    uint16_t baseline = 0;
+    sensor.get_baseline(baseline);                                 // Baseline, (baseline&) → bool
+    printk("baseline 0x%04X\n", (unsigned)(baseline));
+    sensor.set_baseline(baseline);                                 // Restore baseline, (baseline) → bool
+
+    // --- Wrap up ---
+    // A soft reset puts the chip into boot mode; the driver starts the
+    // application again in mode 1.
+    sensor.soft_reset();                                           // Software reset, () → bool
+    sensor.status(st);                                             // STATUS, (status&) → bool
+    printk("status after reset 0x%02X\n", (unsigned)(st));
+    return 0;
+}
