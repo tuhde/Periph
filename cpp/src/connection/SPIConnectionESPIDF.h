@@ -153,12 +153,16 @@ protected:
         t.length    = static_cast<size_t>(len) * 8;
         t.flags     = _keepFlags();
         _csLow();
-        spi_device_polling_transmit(_dev, &t);
+        esp_err_t err = spi_device_polling_transmit(_dev, &t);
         _csHigh();
+        _setOk(err == ESP_OK);
     }
 
     // Reads clock 0xFF on MOSI (SD cards read other levels as commands).
     void _read(uint8_t* buf, size_t len) override {
+        uint8_t* const start = buf;
+        const size_t total = len;
+        bool good = true;
         _csLow();
         while (len) {
             size_t chunk = len > 64 ? 64 : len;
@@ -169,21 +173,25 @@ protected:
             t.rx_buffer = buf;
             t.length    = chunk * 8;
             t.flags     = (chunk == len) ? _keepFlags() : SPI_TRANS_CS_KEEP_ACTIVE;
-            spi_device_polling_transmit(_dev, &t);
+            if (spi_device_polling_transmit(_dev, &t) != ESP_OK) good = false;
             buf += chunk;
             len -= chunk;
         }
         _csHigh();
+        if (!good) memset(start, 0, total);   // never leave stale bytes behind
+        _setOk(good);
     }
 
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
+        uint8_t* const start = buf;
+        const size_t total = buf_len;
         _csLow();
         spi_transaction_t t1 = {};
         t1.tx_buffer = data;
         t1.length    = static_cast<size_t>(data_len) * 8;
         t1.flags     = SPI_TRANS_CS_KEEP_ACTIVE;
-        spi_device_polling_transmit(_dev, &t1);
+        bool good = spi_device_polling_transmit(_dev, &t1) == ESP_OK;
 
         // The remaining bytes are read in 0xFF-padded chunks, like _read().
         while (buf_len) {
@@ -195,11 +203,13 @@ protected:
             t2.rx_buffer = buf;
             t2.length    = chunk * 8;
             t2.flags     = (chunk == buf_len) ? _keepFlags() : SPI_TRANS_CS_KEEP_ACTIVE;
-            spi_device_polling_transmit(_dev, &t2);
+            if (spi_device_polling_transmit(_dev, &t2) != ESP_OK) good = false;
             buf += chunk;
             buf_len -= chunk;
         }
         _csHigh();
+        if (!good) memset(start, 0, total);
+        _setOk(good);
     }
 
 private:

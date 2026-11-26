@@ -9,12 +9,13 @@
 class OutputPinESPIDF : public OutputPin {
 public:
     explicit OutputPinESPIDF(gpio_num_t pin) : _pin(pin) {
-        gpio_reset_pin(_pin);
-        gpio_set_direction(_pin, GPIO_MODE_OUTPUT);
+        bool good = gpio_reset_pin(_pin) == ESP_OK;
+        good = gpio_set_direction(_pin, GPIO_MODE_OUTPUT) == ESP_OK && good;
+        _setOk(good);
     }
 
     void set(bool high) override {
-        gpio_set_level(_pin, high ? 1 : 0);
+        _setOk(gpio_set_level(_pin, high ? 1 : 0) == ESP_OK);
     }
 
 private:

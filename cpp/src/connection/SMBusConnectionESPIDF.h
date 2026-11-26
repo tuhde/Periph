@@ -40,7 +40,8 @@ public:
     }
 
     /** @brief Returns false if the address was out of range or the last
-     *         read/write_read had a PEC mismatch. */
+     *         read/write_read had a PEC mismatch. A PEC mismatch also makes
+     *         ok() false; valid() stays as an alias for existing drivers. */
     bool valid() const { return _valid; }
 
 protected:
@@ -75,6 +76,7 @@ protected:
             uint8_t crc = _crc8(&addr_byte, 1);
             crc = _crc8(buf, len, crc);
             _valid = (crc == tmp[len]);
+            if (!_valid) _setOk(false);
         } else {
             I2CConnectionESPIDF::_read(buf, len);
         }
@@ -93,8 +95,9 @@ protected:
             uint8_t tmp[256];
             // Re-implement write_read so we can read buf_len + 1 bytes
             // (the +1 is the PEC byte) in one transaction.
-            i2c_master_transmit_receive(i2c_dev(), data, data_len, tmp,
-                                        buf_len + 1, -1);
+            bool xfer_ok = i2c_master_transmit_receive(i2c_dev(), data, data_len, tmp,
+                                                       buf_len + 1, -1) == ESP_OK;
+            if (!xfer_ok) memset(tmp, 0, buf_len + 1);
             memcpy(buf, tmp, buf_len);
             uint8_t aw = _addr << 1;
             uint8_t ar = (_addr << 1) | 1;
@@ -103,6 +106,7 @@ protected:
             crc = _crc8(&ar, 1, crc);
             crc = _crc8(buf, buf_len, crc);
             _valid = (crc == tmp[buf_len]);
+            _setOk(xfer_ok && _valid);
         } else {
             I2CConnectionESPIDF::_write_read(data, data_len, buf, buf_len);
         }

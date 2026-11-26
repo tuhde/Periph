@@ -10,8 +10,9 @@
 class InputPinESPIDF : public InputPin {
 public:
     explicit InputPinESPIDF(gpio_num_t pin) : _pin(pin) {
-        gpio_reset_pin(_pin);
-        gpio_set_direction(_pin, GPIO_MODE_INPUT);
+        bool good = gpio_reset_pin(_pin) == ESP_OK;
+        good = gpio_set_direction(_pin, GPIO_MODE_INPUT) == ESP_OK && good;
+        _setOk(good);
     }
 
     bool onEdge(Handler handler, uint8_t trigger = kFalling) override {
@@ -20,14 +21,17 @@ public:
             gpio_int_type_t intrType = trigger == kRising ? GPIO_INTR_POSEDGE
                                       : trigger == kChange  ? GPIO_INTR_ANYEDGE
                                                             : GPIO_INTR_NEGEDGE;
-            gpio_set_intr_type(_pin, intrType);
+            bool good = gpio_set_intr_type(_pin, intrType) == ESP_OK;
             static bool serviceInstalled = false;
-            if (!serviceInstalled) {
-                gpio_install_isr_service(0);
-                serviceInstalled = true;
+            if (good && !serviceInstalled) {
+                // ESP_ERR_INVALID_STATE: another component already installed the service.
+                esp_err_t err = gpio_install_isr_service(0);
+                serviceInstalled = (err == ESP_OK || err == ESP_ERR_INVALID_STATE);
+                good = serviceInstalled;
             }
-            gpio_isr_handler_add(_pin, &InputPinESPIDF::isrTrampoline, this);
-            _armed = true;
+            good = good && gpio_isr_handler_add(_pin, &InputPinESPIDF::isrTrampoline, this) == ESP_OK;
+            _setOk(good);
+            _armed = good;   // retry on the next onEdge() if arming failed
         }
         return added;
     }

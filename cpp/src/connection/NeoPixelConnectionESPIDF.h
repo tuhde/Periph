@@ -95,12 +95,13 @@ protected:
             spi_transaction_t t = {};
             t.tx_buffer = encoded;
             t.length    = static_cast<size_t>(len) * 3 * 8 + 16 * 8;
-            spi_device_polling_transmit(_spi, &t);
+            _setOk(spi_device_polling_transmit(_spi, &t) == ESP_OK);
         } else {
             rmt_transmit_config_t tx_cfg = {};
-            rmt_transmit(_rmt_chan, _encoder, const_cast<uint8_t*>(data),
-                         len, &tx_cfg);
-            rmt_tx_wait_all_done(_rmt_chan, -1);
+            bool good = rmt_transmit(_rmt_chan, _encoder, const_cast<uint8_t*>(data),
+                                     len, &tx_cfg) == ESP_OK;
+            good = good && rmt_tx_wait_all_done(_rmt_chan, -1) == ESP_OK;
+            _setOk(good);
         }
     }
 
@@ -133,6 +134,7 @@ private:
         constexpr size_t CHUNK = 64;
         uint8_t encoded[3 * CHUNK + 16];
         size_t pos = 0;
+        bool good = true;
         while (pos < len) {
             size_t n = (len - pos < CHUNK) ? (len - pos) : CHUNK;
             bool last = (pos + n == len);
@@ -140,8 +142,9 @@ private:
             spi_transaction_t t = {};
             t.tx_buffer = encoded;
             t.length    = static_cast<size_t>(n) * 3 * 8 + (last ? 16 * 8 : 0);
-            spi_device_polling_transmit(_spi, &t);
+            if (spi_device_polling_transmit(_spi, &t) != ESP_OK) { good = false; break; }
             pos += n;
         }
+        _setOk(good);
     }
 };

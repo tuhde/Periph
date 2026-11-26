@@ -1,4 +1,5 @@
 #pragma once
+#include <string.h>
 #include <driver/uart.h>
 #include <driver/gpio.h>
 #include "Connection.h"
@@ -75,23 +76,25 @@ protected:
      */
     void _write(const uint8_t* data, size_t len) override {
         if (_de_pin != GPIO_NUM_NC) gpio_set_level(_de_pin, 1);
-        uart_write_bytes(_port, data, len);
-        uart_wait_tx_done(_port, pdMS_TO_TICKS(1000));
+        int sent = uart_write_bytes(_port, data, len);
+        esp_err_t drained = uart_wait_tx_done(_port, pdMS_TO_TICKS(1000));
         if (_de_pin != GPIO_NUM_NC) gpio_set_level(_de_pin, 0);
+        _setOk(sent == static_cast<int>(len) && drained == ESP_OK);
     }
 
     /** @brief Receive @p len bytes; blocks up to a 1000 ms total timeout.
      *
-     *  On timeout, fewer than @p len bytes may have been written to
-     *  @p buf — call `available()` to check how many bytes are
-     *  buffered before deciding how much of @p buf is valid.
+     *  On timeout the rest of @p buf is zero-filled and ok() reports
+     *  false.
      *
      *  @param buf Destination buffer; must be at least @p len bytes.
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
         int got = uart_read_bytes(_port, buf, len, pdMS_TO_TICKS(1000));
-        (void)got;
+        if (got < 0) got = 0;
+        if (static_cast<size_t>(got) < len) memset(buf + got, 0, len - got);   // never leave stale bytes behind
+        _setOk(static_cast<size_t>(got) == len);
     }
 
     /** @brief Transmit bytes then receive @p buf_len bytes.
@@ -106,7 +109,9 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
         _write(data, data_len);
+        bool wrote = ok();
         _read(buf, buf_len);
+        if (!wrote) _setOk(false);
     }
 
 private:
