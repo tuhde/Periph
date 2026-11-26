@@ -1,0 +1,1 @@
+_periph_spl06.stop()

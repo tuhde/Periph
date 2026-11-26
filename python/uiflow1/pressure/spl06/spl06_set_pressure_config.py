@@ -1,0 +1,1 @@
+_periph_spl06.set_pressure_config(int(${_oversampling}), int(${_rate}))

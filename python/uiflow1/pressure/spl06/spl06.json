@@ -1,0 +1,140 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "spl06_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init SPL06",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "spl06_read_pressure",
+      "type": "value",
+      "params": [
+        {
+          "name": "SPL06 pressure (Pa)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "spl06_read_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "SPL06 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "spl06_altitude",
+      "type": "value",
+      "params": [
+        {
+          "name": "SPL06 altitude (m), sea level (Pa)",
+          "type": "label"
+        },
+        {
+          "name": "_sea_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "spl06_set_pressure_config",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SPL06 pressure oversampling (1-128)",
+          "type": "label"
+        },
+        {
+          "name": "_oversampling",
+          "type": "number"
+        },
+        {
+          "name": "rate (Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "spl06_set_temperature_config",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SPL06 temperature oversampling (1-128)",
+          "type": "label"
+        },
+        {
+          "name": "_oversampling",
+          "type": "number"
+        },
+        {
+          "name": "rate (Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_rate",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "spl06_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SPL06 start continuous (pressure and temperature)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "spl06_stop",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SPL06 stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "spl06_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SPL06 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

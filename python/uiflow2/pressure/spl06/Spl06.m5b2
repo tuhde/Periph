@@ -1,0 +1,228 @@
+{
+  "category": "Spl06",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SPL06_LANGUAGES = {\n  \"CUSTOM_SPL06_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_SPL06_PRESSURE\": {\n    \"en\": \"%1 pressure (Pa)\"\n  },\n  \"CUSTOM_SPL06_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_SPL06_ALTITUDE\": {\n    \"en\": \"%1 altitude (m, 101325 Pa sea level)\"\n  },\n  \"CUSTOM_SPL06_SET_PRESSURE_CONFIG\": {\n    \"en\": \"%1 pressure oversampling (1-128) %2 rate (Hz) %3\"\n  },\n  \"CUSTOM_SPL06_SET_TEMPERATURE_CONFIG\": {\n    \"en\": \"%1 temperature oversampling (1-128) %2 rate (Hz) %3\"\n  },\n  \"CUSTOM_SPL06_START_CONTINUOUS\": {\n    \"en\": \"%1 start continuous (pressure and temperature)\"\n  },\n  \"CUSTOM_SPL06_STOP\": {\n    \"en\": \"%1 stop continuous\"\n  },\n  \"CUSTOM_SPL06_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_spl06_init';\nBlockly.BlockRegExpList['custom_spl06'] = {\n  regexp: new RegExp(/^custom_spl06_/),\n  code: \"from Spl06 import Spl06\",\n  initBlockType: initType,\n  categoryId: 'custom_spl06',\n}\nBlockly.utils.registerLanguages(CUSTOM_SPL06_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SPL06_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SPL06 = 'Spl06'\n\nBlockly.utils.getcustom_spl06Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['spl06_0', 'spl06_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_spl06_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_spl06Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'spl06_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Spl06(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_spl06_pressure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_PRESSURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_pressure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pressure()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_spl06_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_spl06_altitude\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_ALTITUDE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_altitude\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.altitude()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_spl06_set_pressure_config\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_SET_PRESSURE_CONFIG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'oversampling'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_set_pressure_config\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var oversampling = Blockly.Python.valueToCode(block, 'oversampling', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rate = Blockly.Python.valueToCode(block, 'rate', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pressure_config(${oversampling}, ${rate})\\n`\n}\n\nBlockly.Blocks[\"custom_spl06_set_temperature_config\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_SET_TEMPERATURE_CONFIG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'oversampling'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_set_temperature_config\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var oversampling = Blockly.Python.valueToCode(block, 'oversampling', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rate = Blockly.Python.valueToCode(block, 'rate', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_temperature_config(${oversampling}, ${rate})\\n`\n}\n\nBlockly.Blocks[\"custom_spl06_start_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_START_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_start_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.start_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_spl06_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop()\\n`\n}\n\nBlockly.Blocks[\"custom_spl06_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SPL06_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_spl06Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_spl06_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}",
+    "toolbox": "\n<category name=\"Spl06\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_spl06\">\n<title text=\"Spl06\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_spl06_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">119</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_spl06_pressure\"/><block type=\"custom_spl06_temperature\"/><block type=\"custom_spl06_altitude\"/><block type=\"custom_spl06_set_pressure_config\">\n  <value name=\"oversampling\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"rate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_spl06_set_temperature_config\">\n  <value name=\"oversampling\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"rate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_spl06_start_continuous\"/><block type=\"custom_spl06_stop\"/><block type=\"custom_spl06_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_spl06",
+    "block_type": [
+      "custom_spl06___init__",
+      "custom_spl06_pressure",
+      "custom_spl06_temperature",
+      "custom_spl06_altitude",
+      "custom_spl06_set_pressure_config",
+      "custom_spl06_set_temperature_config",
+      "custom_spl06_start_continuous",
+      "custom_spl06_stop",
+      "custom_spl06_reset"
+    ]
+  },
+  "data": {
+    "name": "Spl06",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Spl06",
+      "time": "2026-11-26",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.pressure.spl06 import SPL06Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "119",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = SPL06Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pressure",
+        "note": {},
+        "label": {
+          "en": "%1 pressure (Pa)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_pressure()",
+        "ast_return": {
+          "code": "self._driver.read_pressure()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "altitude",
+        "note": {},
+        "label": {
+          "en": "%1 altitude (m, 101325 Pa sea level)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.altitude(101325.0)",
+        "ast_return": {
+          "code": "self._driver.altitude(101325.0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pressure_config",
+        "note": {},
+        "label": {
+          "en": "%1 pressure oversampling (1-128) %2 rate (Hz) %3"
+        },
+        "params": [
+          {
+            "name": "oversampling",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rate",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pressure_config(oversampling, rate)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_temperature_config",
+        "note": {},
+        "label": {
+          "en": "%1 temperature oversampling (1-128) %2 rate (Hz) %3"
+        },
+        "params": [
+          {
+            "name": "oversampling",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rate",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_temperature_config(oversampling, rate)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous (pressure and temperature)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.start_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "spl06"
+  },
+  "pyCode": "\"\"\"\nfile     Spl06\ntime     2026-11-26\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.pressure.spl06 import SPL06Full\n\n\nclass Spl06:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 119):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '119'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = SPL06Full(connection)\n        self._driver.init()\n\n    def pressure(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 pressure (Pa)'\n        \"\"\"\n        return self._driver.read_pressure()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def altitude(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 altitude (m, 101325 Pa sea level)'\n        \"\"\"\n        return self._driver.altitude(101325.0)\n\n    def set_pressure_config(self, oversampling: int = 16, rate: int = 1):\n        \"\"\"\n        label:\n            en: '%1 pressure oversampling (1-128) %2 rate (Hz) %3'\n        params:\n            oversampling:\n                name: oversampling\n                type: int\n                default: '16'\n                field: number\n            rate:\n                name: rate\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_pressure_config(oversampling, rate)\n\n    def set_temperature_config(self, oversampling: int = 1, rate: int = 1):\n        \"\"\"\n        label:\n            en: '%1 temperature oversampling (1-128) %2 rate (Hz) %3'\n        params:\n            oversampling:\n                name: oversampling\n                type: int\n                default: '1'\n                field: number\n            rate:\n                name: rate\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_temperature_config(oversampling, rate)\n\n    def start_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 start continuous (pressure and temperature)'\n        \"\"\"\n        self._driver.start_continuous()\n\n    def stop(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous'\n        \"\"\"\n        self._driver.stop()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}
