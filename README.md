@@ -153,7 +153,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | BU9796 | LCD segment driver (low duty, up to 120 segments, EVR contrast) |  |  |  |  |  |  |  |  |
 | CAT24C512 | I²C EEPROM 512 Kbit (64 KiB, 128-byte page, 1 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | CAT5171 | Digital potentiometer (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| CCS811 | Indoor air quality gas sensor (eCO₂, TVOC, MOx, 4 drive modes, I²C, nINT) | | | | | | | | |
+| CCS811 | Indoor air quality gas sensor (eCO₂, TVOC, MOx, 4 drive modes, I²C, nINT) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | CS43L22 | Stereo audio DAC with HP/speaker amps | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

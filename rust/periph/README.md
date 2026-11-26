@@ -87,6 +87,7 @@ Each chip exposes two structs:
 | BNO055 | IMU | 9-axis absolute-orientation sensor (Bosch Sensortec): 14-bit accelerometer, 16-bit |
 | CAT24C512 | Memory | 512 Kbit (64 KiB) I²C EEPROM (onsemi). |
 | CAT5171 | ADC/DAC | 256-position I²C digital potentiometer (ON Semiconductor). |
+| CCS811 | Gas sensor | Indoor air quality gas sensor (ScioSense / ams). |
 | CS43L22 | ADC/DAC | Low-power stereo DAC with headphone and Class-D speaker amplifiers (Cirrus Logic). |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor (ASAIR / Aosong). |
 | DRV2605 | Motor driver | Haptic driver for ERM and LRA actuators with I²C interface (Texas Instruments). |

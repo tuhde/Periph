@@ -567,7 +567,7 @@ CHIPS = (
     {"id": "isl29125", "driver": "isl29125", "write_sensitive": False, "aliased": False,
      "addresses": (0x44,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x7D,)}},
-    {"id": "ccs811", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "ccs811", "driver": "ccs811", "write_sensitive": False, "aliased": False,
      "addresses": (0x5A, 0x5B,),
      "probe": {"register": 0x20, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x81,)}},
     {"id": "vcnl4040", "driver": None, "write_sensitive": False, "aliased": False,

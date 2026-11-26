@@ -85,6 +85,7 @@ Each chip exposes two classes:
 | BNO055 | IMU | `chips/imu/BNO055.h` |
 | CAT24C512 | Memory | `chips/memory/CAT24C512.h` |
 | CAT5171 | ADC/DAC | `chips/adc_dac/CAT5171.h` |
+| Ccs811 | Gas sensor | `chips/gas/Ccs811.h` |
 | CS43L22 | ADC/DAC | `chips/adc_dac/CS43L22.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
 | DRV2605 | Motor driver | `chips/motor/DRV2605.h` |
