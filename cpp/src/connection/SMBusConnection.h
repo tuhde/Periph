@@ -22,7 +22,7 @@ public:
                     uint8_t regBytes = 1, bool enActiveHigh = true);
 
     /** @brief Returns false if the last read or write_read produced a PEC mismatch. */
-    bool valid() const { return _valid; }
+    bool valid() const { return _valid; }   // a PEC mismatch also makes ok() false
 
 protected:
     /** @brief Send bytes to the device, appending a PEC byte if enabled. */
