@@ -177,6 +177,7 @@
 #include "chips/pressure/Mpl3115a2.h"
 #include "chips/pressure/Ms5607.h"
 #include "chips/pressure/Ms5611.h"
+#include "chips/pressure/Spl06.h"
 #include "chips/rfid/MFRC522.h"
 #include "chips/rtc/DS3231.h"
 #include "chips/rtc/PCF85063A.h"
