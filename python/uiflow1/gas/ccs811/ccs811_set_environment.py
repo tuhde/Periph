@@ -1,0 +1,1 @@
+_periph_ccs811.set_environment(float(${_humidity}), float(${_temperature}))

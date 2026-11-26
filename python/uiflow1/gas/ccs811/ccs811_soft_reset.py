@@ -1,0 +1,1 @@
+_periph_ccs811.soft_reset()
