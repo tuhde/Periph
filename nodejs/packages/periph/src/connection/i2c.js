@@ -3,6 +3,25 @@
 const i2c = require('i2c-bus');
 const { RegisterConnection } = require('./register_connection');
 
+/** Largest read readI2cBlockSync (SMBus I²C block read) can do in one transaction. */
+const I2C_BLOCK_MAX = 32;
+
+/**
+ * Throw if an i2c-bus call moved fewer bytes than requested. i2c-bus already
+ * throws (with errno) when the underlying read()/write()/ioctl() fails; this
+ * catches the short transfer it reports only through its return value.
+ * @param {string} what  - Call name for the message, e.g. 'i2cReadSync(0x48)'.
+ * @param {number} got   - Bytes the call reported.
+ * @param {number} want  - Bytes requested.
+ */
+function checkCount(what, got, want) {
+    if (got !== want) {
+        const err = new Error(`${what} transferred ${got} of ${want} bytes`);
+        err.code = 'EIO';
+        throw err;
+    }
+}
+
 /**
  * I²C connection for Node.js (wraps i2c-bus, uses /dev/i2c-N on Linux).
  *
@@ -29,7 +48,8 @@ class I2CConnection extends RegisterConnection {
      * @param {Buffer|Uint8Array} data - Bytes to write.
      */
     async _write(data) {
-        this._bus.i2cWriteSync(this._addr, data.length, data);
+        const buf = Buffer.from(data);
+        checkCount(this._what('i2cWriteSync'), this._bus.i2cWriteSync(this._addr, buf.length, buf), buf.length);
     }
 
     /**
@@ -39,27 +59,40 @@ class I2CConnection extends RegisterConnection {
      */
     async _read(n) {
         const buf = Buffer.alloc(n);
-        this._bus.i2cReadSync(this._addr, n, buf);
+        checkCount(this._what('i2cReadSync'), this._bus.i2cReadSync(this._addr, n, buf), n);
         return buf;
     }
 
     /**
-     * Write a single register address byte then read data back (repeated start).
+     * Write register/command bytes then read data back.
      *
-     * Uses readI2cBlockSync, which accepts exactly one command byte. Only
-     * data[0] is sent; any additional bytes in data are ignored. This is a
-     * library constraint: i2c-bus v5 has no synchronous multi-message transfer
-     * API (I2C_RDWR with multiple messages), so multi-byte writes before the
-     * repeated start are not supported in synchronous mode.
+     * i2c-bus has no synchronous combined (I2C_RDWR) transfer, so:
+     * - one command byte and at most 32 bytes to read: readI2cBlockSync, a single
+     *   transaction with a repeated START between the phases;
+     * - anything else (multi-byte register addresses, reads over 32 bytes): the
+     *   full `data` is written, then `n` bytes are read, as two transactions
+     *   (STOP + START). No bytes of `data` are dropped.
      *
-     * @param {Buffer|Uint8Array} data - Register address to send; only data[0] is used.
+     * Either way a short transfer throws.
+     *
+     * @param {Buffer|Uint8Array} data - Register/command bytes to send.
      * @param {number}            n    - Number of bytes to read back.
      * @returns {Buffer} Data received from the device.
      */
     async _writeRead(data, n) {
-        const buf = Buffer.alloc(n);
-        this._bus.readI2cBlockSync(this._addr, data[0], n, buf);
-        return buf;
+        if (data.length === 1 && n <= I2C_BLOCK_MAX) {
+            const buf = Buffer.alloc(n);
+            checkCount(this._what('readI2cBlockSync'),
+                this._bus.readI2cBlockSync(this._addr, data[0], n, buf), n);
+            return buf;
+        }
+        await this._write(data);
+        return this._read(n);
+    }
+
+    /** @private Call name plus device address for error messages. */
+    _what(call) {
+        return `${call}(0x${this._addr.toString(16).padStart(2, '0')})`;
     }
 
     /**
@@ -70,4 +103,4 @@ class I2CConnection extends RegisterConnection {
     }
 }
 
-module.exports = { I2CConnection };
+module.exports = { I2CConnection, checkCount, I2C_BLOCK_MAX };

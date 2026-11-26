@@ -220,6 +220,7 @@ case "$JOB" in
                  if (!m.INA226Minimal || !m.INA226Full) process.exit(1)"
         step "Check package READMEs" node nodejs/scripts/generate-readmes.js --check
         step "I2C discovery unit test" node nodejs/tests/discovery/discovery_test_unit.js
+        step "I2C/SMBus error-handling unit test" node nodejs/tests/connection/i2c_error_test_unit.js
         ;;
 
     java)

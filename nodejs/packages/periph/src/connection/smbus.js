@@ -2,6 +2,7 @@
 
 const i2c = require('i2c-bus');
 const { RegisterConnection } = require('./register_connection');
+const { checkCount, I2C_BLOCK_MAX } = require('./i2c');
 
 /**
  * Computes CRC-8 with polynomial 0x07 (x⁸ + x² + x + 1), initial value 0x00.
@@ -57,7 +58,7 @@ class SMBusConnection extends RegisterConnection {
             const pec = crc8(Buffer.concat([Buffer.from([this._addr << 1]), buf]));
             buf = Buffer.concat([buf, Buffer.from([pec])]);
         }
-        this._bus.i2cWriteSync(this._addr, buf.length, buf);
+        checkCount(this._what('i2cWriteSync'), this._bus.i2cWriteSync(this._addr, buf.length, buf), buf.length);
     }
 
     /**
@@ -72,7 +73,7 @@ class SMBusConnection extends RegisterConnection {
     async _read(n) {
         const count = this._pec ? n + 1 : n;
         const buf = Buffer.alloc(count);
-        this._bus.i2cReadSync(this._addr, count, buf);
+        checkCount(this._what('i2cReadSync'), this._bus.i2cReadSync(this._addr, count, buf), count);
         if (this._pec) {
             const data = buf.slice(0, n);
             const expected = crc8(Buffer.concat([Buffer.from([(this._addr << 1) | 1]), data]));
@@ -83,21 +84,28 @@ class SMBusConnection extends RegisterConnection {
     }
 
     /**
-     * Write a register address byte then read data back (repeated start), with optional PEC.
+     * Write register/command bytes then read data back, with optional PEC.
      *
-     * PEC covers the full transaction: write address + write data +
-     * read address + read data. The same single-command-byte limitation as
-     * I2CConnection applies: only data[0] is sent as the write byte.
+     * One command byte and at most 32 bytes to read (PEC byte included) use
+     * readI2cBlockSync: one transaction with a repeated START, and the PEC covers
+     * write address + command + read address + read data. Anything else is a
+     * write (with its own PEC) followed by a read (with its own PEC) as two
+     * transactions; no bytes of `data` are dropped. A short transfer throws.
      *
-     * @param {Buffer|Uint8Array} data - Register address to send; only data[0] is used.
+     * @param {Buffer|Uint8Array} data - Register/command bytes to send.
      * @param {number}            n    - Number of data bytes to read back.
      * @returns {Buffer} The n data bytes (PEC byte stripped if enabled).
      * @throws {Error} If the received PEC byte does not match.
      */
     async _writeRead(data, n) {
         const count = this._pec ? n + 1 : n;
+        if (data.length !== 1 || count > I2C_BLOCK_MAX) {
+            await this._write(data);
+            return this._read(n);
+        }
         const buf = Buffer.alloc(count);
-        this._bus.readI2cBlockSync(this._addr, data[0], count, buf);
+        checkCount(this._what('readI2cBlockSync'),
+            this._bus.readI2cBlockSync(this._addr, data[0], count, buf), count);
         if (this._pec) {
             const payload = buf.slice(0, n);
             const expected = crc8(Buffer.concat([
@@ -110,6 +118,11 @@ class SMBusConnection extends RegisterConnection {
             return payload;
         }
         return buf;
+    }
+
+    /** @private Call name plus device address for error messages. */
+    _what(call) {
+        return `${call}(0x${this._addr.toString(16).padStart(2, '0')})`;
     }
 
     /**
