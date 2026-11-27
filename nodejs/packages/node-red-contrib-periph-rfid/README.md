@@ -1,8 +1,8 @@
 # node-red-contrib-periph-rfid
 
-Node-RED nodes for RFID and NFC peripheral chips: MFRC522 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for RFID and NFC peripheral chips: MFRC522, PN532 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (1):** MFRC522.
+**Supported chips (2):** MFRC522, PN532.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-rfid/examples).
 
@@ -22,6 +22,8 @@ npm install node-red-contrib-periph-rfid
 |------|------|-------------|
 | `mfrc522-device` | config | Bus configuration for a MFRC522 |
 | `mfrc522` | input | Detects ISO/IEC 14443 Type A cards in the field of an NXP MFRC522 13.56 MHz RFID/NFC reader and reads their UID. The node polls the chip on the configured interval and only emits a message when the card state changes (card inserted, removed, or a different card presented). |
+| `pn532-device` | config | Bus configuration for a PN532 |
+| `pn532` | input | Detects an ISO/IEC 14443 A card or tag (MIFARE, NTAG) with an NXP PN532 NFC controller over I²C (address 0x24) and outputs its UID, one detection per message. |
 
 ## Links
 
