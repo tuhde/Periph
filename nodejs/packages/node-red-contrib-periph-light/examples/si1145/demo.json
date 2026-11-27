@@ -1,0 +1,85 @@
+[
+  {
+    "id": "si1145-tab",
+    "type": "tab",
+    "label": "Si1145 proximity switch",
+    "disabled": false,
+    "info": "Reads proximity, UV index and ambient light from an Si1145 every 500 ms. A function node compares the proximity count with a threshold and only passes a message when an object (e.g. a hand) comes closer than the threshold; the debug node shows these events. Adjust THRESHOLD in the function node to your LED current and cover window."
+  },
+  {
+    "id": "si1145-inject",
+    "type": "inject",
+    "z": "si1145-tab",
+    "name": "500 ms timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "0.5",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "si1145-node"
+      ]
+    ]
+  },
+  {
+    "id": "si1145-device-1",
+    "type": "si1145-device",
+    "name": "Si1145",
+    "bus": "1",
+    "address": "0x60",
+    "ledLevel": "3"
+  },
+  {
+    "id": "si1145-node",
+    "type": "si1145",
+    "z": "si1145-tab",
+    "name": "Si1145",
+    "x": 360,
+    "y": 160,
+    "wires": [
+      [
+        "si1145-threshold"
+      ]
+    ],
+    "device": "si1145-device-1"
+  },
+  {
+    "id": "si1145-threshold",
+    "type": "function",
+    "z": "si1145-tab",
+    "name": "Proximity above threshold",
+    "func": "// Raw PS1 counts; tune for your LED current and window.\nconst THRESHOLD = 2000;\nif (msg.payload.proximity > THRESHOLD) {\n    msg.payload.near = true;\n    return msg;\n}\nreturn null;",
+    "outputs": 1,
+    "x": 580,
+    "y": 160,
+    "wires": [
+      [
+        "si1145-debug"
+      ]
+    ]
+  },
+  {
+    "id": "si1145-debug",
+    "type": "debug",
+    "z": "si1145-tab",
+    "name": "Object near",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  }
+]

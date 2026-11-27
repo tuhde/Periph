@@ -1,8 +1,8 @@
 # node-red-contrib-periph-light
 
-Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133, SI1145 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (7):** APDS9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133.
+**Supported chips (8):** APDS9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133, SI1145.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-light/examples).
 
@@ -34,6 +34,8 @@ npm install node-red-contrib-periph-light
 | `si1132` | input | Reads the UV index and the raw ambient-light counts from a Silicon Labs Si1132 over I²C (address 0x60) with one forced measurement per message. |
 | `si1133-device` | config | I²C bus and address for a SI1133 |
 | `si1133` | input | Reads the raw UV and white-light counts from a Silicon Labs Si1133 over I²C (address 0x55 or 0x52) with one forced measurement per message. |
+| `si1145-device` | config | I²C bus and address for a SI1145 |
+| `si1145` | input | Reads proximity, UV index and ambient light from a Silicon Labs Si1145 over I²C (address 0x60) with one forced PS + ALS measurement per message. |
 
 ## Links
 

@@ -1,0 +1,90 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('si1145-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '0x60' },
+            ledLevel: { value: '3', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('Si1145 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="si1145-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Si1145">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:120px">
+            <option value="0x60">0x60</option>
+            <option value="0x5A">0x5A (older silicon)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-ledLevel"><i class="fa fa-lightbulb-o"></i> LED level</label>
+        <input type="number" id="node-config-input-ledLevel" min="0" max="15" style="width:80px"> &nbsp;(0 off … 15 max)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('si1145', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'si1145-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'Si1145'; },
+        paletteLabel: 'Si1145'
+    });
+</script>
+
+<script type="text/html" data-template-name="si1145">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Si1145">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="si1145">
+    <p>Reads proximity, UV index and ambient light from a Silicon Labs Si1145 over I²C (address 0x60)
+    with one forced PS + ALS measurement per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.proximity <span class="property-type">number</span></dt>
+        <dd>Raw PS1 count from the reflected IR LED light; rises as an object approaches.</dd>
+        <dt>payload.uv_index <span class="property-type">number</span></dt>
+        <dd>UV index (AUX_DATA / 100 with the default UV coefficients).</dd>
+        <dt>payload.visible <span class="property-type">number</span></dt>
+        <dd>Raw visible ambient light count.</dd>
+        <dt>payload.infrared <span class="property-type">number</span></dt>
+        <dd>Raw infrared ambient light count.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (0x60; older silicon 0x5A) and the LED1 current level 0–15
+    (default 3), set in the <b>si1145-device</b> config node. Proximity and light values are raw
+    counts; the datasheet gives no lux formula.</p>
+</script>
