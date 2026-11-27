@@ -4775,6 +4775,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "rrh46410_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "rrh46410_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "rrh46410_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "rrh46410_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "saa1064_complete"
 version = "0.1.0"
 dependencies = [
