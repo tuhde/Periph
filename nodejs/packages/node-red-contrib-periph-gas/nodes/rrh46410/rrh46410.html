@@ -1,0 +1,108 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('rrh46410-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            mode:     { value: '1' },
+            humidity: { value: '50', validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('RRH46410 @ 0x38 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rrh46410-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="RRH46410">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, address 0x38)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mode"><i class="fa fa-cog"></i> Operation mode</label>
+        <select id="node-config-input-mode" style="width:260px">
+            <option value="1" selected>IAQ 2nd Gen (every 3 s)</option>
+            <option value="2">ULP (every 90 s)</option>
+            <option value="5">PBAQ (every 5 s, TVOC and ethanol)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-humidity"><i class="fa fa-tint"></i> Humidity (%RH)</label>
+        <input type="number" id="node-config-input-humidity" min="0" max="100" style="width:80px">
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('rrh46410', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'rrh46410-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'RRH46410'; },
+        paletteLabel: 'RRH46410'
+    });
+</script>
+
+<script type="text/html" data-template-name="rrh46410">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="RRH46410">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rrh46410">
+    <p>Reads the indoor air quality (IAQ index, TVOC, ethanol equivalent, eCO₂ and relative IAQ) from a
+    Renesas RRH46410 gas sensor module over I²C (address 0x38), one result per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message returns the latest sample; before the first sample of the mode the node
+        waits for it.</dd>
+        <dt class="optional">humidity <span class="property-type">number</span></dt>
+        <dd>Ambient relative humidity in % (0–100), sent to the module for compensation before the read.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.iaq <span class="property-type">number</span></dt>
+        <dd>IAQ index, UBA level 1.0 (very good) to 5.0 (bad). Absent in PBAQ mode.</dd>
+        <dt>payload.tvoc_mg_m3 <span class="property-type">number</span></dt>
+        <dd>Total volatile organic compounds in mg/m³.</dd>
+        <dt>payload.etoh_ppm <span class="property-type">number</span></dt>
+        <dd>Ethanol equivalent in ppm.</dd>
+        <dt>payload.eco2_ppm <span class="property-type">number</span></dt>
+        <dd>Estimated CO₂ in ppm. Absent in PBAQ mode.</dd>
+        <dt>payload.relative_iaq <span class="property-type">number</span></dt>
+        <dd>Relative IAQ. Absent in PBAQ mode.</dd>
+        <dt>payload.warmed_up <span class="property-type">boolean</span></dt>
+        <dd>False during the warm-up (100 samples ≈ 5 min in IAQ 2nd Gen mode), while the values stay fixed.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>I²C bus <span class="property-type">number</span></dt>
+        <dd>Linux bus number N of <code>/dev/i2c-N</code>. The address is fixed at 0x38. The module stretches
+        the clock; lower the bus speed if the host does not support clock stretching.</dd>
+        <dt>Operation mode <span class="property-type">1 | 2 | 5</span></dt>
+        <dd>IAQ 2nd Gen (sample every 3 s), ULP (every 90 s, 0.23 mW) or PBAQ (every 5 s, TVOC and ethanol
+        only).</dd>
+        <dt>Humidity <span class="property-type">number</span></dt>
+        <dd>Ambient relative humidity in % written at deploy (the module assumes 50 %RH).</dd>
+    </dl>
+    <h3>Details</h3>
+    <p>The node verifies the product ID (0x2310) and starts the selected mode at deploy. Each mode needs a
+    warm-up before its results are valid; 48 hours of continuous operation give the best stability.</p>
+</script>
