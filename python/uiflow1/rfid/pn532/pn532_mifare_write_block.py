@@ -1,0 +1,1 @@
+_periph_pn532.mifare_write_block(int(${_target}), int(${_block}), bytes.fromhex(str(${_data})))

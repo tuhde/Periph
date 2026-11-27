@@ -1,0 +1,1 @@
+'%d.%d' % tuple(_periph_pn532.firmware_version()[k] for k in ('version', 'revision'))

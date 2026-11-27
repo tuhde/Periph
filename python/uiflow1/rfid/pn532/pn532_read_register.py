@@ -1,0 +1,1 @@
+_periph_pn532.read_register(int(${_address}))

@@ -1,0 +1,1 @@
+_periph_pn532.ntag_read_page(int(${_target}), int(${_page})).hex()

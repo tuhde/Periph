@@ -1,0 +1,1 @@
+_periph_pn532.set_max_retries(int(${_passive_activation}))

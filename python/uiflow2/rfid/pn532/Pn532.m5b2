@@ -1,0 +1,556 @@
+{
+  "category": "Pn532",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PN532_LANGUAGES = {\n  \"CUSTOM_PN532_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PN532_READ_UID\": {\n    \"en\": \"%1 card UID (hex, empty if none)\"\n  },\n  \"CUSTOM_PN532_FIRMWARE_VERSION\": {\n    \"en\": \"%1 firmware version\"\n  },\n  \"CUSTOM_PN532_FIELD_PRESENT\": {\n    \"en\": \"%1 external RF field present?\"\n  },\n  \"CUSTOM_PN532_SELF_TEST\": {\n    \"en\": \"%1 self test passed?\"\n  },\n  \"CUSTOM_PN532_LIST_PASSIVE_TARGETS\": {\n    \"en\": \"%1 list cards (hex UIDs, comma separated) max targets (1-2) %2\"\n  },\n  \"CUSTOM_PN532_RELEASE\": {\n    \"en\": \"%1 release target (0 = all) %2\"\n  },\n  \"CUSTOM_PN532_SELECT\": {\n    \"en\": \"%1 select target %2\"\n  },\n  \"CUSTOM_PN532_DESELECT\": {\n    \"en\": \"%1 deselect target %2\"\n  },\n  \"CUSTOM_PN532_DATA_EXCHANGE\": {\n    \"en\": \"%1 exchange with target %2 data (hex) %3 -> hex\"\n  },\n  \"CUSTOM_PN532_MIFARE_AUTHENTICATE\": {\n    \"en\": \"%1 MIFARE authenticate target %2 block %3 key (hex) %4 UID (hex) %5\"\n  },\n  \"CUSTOM_PN532_MIFARE_READ_BLOCK\": {\n    \"en\": \"%1 MIFARE read target %2 block %3 (hex)\"\n  },\n  \"CUSTOM_PN532_MIFARE_WRITE_BLOCK\": {\n    \"en\": \"%1 MIFARE write target %2 block %3 data (32 hex digits) %4\"\n  },\n  \"CUSTOM_PN532_NTAG_READ_PAGE\": {\n    \"en\": \"%1 NTAG read target %2 page %3 (4 pages, hex)\"\n  },\n  \"CUSTOM_PN532_NTAG_WRITE_PAGE\": {\n    \"en\": \"%1 NTAG write target %2 page %3 data (8 hex digits) %4\"\n  },\n  \"CUSTOM_PN532_SET_RF_FIELD\": {\n    \"en\": \"%1 RF field on (1) / off (0) %2\"\n  },\n  \"CUSTOM_PN532_SET_MAX_RETRIES\": {\n    \"en\": \"%1 card activation retries (255 = forever) %2\"\n  },\n  \"CUSTOM_PN532_READ_REGISTER\": {\n    \"en\": \"%1 register %2\"\n  },\n  \"CUSTOM_PN532_WRITE_REGISTER\": {\n    \"en\": \"%1 set register %2 value %3\"\n  },\n  \"CUSTOM_PN532_POWER_DOWN\": {\n    \"en\": \"%1 power down\"\n  }\n};\n\nconst initType = 'custom_pn532_init';\nBlockly.BlockRegExpList['custom_pn532'] = {\n  regexp: new RegExp(/^custom_pn532_/),\n  code: \"from Pn532 import Pn532\",\n  initBlockType: initType,\n  categoryId: 'custom_pn532',\n}\nBlockly.utils.registerLanguages(CUSTOM_PN532_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PN532_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PN532 = 'Pn532'\n\nBlockly.utils.getcustom_pn532Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pn532_0', 'pn532_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pn532_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pn532Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pn532_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Pn532(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_read_uid\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_READ_UID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_read_uid\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_uid()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_firmware_version\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_FIRMWARE_VERSION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_firmware_version\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.firmware_version()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_field_present\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_FIELD_PRESENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_field_present\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.field_present()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_self_test\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_SELF_TEST,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_self_test\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.self_test()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_list_passive_targets\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_LIST_PASSIVE_TARGETS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'max_targets'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_list_passive_targets\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var max_targets = Blockly.Python.valueToCode(block, 'max_targets', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.list_passive_targets(${max_targets})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_release\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_RELEASE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_release\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.release(${target})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_select\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_SELECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_select\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.select(${target})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_deselect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_DESELECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_deselect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.deselect(${target})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_data_exchange\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_DATA_EXCHANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_data_exchange\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.data_exchange(${target}, ${data})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_mifare_authenticate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_MIFARE_AUTHENTICATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n        {\n          'type': 'input_value',\n          'name': 'block'\n        },\n        {\n          'type': 'input_value',\n          'name': 'key'\n        },\n        {\n          'type': 'input_value',\n          'name': 'uid'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_mifare_authenticate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  var block = Blockly.Python.valueToCode(block, 'block', Blockly.Python.ORDER_FUNCTION_CALL);\n  var key = Blockly.Python.valueToCode(block, 'key', Blockly.Python.ORDER_FUNCTION_CALL);\n  var uid = Blockly.Python.valueToCode(block, 'uid', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.mifare_authenticate(${target}, ${block}, ${key}, ${uid})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_mifare_read_block\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_MIFARE_READ_BLOCK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n        {\n          'type': 'input_value',\n          'name': 'block'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_mifare_read_block\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  var block = Blockly.Python.valueToCode(block, 'block', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.mifare_read_block(${target}, ${block})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_mifare_write_block\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_MIFARE_WRITE_BLOCK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n        {\n          'type': 'input_value',\n          'name': 'block'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_mifare_write_block\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  var block = Blockly.Python.valueToCode(block, 'block', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.mifare_write_block(${target}, ${block}, ${data})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_ntag_read_page\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_NTAG_READ_PAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n        {\n          'type': 'input_value',\n          'name': 'page'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_ntag_read_page\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  var page = Blockly.Python.valueToCode(block, 'page', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.ntag_read_page(${target}, ${page})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_ntag_write_page\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_NTAG_WRITE_PAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'target'\n        },\n        {\n          'type': 'input_value',\n          'name': 'page'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_ntag_write_page\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target = Blockly.Python.valueToCode(block, 'target', Blockly.Python.ORDER_FUNCTION_CALL);\n  var page = Blockly.Python.valueToCode(block, 'page', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.ntag_write_page(${target}, ${page}, ${data})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_set_rf_field\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_SET_RF_FIELD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'on'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_set_rf_field\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var on = Blockly.Python.valueToCode(block, 'on', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rf_field(${on})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_set_max_retries\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_SET_MAX_RETRIES,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'passive_activation'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_set_max_retries\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var passive_activation = Blockly.Python.valueToCode(block, 'passive_activation', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_max_retries(${passive_activation})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_read_register\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_READ_REGISTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_read_register\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_register(${address})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pn532_write_register\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_WRITE_REGISTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_write_register\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_register(${address}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_pn532_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PN532_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pn532Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pn532_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_down()\\n`\n}",
+    "toolbox": "\n<category name=\"Pn532\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pn532\">\n<title text=\"Pn532\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pn532_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">36</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_read_uid\"/><block type=\"custom_pn532_firmware_version\"/><block type=\"custom_pn532_field_present\"/><block type=\"custom_pn532_self_test\"/><block type=\"custom_pn532_list_passive_targets\">\n  <value name=\"max_targets\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_release\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_select\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_deselect\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_data_exchange\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">3000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_mifare_authenticate\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"block\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"key\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">FFFFFFFFFFFF</field>\n    </shadow>\n  </value>\n  <value name=\"uid\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_mifare_read_block\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"block\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_mifare_write_block\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"block\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_ntag_read_page\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"page\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_ntag_write_page\">\n  <value name=\"target\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"page\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_set_rf_field\">\n  <value name=\"on\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_set_max_retries\">\n  <value name=\"passive_activation\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_read_register\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">25346</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_write_register\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">25346</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pn532_power_down\"/>\n</category>\n",
+    "toolboxitemid": "custom_pn532",
+    "block_type": [
+      "custom_pn532___init__",
+      "custom_pn532_read_uid",
+      "custom_pn532_firmware_version",
+      "custom_pn532_field_present",
+      "custom_pn532_self_test",
+      "custom_pn532_list_passive_targets",
+      "custom_pn532_release",
+      "custom_pn532_select",
+      "custom_pn532_deselect",
+      "custom_pn532_data_exchange",
+      "custom_pn532_mifare_authenticate",
+      "custom_pn532_mifare_read_block",
+      "custom_pn532_mifare_write_block",
+      "custom_pn532_ntag_read_page",
+      "custom_pn532_ntag_write_page",
+      "custom_pn532_set_rf_field",
+      "custom_pn532_set_max_retries",
+      "custom_pn532_read_register",
+      "custom_pn532_write_register",
+      "custom_pn532_power_down"
+    ]
+  },
+  "data": {
+    "name": "Pn532",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Pn532",
+      "time": "2026-11-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rfid.pn532 import PN532Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "36",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PN532Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_uid",
+        "note": {},
+        "label": {
+          "en": "%1 card UID (hex, empty if none)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_uid() or b'').hex()",
+        "ast_return": {
+          "code": "(self._driver.read_uid() or b'').hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "firmware_version",
+        "note": {},
+        "label": {
+          "en": "%1 firmware version"
+        },
+        "params": [],
+        "return": "",
+        "source": "        fw = self._driver.firmware_version()\n        return '%d.%d' % (fw['version'], fw['revision'])",
+        "ast_return": {
+          "code": "'%d.%d' % (fw['version'], fw['revision'])",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "field_present",
+        "note": {},
+        "label": {
+          "en": "%1 external RF field present?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.general_status()['field']",
+        "ast_return": {
+          "code": "self._driver.general_status()['field']",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test",
+        "note": {},
+        "label": {
+          "en": "%1 self test passed?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.self_test()",
+        "ast_return": {
+          "code": "self._driver.self_test()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "list_passive_targets",
+        "note": {},
+        "label": {
+          "en": "%1 list cards (hex UIDs, comma separated) max targets (1-2) %2"
+        },
+        "params": [
+          {
+            "name": "max_targets",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return ','.join(t.uid.hex() for t in self._driver.list_passive_targets(max_targets=max_targets))",
+        "ast_return": {
+          "code": "','.join(t.uid.hex() for t in self._driver.list_passive_targets(max_targets=max_targets))",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "release",
+        "note": {},
+        "label": {
+          "en": "%1 release target (0 = all) %2"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.release(target)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "select",
+        "note": {},
+        "label": {
+          "en": "%1 select target %2"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.select(target)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "deselect",
+        "note": {},
+        "label": {
+          "en": "%1 deselect target %2"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.deselect(target)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_exchange",
+        "note": {},
+        "label": {
+          "en": "%1 exchange with target %2 data (hex) %3 -> hex"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "default": "3000",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.data_exchange(target, bytes.fromhex(data)).hex()",
+        "ast_return": {
+          "code": "self._driver.data_exchange(target, bytes.fromhex(data)).hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mifare_authenticate",
+        "note": {},
+        "label": {
+          "en": "%1 MIFARE authenticate target %2 block %3 key (hex) %4 UID (hex) %5"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "block",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "key",
+            "type": "str",
+            "default": "FFFFFFFFFFFF",
+            "note": {}
+          },
+          {
+            "name": "uid",
+            "type": "str",
+            "default": "",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.mifare_authenticate(target, block, bytes.fromhex(key), bytes.fromhex(uid))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mifare_read_block",
+        "note": {},
+        "label": {
+          "en": "%1 MIFARE read target %2 block %3 (hex)"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "block",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.mifare_read_block(target, block).hex()",
+        "ast_return": {
+          "code": "self._driver.mifare_read_block(target, block).hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mifare_write_block",
+        "note": {},
+        "label": {
+          "en": "%1 MIFARE write target %2 block %3 data (32 hex digits) %4"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "block",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "default": "",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.mifare_write_block(target, block, bytes.fromhex(data))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ntag_read_page",
+        "note": {},
+        "label": {
+          "en": "%1 NTAG read target %2 page %3 (4 pages, hex)"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.ntag_read_page(target, page).hex()",
+        "ast_return": {
+          "code": "self._driver.ntag_read_page(target, page).hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ntag_write_page",
+        "note": {},
+        "label": {
+          "en": "%1 NTAG write target %2 page %3 data (8 hex digits) %4"
+        },
+        "params": [
+          {
+            "name": "target",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "page",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "default": "",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.ntag_write_page(target, page, bytes.fromhex(data))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rf_field",
+        "note": {},
+        "label": {
+          "en": "%1 RF field on (1) / off (0) %2"
+        },
+        "params": [
+          {
+            "name": "on",
+            "type": "int",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rf_field(bool(on))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_max_retries",
+        "note": {},
+        "label": {
+          "en": "%1 card activation retries (255 = forever) %2"
+        },
+        "params": [
+          {
+            "name": "passive_activation",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_max_retries(passive_activation)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_register",
+        "note": {},
+        "label": {
+          "en": "%1 register %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "25346",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_register(address)",
+        "ast_return": {
+          "code": "self._driver.read_register(address)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_register",
+        "note": {},
+        "label": {
+          "en": "%1 set register %2 value %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "25346",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_register(address, value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pn532"
+  },
+  "pyCode": "\"\"\"\nfile     Pn532\ntime     2026-11-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rfid.pn532 import PN532Full\n\n\nclass Pn532:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 36):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '36'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PN532Full(connection)\n        self._driver.init()\n\n    def read_uid(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 card UID (hex, empty if none)'\n        \"\"\"\n        return (self._driver.read_uid() or b'').hex()\n\n    def firmware_version(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 firmware version'\n        \"\"\"\n        fw = self._driver.firmware_version()\n        return '%d.%d' % (fw['version'], fw['revision'])\n\n    def field_present(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 external RF field present?'\n        \"\"\"\n        return self._driver.general_status()['field']\n\n    def self_test(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 self test passed?'\n        \"\"\"\n        return self._driver.self_test()\n\n    def list_passive_targets(self, max_targets: int = 1) -> str:\n        \"\"\"\n        label:\n            en: '%1 list cards (hex UIDs, comma separated) max targets (1-2) %2'\n        params:\n            max_targets:\n                name: max_targets\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return ','.join(t.uid.hex() for t in self._driver.list_passive_targets(max_targets=max_targets))\n\n    def release(self, target: int = 0):\n        \"\"\"\n        label:\n            en: '%1 release target (0 = all) %2'\n        params:\n            target:\n                name: target\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.release(target)\n\n    def select(self, target: int = 1):\n        \"\"\"\n        label:\n            en: '%1 select target %2'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.select(target)\n\n    def deselect(self, target: int = 1):\n        \"\"\"\n        label:\n            en: '%1 deselect target %2'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.deselect(target)\n\n    def data_exchange(self, target: int = 1, data: str = '3000') -> str:\n        \"\"\"\n        label:\n            en: '%1 exchange with target %2 data (hex) %3 -> hex'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n            data:\n                name: data\n                type: str\n                default: '3000'\n        \"\"\"\n        return self._driver.data_exchange(target, bytes.fromhex(data)).hex()\n\n    def mifare_authenticate(self, target: int = 1, block: int = 4, key: str = 'FFFFFFFFFFFF', uid: str = ''):\n        \"\"\"\n        label:\n            en: '%1 MIFARE authenticate target %2 block %3 key (hex) %4 UID (hex) %5'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n            block:\n                name: block\n                type: int\n                default: '4'\n                field: number\n            key:\n                name: key\n                type: str\n                default: 'FFFFFFFFFFFF'\n            uid:\n                name: uid\n                type: str\n                default: ''\n        \"\"\"\n        self._driver.mifare_authenticate(target, block, bytes.fromhex(key), bytes.fromhex(uid))\n\n    def mifare_read_block(self, target: int = 1, block: int = 4) -> str:\n        \"\"\"\n        label:\n            en: '%1 MIFARE read target %2 block %3 (hex)'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n            block:\n                name: block\n                type: int\n                default: '4'\n                field: number\n        \"\"\"\n        return self._driver.mifare_read_block(target, block).hex()\n\n    def mifare_write_block(self, target: int = 1, block: int = 4, data: str = ''):\n        \"\"\"\n        label:\n            en: '%1 MIFARE write target %2 block %3 data (32 hex digits) %4'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n            block:\n                name: block\n                type: int\n                default: '4'\n                field: number\n            data:\n                name: data\n                type: str\n                default: ''\n        \"\"\"\n        self._driver.mifare_write_block(target, block, bytes.fromhex(data))\n\n    def ntag_read_page(self, target: int = 1, page: int = 4) -> str:\n        \"\"\"\n        label:\n            en: '%1 NTAG read target %2 page %3 (4 pages, hex)'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n            page:\n                name: page\n                type: int\n                default: '4'\n                field: number\n        \"\"\"\n        return self._driver.ntag_read_page(target, page).hex()\n\n    def ntag_write_page(self, target: int = 1, page: int = 4, data: str = ''):\n        \"\"\"\n        label:\n            en: '%1 NTAG write target %2 page %3 data (8 hex digits) %4'\n        params:\n            target:\n                name: target\n                type: int\n                default: '1'\n                field: number\n            page:\n                name: page\n                type: int\n                default: '4'\n                field: number\n            data:\n                name: data\n                type: str\n                default: ''\n        \"\"\"\n        self._driver.ntag_write_page(target, page, bytes.fromhex(data))\n\n    def set_rf_field(self, on: int = 1):\n        \"\"\"\n        label:\n            en: '%1 RF field on (1) / off (0) %2'\n        params:\n            on:\n                name: on\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_rf_field(bool(on))\n\n    def set_max_retries(self, passive_activation: int = 2):\n        \"\"\"\n        label:\n            en: '%1 card activation retries (255 = forever) %2'\n        params:\n            passive_activation:\n                name: passive_activation\n                type: int\n                default: '2'\n                field: number\n        \"\"\"\n        self._driver.set_max_retries(passive_activation)\n\n    def read_register(self, address: int = 25346) -> int:\n        \"\"\"\n        label:\n            en: '%1 register %2'\n        params:\n            address:\n                name: address\n                type: int\n                default: '25346'\n                field: number\n        \"\"\"\n        return self._driver.read_register(address)\n\n    def write_register(self, address: int = 25346, value: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set register %2 value %3'\n        params:\n            address:\n                name: address\n                type: int\n                default: '25346'\n                field: number\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.write_register(address, value)\n\n    def power_down(self):\n        \"\"\"\n        label:\n            en: '%1 power down'\n        \"\"\"\n        self._driver.power_down()\n",
+  "version": "alpha2"
+}

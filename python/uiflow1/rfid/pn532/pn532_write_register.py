@@ -1,0 +1,1 @@
+_periph_pn532.write_register(int(${_address}), int(${_value}))

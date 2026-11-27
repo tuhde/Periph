@@ -1,0 +1,378 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "pn532_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init PN532",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_read_uid",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 card UID (hex, empty if none)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_firmware_version",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 firmware version",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_field_present",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 external RF field present?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_self_test",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 self test passed?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_list_passive_targets",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 list cards (hex UIDs, comma separated) max targets (1-2)",
+          "type": "label"
+        },
+        {
+          "name": "_max_targets",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_release",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 release target (0 = all)",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_select",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 select target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_deselect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 deselect target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_data_exchange",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 exchange with target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        },
+        {
+          "name": "data (hex)",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        },
+        {
+          "name": "-> hex",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_mifare_authenticate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 MIFARE authenticate target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        },
+        {
+          "name": "block",
+          "type": "label"
+        },
+        {
+          "name": "_block",
+          "type": "number"
+        },
+        {
+          "name": "key (hex)",
+          "type": "label"
+        },
+        {
+          "name": "_key",
+          "type": "string"
+        },
+        {
+          "name": "UID (hex)",
+          "type": "label"
+        },
+        {
+          "name": "_uid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "pn532_mifare_read_block",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 MIFARE read target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        },
+        {
+          "name": "block",
+          "type": "label"
+        },
+        {
+          "name": "_block",
+          "type": "number"
+        },
+        {
+          "name": "(hex)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_mifare_write_block",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 MIFARE write target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        },
+        {
+          "name": "block",
+          "type": "label"
+        },
+        {
+          "name": "_block",
+          "type": "number"
+        },
+        {
+          "name": "data (32 hex digits)",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "pn532_ntag_read_page",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 NTAG read target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        },
+        {
+          "name": "page",
+          "type": "label"
+        },
+        {
+          "name": "_page",
+          "type": "number"
+        },
+        {
+          "name": "(4 pages, hex)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pn532_ntag_write_page",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 NTAG write target",
+          "type": "label"
+        },
+        {
+          "name": "_target",
+          "type": "number"
+        },
+        {
+          "name": "page",
+          "type": "label"
+        },
+        {
+          "name": "_page",
+          "type": "number"
+        },
+        {
+          "name": "data (8 hex digits)",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "pn532_set_rf_field",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 RF field on (1) / off (0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_set_max_retries",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 card activation retries (255 = forever)",
+          "type": "label"
+        },
+        {
+          "name": "_passive_activation",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_read_register",
+      "type": "value",
+      "params": [
+        {
+          "name": "PN532 register",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_write_register",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 set register",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pn532_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PN532 power down",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
