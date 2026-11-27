@@ -364,6 +364,11 @@ PCF8579Full	KEYWORD1
 PCF8579Minimal	KEYWORD1
 PCF8591Full	KEYWORD1
 PCF8591Minimal	KEYWORD1
+PN532FirmwareVersion	KEYWORD1
+PN532Full	KEYWORD1
+PN532GeneralStatus	KEYWORD1
+PN532Minimal	KEYWORD1
+PN532Target	KEYWORD1
 Pca9685Full	KEYWORD1
 Pca9685Minimal	KEYWORD1
 Profile	KEYWORD1
@@ -599,6 +604,7 @@ color_clear	KEYWORD2
 color_green	KEYWORD2
 color_red	KEYWORD2
 columns	KEYWORD2
+communicate_thru	KEYWORD2
 compensate	KEYWORD2
 compensate_temperature	KEYWORD2
 configure	KEYWORD2
@@ -693,6 +699,7 @@ cursor	KEYWORD2
 data	KEYWORD2
 dataRateSps	KEYWORD2
 dataReady	KEYWORD2
+data_exchange	KEYWORD2
 data_ready	KEYWORD2
 dbToPosition	KEYWORD2
 decrement	KEYWORD2
@@ -842,6 +849,7 @@ gas_resistance	KEYWORD2
 gas_valid	KEYWORD2
 generalCallConvert	KEYWORD2
 generalCallReset	KEYWORD2
+general_status	KEYWORD2
 generate_random_id	KEYWORD2
 gesture_available	KEYWORD2
 gesture_fifo_level	KEYWORD2
@@ -1035,6 +1043,7 @@ lc709203f_crc8	KEYWORD2
 lineFrequency	KEYWORD2
 linePeriod	KEYWORD2
 linear_acceleration	KEYWORD2
+list_passive_targets	KEYWORD2
 load_current_as_target	KEYWORD2
 lockCriticalLimit	KEYWORD2
 lockEeprom	KEYWORD2
@@ -1065,6 +1074,9 @@ measurement_ready	KEYWORD2
 measurement_time	KEYWORD2
 microstepPosition	KEYWORD2
 midscale	KEYWORD2
+mifare_authenticate	KEYWORD2
+mifare_read_block	KEYWORD2
+mifare_write_block	KEYWORD2
 mode	KEYWORD2
 model	KEYWORD2
 modelId	KEYWORD2
@@ -1087,6 +1099,8 @@ newMagData	KEYWORD2
 new_data_available	KEYWORD2
 nop	KEYWORD2
 normalized	KEYWORD2
+ntag_read_page	KEYWORD2
+ntag_write_page	KEYWORD2
 ntc_resistance	KEYWORD2
 nvm_read	KEYWORD2
 nvm_write	KEYWORD2
@@ -1839,6 +1853,7 @@ set_max_angle	KEYWORD2
 set_max_chunk	KEYWORD2
 set_max_convergence_time	KEYWORD2
 set_max_position	KEYWORD2
+set_max_retries	KEYWORD2
 set_measurement_time	KEYWORD2
 set_measurement_wait	KEYWORD2
 set_mic_gain	KEYWORD2
@@ -1909,6 +1924,7 @@ set_reset_voltage	KEYWORD2
 set_resistance	KEYWORD2
 set_resistance_wa	KEYWORD2
 set_resolution	KEYWORD2
+set_rf_field	KEYWORD2
 set_rsoc	KEYWORD2
 set_rx_mode	KEYWORD2
 set_sample_skip	KEYWORD2
@@ -2009,6 +2025,7 @@ startClock	KEYWORD2
 startContinuous	KEYWORD2
 start_auto_play	KEYWORD2
 start_autonomous	KEYWORD2
+start_command	KEYWORD2
 start_continuous	KEYWORD2
 start_continuous_als	KEYWORD2
 start_continuous_range	KEYWORD2
@@ -2215,6 +2232,10 @@ BAND_US_EUROPE	LITERAL1
 BAND_WORLD	LITERAL1
 BANK_0	LITERAL1
 BANK_1	LITERAL1
+BAUD_106_A	LITERAL1
+BAUD_106_B	LITERAL1
+BAUD_212_F	LITERAL1
+BAUD_424_F	LITERAL1
 BEEP_CONTINUOUS	LITERAL1
 BEEP_MULTIPLE	LITERAL1
 BEEP_OFF	LITERAL1
@@ -2485,6 +2506,13 @@ EFFECT_STRONG_BUZZ	LITERAL1
 EFFECT_STRONG_CLICK	LITERAL1
 EFFECT_TRIPLE_CLICK	LITERAL1
 ERROR_TIMEOUT	LITERAL1
+ERR_ARG	LITERAL1
+ERR_BUS	LITERAL1
+ERR_ERROR_FRAME	LITERAL1
+ERR_FRAME	LITERAL1
+ERR_IC	LITERAL1
+ERR_NO_ACK	LITERAL1
+ERR_TIMEOUT	LITERAL1
 FAULT_OPEN_LOAD	LITERAL1
 FAULT_OVERTEMP	LITERAL1
 FAULT_OVERTEMP_WARNING	LITERAL1
@@ -2659,6 +2687,7 @@ MANUFACTURER_ID	LITERAL1
 MASK	LITERAL1
 MAX_ATTEMPTS	LITERAL1
 MAX_CASCADE_BYTES	LITERAL1
+MAX_DATA	LITERAL1
 MAX_DEVICES	LITERAL1
 MAX_HEIGHT	LITERAL1
 MAX_WIDTH	LITERAL1
