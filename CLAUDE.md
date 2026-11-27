@@ -33,7 +33,7 @@ The Full class inherits Minimal and adds the rest — it never duplicates. Specs
 
 ## Repository layout
 
-Top-level dirs: `specs/`, `datasheets/`, `registry/`, `python/`, `cpp/`, `nodejs/`, `rust/`, `jvm/`, `go/`, `sigrok/`, `docs/`, plus the `wiki` submodule. `specs/<category>/` and `datasheets/<category>/` mirror each other; run `ls` for the current category list (`adc_dac` maps to the npm package `node-red-contrib-periph-adc-dac`, underscore → hyphen).
+Top-level dirs: `specs/`, `datasheets/`, `registry/`, `python/`, `cpp/`, `nodejs/`, `rust/`, `jvm/`, `go/`, `sigrok/`, `packaging/` (Debian packages and the APT repository, see `packaging/README.md`), `docs/`, plus the `wiki` submodule. `specs/<category>/` and `datasheets/<category>/` mirror each other; run `ls` for the current category list (`adc_dac` maps to the npm package `node-red-contrib-periph-adc-dac`, underscore → hyphen).
 
 Every language follows the same shape: `connection/` (Connection base, platform bus implementations, InputPin/OutputPin), `storage/` (BlockDevice + RAM mock), and `chips/<category>/` (one module per chip). Each chip driver depends only on the `Connection` abstraction, never on a concrete bus implementation.
 

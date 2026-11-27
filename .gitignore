@@ -26,3 +26,6 @@ uiflow/
 
 # git worktrees
 /worktrees/
+
+# packaging/build-debs.sh output
+/dist/

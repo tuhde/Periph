@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: periph
+Description: Periph peripheral chip drivers (Linux host, static library)
+URL: https://github.com/tuhde/Periph
+Version: @PROJECT_VERSION@
+Requires: libgpiod >= 2
+Cflags: @PERIPH_PC_CFLAGS@
+Libs: -L${libdir} -lperiph -lpthread -lm

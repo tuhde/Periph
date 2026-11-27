@@ -1,0 +1,8 @@
+Origin: Periph
+Label: Periph
+Suite: trixie
+Codename: trixie
+Architectures: amd64 arm64 armhf
+Components: main
+Description: Periph peripheral chip drivers for Debian 13 (trixie) and Raspberry Pi OS
+SignWith: yes

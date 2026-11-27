@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periph APT repository</title>
+<style>
+  :root { --fg: #1f2328; --bg: #ffffff; --muted: #59636e; --code-bg: #f6f8fa; --accent: #8b3fd9; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg: #e6edf3; --bg: #0d1117; --muted: #9198a1; --code-bg: #161b22; --accent: #c084fc; }
+  }
+  body { margin: 0 auto; max-width: 46rem; padding: 2rem 1rem; font: 16px/1.55 system-ui, sans-serif;
+         color: var(--fg); background: var(--bg); }
+  h1 { margin-bottom: 0.2rem; }
+  p.lead { color: var(--muted); margin-top: 0; }
+  a { color: var(--accent); }
+  pre { background: var(--code-bg); padding: 0.9rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { text-align: left; padding: 0.35rem 0.6rem 0.35rem 0; border-bottom: 1px solid var(--code-bg); vertical-align: top; }
+  code { font-size: 0.92em; }
+</style>
+</head>
+<body>
+<h1>Periph APT repository</h1>
+<p class="lead">Debian 13 (trixie) and Raspberry Pi OS packages of
+<a href="https://github.com/tuhde/Periph">Periph</a>, the multi-language peripheral chip driver library.
+Architectures: amd64, arm64, armhf.</p>
+
+<h2>Set up</h2>
+<pre><code>sudo curl -fsSLo /usr/share/keyrings/periph-archive-keyring.gpg \
+  https://tuhde.github.io/periph-apt/periph-archive-keyring.gpg
+printf '%s\n' 'Types: deb' 'URIs: https://tuhde.github.io/periph-apt' 'Suites: trixie' \
+  'Components: main' 'Signed-By: /usr/share/keyrings/periph-archive-keyring.gpg' \
+  | sudo tee /etc/apt/sources.list.d/periph.sources
+sudo apt update</code></pre>
+
+<h2>Packages</h2>
+<table>
+<tr><th>Package</th><th>Contents</th></tr>
+<tr><td><code>python3-periph</code></td><td>Python 3 module <code>periph</code>; recommends the bus libraries (smbus2, spidev, libgpiod, pyserial, periphery)</td></tr>
+<tr><td><code>libperiph-dev</code></td><td>C++17 static library and headers; <code>pkg-config periph</code> or CMake <code>find_package(periph)</code> &rarr; <code>periph::periph</code></td></tr>
+<tr><td><code>sigrok-decoders-periph</code></td><td>Protocol decoders for sigrok-cli and PulseView</td></tr>
+</table>
+<pre><code>sudo apt install python3-periph libperiph-dev sigrok-decoders-periph</code></pre>
+
+<p>Release notes and other languages: <a href="https://github.com/tuhde/Periph/releases">github.com/tuhde/Periph/releases</a>.</p>
+</body>
+</html>

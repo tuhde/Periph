@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+# Binary-only packaging of the Periph monorepo; see packaging/build-debs.sh.
+# Arch-dependent: libperiph-dev (cpp/linux, CMake).
+# Arch-independent: python3-periph (python/, pybuild) and
+# sigrok-decoders-periph (sigrok/).
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export PYBUILD_NAME = periph
+
+CPP = --buildsystem=cmake --sourcedirectory=cpp/linux --builddirectory=build-cpp
+PY = --buildsystem=pybuild --sourcedirectory=python
+DECODERS = debian/sigrok-decoders-periph/usr/share/libsigrokdecode/decoders
+
+%:
+	dh $@
+
+override_dh_auto_configure-arch:
+	dh_auto_configure $(CPP)
+override_dh_auto_build-arch:
+	dh_auto_build $(CPP)
+override_dh_auto_install-arch:
+	dh_auto_install $(CPP) --destdir=debian/libperiph-dev
+
+# setuptools rejects classifiers newer than Debian's python3-trove-classifiers
+# (PyPI accepts them). They carry no meaning in a .deb, so the build copy of
+# pyproject.toml drops the unknown ones.
+override_dh_auto_configure-indep:
+	python3 debian/strip-classifiers.py python/pyproject.toml
+	dh_auto_configure $(PY)
+override_dh_auto_build-indep:
+	dh_auto_build $(PY)
+override_dh_auto_install-indep:
+	dh_auto_install $(PY)
+	# One directory per decoder; sigrok/tests/ holds sample captures.
+	for d in sigrok/*/; do \
+		n=$$(basename $$d); [ "$$n" = tests ] && continue; \
+		install -d $(DECODERS)/$$n; \
+		install -m 644 $$d*.py $(DECODERS)/$$n/; \
+	done
+
+# The unit tests run in CI on every change; the package build doesn't repeat them.
+override_dh_auto_test:
+
+# Plain removal: dh_auto_clean with pybuild would need dh-python, which the
+# arch-only cross builds don't install.
+override_dh_auto_clean:
+	rm -rf build-cpp .pybuild python/build python/periph.egg-info

@@ -115,17 +115,6 @@ def _with_short(strings):
 
 class Decoder(srd.Decoder):
     api_version = 3
-    id = 'htu21df'
-    name = 'HTU21D-F'
-    longname = 'Measurement Specialties HTU21D-F humidity and temperature sensor'
-    desc = 'Decode HTU21D-F I2C commands, temperature and humidity results with CRC check, user register and measurement polling.'
-    license = 'gplv2+'
-    inputs = ['i2c']
-    outputs = ['htu21df']
-    tags = ['IC', 'Sensor', 'Humidity']
-
-class Decoder(srd.Decoder):
-    api_version = 3
     id = 'htu31d'
     name = 'HTU31D'
     longname = 'TE Connectivity HTU31D humidity and temperature sensor'
