@@ -41,6 +41,7 @@ override_dh_auto_install-indep:
 # The unit tests run in CI on every change; the package build doesn't repeat them.
 override_dh_auto_test:
 
+# Plain removal: dh_auto_clean with pybuild would need dh-python, which the
+# arch-only cross builds don't install.
 override_dh_auto_clean:
-	dh_auto_clean $(CPP)
-	dh_auto_clean $(PY)
+	rm -rf build-cpp .pybuild python/build python/periph.egg-info
