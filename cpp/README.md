@@ -179,6 +179,7 @@ Each chip exposes two classes:
 | Shtc3 | Humidity sensor | `chips/humidity/Shtc3.h` |
 | Si1132 | Light sensor | `chips/light/Si1132.h` |
 | Si1133 | Light sensor | `chips/light/Si1133.h` |
+| Si1145 | Light sensor | `chips/light/Si1145.h` |
 | Si7021 | Humidity sensor | `chips/humidity/Si7021.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | Spl06 | Pressure sensor | `chips/pressure/Spl06.h` |
