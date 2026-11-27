@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-light",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133, SI1145",
   "keywords": [
     "node-red",

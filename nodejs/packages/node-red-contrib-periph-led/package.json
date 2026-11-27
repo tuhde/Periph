@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-led",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for LED driver chips: APA102, HT16K33, IS31FL3731, PCA9685, SAA1064, SK6812RGBW, WS2812B, WS2814",
   "keywords": [
     "node-red",

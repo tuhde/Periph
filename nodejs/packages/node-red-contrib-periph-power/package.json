@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-power",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for power monitor chips: ADE7953, AXP2101, INA219, INA226, INA260, INA3221, LC709203F, LM25066, LTC4151, MAX17048",
   "keywords": [
     "node-red",

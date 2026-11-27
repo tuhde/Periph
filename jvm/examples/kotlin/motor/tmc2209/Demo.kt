@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.5.4
-//DEPS it.uhde:periph-kotlin:1.5.4
+//DEPS it.uhde:periph-connection:1.6.0
+//DEPS it.uhde:periph-kotlin:1.6.0
 
 // TMC2209 demo: sensorless homing of a linear axis with StallGuard4 and CoolStep.
 // Wiring: MCU TX -> 1 kOhm -> PDN_UART, MCU RX -> PDN_UART directly (echo handling is on).

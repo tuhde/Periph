@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.5.4
-//DEPS it.uhde:periph-java:1.5.4
+//DEPS it.uhde:periph-connection:1.6.0
+//DEPS it.uhde:periph-java:1.6.0
 
 import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.environmental.Bme688Full;

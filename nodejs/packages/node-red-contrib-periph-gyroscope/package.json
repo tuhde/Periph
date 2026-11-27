@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-gyroscope",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for gyroscope chips: L3G4200D, L3GD20H",
   "keywords": [
     "node-red",

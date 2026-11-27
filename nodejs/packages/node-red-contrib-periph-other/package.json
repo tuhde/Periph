@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-other",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for miscellaneous peripheral chips: MPR121, PCA9541",
   "keywords": [
     "node-red",

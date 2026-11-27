@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-memory",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for memory chips: 23X1024, 24AA02UID, AT24C02N, AT24C64, CAT24C512, MB85RC, MX25L12845E, SD_SPI",
   "keywords": [
     "node-red",

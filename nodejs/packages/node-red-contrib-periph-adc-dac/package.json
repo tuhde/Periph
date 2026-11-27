@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-adc-dac",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Node-RED nodes for ADC and DAC chips: AD5243, AD5248, AD5251, AD5252, AD7705, AD7706, ADS1013, ADS1014, ADS1113, ADS1114, ADS1115, ADS7828, CAT5171, CS43L22, DS1881, DS3502, ES8311, HX710A, HX710B, HX711, HY3131, MCP3422, MCP4725, MCP4728, MCP4XXX, PCF8591",
   "keywords": [
     "node-red",
