@@ -1,0 +1,1 @@
+_periph_rrh46410.set_gpio(int(${_mask}))

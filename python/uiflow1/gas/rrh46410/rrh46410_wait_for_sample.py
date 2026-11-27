@@ -1,0 +1,1 @@
+_periph_rrh46410.wait_for_sample(5)

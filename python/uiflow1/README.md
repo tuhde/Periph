@@ -76,6 +76,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [BME280](environmental/bme280/) | environmental | `bme280_init`, `bme280_temperature`, `bme280_pressure`, `bme280_humidity` |
 | [BME680](environmental/bme680/) | environmental | `bme680_init`, `bme680_temperature`, `bme680_pressure`, `bme680_humidity`, `bme680_gas_resistance` |
 | [ENS160](gas/ens160/) | gas | `ens160_init`, `ens160_read_aqi`, `ens160_read_tvoc`, `ens160_read_eco2` |
+| [RRH46410](gas/rrh46410/) | gas | `rrh46410_init`, `rrh46410_wait_for_sample`, `rrh46410_iaq`, `rrh46410_tvoc_mg_m3`, `rrh46410_etoh_ppm`, `rrh46410_eco2_ppm`, `rrh46410_relative_iaq`, `rrh46410_warmed_up`, `rrh46410_air_quality_label` and product ID, operation mode, humidity, sample period, warm-up, GPIO, status, suspend, reset |
 | [NEO-6](gnss/neo6/) | gnss | `neo6_init`, `neo6_update`, `neo6_latitude`, `neo6_longitude`, `neo6_altitude` |
 | [DHT11](humidity/dht11/) | humidity | `dht11_init`, `dht11_read_temperature`, `dht11_read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | `mpu6050_init`, `mpu6050_accel_x`, `mpu6050_accel_y`, `mpu6050_accel_z`, `mpu6050_gyro_x`, `mpu6050_gyro_y`, `mpu6050_gyro_z`, `mpu6050_temperature`, `mpu6050_data_ready` |

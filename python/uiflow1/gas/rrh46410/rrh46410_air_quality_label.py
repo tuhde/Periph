@@ -1,0 +1,1 @@
+_periph_rrh46410.air_quality_label((_periph_rrh46410.read_results() or {}).get('iaq', 0))

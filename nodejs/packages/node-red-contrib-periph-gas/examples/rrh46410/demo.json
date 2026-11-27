@@ -1,0 +1,136 @@
+[
+  {
+    "id": "rrh46410-tab",
+    "type": "tab",
+    "label": "RRH46410 air quality",
+    "disabled": false,
+    "info": "Indoor air-quality monitor with a Renesas RRH46410. An inject node fires every 3 s (the IAQ 2nd Gen sample period) and asks for the latest sample. A function node maps the IAQ index to the UBA rating (very good below 2.0, good, medium, poor, bad from 5.0) and feeds a dashboard gauge; the debug node shows IAQ, TVOC in mg/m3, ethanol equivalent and eCO2 in ppm, relative IAQ and whether the 5-minute warm-up is over. Feed msg.humidity from a humidity sensor to improve the compensation."
+  },
+  {
+    "id": "rrh46410-inject",
+    "type": "inject",
+    "z": "rrh46410-tab",
+    "name": "every 3 s",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "3",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "rrh46410-node"
+      ]
+    ]
+  },
+  {
+    "id": "rrh46410-device-1",
+    "type": "rrh46410-device",
+    "name": "RRH46410",
+    "bus": "1",
+    "mode": "1",
+    "humidity": "50"
+  },
+  {
+    "id": "rrh46410-node",
+    "type": "rrh46410",
+    "z": "rrh46410-tab",
+    "name": "RRH46410",
+    "device": "rrh46410-device-1",
+    "x": 340,
+    "y": 160,
+    "wires": [
+      [
+        "rrh46410-label"
+      ]
+    ]
+  },
+  {
+    "id": "rrh46410-label",
+    "type": "function",
+    "z": "rrh46410-tab",
+    "name": "IAQ rating",
+    "func": "const iaq = msg.payload.iaq;\nmsg.payload.rating = iaq < 2 ? 'very good' : iaq < 3 ? 'good' : iaq < 4 ? 'medium' : iaq < 5 ? 'poor' : 'bad';\nreturn [msg, { payload: iaq }];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 540,
+    "y": 160,
+    "wires": [
+      [
+        "rrh46410-debug"
+      ],
+      [
+        "rrh46410-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "rrh46410-debug",
+    "type": "debug",
+    "z": "rrh46410-tab",
+    "name": "Reading",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 750,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "rrh46410-gauge",
+    "type": "ui_gauge",
+    "z": "rrh46410-tab",
+    "name": "IAQ gauge",
+    "group": "rrh46410-group-1",
+    "order": 1,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "IAQ",
+    "label": "UBA level",
+    "format": "{{value}}",
+    "min": 1,
+    "max": 5,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "3",
+    "seg2": "4",
+    "x": 750,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "rrh46410-group-1",
+    "type": "ui_group",
+    "name": "RRH46410 Air Quality",
+    "tab": "rrh46410-ui-tab-1",
+    "order": 1,
+    "disp": true,
+    "width": 6
+  },
+  {
+    "id": "rrh46410-ui-tab-1",
+    "type": "ui_tab",
+    "name": "RRH46410 Demo",
+    "icon": "dashboard",
+    "order": 1
+  }
+]

@@ -1,0 +1,1 @@
+(_periph_rrh46410.read_results() or {}).get('eco2_ppm', 0)

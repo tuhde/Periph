@@ -1,0 +1,1 @@
+_periph_rrh46410.sample_period()

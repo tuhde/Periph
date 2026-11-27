@@ -1,0 +1,1 @@
+_periph_rrh46410.config_gpio(int(${_directions}))

@@ -171,6 +171,7 @@ Each chip exposes two structs:
 | QMI8658A | IMU | 6-axis inertial measurement unit (QST): 3-axis gyroscope, 3-axis accelerometer and |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
+| RRH46410 | Gas sensor | Digital gas sensor module for indoor air quality (Renesas). |
 | SAA1064 | LED driver | 4-digit LED driver (Philips / NXP). |
 | SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SH1106 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Sino Wealth), the chip behind the common |

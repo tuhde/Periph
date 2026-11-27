@@ -1,0 +1,446 @@
+{
+  "category": "Rrh46410",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_RRH46410_LANGUAGES = {\n  \"CUSTOM_RRH46410_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_RRH46410_WAIT_FOR_SAMPLE\": {\n    \"en\": \"%1 new sample (wait up to 5 s)\"\n  },\n  \"CUSTOM_RRH46410_IAQ\": {\n    \"en\": \"%1 IAQ index (1-5)\"\n  },\n  \"CUSTOM_RRH46410_TVOC_MG_M3\": {\n    \"en\": \"%1 TVOC (mg/m3)\"\n  },\n  \"CUSTOM_RRH46410_ETOH_PPM\": {\n    \"en\": \"%1 ethanol (ppm)\"\n  },\n  \"CUSTOM_RRH46410_ECO2_PPM\": {\n    \"en\": \"%1 eCO2 (ppm)\"\n  },\n  \"CUSTOM_RRH46410_RELATIVE_IAQ\": {\n    \"en\": \"%1 relative IAQ\"\n  },\n  \"CUSTOM_RRH46410_WARMED_UP\": {\n    \"en\": \"%1 warmed up\"\n  },\n  \"CUSTOM_RRH46410_AIR_QUALITY_LABEL\": {\n    \"en\": \"%1 air quality rating\"\n  },\n  \"CUSTOM_RRH46410_PRODUCT_ID\": {\n    \"en\": \"%1 product ID\"\n  },\n  \"CUSTOM_RRH46410_GET_MODE\": {\n    \"en\": \"%1 operation mode\"\n  },\n  \"CUSTOM_RRH46410_SET_MODE\": {\n    \"en\": \"%1 operation mode (0 suspend, 1 IAQ, 2 ULP, 5 PBAQ) %2\"\n  },\n  \"CUSTOM_RRH46410_SET_HUMIDITY\": {\n    \"en\": \"%1 ambient humidity (%RH) %2\"\n  },\n  \"CUSTOM_RRH46410_SAMPLE_PERIOD\": {\n    \"en\": \"%1 sample period (s)\"\n  },\n  \"CUSTOM_RRH46410_WARMUP_SAMPLES\": {\n    \"en\": \"%1 warm-up samples\"\n  },\n  \"CUSTOM_RRH46410_CONFIG_GPIO\": {\n    \"en\": \"%1 GPIO outputs mask %2\"\n  },\n  \"CUSTOM_RRH46410_GET_GPIO\": {\n    \"en\": \"%1 GPIO levels\"\n  },\n  \"CUSTOM_RRH46410_SET_GPIO\": {\n    \"en\": \"%1 set GPIO mask %2\"\n  },\n  \"CUSTOM_RRH46410_CLEAR_GPIO\": {\n    \"en\": \"%1 clear GPIO mask %2\"\n  },\n  \"CUSTOM_RRH46410_STATUS\": {\n    \"en\": \"%1 status byte\"\n  },\n  \"CUSTOM_RRH46410_SUSPEND\": {\n    \"en\": \"%1 suspend\"\n  },\n  \"CUSTOM_RRH46410_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_rrh46410_init';\nBlockly.BlockRegExpList['custom_rrh46410'] = {\n  regexp: new RegExp(/^custom_rrh46410_/),\n  code: \"from Rrh46410 import Rrh46410\",\n  initBlockType: initType,\n  categoryId: 'custom_rrh46410',\n}\nBlockly.utils.registerLanguages(CUSTOM_RRH46410_LANGUAGES)\n\nBlockly.Msg.CUSTOM_RRH46410_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_RRH46410 = 'Rrh46410'\n\nBlockly.utils.getcustom_rrh46410Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['rrh46410_0', 'rrh46410_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_rrh46410_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_rrh46410Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'rrh46410_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Rrh46410(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_wait_for_sample\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_WAIT_FOR_SAMPLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_wait_for_sample\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.wait_for_sample()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_iaq\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_IAQ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_iaq\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.iaq()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_tvoc_mg_m3\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_TVOC_MG_M3,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_tvoc_mg_m3\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.tvoc_mg_m3()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_etoh_ppm\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_ETOH_PPM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_etoh_ppm\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.etoh_ppm()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_eco2_ppm\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_ECO2_PPM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_eco2_ppm\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.eco2_ppm()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_relative_iaq\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_RELATIVE_IAQ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_relative_iaq\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.relative_iaq()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_warmed_up\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_WARMED_UP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_warmed_up\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.warmed_up()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_air_quality_label\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_AIR_QUALITY_LABEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_air_quality_label\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.air_quality_label()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_product_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_PRODUCT_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_product_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.product_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_get_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_GET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_get_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_set_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_SET_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'percent'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_set_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var percent = Blockly.Python.valueToCode(block, 'percent', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_humidity(${percent})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_sample_period\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_SAMPLE_PERIOD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_sample_period\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.sample_period()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_warmup_samples\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_WARMUP_SAMPLES,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_warmup_samples\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.warmup_samples()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_config_gpio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_CONFIG_GPIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'directions'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_config_gpio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var directions = Blockly.Python.valueToCode(block, 'directions', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.config_gpio(${directions})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_get_gpio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_GET_GPIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_get_gpio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_gpio()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_set_gpio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_SET_GPIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_set_gpio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gpio(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_clear_gpio\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_CLEAR_GPIO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_clear_gpio\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.clear_gpio(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh46410_suspend\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_SUSPEND,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_suspend\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.suspend()\\n`\n}\n\nBlockly.Blocks[\"custom_rrh46410_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH46410_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh46410Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh46410_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}",
+    "toolbox": "\n<category name=\"Rrh46410\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_rrh46410\">\n<title text=\"Rrh46410\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_rrh46410_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">56</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh46410_wait_for_sample\"/><block type=\"custom_rrh46410_iaq\"/><block type=\"custom_rrh46410_tvoc_mg_m3\"/><block type=\"custom_rrh46410_etoh_ppm\"/><block type=\"custom_rrh46410_eco2_ppm\"/><block type=\"custom_rrh46410_relative_iaq\"/><block type=\"custom_rrh46410_warmed_up\"/><block type=\"custom_rrh46410_air_quality_label\"/><block type=\"custom_rrh46410_product_id\"/><block type=\"custom_rrh46410_get_mode\"/><block type=\"custom_rrh46410_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh46410_set_humidity\">\n  <value name=\"percent\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh46410_sample_period\"/><block type=\"custom_rrh46410_warmup_samples\"/><block type=\"custom_rrh46410_config_gpio\">\n  <value name=\"directions\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh46410_get_gpio\"/><block type=\"custom_rrh46410_set_gpio\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh46410_clear_gpio\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh46410_status\"/><block type=\"custom_rrh46410_suspend\"/><block type=\"custom_rrh46410_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_rrh46410",
+    "block_type": [
+      "custom_rrh46410___init__",
+      "custom_rrh46410_wait_for_sample",
+      "custom_rrh46410_iaq",
+      "custom_rrh46410_tvoc_mg_m3",
+      "custom_rrh46410_etoh_ppm",
+      "custom_rrh46410_eco2_ppm",
+      "custom_rrh46410_relative_iaq",
+      "custom_rrh46410_warmed_up",
+      "custom_rrh46410_air_quality_label",
+      "custom_rrh46410_product_id",
+      "custom_rrh46410_get_mode",
+      "custom_rrh46410_set_mode",
+      "custom_rrh46410_set_humidity",
+      "custom_rrh46410_sample_period",
+      "custom_rrh46410_warmup_samples",
+      "custom_rrh46410_config_gpio",
+      "custom_rrh46410_get_gpio",
+      "custom_rrh46410_set_gpio",
+      "custom_rrh46410_clear_gpio",
+      "custom_rrh46410_status",
+      "custom_rrh46410_suspend",
+      "custom_rrh46410_reset"
+    ]
+  },
+  "data": {
+    "name": "Rrh46410",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Rrh46410",
+      "time": "2026-11-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gas.rrh46410 import RRH46410Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "56",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = RRH46410Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wait_for_sample",
+        "note": {},
+        "label": {
+          "en": "%1 new sample (wait up to 5 s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.wait_for_sample(5)",
+        "ast_return": {
+          "code": "self._driver.wait_for_sample(5)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "iaq",
+        "note": {},
+        "label": {
+          "en": "%1 IAQ index (1-5)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_results() or {}).get('iaq', 0)",
+        "ast_return": {
+          "code": "(self._driver.read_results() or {}).get('iaq', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tvoc_mg_m3",
+        "note": {},
+        "label": {
+          "en": "%1 TVOC (mg/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_results() or {}).get('tvoc_mg_m3', 0)",
+        "ast_return": {
+          "code": "(self._driver.read_results() or {}).get('tvoc_mg_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "etoh_ppm",
+        "note": {},
+        "label": {
+          "en": "%1 ethanol (ppm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_results() or {}).get('etoh_ppm', 0)",
+        "ast_return": {
+          "code": "(self._driver.read_results() or {}).get('etoh_ppm', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "eco2_ppm",
+        "note": {},
+        "label": {
+          "en": "%1 eCO2 (ppm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_results() or {}).get('eco2_ppm', 0)",
+        "ast_return": {
+          "code": "(self._driver.read_results() or {}).get('eco2_ppm', 0)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "relative_iaq",
+        "note": {},
+        "label": {
+          "en": "%1 relative IAQ"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_results() or {}).get('relative_iaq', 0)",
+        "ast_return": {
+          "code": "(self._driver.read_results() or {}).get('relative_iaq', 0)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "warmed_up",
+        "note": {},
+        "label": {
+          "en": "%1 warmed up"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return (self._driver.read_results() or {}).get('warmed_up', False)",
+        "ast_return": {
+          "code": "(self._driver.read_results() or {}).get('warmed_up', False)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "air_quality_label",
+        "note": {},
+        "label": {
+          "en": "%1 air quality rating"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.air_quality_label((self._driver.read_results() or {}).get('iaq', 0))",
+        "ast_return": {
+          "code": "self._driver.air_quality_label((self._driver.read_results() or {}).get('iaq', 0))",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "product_id",
+        "note": {},
+        "label": {
+          "en": "%1 product ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.product_id()[0]",
+        "ast_return": {
+          "code": "self._driver.product_id()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_mode",
+        "note": {},
+        "label": {
+          "en": "%1 operation mode"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_mode()",
+        "ast_return": {
+          "code": "self._driver.get_mode()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 operation mode (0 suspend, 1 IAQ, 2 ULP, 5 PBAQ) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 ambient humidity (%RH) %2"
+        },
+        "params": [
+          {
+            "name": "percent",
+            "type": "float",
+            "default": "50.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_humidity(percent)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sample_period",
+        "note": {},
+        "label": {
+          "en": "%1 sample period (s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.sample_period()",
+        "ast_return": {
+          "code": "self._driver.sample_period()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "warmup_samples",
+        "note": {},
+        "label": {
+          "en": "%1 warm-up samples"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.warmup_samples()",
+        "ast_return": {
+          "code": "self._driver.warmup_samples()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "config_gpio",
+        "note": {},
+        "label": {
+          "en": "%1 GPIO outputs mask %2"
+        },
+        "params": [
+          {
+            "name": "directions",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.config_gpio(directions)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_gpio",
+        "note": {},
+        "label": {
+          "en": "%1 GPIO levels"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_gpio()",
+        "ast_return": {
+          "code": "self._driver.get_gpio()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gpio",
+        "note": {},
+        "label": {
+          "en": "%1 set GPIO mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gpio(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_gpio",
+        "note": {},
+        "label": {
+          "en": "%1 clear GPIO mask %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.clear_gpio(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 status byte"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.status()['raw']",
+        "ast_return": {
+          "code": "self._driver.status()['raw']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "suspend",
+        "note": {},
+        "label": {
+          "en": "%1 suspend"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.suspend()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "rrh46410"
+  },
+  "pyCode": "\"\"\"\nfile     Rrh46410\ntime     2026-11-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gas.rrh46410 import RRH46410Full\n\n\nclass Rrh46410:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 56):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '56'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = RRH46410Full(connection)\n        self._driver.init()\n\n    def wait_for_sample(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 new sample (wait up to 5 s)'\n        \"\"\"\n        return self._driver.wait_for_sample(5)\n\n    def iaq(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 IAQ index (1-5)'\n        \"\"\"\n        return (self._driver.read_results() or {}).get('iaq', 0)\n\n    def tvoc_mg_m3(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 TVOC (mg/m3)'\n        \"\"\"\n        return (self._driver.read_results() or {}).get('tvoc_mg_m3', 0)\n\n    def etoh_ppm(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 ethanol (ppm)'\n        \"\"\"\n        return (self._driver.read_results() or {}).get('etoh_ppm', 0)\n\n    def eco2_ppm(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 eCO2 (ppm)'\n        \"\"\"\n        return (self._driver.read_results() or {}).get('eco2_ppm', 0)\n\n    def relative_iaq(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 relative IAQ'\n        \"\"\"\n        return (self._driver.read_results() or {}).get('relative_iaq', 0)\n\n    def warmed_up(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 warmed up'\n        \"\"\"\n        return (self._driver.read_results() or {}).get('warmed_up', False)\n\n    def air_quality_label(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 air quality rating'\n        \"\"\"\n        return self._driver.air_quality_label((self._driver.read_results() or {}).get('iaq', 0))\n\n    def product_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 product ID'\n        \"\"\"\n        return self._driver.product_id()[0]\n\n    def get_mode(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 operation mode'\n        \"\"\"\n        return self._driver.get_mode()\n\n    def set_mode(self, mode: int = 1):\n        \"\"\"\n        label:\n            en: '%1 operation mode (0 suspend, 1 IAQ, 2 ULP, 5 PBAQ) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def set_humidity(self, percent: float = 50.0):\n        \"\"\"\n        label:\n            en: '%1 ambient humidity (%RH) %2'\n        params:\n            percent:\n                name: percent\n                type: float\n                default: '50.0'\n                field: number\n        \"\"\"\n        self._driver.set_humidity(percent)\n\n    def sample_period(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 sample period (s)'\n        \"\"\"\n        return self._driver.sample_period()\n\n    def warmup_samples(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 warm-up samples'\n        \"\"\"\n        return self._driver.warmup_samples()\n\n    def config_gpio(self, directions: int = 3):\n        \"\"\"\n        label:\n            en: '%1 GPIO outputs mask %2'\n        params:\n            directions:\n                name: directions\n                type: int\n                default: '3'\n                field: number\n        \"\"\"\n        self._driver.config_gpio(directions)\n\n    def get_gpio(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 GPIO levels'\n        \"\"\"\n        return self._driver.get_gpio()\n\n    def set_gpio(self, mask: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set GPIO mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_gpio(mask)\n\n    def clear_gpio(self, mask: int = 1):\n        \"\"\"\n        label:\n            en: '%1 clear GPIO mask %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.clear_gpio(mask)\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 status byte'\n        \"\"\"\n        return self._driver.status()['raw']\n\n    def suspend(self):\n        \"\"\"\n        label:\n            en: '%1 suspend'\n        \"\"\"\n        self._driver.suspend()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}
