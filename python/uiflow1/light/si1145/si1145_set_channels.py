@@ -1,0 +1,1 @@
+_periph_si1145.set_channels(bool(int(${_uv})), bool(int(${_visible})), bool(int(${_infrared})), bool(int(${_ps1})))

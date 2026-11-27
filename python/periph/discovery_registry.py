@@ -516,7 +516,7 @@ CHIPS = (
     {"id": "si1133", "driver": "si1133", "write_sensitive": False, "aliased": False,
      "addresses": (0x52, 0x55,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x33,)}},
-    {"id": "si1145", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "si1145", "driver": "si1145", "write_sensitive": False, "aliased": False,
      "addresses": (0x60,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x45, 0x46, 0x47,)}},
     {"id": "tsl2591", "driver": None, "write_sensitive": True, "aliased": False,

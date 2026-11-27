@@ -2629,7 +2629,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "si1145",
       "datasheet": "datasheets/light/si1145.pdf"
     },
     {

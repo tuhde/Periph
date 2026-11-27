@@ -1,0 +1,461 @@
+{
+  "category": "Si1145",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_SI1145_LANGUAGES = {\n  \"CUSTOM_SI1145_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_SI1145_PROXIMITY\": {\n    \"en\": \"%1 proximity (counts)\"\n  },\n  \"CUSTOM_SI1145_UV_INDEX\": {\n    \"en\": \"%1 UV index\"\n  },\n  \"CUSTOM_SI1145_VISIBLE\": {\n    \"en\": \"%1 visible light (counts)\"\n  },\n  \"CUSTOM_SI1145_INFRARED\": {\n    \"en\": \"%1 infrared light (counts)\"\n  },\n  \"CUSTOM_SI1145_READ_PROXIMITY\": {\n    \"en\": \"%1 proximity channel (1-3) %2\"\n  },\n  \"CUSTOM_SI1145_READ_TEMPERATURE_RAW\": {\n    \"en\": \"%1 die temperature (raw)\"\n  },\n  \"CUSTOM_SI1145_READ_VDD_RAW\": {\n    \"en\": \"%1 VDD (raw)\"\n  },\n  \"CUSTOM_SI1145_SET_CHANNELS\": {\n    \"en\": \"%1 channels UV %2 visible %3 infrared %4 proximity (1/0) %5\"\n  },\n  \"CUSTOM_SI1145_SET_LED_CURRENT\": {\n    \"en\": \"%1 LED %2 current level (0-15) %3\"\n  },\n  \"CUSTOM_SI1145_SET_PS_PHOTODIODE\": {\n    \"en\": \"%1 proximity channel %2 large photodiode (1/0) %3\"\n  },\n  \"CUSTOM_SI1145_SET_GAIN\": {\n    \"en\": \"%1 gain (0-7) visible %2 infrared %3 proximity %4\"\n  },\n  \"CUSTOM_SI1145_SET_HIGH_RANGE\": {\n    \"en\": \"%1 high range (1/0) visible %2 infrared %3 proximity %4\"\n  },\n  \"CUSTOM_SI1145_START_AUTONOMOUS\": {\n    \"en\": \"%1 start autonomous interval (s) %2\"\n  },\n  \"CUSTOM_SI1145_PAUSE\": {\n    \"en\": \"%1 pause\"\n  },\n  \"CUSTOM_SI1145_FORCE\": {\n    \"en\": \"%1 force measurement\"\n  },\n  \"CUSTOM_SI1145_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt sources\"\n  },\n  \"CUSTOM_SI1145_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_si1145_init';\nBlockly.BlockRegExpList['custom_si1145'] = {\n  regexp: new RegExp(/^custom_si1145_/),\n  code: \"from Si1145 import Si1145\",\n  initBlockType: initType,\n  categoryId: 'custom_si1145',\n}\nBlockly.utils.registerLanguages(CUSTOM_SI1145_LANGUAGES)\n\nBlockly.Msg.CUSTOM_SI1145_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_SI1145 = 'Si1145'\n\nBlockly.utils.getcustom_si1145Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['si1145_0', 'si1145_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_si1145_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_si1145Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'si1145_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Si1145(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_proximity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_PROXIMITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_proximity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.proximity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_uv_index\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_UV_INDEX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_uv_index\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.uv_index()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_visible\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_VISIBLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_visible\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.visible()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_infrared\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_INFRARED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_infrared\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.infrared()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_read_proximity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_READ_PROXIMITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_read_proximity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_proximity(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_read_temperature_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_READ_TEMPERATURE_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_read_temperature_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_read_vdd_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_READ_VDD_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_read_vdd_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_vdd_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_set_channels\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_SET_CHANNELS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'uv'\n        },\n        {\n          'type': 'input_value',\n          'name': 'visible'\n        },\n        {\n          'type': 'input_value',\n          'name': 'infrared'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ps1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_set_channels\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var uv = Blockly.Python.valueToCode(block, 'uv', Blockly.Python.ORDER_FUNCTION_CALL);\n  var visible = Blockly.Python.valueToCode(block, 'visible', Blockly.Python.ORDER_FUNCTION_CALL);\n  var infrared = Blockly.Python.valueToCode(block, 'infrared', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ps1 = Blockly.Python.valueToCode(block, 'ps1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_channels(${uv}, ${visible}, ${infrared}, ${ps1})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_set_led_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_SET_LED_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'led'\n        },\n        {\n          'type': 'input_value',\n          'name': 'level'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_set_led_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var led = Blockly.Python.valueToCode(block, 'led', Blockly.Python.ORDER_FUNCTION_CALL);\n  var level = Blockly.Python.valueToCode(block, 'level', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_led_current(${led}, ${level})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_set_ps_photodiode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_SET_PS_PHOTODIODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'large'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_set_ps_photodiode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var large = Blockly.Python.valueToCode(block, 'large', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ps_photodiode(${channel}, ${large})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_set_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_SET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'visible'\n        },\n        {\n          'type': 'input_value',\n          'name': 'infrared'\n        },\n        {\n          'type': 'input_value',\n          'name': 'proximity'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_set_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var visible = Blockly.Python.valueToCode(block, 'visible', Blockly.Python.ORDER_FUNCTION_CALL);\n  var infrared = Blockly.Python.valueToCode(block, 'infrared', Blockly.Python.ORDER_FUNCTION_CALL);\n  var proximity = Blockly.Python.valueToCode(block, 'proximity', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain(${visible}, ${infrared}, ${proximity})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_set_high_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_SET_HIGH_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'visible'\n        },\n        {\n          'type': 'input_value',\n          'name': 'infrared'\n        },\n        {\n          'type': 'input_value',\n          'name': 'proximity'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_set_high_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var visible = Blockly.Python.valueToCode(block, 'visible', Blockly.Python.ORDER_FUNCTION_CALL);\n  var infrared = Blockly.Python.valueToCode(block, 'infrared', Blockly.Python.ORDER_FUNCTION_CALL);\n  var proximity = Blockly.Python.valueToCode(block, 'proximity', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_high_range(${visible}, ${infrared}, ${proximity})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_start_autonomous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_START_AUTONOMOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'interval'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_start_autonomous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var interval = Blockly.Python.valueToCode(block, 'interval', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_autonomous(${interval})\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_pause\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_PAUSE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_pause\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.pause()\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_force\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_FORCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_force\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.force()\\n`\n}\n\nBlockly.Blocks[\"custom_si1145_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_si1145_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_SI1145_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_si1145Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_si1145_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}",
+    "toolbox": "\n<category name=\"Si1145\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_si1145\">\n<title text=\"Si1145\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_si1145_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">96</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_proximity\"/><block type=\"custom_si1145_uv_index\"/><block type=\"custom_si1145_visible\"/><block type=\"custom_si1145_infrared\"/><block type=\"custom_si1145_read_proximity\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_read_temperature_raw\"/><block type=\"custom_si1145_read_vdd_raw\"/><block type=\"custom_si1145_set_channels\">\n  <value name=\"uv\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"visible\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"infrared\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"ps1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_set_led_current\">\n  <value name=\"led\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"level\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_set_ps_photodiode\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"large\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_set_gain\">\n  <value name=\"visible\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"infrared\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"proximity\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_set_high_range\">\n  <value name=\"visible\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"infrared\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"proximity\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_start_autonomous\">\n  <value name=\"interval\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_si1145_pause\"/><block type=\"custom_si1145_force\"/><block type=\"custom_si1145_poll_interrupt\"/><block type=\"custom_si1145_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_si1145",
+    "block_type": [
+      "custom_si1145___init__",
+      "custom_si1145_proximity",
+      "custom_si1145_uv_index",
+      "custom_si1145_visible",
+      "custom_si1145_infrared",
+      "custom_si1145_read_proximity",
+      "custom_si1145_read_temperature_raw",
+      "custom_si1145_read_vdd_raw",
+      "custom_si1145_set_channels",
+      "custom_si1145_set_led_current",
+      "custom_si1145_set_ps_photodiode",
+      "custom_si1145_set_gain",
+      "custom_si1145_set_high_range",
+      "custom_si1145_start_autonomous",
+      "custom_si1145_pause",
+      "custom_si1145_force",
+      "custom_si1145_poll_interrupt",
+      "custom_si1145_reset"
+    ]
+  },
+  "data": {
+    "name": "Si1145",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Si1145",
+      "time": "2026-11-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.si1145 import Si1145Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "96",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = Si1145Full(connection)\n        self._driver.init()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "proximity",
+        "note": {},
+        "label": {
+          "en": "%1 proximity (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()['proximity']",
+        "ast_return": {
+          "code": "self._driver.read()['proximity']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "uv_index",
+        "note": {},
+        "label": {
+          "en": "%1 UV index"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()['uv_index']",
+        "ast_return": {
+          "code": "self._driver.read()['uv_index']",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "visible",
+        "note": {},
+        "label": {
+          "en": "%1 visible light (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()['visible']",
+        "ast_return": {
+          "code": "self._driver.read()['visible']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "infrared",
+        "note": {},
+        "label": {
+          "en": "%1 infrared light (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()['infrared']",
+        "ast_return": {
+          "code": "self._driver.read()['infrared']",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_proximity",
+        "note": {},
+        "label": {
+          "en": "%1 proximity channel (1-3) %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_proximity(channel)",
+        "ast_return": {
+          "code": "self._driver.read_proximity(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature_raw",
+        "note": {},
+        "label": {
+          "en": "%1 die temperature (raw)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature_raw()",
+        "ast_return": {
+          "code": "self._driver.read_temperature_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_vdd_raw",
+        "note": {},
+        "label": {
+          "en": "%1 VDD (raw)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_vdd_raw()",
+        "ast_return": {
+          "code": "self._driver.read_vdd_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_channels",
+        "note": {},
+        "label": {
+          "en": "%1 channels UV %2 visible %3 infrared %4 proximity (1/0) %5"
+        },
+        "params": [
+          {
+            "name": "uv",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "visible",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "infrared",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "ps1",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_channels(bool(uv), bool(visible), bool(infrared), bool(ps1))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_led_current",
+        "note": {},
+        "label": {
+          "en": "%1 LED %2 current level (0-15) %3"
+        },
+        "params": [
+          {
+            "name": "led",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "level",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_led_current(led, level)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ps_photodiode",
+        "note": {},
+        "label": {
+          "en": "%1 proximity channel %2 large photodiode (1/0) %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "large",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ps_photodiode(channel, bool(large))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain",
+        "note": {},
+        "label": {
+          "en": "%1 gain (0-7) visible %2 infrared %3 proximity %4"
+        },
+        "params": [
+          {
+            "name": "visible",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "infrared",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "proximity",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain(visible, infrared, proximity)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_high_range",
+        "note": {},
+        "label": {
+          "en": "%1 high range (1/0) visible %2 infrared %3 proximity %4"
+        },
+        "params": [
+          {
+            "name": "visible",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "infrared",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "proximity",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_high_range(bool(visible), bool(infrared), bool(proximity))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_autonomous",
+        "note": {},
+        "label": {
+          "en": "%1 start autonomous interval (s) %2"
+        },
+        "params": [
+          {
+            "name": "interval",
+            "type": "float",
+            "default": "0.1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_autonomous(interval)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pause",
+        "note": {},
+        "label": {
+          "en": "%1 pause"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.pause()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "force",
+        "note": {},
+        "label": {
+          "en": "%1 force measurement"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.force()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt sources"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "si1145"
+  },
+  "pyCode": "\"\"\"\nfile     Si1145\ntime     2026-11-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.si1145 import Si1145Full\n\n\nclass Si1145:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 96):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '96'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = Si1145Full(connection)\n        self._driver.init()\n\n    def proximity(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 proximity (counts)'\n        \"\"\"\n        return self._driver.read()['proximity']\n\n    def uv_index(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 UV index'\n        \"\"\"\n        return self._driver.read()['uv_index']\n\n    def visible(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 visible light (counts)'\n        \"\"\"\n        return self._driver.read()['visible']\n\n    def infrared(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 infrared light (counts)'\n        \"\"\"\n        return self._driver.read()['infrared']\n\n    def read_proximity(self, channel: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 proximity channel (1-3) %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.read_proximity(channel)\n\n    def read_temperature_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 die temperature (raw)'\n        \"\"\"\n        return self._driver.read_temperature_raw()\n\n    def read_vdd_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 VDD (raw)'\n        \"\"\"\n        return self._driver.read_vdd_raw()\n\n    def set_channels(self, uv: int = 1, visible: int = 1, infrared: int = 1, ps1: int = 1):\n        \"\"\"\n        label:\n            en: '%1 channels UV %2 visible %3 infrared %4 proximity (1/0) %5'\n        params:\n            uv:\n                name: uv\n                type: int\n                default: '1'\n                field: number\n            visible:\n                name: visible\n                type: int\n                default: '1'\n                field: number\n            infrared:\n                name: infrared\n                type: int\n                default: '1'\n                field: number\n            ps1:\n                name: ps1\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_channels(bool(uv), bool(visible), bool(infrared), bool(ps1))\n\n    def set_led_current(self, led: int = 1, level: int = 3):\n        \"\"\"\n        label:\n            en: '%1 LED %2 current level (0-15) %3'\n        params:\n            led:\n                name: led\n                type: int\n                default: '1'\n                field: number\n            level:\n                name: level\n                type: int\n                default: '3'\n                field: number\n        \"\"\"\n        self._driver.set_led_current(led, level)\n\n    def set_ps_photodiode(self, channel: int = 1, large: int = 1):\n        \"\"\"\n        label:\n            en: '%1 proximity channel %2 large photodiode (1/0) %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n            large:\n                name: large\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_ps_photodiode(channel, bool(large))\n\n    def set_gain(self, visible: int = 0, infrared: int = 0, proximity: int = 0):\n        \"\"\"\n        label:\n            en: '%1 gain (0-7) visible %2 infrared %3 proximity %4'\n        params:\n            visible:\n                name: visible\n                type: int\n                default: '0'\n                field: number\n            infrared:\n                name: infrared\n                type: int\n                default: '0'\n                field: number\n            proximity:\n                name: proximity\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_gain(visible, infrared, proximity)\n\n    def set_high_range(self, visible: int = 0, infrared: int = 0, proximity: int = 0):\n        \"\"\"\n        label:\n            en: '%1 high range (1/0) visible %2 infrared %3 proximity %4'\n        params:\n            visible:\n                name: visible\n                type: int\n                default: '0'\n                field: number\n            infrared:\n                name: infrared\n                type: int\n                default: '0'\n                field: number\n            proximity:\n                name: proximity\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_high_range(bool(visible), bool(infrared), bool(proximity))\n\n    def start_autonomous(self, interval: float = 0.1):\n        \"\"\"\n        label:\n            en: '%1 start autonomous interval (s) %2'\n        params:\n            interval:\n                name: interval\n                type: float\n                default: '0.1'\n                field: number\n        \"\"\"\n        self._driver.start_autonomous(interval)\n\n    def pause(self):\n        \"\"\"\n        label:\n            en: '%1 pause'\n        \"\"\"\n        self._driver.pause()\n\n    def force(self):\n        \"\"\"\n        label:\n            en: '%1 force measurement'\n        \"\"\"\n        self._driver.force()\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt sources'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

@@ -31,3 +31,9 @@ pub use si1133::{
     Si1133Minimal, Si1133Full, Reading as Si1133Reading, Response as Si1133Response,
     Channels as Si1133Channels, Error as Si1133Error,
 };
+
+pub mod si1145;
+pub use si1145::{
+    Si1145Minimal, Si1145Full, Reading as Si1145Reading, Raw as Si1145Raw, Response as Si1145Response,
+    Error as Si1145Error,
+};

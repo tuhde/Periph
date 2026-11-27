@@ -179,6 +179,7 @@ Each chip exposes two structs:
 | SHTC3 | Humidity sensor | Relative humidity and temperature sensor (Sensirion). |
 | SI1132 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
 | SI1133 | Light sensor | UV index and ambient light sensor (Silicon Labs). |
+| SI1145 | Light sensor | Proximity, UV index and ambient light sensor (Silicon Labs). |
 | SI7021 | Humidity sensor | Relative humidity and temperature sensor (Silicon Labs). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SPL06 | Pressure sensor | Barometric pressure and temperature sensor (Goertek). |

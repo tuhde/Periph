@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-periph-light",
   "version": "1.5.4",
-  "description": "Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133",
+  "description": "Node-RED nodes for light sensor chips: APDS-9930, APDS9250, APDS9960, BH1750, MAX44009, SI1132, SI1133, SI1145",
   "keywords": [
     "node-red",
     "light",
@@ -16,7 +16,8 @@
     "bh1750",
     "max44009",
     "si1132",
-    "si1133"
+    "si1133",
+    "si1145"
   ],
   "node-red": {
     "version": ">=3.0.0",
@@ -27,7 +28,8 @@
       "bh1750": "nodes/bh1750/bh1750.js",
       "max44009": "nodes/max44009/max44009.js",
       "si1132": "nodes/si1132/si1132.js",
-      "si1133": "nodes/si1133/si1133.js"
+      "si1133": "nodes/si1133/si1133.js",
+      "si1145": "nodes/si1145/si1145.js"
     }
   },
   "dependencies": {
