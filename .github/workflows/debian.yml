@@ -1,0 +1,136 @@
+name: Debian packages
+
+# Builds the Debian 13 (trixie) packages python3-periph, sigrok-decoders-periph
+# (Architecture: all) and libperiph-dev (amd64, arm64, armhf; cross-built), then
+# installs them in clean trixie containers and smoke-tests them (amd64 and
+# arm64 natively). Packaging: packaging/debian, packaging/build-debs.sh.
+#
+# Runs on GitHub-hosted runners, not the self-hosted CI runner: it needs root
+# in a throwaway container for multiarch and apt installs.
+# release.yml calls it (workflow_call) with the release version; the uploaded
+# debian-dist-<arch> artifacts become release assets and are published to the
+# APT repository by release.yml's debian-publish job.
+
+on:
+  pull_request:
+    paths:
+      - packaging/**
+      - cpp/linux/**
+      - cpp/src/**
+      - cpp/library.properties
+      - python/pyproject.toml
+      - python/periph/**
+      - sigrok/**
+      - .github/workflows/debian.yml
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Package version (release version without the leading v)
+        type: string
+        required: true
+
+concurrency:
+  group: debian-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64, armhf]
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    steps:
+      - name: Install build dependencies
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          [ "$ARCH" = amd64 ] || dpkg --add-architecture "$ARCH"
+          apt-get update -q
+          common="build-essential debhelper cmake git ca-certificates lintian libsigrokdecode4"
+          if [ "$ARCH" = amd64 ]; then
+            apt-get install -y -q --no-install-recommends $common libgpiod-dev \
+              dh-python pybuild-plugin-pyproject python3-all python3-setuptools
+          else
+            apt-get install -y -q --no-install-recommends $common \
+              crossbuild-essential-"$ARCH" libgpiod-dev:"$ARCH"
+          fi
+
+      - uses: actions/checkout@v6
+
+      - name: Build
+        env:
+          ARCH: ${{ matrix.arch }}
+          VERSION: ${{ inputs.version || '0.0.0' }}
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          packaging/build-debs.sh "$VERSION" "$ARCH"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian-dist-${{ matrix.arch }}
+          path: dist/debian/*.deb
+          if-no-files-found: error
+
+  install-test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    container: debian:trixie
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: debian-dist-*
+          path: debs
+          merge-multiple: true
+
+      - name: Install packages
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -q
+          apt-get install -y -q ./debs/*_all.deb ./debs/libperiph-dev_*_"$ARCH".deb \
+            g++ pkg-config cmake sigrok-cli
+
+      - name: Python
+        run: |
+          cd /
+          # i2c_linux imports smbus2, so this also checks the Recommends got installed.
+          python3 -c "from periph.connection.i2c_linux import I2CConnection; from periph.chips.light.si1145 import Si1145Full; import periph; print(periph.__file__)"
+
+      - name: C++ (pkg-config and CMake)
+        run: |
+          ex=cpp/examples/linux/light/Si1145/demo/main.cpp
+          g++ "$ex" $(pkg-config --cflags --libs periph) -o /tmp/pc-app
+          mkdir -p /tmp/cm
+          cp "$ex" /tmp/cm/main.cpp
+          printf '%s\n' 'cmake_minimum_required(VERSION 3.16)' 'project(t CXX)' \
+            'find_package(periph REQUIRED)' 'add_executable(t main.cpp)' \
+            'target_link_libraries(t periph::periph)' > /tmp/cm/CMakeLists.txt
+          cmake -S /tmp/cm -B /tmp/cm/build
+          cmake --build /tmp/cm/build
+
+      - name: sigrok
+        run: |
+          sigrok-cli -L | grep -E '^ +(si1145|bmp280) '
+          out=$(sigrok-cli -i sigrok/tests/bmp280/BME280-Test.sr \
+                  -P i2c:scl=SCL:sda=SDA,bmp280 -A bmp280)
+          echo "$out" | head -5
+          echo "$out" | grep -q 'Chip ID: 0x60'

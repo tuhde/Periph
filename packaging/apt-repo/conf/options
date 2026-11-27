@@ -1,0 +1,3 @@
+# The published tree (dists/, pool/) goes to docs/, which GitHub Pages serves;
+# conf/ and db/ stay out of the site.
+outdir +b/docs

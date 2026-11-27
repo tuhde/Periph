@@ -12,6 +12,8 @@ facts).
 - Requires `sigrok-firmware-fx2lafw` installed on the host.
 - Decoders in this repo (`sigrok/<name>/`) are linked into the system-wide
   sigrok-cli decoder search path — no `SIGROKDECODE_DIR` override needed.
+  Without a repo checkout, the released decoders come as the Debian package
+  `sigrok-decoders-periph` from the Periph APT repository (see `INSTALL.md`).
 
 ## Basic workflow
 

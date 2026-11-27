@@ -1,0 +1,51 @@
+Source: periph
+Section: libs
+Priority: optional
+Maintainer: Till Uhde <till@uhde.com>
+Build-Depends: debhelper-compat (= 13), cmake, libgpiod-dev (>= 2)
+Build-Depends-Indep: dh-sequence-python3, pybuild-plugin-pyproject, python3-all, python3-setuptools (>= 77)
+Standards-Version: 4.7.2
+Homepage: https://github.com/tuhde/Periph
+Vcs-Git: https://github.com/tuhde/Periph.git
+Vcs-Browser: https://github.com/tuhde/Periph
+Rules-Requires-Root: no
+
+Package: python3-periph
+Section: python
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Recommends: python3-smbus2, python3-spidev, python3-libgpiod (>= 2), python3-serial, python3-periphery
+Description: peripheral chip drivers for Linux hosts (Python 3)
+ Periph drives sensors, displays, converters, motor drivers and other
+ peripheral chips over I2C, SPI, UART and GPIO. Each chip has a Minimal
+ class that works out of the box and a Full class with the complete chip
+ functionality; all values are in SI units.
+ .
+ This package contains the Python 3 module. The recommended packages provide
+ the Linux bus access (/dev/i2c-N, spidev, libgpiod v2, serial ports).
+
+Package: libperiph-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libgpiod-dev (>= 2), ${misc:Depends}
+Description: peripheral chip drivers for Linux hosts (C++ development files)
+ Periph drives sensors, displays, converters, motor drivers and other
+ peripheral chips over I2C, SPI, UART and GPIO. Each chip has a Minimal
+ class that works out of the box and a Full class with the complete chip
+ functionality; all values are in SI units.
+ .
+ This package contains the static library libperiph.a, the C++17 headers,
+ a pkg-config file (periph) and a CMake package (find_package(periph),
+ target periph::periph).
+
+Package: sigrok-decoders-periph
+Section: electronics
+Architecture: all
+Depends: libsigrokdecode4, ${misc:Depends}
+Enhances: sigrok-cli, pulseview
+Description: sigrok protocol decoders for the Periph chips
+ Protocol decoders for libsigrokdecode that stack on the i2c, spi and uart
+ decoders and annotate register-level traffic of the peripheral chips
+ supported by Periph (sensors, displays, converters, motor drivers and more).
+ They show up in sigrok-cli and PulseView like the built-in decoders.

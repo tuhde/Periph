@@ -27,6 +27,35 @@ takes the same URLs. CircuitPython: copy the `periph/` package onto the board.
 
 ---
 
+## Debian 13 / Raspberry Pi OS (APT)
+
+Signed packages for Debian 13 (trixie) and Raspberry Pi OS based on it, for
+amd64, arm64 and armhf, from [tuhde.github.io/periph-apt](https://tuhde.github.io/periph-apt).
+Add the repository once:
+
+```sh
+sudo curl -fsSLo /usr/share/keyrings/periph-archive-keyring.gpg \
+  https://tuhde.github.io/periph-apt/periph-archive-keyring.gpg
+printf '%s\n' 'Types: deb' 'URIs: https://tuhde.github.io/periph-apt' 'Suites: trixie' \
+  'Components: main' 'Signed-By: /usr/share/keyrings/periph-archive-keyring.gpg' \
+  | sudo tee /etc/apt/sources.list.d/periph.sources
+sudo apt update
+```
+
+Then install what you need; `apt upgrade` picks up new releases:
+
+| Package | Contents |
+|---------|----------|
+| `python3-periph` | Python module; recommends the Linux bus libraries (smbus2, spidev, libgpiod, pyserial, periphery) |
+| `libperiph-dev` | C++17 static library and headers: `g++ app.cpp $(pkg-config --cflags --libs periph)`, or CMake `find_package(periph)` + `target_link_libraries(app periph::periph)` |
+| `sigrok-decoders-periph` | Protocol decoders for sigrok-cli and PulseView |
+
+```sh
+sudo apt install python3-periph libperiph-dev sigrok-decoders-periph
+```
+
+---
+
 ## Node.js
 
 ```sh
@@ -65,17 +94,17 @@ periph = "1.6.0"
 
 ## C++ / Arduino
 
-Download [`Periph-1.6.0.zip`](../../releases/download/v1.6.0/Periph-1.6.0.zip) from the release assets and install in the Arduino IDE:
+Download [`Periph-cpp-1.6.0.zip`](../../releases/download/v1.6.0/Periph-cpp-1.6.0.zip) from the release assets and install in the Arduino IDE:
 
 **Sketch → Include Library → Add .ZIP Library…**
 
 Or via `arduino-cli`:
 
 ```sh
-arduino-cli lib install --zip-path Periph-1.6.0.zip
+arduino-cli lib install --zip-path Periph-cpp-1.6.0.zip
 ```
 
-For Linux GCC or Zephyr, copy `cpp/src/` into your project and include the relevant headers.
+For Linux GCC on Debian 13 / Raspberry Pi OS, install `libperiph-dev` from the [APT repository](#debian-13--raspberry-pi-os-apt). Elsewhere, build and install the library with `cmake -S cpp/linux -B build && cmake --build build && sudo cmake --install build` (needs libgpiod v2). For Zephyr, add `cpp/` as a module (`cpp/zephyr/module.yml`).
 
 ---
 
