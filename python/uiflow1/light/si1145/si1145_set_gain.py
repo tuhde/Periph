@@ -1,0 +1,1 @@
+_periph_si1145.set_gain(int(${_visible}), int(${_infrared}), int(${_proximity}))

@@ -1,0 +1,302 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "si1145_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init Si1145",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_proximity",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 proximity (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_uv_index",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 UV index",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_visible",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 visible light (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_infrared",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 infrared light (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_read_proximity",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 proximity channel (1-3)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_read_temperature_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 die temperature (raw)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_read_vdd_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 VDD (raw)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_set_channels",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 channels UV",
+          "type": "label"
+        },
+        {
+          "name": "_uv",
+          "type": "number"
+        },
+        {
+          "name": "visible",
+          "type": "label"
+        },
+        {
+          "name": "_visible",
+          "type": "number"
+        },
+        {
+          "name": "infrared",
+          "type": "label"
+        },
+        {
+          "name": "_infrared",
+          "type": "number"
+        },
+        {
+          "name": "proximity (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_ps1",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_set_led_current",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 LED",
+          "type": "label"
+        },
+        {
+          "name": "_led",
+          "type": "number"
+        },
+        {
+          "name": "current level (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_level",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_set_ps_photodiode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 proximity channel",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "large photodiode (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_large",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_set_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 gain (0-7) visible",
+          "type": "label"
+        },
+        {
+          "name": "_visible",
+          "type": "number"
+        },
+        {
+          "name": "infrared",
+          "type": "label"
+        },
+        {
+          "name": "_infrared",
+          "type": "number"
+        },
+        {
+          "name": "proximity",
+          "type": "label"
+        },
+        {
+          "name": "_proximity",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_set_high_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 high range (1/0) visible",
+          "type": "label"
+        },
+        {
+          "name": "_visible",
+          "type": "number"
+        },
+        {
+          "name": "infrared",
+          "type": "label"
+        },
+        {
+          "name": "_infrared",
+          "type": "number"
+        },
+        {
+          "name": "proximity",
+          "type": "label"
+        },
+        {
+          "name": "_proximity",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_start_autonomous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 start autonomous interval (s)",
+          "type": "label"
+        },
+        {
+          "name": "_interval",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "si1145_pause",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 pause",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_force",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 force measurement",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "Si1145 interrupt sources",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "si1145_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Si1145 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

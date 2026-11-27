@@ -1,0 +1,1 @@
+_periph_si1145.set_ps_photodiode(int(${_channel}), bool(int(${_large})))

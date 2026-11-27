@@ -1,0 +1,1 @@
+_periph_si1145.set_led_current(int(${_led}), int(${_level}))
