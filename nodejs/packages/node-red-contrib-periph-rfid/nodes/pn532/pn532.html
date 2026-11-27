@@ -1,0 +1,77 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('pn532-device', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            bus:  { value: '1', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('PN532 @ 0x24 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pn532-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PN532">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, address 0x24)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('pn532', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device:  { value: '', type: 'pn532-device', required: true },
+            timeout: { value: '1.0', required: true, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'PN532'; },
+        paletteLabel: 'PN532'
+    });
+</script>
+
+<script type="text/html" data-template-name="pn532">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PN532">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-timeout"><i class="fa fa-clock-o"></i> Read timeout (s)</label>
+        <input type="number" id="node-input-timeout" min="0.01" step="0.1" style="width:80px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="pn532">
+    <p>Detects an ISO/IEC 14443 A card or tag (MIFARE, NTAG) with an NXP PN532 NFC controller over
+    I²C (address 0x24) and outputs its UID, one detection per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one card detection (InListPassiveTarget at 106 kbps).</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.uid <span class="property-type">string | null</span></dt>
+        <dd>The card's UID (NFCID1, 4, 7 or 10 bytes) as an upper-case hex string, or <code>null</code>
+        when no card answered within the read timeout.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>The I²C bus number is set in the <b>pn532-device</b> config node; the chip must be wired for
+    I²C (I0 low, I1 high). The read timeout (default 1 s) is set on this node. The card is released
+    after each read, so a card left on the reader is reported again on the next message.</p>
+</script>

@@ -1,0 +1,1 @@
+_periph_pn532.set_rf_field(bool(${_on}))

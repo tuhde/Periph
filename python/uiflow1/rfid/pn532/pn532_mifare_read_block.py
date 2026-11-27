@@ -1,0 +1,1 @@
+_periph_pn532.mifare_read_block(int(${_target}), int(${_block})).hex()

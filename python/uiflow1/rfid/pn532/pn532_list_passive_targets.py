@@ -1,0 +1,1 @@
+','.join(t.uid.hex() for t in _periph_pn532.list_passive_targets(max_targets=int(${_max_targets})))

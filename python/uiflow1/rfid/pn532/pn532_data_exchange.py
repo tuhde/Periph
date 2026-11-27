@@ -1,0 +1,1 @@
+_periph_pn532.data_exchange(int(${_target}), bytes.fromhex(str(${_data}))).hex()

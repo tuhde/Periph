@@ -1,0 +1,1 @@
+_periph_pn532.ntag_write_page(int(${_target}), int(${_page}), bytes.fromhex(str(${_data})))

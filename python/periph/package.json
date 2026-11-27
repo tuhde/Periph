@@ -621,6 +621,10 @@
       "github:tuhde/Periph/python/periph/chips/rfid/mfrc522.py"
     ],
     [
+      "periph/chips/rfid/pn532.py",
+      "github:tuhde/Periph/python/periph/chips/rfid/pn532.py"
+    ],
+    [
       "periph/chips/rtc/ds3231.py",
       "github:tuhde/Periph/python/periph/chips/rtc/ds3231.py"
     ],

@@ -1,0 +1,94 @@
+[
+  {
+    "id": "pn532-tab",
+    "type": "tab",
+    "label": "PN532 card reader",
+    "disabled": false,
+    "info": "Polls a PN532 NFC reader once per second. Each poll runs one card detection (106 kbps ISO/IEC 14443 A) and returns the UID as a hex string, or null when no card is on the reader. The switch node passes only detections with a UID, so the debug sidebar lists every card presented. Change the inject interval to poll faster, or the read timeout on the PN532 node to wait longer per poll."
+  },
+  {
+    "id": "pn532-inject",
+    "type": "inject",
+    "z": "pn532-tab",
+    "name": "1 s timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "pn532-node"
+      ]
+    ]
+  },
+  {
+    "id": "pn532-device-1",
+    "type": "pn532-device",
+    "name": "PN532",
+    "bus": "1"
+  },
+  {
+    "id": "pn532-node",
+    "type": "pn532",
+    "z": "pn532-tab",
+    "name": "PN532",
+    "timeout": "1.0",
+    "x": 340,
+    "y": 160,
+    "wires": [
+      [
+        "pn532-switch"
+      ]
+    ],
+    "device": "pn532-device-1"
+  },
+  {
+    "id": "pn532-switch",
+    "type": "switch",
+    "z": "pn532-tab",
+    "name": "card present",
+    "property": "payload.uid",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nnull"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 520,
+    "y": 160,
+    "wires": [
+      [
+        "pn532-debug"
+      ]
+    ]
+  },
+  {
+    "id": "pn532-debug",
+    "type": "debug",
+    "z": "pn532-tab",
+    "name": "UID",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload.uid",
+    "targetType": "msg",
+    "statusVal": "payload.uid",
+    "statusType": "msg",
+    "x": 700,
+    "y": 160,
+    "wires": []
+  }
+]

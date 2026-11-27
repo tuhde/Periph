@@ -157,6 +157,7 @@ Each chip exposes two classes:
 | PCF8578 | Display driver | `periph/src/chips/display/pcf8578` |
 | PCF8579 | Display driver | `periph/src/chips/display/pcf8579` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
+| PN532 | RFID/NFC | `periph/src/chips/rfid/pn532` |
 | QMI8658A | IMU | `periph/src/chips/imu/qmi8658a` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |

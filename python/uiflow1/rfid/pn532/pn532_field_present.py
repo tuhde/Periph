@@ -1,0 +1,1 @@
+_periph_pn532.general_status()['field']

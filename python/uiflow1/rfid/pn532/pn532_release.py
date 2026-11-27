@@ -1,0 +1,1 @@
+_periph_pn532.release(int(${_target}))

@@ -2686,7 +2686,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "pn532",
       "datasheet": "datasheets/rfid/pn532.pdf"
     },
     {

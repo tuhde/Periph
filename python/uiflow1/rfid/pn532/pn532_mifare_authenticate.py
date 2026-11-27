@@ -1,0 +1,1 @@
+_periph_pn532.mifare_authenticate(int(${_target}), int(${_block}), bytes.fromhex(str(${_key})), bytes.fromhex(str(${_uid})))
