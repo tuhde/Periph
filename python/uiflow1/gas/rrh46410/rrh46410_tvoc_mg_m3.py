@@ -1,0 +1,1 @@
+(_periph_rrh46410.read_results() or {}).get('tvoc_mg_m3', 0)

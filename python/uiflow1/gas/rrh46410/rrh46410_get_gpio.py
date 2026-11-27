@@ -1,0 +1,1 @@
+_periph_rrh46410.get_gpio()

@@ -1,0 +1,262 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "rrh46410_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init RRH46410",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_wait_for_sample",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 new sample (wait up to 5 s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_iaq",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 IAQ index (1-5)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_tvoc_mg_m3",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 TVOC (mg/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_etoh_ppm",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 ethanol (ppm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_eco2_ppm",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 eCO2 (ppm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_relative_iaq",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 relative IAQ",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_warmed_up",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 warmed up",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_air_quality_label",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 air quality rating",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_product_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 product ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_get_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 operation mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 operation mode (0 suspend, 1 IAQ, 2 ULP, 5 PBAQ)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_set_humidity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 ambient humidity (%RH)",
+          "type": "label"
+        },
+        {
+          "name": "_percent",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_sample_period",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 sample period (s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_warmup_samples",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 warm-up samples",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_config_gpio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 GPIO outputs mask",
+          "type": "label"
+        },
+        {
+          "name": "_directions",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_get_gpio",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 GPIO levels",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_set_gpio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 set GPIO mask",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_clear_gpio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 clear GPIO mask",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH46410 status byte",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_suspend",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 suspend",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh46410_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH46410 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
