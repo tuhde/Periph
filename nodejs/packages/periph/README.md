@@ -161,6 +161,7 @@ Each chip exposes two classes:
 | QMI8658A | IMU | `periph/src/chips/imu/qmi8658a` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
+| RRH46410 | Gas sensor | `periph/src/chips/gas/rrh46410` |
 | SAA1064 | LED driver | `periph/src/chips/led/saa1064` |
 | SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
 | SH1106 | Display driver | `periph/src/chips/display/sh1106` |
