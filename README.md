@@ -255,7 +255,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8578 | LCD dot-matrix row/column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8579 | LCD dot-matrix column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8591 | 8-bit ADC (4-ch) + DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PN532 | NFC/RFID reader/writer controller (ISO 14443 A/B, FeliCa, NFC P2P/card emulation; I²C frame protocol) | | | | | | | | |
+| PN532 | NFC/RFID reader/writer controller (ISO 14443 A/B, FeliCa, NFC P2P/card emulation; I²C frame protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | QMI8658A | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

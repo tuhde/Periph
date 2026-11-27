@@ -528,7 +528,7 @@ CHIPS = (
     {"id": "rrh46410", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x38,),
      "probe": None},
-    {"id": "pn532", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "pn532", "driver": "pn532", "write_sensitive": True, "aliased": False,
      "addresses": (0x24,),
      "probe": None},
     {"id": "st25dv", "driver": None, "write_sensitive": False, "aliased": False,
