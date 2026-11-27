@@ -62,13 +62,13 @@ def _with_short(strings):
 
 class Decoder(srd.Decoder):
     api_version = 3
-    id = 'pca6408a'
-    name = 'PCA6408A'
-    longname = 'PCA6408A 8-bit I/O expander (I2C/SMBus)'
-    desc = 'Decode PCA6408A 8-bit I2C/SMBus I/O expander register transactions.'
+    id = 'pca9536'
+    name = 'PCA9536'
+    longname = 'PCA9536 4-bit I/O expander (I2C/SMBus)'
+    desc = 'Decode PCA9536 4-bit I2C/SMBus I/O expander register transactions.'
     license = 'gplv2+'
     inputs = ['i2c']
-    outputs = ['pca6408a']
+    outputs = ['pca9536']
     tags = ['IC']
 
     annotations = (

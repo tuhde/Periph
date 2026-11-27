@@ -130,22 +130,22 @@ CR3_FIELDS = [
 ]
 
 # CTRL_REG4 (0x22) bit fields.
-CR4_FIELDS_OFFSET_LOW_HY  = 0xC0   // bits 7:6
-CR4_FIELDS_MOT_CD_R       = 0x30   // bits 5:4
-CR4_FIELDS_FF_CD_R        = 0x0C   // bits 3:2
-CR4_FIELDS_OFFSET_FINE    = 0x03   // bits 1:0
+CR4_FIELDS_OFFSET_LOW_HY  = 0xC0   # bits 7:6
+CR4_FIELDS_MOT_CD_R       = 0x30   # bits 5:4
+CR4_FIELDS_FF_CD_R        = 0x0C   # bits 3:2
+CR4_FIELDS_OFFSET_FINE    = 0x03   # bits 1:0
 
 # HIGH_LOW_INFO (0x25) bit fields.
-HLI_HIGH_AXIS = 0xE0  // bits 7:5
-HLI_HIGH_FILT = 0x10  // bit 4
-HLI_LOW_AXIS  = 0x0E  // bits 3:1
-HLI_LOW_FILT   = 0x01  // bit 0
+HLI_HIGH_AXIS = 0xE0  # bits 7:5
+HLI_HIGH_FILT = 0x10  # bit 4
+HLI_LOW_AXIS  = 0x0E  # bits 3:1
+HLI_LOW_FILT   = 0x01  # bit 0
 
 # SLOPE_TAPSENS_INFO (0x24) bit fields.
-STI_SLOPE_AXIS = 0xE0  // bits 7:5
-STI_SLOPE_FILT = 0x10  // bit 4
-STI_TAP_AXIS   = 0x0E  // bits 3:1
-STI_TAP_FILT   = 0x01  // bit 0
+STI_SLOPE_AXIS = 0xE0  # bits 7:5
+STI_SLOPE_FILT = 0x10  # bit 4
+STI_TAP_AXIS   = 0x0E  # bits 3:1
+STI_TAP_FILT   = 0x01  # bit 0
 
 ANN_WRITE       = 0
 ANN_READ        = 1
