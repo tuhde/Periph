@@ -184,6 +184,7 @@
 #include "chips/pressure/Spl06.h"
 #include "chips/rfid/MFRC522.h"
 #include "chips/rfid/Pn532.h"
+#include "chips/rfid/St25dv.h"
 #include "chips/rtc/DS3231.h"
 #include "chips/rtc/PCF85063A.h"
 #include "chips/rtc/PCF8523.h"
