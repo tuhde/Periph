@@ -1,0 +1,278 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tsl2561_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init TSL2561",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_read_lux",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 illuminance (lx)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_auto_range",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 auto-ranged illuminance (lx)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_ch0",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 channel 0 count (visible + IR)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_ch1",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 channel 1 count (IR)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_set_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 set gain (1 or 16)",
+          "type": "label"
+        },
+        {
+          "name": "_gain",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_get_gain",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 gain",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_set_integration_time",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 set integration time (ms) — 14, 101 or 402",
+          "type": "label"
+        },
+        {
+          "name": "_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_get_integration_time",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 integration time (ms)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_set_package",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 set package — T, FN, CL or CS",
+          "type": "label"
+        },
+        {
+          "name": "_package",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_power_up",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 power up",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 power down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_is_powered",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 powered",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_start_manual",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 start manual integration",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_stop_manual",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 stop manual integration",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_set_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 set interrupt window (ch0 counts) low",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        },
+        {
+          "name": "high",
+          "type": "label"
+        },
+        {
+          "name": "_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_get_low_threshold",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 low threshold (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_get_high_threshold",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 high threshold (counts)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_configure_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 interrupt mode (0 off, 1 level, 2 SMBAlert)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        },
+        {
+          "name": "persist (0–15)",
+          "type": "label"
+        },
+        {
+          "name": "_persist",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 ch0 outside window",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_clear_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TSL2561 clear interrupt",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tsl2561_read_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "TSL2561 ID register",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

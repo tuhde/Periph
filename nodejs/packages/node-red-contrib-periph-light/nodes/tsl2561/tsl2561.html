@@ -1,0 +1,110 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('tsl2561-device', {
+        category: 'config',
+        defaults: {
+            name:        { value: '' },
+            bus:         { value: '1', required: true, validate: RED.validators.number() },
+            address:     { value: '0x39' },
+            gain:        { value: '1' },
+            integration: { value: '402' },
+            package:     { value: 'T' }
+        },
+        label: function() {
+            return this.name || ('TSL2561 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tsl2561-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="TSL2561">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:200px">
+            <option value="0x29">0x29 (ADDR SEL = GND)</option>
+            <option value="0x39">0x39 (ADDR SEL floating)</option>
+            <option value="0x49">0x49 (ADDR SEL = VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gain"><i class="fa fa-sliders"></i> Gain</label>
+        <select id="node-config-input-gain" style="width:200px">
+            <option value="1">1× (bright light)</option>
+            <option value="16">16× (dim light)</option>
+            <option value="auto">Auto-range</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-integration"><i class="fa fa-clock-o"></i> Integration</label>
+        <select id="node-config-input-integration" style="width:200px">
+            <option value="14">13.7 ms</option>
+            <option value="101">101 ms</option>
+            <option value="402">402 ms</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-package">Package</label>
+        <select id="node-config-input-package" style="width:200px">
+            <option value="T">T / FN / CL</option>
+            <option value="CS">CS (chipscale)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('tsl2561', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'tsl2561-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sun-o',
+        label:   function() { return this.name || 'TSL2561'; },
+        paletteLabel: 'TSL2561'
+    });
+</script>
+
+<script type="text/html" data-template-name="tsl2561">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="TSL2561">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="tsl2561">
+    <p>Reads the illuminance and both channel counts of a TSL2561 two-channel ambient light sensor (I²C, visible + infrared and infrared photodiodes).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any message takes one reading. With a fixed gain the node first waits one integration time so the reading is fresh; with auto-range it selects the gain and integration time first.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.lux <span class="property-type">number</span></dt>
+        <dd>Illuminance in lux from the datasheet's empirical formula.</dd>
+        <dt>payload.ch0 <span class="property-type">number</span></dt>
+        <dd>Channel 0 ADC count (visible + infrared).</dd>
+        <dt>payload.ch1 <span class="property-type">number</span></dt>
+        <dd>Channel 1 ADC count (infrared).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number and the address (0x29, 0x39 or 0x49 by the ADDR SEL pin). <b>Gain</b> is 1× (up to about 30 klx at 402 ms), 16× (dim light, saturates indoors at about 1–2 klx) or auto-range (16×/402 ms down to 1×/13.7 ms until no channel saturates). <b>Integration</b> is 13.7, 101 or 402 ms (ignored with auto-range). <b>Package</b> selects the lux coefficients (T, FN and CL share one set; CS has its own). A saturated channel makes the node report an error. Supply 2.7–3.6 V.</p>
+</script>

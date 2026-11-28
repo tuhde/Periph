@@ -37,3 +37,9 @@ pub use si1145::{
     Si1145Minimal, Si1145Full, Reading as Si1145Reading, Raw as Si1145Raw, Response as Si1145Response,
     Error as Si1145Error,
 };
+
+pub mod tsl2561;
+pub use tsl2561::{
+    calculate_lux as tsl2561_calculate_lux, Tsl2561Error, Tsl2561Full, Tsl2561Minimal, Tsl2561Package,
+    TSL2561_I2C_ADDRESS, TSL2561_I2C_ADDRESS_GND, TSL2561_I2C_ADDRESS_VDD,
+};

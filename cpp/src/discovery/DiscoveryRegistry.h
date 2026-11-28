@@ -507,7 +507,7 @@ static constexpr ChipEntry kChips[] = {
     {"mpl3115a2", "mpl3115a2", false, false, kAddr_mpl3115a2, 1, &kProbe_mpl3115a2},
     {"sht31", "sht31", true, false, kAddr_sht31, 2, nullptr},
     {"shtc3", "shtc3", true, false, kAddr_shtc3, 1, &kProbe_shtc3},
-    {"tsl2561", nullptr, false, false, kAddr_tsl2561, 3, &kProbe_tsl2561},
+    {"tsl2561", "tsl2561", false, false, kAddr_tsl2561, 3, &kProbe_tsl2561},
     {"bq32000", nullptr, false, false, kAddr_bq32000, 1, nullptr},
     {"bme688", "bme688", false, false, kAddr_bme688, 2, &kProbe_bme688},
     {"htu21df", "htu21df", false, false, kAddr_htu21df, 1, nullptr},

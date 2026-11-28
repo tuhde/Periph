@@ -1,0 +1,470 @@
+{
+  "category": "TSL2561",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_TSL2561_LANGUAGES = {\n  \"CUSTOM_TSL2561_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_TSL2561_READ_LUX\": {\n    \"en\": \"%1 illuminance (lx)\"\n  },\n  \"CUSTOM_TSL2561_AUTO_RANGE\": {\n    \"en\": \"%1 auto-ranged illuminance (lx)\"\n  },\n  \"CUSTOM_TSL2561_CH0\": {\n    \"en\": \"%1 channel 0 count (visible + IR)\"\n  },\n  \"CUSTOM_TSL2561_CH1\": {\n    \"en\": \"%1 channel 1 count (IR)\"\n  },\n  \"CUSTOM_TSL2561_SET_GAIN\": {\n    \"en\": \"%1 set gain (1 or 16) %2\"\n  },\n  \"CUSTOM_TSL2561_GET_GAIN\": {\n    \"en\": \"%1 gain\"\n  },\n  \"CUSTOM_TSL2561_SET_INTEGRATION_TIME\": {\n    \"en\": \"%1 set integration time (ms) — 14, 101 or 402 %2\"\n  },\n  \"CUSTOM_TSL2561_GET_INTEGRATION_TIME\": {\n    \"en\": \"%1 integration time (ms)\"\n  },\n  \"CUSTOM_TSL2561_SET_PACKAGE\": {\n    \"en\": \"%1 set package — T, FN, CL or CS %2\"\n  },\n  \"CUSTOM_TSL2561_POWER_UP\": {\n    \"en\": \"%1 power up\"\n  },\n  \"CUSTOM_TSL2561_POWER_DOWN\": {\n    \"en\": \"%1 power down\"\n  },\n  \"CUSTOM_TSL2561_IS_POWERED\": {\n    \"en\": \"%1 powered\"\n  },\n  \"CUSTOM_TSL2561_START_MANUAL\": {\n    \"en\": \"%1 start manual integration\"\n  },\n  \"CUSTOM_TSL2561_STOP_MANUAL\": {\n    \"en\": \"%1 stop manual integration\"\n  },\n  \"CUSTOM_TSL2561_SET_THRESHOLDS\": {\n    \"en\": \"%1 interrupt window (ch0 counts) low %2 high %3\"\n  },\n  \"CUSTOM_TSL2561_GET_LOW_THRESHOLD\": {\n    \"en\": \"%1 low threshold (counts)\"\n  },\n  \"CUSTOM_TSL2561_GET_HIGH_THRESHOLD\": {\n    \"en\": \"%1 high threshold (counts)\"\n  },\n  \"CUSTOM_TSL2561_CONFIGURE_INTERRUPT\": {\n    \"en\": \"%1 interrupt mode (0 off, 1 level, 2 SMBAlert) %2 persist %3\"\n  },\n  \"CUSTOM_TSL2561_POLL_INTERRUPT\": {\n    \"en\": \"%1 ch0 outside window\"\n  },\n  \"CUSTOM_TSL2561_CLEAR_INTERRUPT\": {\n    \"en\": \"%1 clear interrupt\"\n  },\n  \"CUSTOM_TSL2561_READ_ID\": {\n    \"en\": \"%1 ID register\"\n  }\n};\n\nconst initType = 'custom_tsl2561_init';\nBlockly.BlockRegExpList['custom_tsl2561'] = {\n  regexp: new RegExp(/^custom_tsl2561_/),\n  code: \"from TSL2561 import TSL2561\",\n  initBlockType: initType,\n  categoryId: 'custom_tsl2561',\n}\nBlockly.utils.registerLanguages(CUSTOM_TSL2561_LANGUAGES)\n\nBlockly.Msg.CUSTOM_TSL2561_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_TSL2561 = 'TSL2561'\n\nBlockly.utils.getcustom_tsl2561Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['tsl2561_0', 'tsl2561_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_tsl2561_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_tsl2561Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'tsl2561_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = TSL2561(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_read_lux\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_READ_LUX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_read_lux\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_lux()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_auto_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_AUTO_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_auto_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.auto_range()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_ch0\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_CH0,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_ch0\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ch0()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_ch1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_CH1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_ch1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ch1()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_set_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_SET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_set_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gain = Blockly.Python.valueToCode(block, 'gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain(${gain})\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_get_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_GET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_get_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_gain()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_set_integration_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_SET_INTEGRATION_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_set_integration_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ms = Blockly.Python.valueToCode(block, 'ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_integration_time(${ms})\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_get_integration_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_GET_INTEGRATION_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_get_integration_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_integration_time()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_set_package\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_SET_PACKAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'package'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_set_package\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var package = Blockly.Python.valueToCode(block, 'package', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_package(${package})\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_power_up\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_POWER_UP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_power_up\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_up()\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.power_down()\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_is_powered\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_IS_POWERED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_is_powered\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_powered()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_start_manual\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_START_MANUAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_start_manual\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.start_manual()\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_stop_manual\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_STOP_MANUAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_stop_manual\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_manual()\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_set_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_SET_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_set_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_thresholds(${low}, ${high})\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_get_low_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_GET_LOW_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_get_low_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_low_threshold()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_get_high_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_GET_HIGH_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_get_high_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_high_threshold()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_configure_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_CONFIGURE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'persist'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_configure_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var persist = Blockly.Python.valueToCode(block, 'persist', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_interrupt(${mode}, ${persist})\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_tsl2561_clear_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_CLEAR_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_clear_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_interrupt()\\n`\n}\n\nBlockly.Blocks[\"custom_tsl2561_read_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TSL2561_READ_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tsl2561Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tsl2561_read_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_id()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"TSL2561\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tsl2561\">\n<title text=\"TSL2561\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_tsl2561_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">57</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tsl2561_read_lux\"/><block type=\"custom_tsl2561_auto_range\"/><block type=\"custom_tsl2561_ch0\"/><block type=\"custom_tsl2561_ch1\"/><block type=\"custom_tsl2561_set_gain\">\n  <value name=\"gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tsl2561_get_gain\"/><block type=\"custom_tsl2561_set_integration_time\">\n  <value name=\"ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">402</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tsl2561_get_integration_time\"/><block type=\"custom_tsl2561_set_package\">\n  <value name=\"package\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tsl2561_power_up\"/><block type=\"custom_tsl2561_power_down\"/><block type=\"custom_tsl2561_is_powered\"/><block type=\"custom_tsl2561_start_manual\"/><block type=\"custom_tsl2561_stop_manual\"/><block type=\"custom_tsl2561_set_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">65535</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tsl2561_get_low_threshold\"/><block type=\"custom_tsl2561_get_high_threshold\"/><block type=\"custom_tsl2561_configure_interrupt\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"persist\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tsl2561_poll_interrupt\"/><block type=\"custom_tsl2561_clear_interrupt\"/><block type=\"custom_tsl2561_read_id\"/>\n</category>\n",
+    "toolboxitemid": "custom_tsl2561",
+    "block_type": [
+      "custom_tsl2561___init__",
+      "custom_tsl2561_read_lux",
+      "custom_tsl2561_auto_range",
+      "custom_tsl2561_ch0",
+      "custom_tsl2561_ch1",
+      "custom_tsl2561_set_gain",
+      "custom_tsl2561_get_gain",
+      "custom_tsl2561_set_integration_time",
+      "custom_tsl2561_get_integration_time",
+      "custom_tsl2561_set_package",
+      "custom_tsl2561_power_up",
+      "custom_tsl2561_power_down",
+      "custom_tsl2561_is_powered",
+      "custom_tsl2561_start_manual",
+      "custom_tsl2561_stop_manual",
+      "custom_tsl2561_set_thresholds",
+      "custom_tsl2561_get_low_threshold",
+      "custom_tsl2561_get_high_threshold",
+      "custom_tsl2561_configure_interrupt",
+      "custom_tsl2561_poll_interrupt",
+      "custom_tsl2561_clear_interrupt",
+      "custom_tsl2561_read_id"
+    ]
+  },
+  "data": {
+    "name": "TSL2561",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "TSL2561",
+      "time": "2026-11-28",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.tsl2561 import TSL2561Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "57",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = TSL2561Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_lux",
+        "note": {},
+        "label": {
+          "en": "%1 illuminance (lx)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_lux()",
+        "ast_return": {
+          "code": "self._driver.read_lux()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "auto_range",
+        "note": {},
+        "label": {
+          "en": "%1 auto-ranged illuminance (lx)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.auto_range()",
+        "ast_return": {
+          "code": "self._driver.auto_range()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ch0",
+        "note": {},
+        "label": {
+          "en": "%1 channel 0 count (visible + IR)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[0]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ch1",
+        "note": {},
+        "label": {
+          "en": "%1 channel 1 count (IR)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()[1]",
+        "ast_return": {
+          "code": "self._driver.read_raw()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain",
+        "note": {},
+        "label": {
+          "en": "%1 set gain (1 or 16) %2"
+        },
+        "params": [
+          {
+            "name": "gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "16",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain(gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_gain",
+        "note": {},
+        "label": {
+          "en": "%1 gain"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_gain()",
+        "ast_return": {
+          "code": "self._driver.get_gain()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_integration_time",
+        "note": {},
+        "label": {
+          "en": "%1 set integration time (ms) — 14, 101 or 402 %2"
+        },
+        "params": [
+          {
+            "name": "ms",
+            "type": "int",
+            "default": "402",
+            "note": {},
+            "field": "number",
+            "max": "402",
+            "min": "14"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_integration_time(ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_integration_time",
+        "note": {},
+        "label": {
+          "en": "%1 integration time (ms)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_integration_time()",
+        "ast_return": {
+          "code": "self._driver.get_integration_time()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_package",
+        "note": {},
+        "label": {
+          "en": "%1 set package — T, FN, CL or CS %2"
+        },
+        "params": [
+          {
+            "name": "package",
+            "type": "str",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_package(package)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_up",
+        "note": {},
+        "label": {
+          "en": "%1 power up"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_up()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_powered",
+        "note": {},
+        "label": {
+          "en": "%1 powered"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_powered()",
+        "ast_return": {
+          "code": "self._driver.is_powered()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_manual",
+        "note": {},
+        "label": {
+          "en": "%1 start manual integration"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.start_manual()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_manual",
+        "note": {},
+        "label": {
+          "en": "%1 stop manual integration"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_manual()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt window (ch0 counts) low %2 high %3"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          },
+          {
+            "name": "high",
+            "type": "int",
+            "default": "65535",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_thresholds(low, high)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_low_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 low threshold (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_thresholds()[0]",
+        "ast_return": {
+          "code": "self._driver.get_thresholds()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_high_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 high threshold (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_thresholds()[1]",
+        "ast_return": {
+          "code": "self._driver.get_thresholds()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt mode (0 off, 1 level, 2 SMBAlert) %2 persist %3"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          },
+          {
+            "name": "persist",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_interrupt(mode, persist)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 ch0 outside window"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 clear interrupt"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_interrupt()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_id",
+        "note": {},
+        "label": {
+          "en": "%1 ID register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_id()",
+        "ast_return": {
+          "code": "self._driver.read_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "tsl2561"
+  },
+  "pyCode": "\"\"\"\nfile     TSL2561\ntime     2026-11-28\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.tsl2561 import TSL2561Full\n\n\nclass TSL2561:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 57):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '57'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = TSL2561Full(connection)\n\n    def read_lux(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 illuminance (lx)'\n        \"\"\"\n        return self._driver.read_lux()\n\n    def auto_range(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 auto-ranged illuminance (lx)'\n        \"\"\"\n        return self._driver.auto_range()\n\n    def ch0(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 channel 0 count (visible + IR)'\n        \"\"\"\n        return self._driver.read_raw()[0]\n\n    def ch1(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 channel 1 count (IR)'\n        \"\"\"\n        return self._driver.read_raw()[1]\n\n    def set_gain(self, gain: int):\n        \"\"\"\n        label:\n            en: '%1 set gain (1 or 16) %2'\n        params:\n            gain:\n                name: gain\n                type: int\n                default: '1'\n                field: number\n                max: '16'\n                min: '1'\n        \"\"\"\n        self._driver.set_gain(gain)\n\n    def get_gain(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 gain'\n        \"\"\"\n        return self._driver.get_gain()\n\n    def set_integration_time(self, ms: int):\n        \"\"\"\n        label:\n            en: '%1 set integration time (ms) — 14, 101 or 402 %2'\n        params:\n            ms:\n                name: ms\n                type: int\n                default: '402'\n                field: number\n                max: '402'\n                min: '14'\n        \"\"\"\n        self._driver.set_integration_time(ms)\n\n    def get_integration_time(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 integration time (ms)'\n        \"\"\"\n        return self._driver.get_integration_time()\n\n    def set_package(self, package: str):\n        \"\"\"\n        label:\n            en: '%1 set package — T, FN, CL or CS %2'\n        params:\n            package:\n                name: package\n                type: str\n        \"\"\"\n        self._driver.set_package(package)\n\n    def power_up(self):\n        \"\"\"\n        label:\n            en: '%1 power up'\n        \"\"\"\n        self._driver.power_up()\n\n    def power_down(self):\n        \"\"\"\n        label:\n            en: '%1 power down'\n        \"\"\"\n        self._driver.power_down()\n\n    def is_powered(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 powered'\n        \"\"\"\n        return self._driver.is_powered()\n\n    def start_manual(self):\n        \"\"\"\n        label:\n            en: '%1 start manual integration'\n        \"\"\"\n        self._driver.start_manual()\n\n    def stop_manual(self):\n        \"\"\"\n        label:\n            en: '%1 stop manual integration'\n        \"\"\"\n        self._driver.stop_manual()\n\n    def set_thresholds(self, low: int, high: int):\n        \"\"\"\n        label:\n            en: '%1 interrupt window (ch0 counts) low %2 high %3'\n        params:\n            low:\n                name: low\n                type: int\n                default: '0'\n                field: number\n                max: '65535'\n                min: '0'\n            high:\n                name: high\n                type: int\n                default: '65535'\n                field: number\n                max: '65535'\n                min: '0'\n        \"\"\"\n        self._driver.set_thresholds(low, high)\n\n    def get_low_threshold(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 low threshold (counts)'\n        \"\"\"\n        return self._driver.get_thresholds()[0]\n\n    def get_high_threshold(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 high threshold (counts)'\n        \"\"\"\n        return self._driver.get_thresholds()[1]\n\n    def configure_interrupt(self, mode: int, persist: int):\n        \"\"\"\n        label:\n            en: '%1 interrupt mode (0 off, 1 level, 2 SMBAlert) %2 persist %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                max: '2'\n                min: '0'\n            persist:\n                name: persist\n                type: int\n                default: '0'\n                field: number\n                max: '15'\n                min: '0'\n        \"\"\"\n        self._driver.configure_interrupt(mode, persist)\n\n    def poll_interrupt(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 ch0 outside window'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def clear_interrupt(self):\n        \"\"\"\n        label:\n            en: '%1 clear interrupt'\n        \"\"\"\n        self._driver.clear_interrupt()\n\n    def read_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 ID register'\n        \"\"\"\n        return self._driver.read_id()\n",
+  "version": "alpha2"
+}

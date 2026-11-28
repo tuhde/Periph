@@ -1,0 +1,174 @@
+[
+    {
+        "id": "tab-tsl2561-demo",
+        "type": "tab",
+        "label": "TSL2561 Light Meter Demo",
+        "disabled": false,
+        "info": "Light meter on a TSL2561 two-channel ambient light sensor. An inject node fires every 2 s into tsl2561 (auto-range on the config node); a function node splits the reading: output 1 carries the lux for a gauge, output 2 the lux for a chart, and a debug node shows the full {lux, ch0, ch1} payload. The gauge and chart need node-red-dashboard."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read every 2 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-tsl2561-demo",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "tsl2561-node"
+            ]
+        ]
+    },
+    {
+        "id": "tsl2561-device-1",
+        "type": "tsl2561-device",
+        "name": "TSL2561",
+        "bus": "1",
+        "address": "0x39",
+        "gain": "auto",
+        "integration": "402",
+        "package": "T"
+    },
+    {
+        "id": "tsl2561-node",
+        "type": "tsl2561",
+        "name": "TSL2561",
+        "z": "tab-tsl2561-demo",
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "fn-split",
+                "dbg-tsl2561"
+            ]
+        ],
+        "device": "tsl2561-device-1"
+    },
+    {
+        "id": "fn-split",
+        "type": "function",
+        "name": "split lux",
+        "func": "// Output 1: lux for the gauge, output 2: lux for the chart.\nconst lux = Math.round(msg.payload.lux * 10) / 10;\nreturn [{ payload: lux }, { payload: lux, topic: 'lux' }];",
+        "outputs": 2,
+        "noerr": 0,
+        "z": "tab-tsl2561-demo",
+        "x": 560,
+        "y": 120,
+        "wires": [
+            [
+                "gauge-lux"
+            ],
+            [
+                "chart-lux"
+            ]
+        ]
+    },
+    {
+        "id": "gauge-lux",
+        "type": "ui_gauge",
+        "name": "Illuminance",
+        "group": "tsl2561-group-1",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Illuminance",
+        "label": "lx",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "2000",
+        "colors": [
+            "#1e3a8a",
+            "#e6e600",
+            "#ffffff"
+        ],
+        "seg1": "300",
+        "seg2": "1000",
+        "className": "",
+        "z": "tab-tsl2561-demo",
+        "x": 780,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "chart-lux",
+        "type": "ui_chart",
+        "name": "Lux history",
+        "group": "tsl2561-group-1",
+        "order": 2,
+        "width": 6,
+        "height": 4,
+        "label": "Illuminance (lx)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "",
+        "removeOlder": 10,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#C084FC",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "z": "tab-tsl2561-demo",
+        "x": 780,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dbg-tsl2561",
+        "type": "debug",
+        "name": "lux / ch0 / ch1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-tsl2561-demo",
+        "x": 580,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "tsl2561-group-1",
+        "type": "ui_group",
+        "name": "TSL2561 Light Meter",
+        "tab": "tsl2561-ui-tab-1",
+        "order": 1,
+        "disp": true,
+        "width": 6
+    },
+    {
+        "id": "tsl2561-ui-tab-1",
+        "type": "ui_tab",
+        "name": "TSL2561 Demo",
+        "icon": "dashboard",
+        "order": 1
+    }
+]

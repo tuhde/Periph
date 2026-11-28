@@ -194,6 +194,7 @@ Each chip exposes two classes:
 | TMC5160 | Motor driver | `chips/motor/TMC5160.h` |
 | TMP102 | Temperature sensor | `chips/temperature/TMP102.h` |
 | TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
+| TSL2561 | Light sensor | `chips/light/TSL2561.h` |
 | UC1611s | Display driver | `chips/display/UC1611s.h` |
 | VL53L0X | Time-of-flight | `chips/tof/VL53L0X.h` |
 | VL53L1X | Time-of-flight | `chips/tof/VL53L1X.h` |
