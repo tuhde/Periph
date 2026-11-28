@@ -185,6 +185,7 @@ Each chip exposes two classes:
 | Spl06 | Pressure sensor | `chips/pressure/Spl06.h` |
 | SSD1305 | Display driver | `chips/display/SSD1305.h` |
 | SSD1306 | Display driver | `chips/display/SSD1306.h` |
+| St25dv | RFID/NFC | `chips/rfid/St25dv.h` |
 | TCA9554 | IO expander | `chips/io_expander/TCA9554.h` |
 | TMC2130 | Motor driver | `chips/motor/TMC2130.h` |
 | TMC2208 | Motor driver | `chips/motor/TMC2208.h` |

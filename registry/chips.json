@@ -2708,7 +2708,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "st25dv",
       "datasheet": "datasheets/rfid/st25dv.pdf"
     },
     {

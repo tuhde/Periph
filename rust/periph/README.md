@@ -186,6 +186,7 @@ Each chip exposes two structs:
 | SSD1305 | Display driver | 132 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
 | SSD1306 | Display driver | 128 x 64 OLED/PLED segment/common driver with controller (Solomon Systech), the chip behind the |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
+| ST25DV | RFID/NFC | Dynamic NFC/RFID tag (STMicroelectronics). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
 | TCA9554 | IO expander | 8-bit I/O expander (TI), I²C / SMBus. |
 | TMC2130 | Motor driver | -- Trinamic TMC2130 stepper driver over SPI (Mode 3). |

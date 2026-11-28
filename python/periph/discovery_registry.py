@@ -531,7 +531,7 @@ CHIPS = (
     {"id": "pn532", "driver": "pn532", "write_sensitive": True, "aliased": False,
      "addresses": (0x24,),
      "probe": None},
-    {"id": "st25dv", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "st25dv", "driver": "st25dv", "write_sensitive": False, "aliased": False,
      "addresses": (0x57,),
      "probe": {"register": 0x17, "reg_bytes": 2, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x24, 0x26,)}},
     {"id": "apds9250", "driver": "apds9250", "write_sensitive": False, "aliased": False,

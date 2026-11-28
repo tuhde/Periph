@@ -1,0 +1,94 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('st25dv-device', {
+        category: 'config',
+        defaults: {
+            name:          { value: '' },
+            bus:           { value: '1', required: true, validate: RED.validators.number() },
+            address:       { value: '53', required: true },
+            systemAddress: { value: '57', required: true }
+        },
+        label: function() {
+            return this.name || ('ST25DV @ 0x' + this.address + '/0x' + this.systemAddress + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="st25dv-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ST25DV">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-hashtag"></i> Memory address (hex)</label>
+        <input type="text" id="node-config-input-address" style="width:80px"> &nbsp;(user memory, default 53)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-systemAddress"><i class="fa fa-hashtag"></i> System address (hex)</label>
+        <input type="text" id="node-config-input-systemAddress" style="width:80px"> &nbsp;(system area, default 57)
+    </div>
+</script>
+
+<!-- Flow node -->
+<script type="text/javascript">
+    RED.nodes.registerType('st25dv', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'st25dv-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'ST25DV'; },
+        paletteLabel: 'ST25DV'
+    });
+</script>
+
+<script type="text/html" data-template-name="st25dv">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ST25DV">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="st25dv">
+    <p>Reads and writes the user EEPROM of an ST25DV04K/16K/64K dynamic NFC tag over I²C, and
+    stores an NDEF message that an NFC phone can read. The tag stays readable by RF readers while the
+    host uses it.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.address <span class="property-type">number</span></dt>
+        <dd>Start byte address in user memory (default 0).</dd>
+        <dt class="optional">payload.length <span class="property-type">number</span></dt>
+        <dd>Without <code>data</code> or <code>ndef</code>: read this many bytes (default 16).</dd>
+        <dt class="optional">payload.data <span class="property-type">array | string</span></dt>
+        <dd>Write these bytes (byte array or hex string) starting at <code>address</code>.</dd>
+        <dt class="optional">payload.ndef <span class="property-type">array | string | boolean</span></dt>
+        <dd>Write this NDEF message (byte array or hex string) with a Type 5 capability container;
+        <code>true</code> only reads the stored message.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.data <span class="property-type">array</span></dt>
+        <dd>Read: the bytes, with <code>payload.address</code>.</dd>
+        <dt>payload.written <span class="property-type">number</span></dt>
+        <dd>Write: number of bytes written, with <code>payload.address</code>.</dd>
+        <dt>payload.ndef <span class="property-type">array</span></dt>
+        <dd>NDEF: the message stored on the tag (empty if none).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>The <b>st25dv-device</b> config node sets the I²C bus number and the chip's two addresses: the
+    user memory / dynamic register address (default <code>0x53</code>) and the system area address
+    (default <code>0x57</code>). Writes are split into 16-byte-aligned pieces and wait for each
+    EEPROM write cycle.</p>
+</script>
