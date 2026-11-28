@@ -292,7 +292,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SSD1680 | E-paper display controller (176×296, B/W/R) |  |  |  |  |  |  |  |  |
 | SSD1681 | E-paper display controller (200×200, B/W/R) |  |  |  |  |  |  |  |  |
 | SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
-| ST25DV | Dynamic NFC/RFID Type 5 tag with 4/16/64 Kbit EEPROM, I²C, mailbox and GPO (ST25DV04K/16K/64K) | | | | | | | | |
+| ST25DV | Dynamic NFC/RFID Type 5 tag with 4/16/64 Kbit EEPROM, I²C, mailbox and GPO (ST25DV04K/16K/64K) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | STDS75 | Digital temperature sensor (9–12-bit, thermostat OS/INT, LM75-compatible) |  |  |  |  |  |  |  |  |
 | TCA9554 | IO expander (8-bit, internal pull-ups) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
