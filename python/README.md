@@ -203,6 +203,7 @@ Each chip exposes two classes:
 | TMP102 | Temperature sensor | 12-bit digital temperature sensor |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
+| TSL2561 | Light sensor | Two-channel ambient light sensor |
 | UC1611S | Display driver | Graphic LCD controller-driver |
 | UC8159 | Display driver | Seven-colour e-paper controller |
 | UC8276C | Display driver | Black/white/red e-paper controller |
