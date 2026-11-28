@@ -1,0 +1,1 @@
+_periph_rrh62000.set_cleaning_interval(int(${_seconds}))

@@ -1,0 +1,1 @@
+getattr(_periph_rrh62000, 'm', {}).get('nc_2_5', 0)

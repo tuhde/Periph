@@ -261,6 +261,10 @@
       "github:tuhde/Periph/python/periph/chips/gas/rrh46410.py"
     ],
     [
+      "periph/chips/gas/rrh62000.py",
+      "github:tuhde/Periph/python/periph/chips/gas/rrh62000.py"
+    ],
+    [
       "periph/chips/gnss/neo6.py",
       "github:tuhde/Periph/python/periph/chips/gnss/neo6.py"
     ],

@@ -201,7 +201,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "pn532", driver: Some("pn532"), write_sensitive: true, aliased: false, addresses: &[0x24], probe: None },
     ChipEntry { id: "st25dv", driver: Some("st25dv"), write_sensitive: false, aliased: false, addresses: &[0x57], probe: Some(IdProbe { register: 0x17, reg_bytes: 2, length: 1, little_endian: false, mask: 0xFF, expected: &[0x24, 0x26] }) },
     ChipEntry { id: "apds9250", driver: Some("apds9250"), write_sensitive: false, aliased: false, addresses: &[0x52], probe: Some(IdProbe { register: 0x06, reg_bytes: 1, length: 1, little_endian: false, mask: 0xF0, expected: &[0xB0] }) },
-    ChipEntry { id: "rrh62000", driver: None, write_sensitive: true, aliased: false, addresses: &[0x69], probe: None },
+    ChipEntry { id: "rrh62000", driver: Some("rrh62000"), write_sensitive: true, aliased: false, addresses: &[0x69], probe: None },
     ChipEntry { id: "ds1307", driver: None, write_sensitive: false, aliased: false, addresses: &[0x68], probe: None },
     ChipEntry { id: "scd40", driver: None, write_sensitive: true, aliased: false, addresses: &[0x62], probe: None },
     ChipEntry { id: "vcnl4200", driver: None, write_sensitive: false, aliased: false, addresses: &[0x51], probe: Some(IdProbe { register: 0x0E, reg_bytes: 1, length: 2, little_endian: true, mask: 0xF0FF, expected: &[0x1058] }) },

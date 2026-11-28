@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/gas/rrh46410.py"
     ],
     [
+      "periph/chips/gas/rrh62000.py",
+      "github:tuhde/Periph/python/periph/chips/gas/rrh62000.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
