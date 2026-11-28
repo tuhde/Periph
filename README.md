@@ -260,7 +260,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RRH46410 | Indoor air quality and TVOC sensor module (IAQ index, TVOC, eCO₂, I²C command protocol) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| RRH62000 | All-in-one air quality module (PM1/PM2.5/PM10, TVOC, IAQ, eCO₂, temperature, humidity, I²C) | | | | | | | | |
+| RRH62000 | All-in-one air quality module (PM1/PM2.5/PM10, TVOC, IAQ, eCO₂, temperature, humidity, I²C) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SAA1064 | 4-digit LED driver (7-segment, multiplexed, 21 mA sinks) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SCD30 | NDIR CO₂, humidity and temperature sensor module (I²C, ASC/FRC calibration) | | | | | | | | |
 | SCD40 | CO₂, humidity and temperature sensor (photoacoustic NDIR, 400–2000 ppm, I²C) | | | | | | | | |

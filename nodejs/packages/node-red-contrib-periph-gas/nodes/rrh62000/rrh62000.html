@@ -1,0 +1,104 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('rrh62000-device', {
+        category: 'config',
+        defaults: {
+            name:          { value: '' },
+            bus:           { value: '1', required: true, validate: RED.validators.number() },
+            movingAverage: { value: '10', validate: RED.validators.number() },
+            fanSpeed:      { value: '86', validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('RRH62000 @ 0x69 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rrh62000-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="RRH62000">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N, address 0x69)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-movingAverage"><i class="fa fa-line-chart"></i> Moving average</label>
+        <input type="number" id="node-config-input-movingAverage" min="1" max="60" style="width:80px"> &nbsp;samples (1–60)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-fanSpeed"><i class="fa fa-refresh"></i> Fan speed</label>
+        <input type="number" id="node-config-input-fanSpeed" min="60" max="100" style="width:80px"> &nbsp;% (60–100)
+    </div>
+</script>
+
+<!-- Read node -->
+<script type="text/javascript">
+    RED.nodes.registerType('rrh62000', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'rrh62000-device', required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label:   function() { return this.name || 'RRH62000'; },
+        paletteLabel: 'RRH62000'
+    });
+</script>
+
+<script type="text/html" data-template-name="rrh62000">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="RRH62000">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rrh62000">
+    <p>Reads particulate matter, temperature, humidity, TVOC, estimated CO₂ and the IAQ index from a Renesas
+    RRH62000 air-quality module over I²C (address 0x69), one sample per message.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message waits for the next sample (one every 3 s) and returns it.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pm1_ug_m3 <span class="property-type">number</span></dt>
+        <dd>PM1 mass concentration in µg/m³ (KCl reference).</dd>
+        <dt>payload.pm2_5_ug_m3 <span class="property-type">number</span></dt>
+        <dd>PM2.5 mass concentration in µg/m³ (KCl reference).</dd>
+        <dt>payload.pm10_ug_m3 <span class="property-type">number</span></dt>
+        <dd>PM10 mass concentration in µg/m³ (KCl reference).</dd>
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C.</dd>
+        <dt>payload.humidity_rh <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH.</dd>
+        <dt>payload.tvoc <span class="property-type">number</span></dt>
+        <dd>Total volatile organic compounds in µg/m³ (resolution 10 µg/m³).</dd>
+        <dt>payload.eco2_ppm <span class="property-type">number</span></dt>
+        <dd>Estimated CO₂ in ppm (400–5000).</dd>
+        <dt>payload.iaq <span class="property-type">number</span></dt>
+        <dd>UBA indoor air quality index, 1.00 (very good) to 5.00 (bad).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>I²C bus <span class="property-type">number</span></dt>
+        <dd>Linux bus number N of <code>/dev/i2c-N</code>. The address is fixed at 0x69; the SEL pin must be at GND.</dd>
+        <dt>Moving average <span class="property-type">number</span></dt>
+        <dd>Number of moving averages, 1–60 (module default 10); written at deploy when it differs.</dd>
+        <dt>Fan speed <span class="property-type">number</span></dt>
+        <dd>Fan speed in %, 60–100 (module default 86); written at deploy when it differs.</dd>
+    </dl>
+    <h3>Details</h3>
+    <p>The module may be accessed at most once per second; the node waits as needed and handles overlapping
+    messages one after another. A read polls the new-data flag and then reads the 37-byte block, so it takes about
+    2 s. Allow up to 48 hours of conditioning on first use before trusting TVOC and eCO₂.</p>
+</script>

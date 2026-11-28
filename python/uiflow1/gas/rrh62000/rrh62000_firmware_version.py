@@ -1,0 +1,1 @@
+'%d.%d' % _periph_rrh62000.firmware_version()

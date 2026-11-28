@@ -1,0 +1,1 @@
+getattr(_periph_rrh62000, 'm', {}).get('pm1_smoke_ug_m3', 0)

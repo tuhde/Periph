@@ -1,0 +1,1 @@
+_periph_rrh62000.set_moving_average(int(${_count}))

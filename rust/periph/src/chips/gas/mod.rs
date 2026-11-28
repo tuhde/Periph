@@ -8,3 +8,6 @@ pub use ccs811::{Ccs811Minimal, Ccs811Full, Ccs811Measurement, Ccs811Version};
 
 pub mod rrh46410;
 pub use rrh46410::{Rrh46410Minimal, Rrh46410Full};
+
+pub mod rrh62000;
+pub use rrh62000::{Rrh62000Minimal, Rrh62000Full};

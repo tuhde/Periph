@@ -60,6 +60,7 @@ uiflow2/
 | [BME280](environmental/bme280/) | environmental | init, `temperature`, `pressure`, `humidity` |
 | [BME680](environmental/bme680/) | environmental | init, `temperature`, `pressure`, `humidity`, `gas_resistance` |
 | [ENS160](gas/ens160/) | gas | init, `read_aqi`, `read_tvoc`, `read_eco2` |
+| [Rrh62000](gas/rrh62000/) | gas | init, `read`, `pm1`, `pm2_5`, `pm10`, `temperature`, `humidity`, `tvoc`, `eco2`, `iaq`, smoke-referenced PM, particle counts, status flags, `data_ready`, `sleep`, `wake`, `start_cleaning`, `cleaning_done`, `soft_reset`, moving average, fan speed, cleaning interval/time, `mox_resistance`, `unique_id`, versions |
 | [NEO6](gnss/neo6/) | gnss | init, `update`, `latitude`, `longitude`, `altitude` |
 | [DHT11](humidity/dht11/) | humidity | init, `read_temperature`, `read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | init, `accel_x`, `accel_y`, `accel_z`, `gyro_x`, `gyro_y`, `gyro_z`, `temperature`, `data_ready` |

@@ -1,0 +1,1 @@
+getattr(_periph_rrh62000, 'm', {}).get('eco2_ppm', 0)

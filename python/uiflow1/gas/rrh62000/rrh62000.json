@@ -1,0 +1,448 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "rrh62000_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init RRH62000",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_read",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 read new sample",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_pm1",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 PM1 (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_pm2_5",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 PM2.5 (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_pm10",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 PM10 (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_pm1_smoke",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 PM1 smoke ref. (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_pm2_5_smoke",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 PM2.5 smoke ref. (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_pm10_smoke",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 PM10 smoke ref. (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_nc_0_3",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 particles >0.3 um (1/cm3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_nc_0_5",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 particles >0.5 um (1/cm3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_nc_1",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 particles >1 um (1/cm3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_nc_2_5",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 particles >2.5 um (1/cm3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_nc_4",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 particles >4 um (1/cm3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 temperature (C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_humidity",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 humidity (%RH)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_tvoc",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 TVOC (ug/m3)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_eco2",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 eCO2 (ppm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_iaq",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 IAQ index (1-5)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 status word",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_high_concentration",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 dust concentration too high",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_dust_accumulation",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 dust accumulated",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_fan_speed_error",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 fan speed out of range",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_fan_error",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 fan malfunction",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 new data ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 sleep",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 wake up",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_start_cleaning",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 start fan cleaning",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_cleaning_done",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 cleaning done",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_soft_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_set_moving_average",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 moving average (1-60)",
+          "type": "label"
+        },
+        {
+          "name": "_count",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_get_moving_average",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 moving average",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_set_fan_speed",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 fan speed (60-100 %)",
+          "type": "label"
+        },
+        {
+          "name": "_percent",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_get_fan_speed",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 fan speed (%)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_set_cleaning_interval",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 cleaning interval (s, multiple of 30)",
+          "type": "label"
+        },
+        {
+          "name": "_seconds",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_get_cleaning_interval",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 cleaning interval (s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_set_cleaning_time",
+      "type": "execute",
+      "params": [
+        {
+          "name": "RRH62000 cleaning time (0-60 s)",
+          "type": "label"
+        },
+        {
+          "name": "_seconds",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_get_cleaning_time",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 cleaning time (s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_mox_resistance",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 MOX resistance (ohm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_unique_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 unique ID (hex)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_algorithm_version",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 algorithm version",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "rrh62000_firmware_version",
+      "type": "value",
+      "params": [
+        {
+          "name": "RRH62000 firmware version",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

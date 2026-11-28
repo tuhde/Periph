@@ -1,0 +1,1 @@
+'%d.%d.%d' % _periph_rrh62000.algorithm_version()

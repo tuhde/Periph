@@ -1,0 +1,742 @@
+{
+  "category": "Rrh62000",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_RRH62000_LANGUAGES = {\n  \"CUSTOM_RRH62000_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_RRH62000_READ\": {\n    \"en\": \"%1 read new sample\"\n  },\n  \"CUSTOM_RRH62000_PM1\": {\n    \"en\": \"%1 PM1 (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_PM2_5\": {\n    \"en\": \"%1 PM2.5 (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_PM10\": {\n    \"en\": \"%1 PM10 (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_PM1_SMOKE\": {\n    \"en\": \"%1 PM1 smoke ref. (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_PM2_5_SMOKE\": {\n    \"en\": \"%1 PM2.5 smoke ref. (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_PM10_SMOKE\": {\n    \"en\": \"%1 PM10 smoke ref. (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_NC_0_3\": {\n    \"en\": \"%1 particles >0.3 um (1/cm3)\"\n  },\n  \"CUSTOM_RRH62000_NC_0_5\": {\n    \"en\": \"%1 particles >0.5 um (1/cm3)\"\n  },\n  \"CUSTOM_RRH62000_NC_1\": {\n    \"en\": \"%1 particles >1 um (1/cm3)\"\n  },\n  \"CUSTOM_RRH62000_NC_2_5\": {\n    \"en\": \"%1 particles >2.5 um (1/cm3)\"\n  },\n  \"CUSTOM_RRH62000_NC_4\": {\n    \"en\": \"%1 particles >4 um (1/cm3)\"\n  },\n  \"CUSTOM_RRH62000_TEMPERATURE\": {\n    \"en\": \"%1 temperature (C)\"\n  },\n  \"CUSTOM_RRH62000_HUMIDITY\": {\n    \"en\": \"%1 humidity (%RH)\"\n  },\n  \"CUSTOM_RRH62000_TVOC\": {\n    \"en\": \"%1 TVOC (ug/m3)\"\n  },\n  \"CUSTOM_RRH62000_ECO2\": {\n    \"en\": \"%1 eCO2 (ppm)\"\n  },\n  \"CUSTOM_RRH62000_IAQ\": {\n    \"en\": \"%1 IAQ index (1-5)\"\n  },\n  \"CUSTOM_RRH62000_STATUS\": {\n    \"en\": \"%1 status word\"\n  },\n  \"CUSTOM_RRH62000_HIGH_CONCENTRATION\": {\n    \"en\": \"%1 dust concentration too high\"\n  },\n  \"CUSTOM_RRH62000_DUST_ACCUMULATION\": {\n    \"en\": \"%1 dust accumulated\"\n  },\n  \"CUSTOM_RRH62000_FAN_SPEED_ERROR\": {\n    \"en\": \"%1 fan speed out of range\"\n  },\n  \"CUSTOM_RRH62000_FAN_ERROR\": {\n    \"en\": \"%1 fan malfunction\"\n  },\n  \"CUSTOM_RRH62000_DATA_READY\": {\n    \"en\": \"%1 new data ready\"\n  },\n  \"CUSTOM_RRH62000_SLEEP\": {\n    \"en\": \"%1 sleep\"\n  },\n  \"CUSTOM_RRH62000_WAKE\": {\n    \"en\": \"%1 wake up\"\n  },\n  \"CUSTOM_RRH62000_START_CLEANING\": {\n    \"en\": \"%1 start fan cleaning\"\n  },\n  \"CUSTOM_RRH62000_CLEANING_DONE\": {\n    \"en\": \"%1 cleaning done\"\n  },\n  \"CUSTOM_RRH62000_SOFT_RESET\": {\n    \"en\": \"%1 reset\"\n  },\n  \"CUSTOM_RRH62000_SET_MOVING_AVERAGE\": {\n    \"en\": \"%1 moving average (1-60) %2\"\n  },\n  \"CUSTOM_RRH62000_GET_MOVING_AVERAGE\": {\n    \"en\": \"%1 moving average\"\n  },\n  \"CUSTOM_RRH62000_SET_FAN_SPEED\": {\n    \"en\": \"%1 fan speed (60-100 %) %2\"\n  },\n  \"CUSTOM_RRH62000_GET_FAN_SPEED\": {\n    \"en\": \"%1 fan speed (%)\"\n  },\n  \"CUSTOM_RRH62000_SET_CLEANING_INTERVAL\": {\n    \"en\": \"%1 cleaning interval (s, multiple of 30) %2\"\n  },\n  \"CUSTOM_RRH62000_GET_CLEANING_INTERVAL\": {\n    \"en\": \"%1 cleaning interval (s)\"\n  },\n  \"CUSTOM_RRH62000_SET_CLEANING_TIME\": {\n    \"en\": \"%1 cleaning time (0-60 s) %2\"\n  },\n  \"CUSTOM_RRH62000_GET_CLEANING_TIME\": {\n    \"en\": \"%1 cleaning time (s)\"\n  },\n  \"CUSTOM_RRH62000_MOX_RESISTANCE\": {\n    \"en\": \"%1 MOX resistance (ohm)\"\n  },\n  \"CUSTOM_RRH62000_UNIQUE_ID\": {\n    \"en\": \"%1 unique ID (hex)\"\n  },\n  \"CUSTOM_RRH62000_ALGORITHM_VERSION\": {\n    \"en\": \"%1 algorithm version\"\n  },\n  \"CUSTOM_RRH62000_FIRMWARE_VERSION\": {\n    \"en\": \"%1 firmware version\"\n  }\n};\n\nconst initType = 'custom_rrh62000_init';\nBlockly.BlockRegExpList['custom_rrh62000'] = {\n  regexp: new RegExp(/^custom_rrh62000_/),\n  code: \"from Rrh62000 import Rrh62000\",\n  initBlockType: initType,\n  categoryId: 'custom_rrh62000',\n}\nBlockly.utils.registerLanguages(CUSTOM_RRH62000_LANGUAGES)\n\nBlockly.Msg.CUSTOM_RRH62000_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_RRH62000 = 'Rrh62000'\n\nBlockly.utils.getcustom_rrh62000Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['rrh62000_0', 'rrh62000_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_rrh62000_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_rrh62000Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'rrh62000_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Rrh62000(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_read\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_READ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_read\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.read()\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_pm1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_PM1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_pm1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pm1()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_pm2_5\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_PM2_5,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_pm2_5\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pm2_5()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_pm10\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_PM10,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_pm10\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pm10()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_pm1_smoke\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_PM1_SMOKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_pm1_smoke\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pm1_smoke()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_pm2_5_smoke\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_PM2_5_SMOKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_pm2_5_smoke\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pm2_5_smoke()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_pm10_smoke\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_PM10_SMOKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_pm10_smoke\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pm10_smoke()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_nc_0_3\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_NC_0_3,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_nc_0_3\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.nc_0_3()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_nc_0_5\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_NC_0_5,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_nc_0_5\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.nc_0_5()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_nc_1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_NC_1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_nc_1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.nc_1()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_nc_2_5\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_NC_2_5,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_nc_2_5\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.nc_2_5()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_nc_4\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_NC_4,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_nc_4\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.nc_4()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_tvoc\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_TVOC,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_tvoc\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.tvoc()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_eco2\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_ECO2,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_eco2\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.eco2()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_iaq\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_IAQ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_iaq\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.iaq()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_high_concentration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_HIGH_CONCENTRATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_high_concentration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.high_concentration()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_dust_accumulation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_DUST_ACCUMULATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_dust_accumulation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.dust_accumulation()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_fan_speed_error\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_FAN_SPEED_ERROR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_fan_speed_error\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fan_speed_error()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_fan_error\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_FAN_ERROR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_fan_error\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fan_error()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.sleep()\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_start_cleaning\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_START_CLEANING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_start_cleaning\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.start_cleaning()\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_cleaning_done\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_CLEANING_DONE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_cleaning_done\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.cleaning_done()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_set_moving_average\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_SET_MOVING_AVERAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'count'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_set_moving_average\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var count = Blockly.Python.valueToCode(block, 'count', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_moving_average(${count})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_get_moving_average\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_GET_MOVING_AVERAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_get_moving_average\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_moving_average()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_set_fan_speed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_SET_FAN_SPEED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'percent'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_set_fan_speed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var percent = Blockly.Python.valueToCode(block, 'percent', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_fan_speed(${percent})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_get_fan_speed\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_GET_FAN_SPEED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_get_fan_speed\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_fan_speed()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_set_cleaning_interval\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_SET_CLEANING_INTERVAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'seconds'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_set_cleaning_interval\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var seconds = Blockly.Python.valueToCode(block, 'seconds', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_cleaning_interval(${seconds})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_get_cleaning_interval\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_GET_CLEANING_INTERVAL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_get_cleaning_interval\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_cleaning_interval()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_set_cleaning_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_SET_CLEANING_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'seconds'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_set_cleaning_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var seconds = Blockly.Python.valueToCode(block, 'seconds', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_cleaning_time(${seconds})\\n`\n}\n\nBlockly.Blocks[\"custom_rrh62000_get_cleaning_time\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_GET_CLEANING_TIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_get_cleaning_time\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_cleaning_time()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_mox_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_MOX_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_mox_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mox_resistance()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_unique_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_UNIQUE_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_unique_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.unique_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_algorithm_version\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_ALGORITHM_VERSION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_algorithm_version\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.algorithm_version()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_rrh62000_firmware_version\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_RRH62000_FIRMWARE_VERSION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_rrh62000Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_rrh62000_firmware_version\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.firmware_version()`, Blockly.Python.ORDER_NONE]\n}",
+    "toolbox": "\n<category name=\"Rrh62000\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_rrh62000\">\n<title text=\"Rrh62000\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_rrh62000_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">105</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh62000_read\"/><block type=\"custom_rrh62000_pm1\"/><block type=\"custom_rrh62000_pm2_5\"/><block type=\"custom_rrh62000_pm10\"/><block type=\"custom_rrh62000_pm1_smoke\"/><block type=\"custom_rrh62000_pm2_5_smoke\"/><block type=\"custom_rrh62000_pm10_smoke\"/><block type=\"custom_rrh62000_nc_0_3\"/><block type=\"custom_rrh62000_nc_0_5\"/><block type=\"custom_rrh62000_nc_1\"/><block type=\"custom_rrh62000_nc_2_5\"/><block type=\"custom_rrh62000_nc_4\"/><block type=\"custom_rrh62000_temperature\"/><block type=\"custom_rrh62000_humidity\"/><block type=\"custom_rrh62000_tvoc\"/><block type=\"custom_rrh62000_eco2\"/><block type=\"custom_rrh62000_iaq\"/><block type=\"custom_rrh62000_status\"/><block type=\"custom_rrh62000_high_concentration\"/><block type=\"custom_rrh62000_dust_accumulation\"/><block type=\"custom_rrh62000_fan_speed_error\"/><block type=\"custom_rrh62000_fan_error\"/><block type=\"custom_rrh62000_data_ready\"/><block type=\"custom_rrh62000_sleep\"/><block type=\"custom_rrh62000_wake\"/><block type=\"custom_rrh62000_start_cleaning\"/><block type=\"custom_rrh62000_cleaning_done\"/><block type=\"custom_rrh62000_soft_reset\"/><block type=\"custom_rrh62000_set_moving_average\">\n  <value name=\"count\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh62000_get_moving_average\"/><block type=\"custom_rrh62000_set_fan_speed\">\n  <value name=\"percent\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">86</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh62000_get_fan_speed\"/><block type=\"custom_rrh62000_set_cleaning_interval\">\n  <value name=\"seconds\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">604800</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh62000_get_cleaning_interval\"/><block type=\"custom_rrh62000_set_cleaning_time\">\n  <value name=\"seconds\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_rrh62000_get_cleaning_time\"/><block type=\"custom_rrh62000_mox_resistance\"/><block type=\"custom_rrh62000_unique_id\"/><block type=\"custom_rrh62000_algorithm_version\"/><block type=\"custom_rrh62000_firmware_version\"/>\n</category>\n",
+    "toolboxitemid": "custom_rrh62000",
+    "block_type": [
+      "custom_rrh62000___init__",
+      "custom_rrh62000_read",
+      "custom_rrh62000_pm1",
+      "custom_rrh62000_pm2_5",
+      "custom_rrh62000_pm10",
+      "custom_rrh62000_pm1_smoke",
+      "custom_rrh62000_pm2_5_smoke",
+      "custom_rrh62000_pm10_smoke",
+      "custom_rrh62000_nc_0_3",
+      "custom_rrh62000_nc_0_5",
+      "custom_rrh62000_nc_1",
+      "custom_rrh62000_nc_2_5",
+      "custom_rrh62000_nc_4",
+      "custom_rrh62000_temperature",
+      "custom_rrh62000_humidity",
+      "custom_rrh62000_tvoc",
+      "custom_rrh62000_eco2",
+      "custom_rrh62000_iaq",
+      "custom_rrh62000_status",
+      "custom_rrh62000_high_concentration",
+      "custom_rrh62000_dust_accumulation",
+      "custom_rrh62000_fan_speed_error",
+      "custom_rrh62000_fan_error",
+      "custom_rrh62000_data_ready",
+      "custom_rrh62000_sleep",
+      "custom_rrh62000_wake",
+      "custom_rrh62000_start_cleaning",
+      "custom_rrh62000_cleaning_done",
+      "custom_rrh62000_soft_reset",
+      "custom_rrh62000_set_moving_average",
+      "custom_rrh62000_get_moving_average",
+      "custom_rrh62000_set_fan_speed",
+      "custom_rrh62000_get_fan_speed",
+      "custom_rrh62000_set_cleaning_interval",
+      "custom_rrh62000_get_cleaning_interval",
+      "custom_rrh62000_set_cleaning_time",
+      "custom_rrh62000_get_cleaning_time",
+      "custom_rrh62000_mox_resistance",
+      "custom_rrh62000_unique_id",
+      "custom_rrh62000_algorithm_version",
+      "custom_rrh62000_firmware_version"
+    ]
+  },
+  "data": {
+    "name": "Rrh62000",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Rrh62000",
+      "time": "2026-11-28",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gas.rrh62000 import RRH62000Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "105",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = RRH62000Full(connection)\n        self._driver.init()\n        self._m = {}",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read",
+        "note": {},
+        "label": {
+          "en": "%1 read new sample"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._m = self._driver.read_all()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pm1",
+        "note": {},
+        "label": {
+          "en": "%1 PM1 (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('pm1_ug_m3', 0)",
+        "ast_return": {
+          "code": "self._m.get('pm1_ug_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pm2_5",
+        "note": {},
+        "label": {
+          "en": "%1 PM2.5 (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('pm2_5_ug_m3', 0)",
+        "ast_return": {
+          "code": "self._m.get('pm2_5_ug_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pm10",
+        "note": {},
+        "label": {
+          "en": "%1 PM10 (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('pm10_ug_m3', 0)",
+        "ast_return": {
+          "code": "self._m.get('pm10_ug_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pm1_smoke",
+        "note": {},
+        "label": {
+          "en": "%1 PM1 smoke ref. (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('pm1_smoke_ug_m3', 0)",
+        "ast_return": {
+          "code": "self._m.get('pm1_smoke_ug_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pm2_5_smoke",
+        "note": {},
+        "label": {
+          "en": "%1 PM2.5 smoke ref. (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('pm2_5_smoke_ug_m3', 0)",
+        "ast_return": {
+          "code": "self._m.get('pm2_5_smoke_ug_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pm10_smoke",
+        "note": {},
+        "label": {
+          "en": "%1 PM10 smoke ref. (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('pm10_smoke_ug_m3', 0)",
+        "ast_return": {
+          "code": "self._m.get('pm10_smoke_ug_m3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "nc_0_3",
+        "note": {},
+        "label": {
+          "en": "%1 particles >0.3 um (1/cm3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('nc_0_3', 0)",
+        "ast_return": {
+          "code": "self._m.get('nc_0_3', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "nc_0_5",
+        "note": {},
+        "label": {
+          "en": "%1 particles >0.5 um (1/cm3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('nc_0_5', 0)",
+        "ast_return": {
+          "code": "self._m.get('nc_0_5', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "nc_1",
+        "note": {},
+        "label": {
+          "en": "%1 particles >1 um (1/cm3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('nc_1', 0)",
+        "ast_return": {
+          "code": "self._m.get('nc_1', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "nc_2_5",
+        "note": {},
+        "label": {
+          "en": "%1 particles >2.5 um (1/cm3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('nc_2_5', 0)",
+        "ast_return": {
+          "code": "self._m.get('nc_2_5', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "nc_4",
+        "note": {},
+        "label": {
+          "en": "%1 particles >4 um (1/cm3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('nc_4', 0)",
+        "ast_return": {
+          "code": "self._m.get('nc_4', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('temperature_c', 0)",
+        "ast_return": {
+          "code": "self._m.get('temperature_c', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 humidity (%RH)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('humidity_rh', 0)",
+        "ast_return": {
+          "code": "self._m.get('humidity_rh', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tvoc",
+        "note": {},
+        "label": {
+          "en": "%1 TVOC (ug/m3)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('tvoc', 0)",
+        "ast_return": {
+          "code": "self._m.get('tvoc', 0)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "eco2",
+        "note": {},
+        "label": {
+          "en": "%1 eCO2 (ppm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('eco2_ppm', 0)",
+        "ast_return": {
+          "code": "self._m.get('eco2_ppm', 0)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "iaq",
+        "note": {},
+        "label": {
+          "en": "%1 IAQ index (1-5)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('iaq', 0)",
+        "ast_return": {
+          "code": "self._m.get('iaq', 0)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 status word"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('status', 0)",
+        "ast_return": {
+          "code": "self._m.get('status', 0)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "high_concentration",
+        "note": {},
+        "label": {
+          "en": "%1 dust concentration too high"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('high_concentration', False)",
+        "ast_return": {
+          "code": "self._m.get('high_concentration', False)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "dust_accumulation",
+        "note": {},
+        "label": {
+          "en": "%1 dust accumulated"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('dust_accumulation', False)",
+        "ast_return": {
+          "code": "self._m.get('dust_accumulation', False)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fan_speed_error",
+        "note": {},
+        "label": {
+          "en": "%1 fan speed out of range"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('fan_speed', False)",
+        "ast_return": {
+          "code": "self._m.get('fan_speed', False)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fan_error",
+        "note": {},
+        "label": {
+          "en": "%1 fan malfunction"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._m.get('fan', False)",
+        "ast_return": {
+          "code": "self._m.get('fan', False)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 new data ready"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sleep",
+        "note": {},
+        "label": {
+          "en": "%1 sleep"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.sleep()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake up"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_cleaning",
+        "note": {},
+        "label": {
+          "en": "%1 start fan cleaning"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.start_cleaning()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "cleaning_done",
+        "note": {},
+        "label": {
+          "en": "%1 cleaning done"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.cleaning_done()",
+        "ast_return": {
+          "code": "self._driver.cleaning_done()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_moving_average",
+        "note": {},
+        "label": {
+          "en": "%1 moving average (1-60) %2"
+        },
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_moving_average(int(count))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_moving_average",
+        "note": {},
+        "label": {
+          "en": "%1 moving average"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_moving_average()",
+        "ast_return": {
+          "code": "self._driver.get_moving_average()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_fan_speed",
+        "note": {},
+        "label": {
+          "en": "%1 fan speed (60-100 %) %2"
+        },
+        "params": [
+          {
+            "name": "percent",
+            "type": "int",
+            "default": "86",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_fan_speed(int(percent))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_fan_speed",
+        "note": {},
+        "label": {
+          "en": "%1 fan speed (%)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_fan_speed()",
+        "ast_return": {
+          "code": "self._driver.get_fan_speed()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_cleaning_interval",
+        "note": {},
+        "label": {
+          "en": "%1 cleaning interval (s, multiple of 30) %2"
+        },
+        "params": [
+          {
+            "name": "seconds",
+            "type": "int",
+            "default": "604800",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_cleaning_interval(int(seconds))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_cleaning_interval",
+        "note": {},
+        "label": {
+          "en": "%1 cleaning interval (s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_cleaning_interval()",
+        "ast_return": {
+          "code": "self._driver.get_cleaning_interval()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_cleaning_time",
+        "note": {},
+        "label": {
+          "en": "%1 cleaning time (0-60 s) %2"
+        },
+        "params": [
+          {
+            "name": "seconds",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_cleaning_time(int(seconds))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_cleaning_time",
+        "note": {},
+        "label": {
+          "en": "%1 cleaning time (s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_cleaning_time()",
+        "ast_return": {
+          "code": "self._driver.get_cleaning_time()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mox_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 MOX resistance (ohm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_mox_resistance()",
+        "ast_return": {
+          "code": "self._driver.read_mox_resistance()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "unique_id",
+        "note": {},
+        "label": {
+          "en": "%1 unique ID (hex)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return ''.join('%02X' % b for b in self._driver.unique_id())",
+        "ast_return": {
+          "code": "''.join('%02X' % b for b in self._driver.unique_id())",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "algorithm_version",
+        "note": {},
+        "label": {
+          "en": "%1 algorithm version"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return '%d.%d.%d' % self._driver.algorithm_version()",
+        "ast_return": {
+          "code": "'%d.%d.%d' % self._driver.algorithm_version()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "firmware_version",
+        "note": {},
+        "label": {
+          "en": "%1 firmware version"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return '%d.%d' % self._driver.firmware_version()",
+        "ast_return": {
+          "code": "'%d.%d' % self._driver.firmware_version()",
+          "id": "str"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "rrh62000"
+  },
+  "pyCode": "\"\"\"\nfile     Rrh62000\ntime     2026-11-28\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gas.rrh62000 import RRH62000Full\n\n\nclass Rrh62000:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 105):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '105'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = RRH62000Full(connection)\n        self._driver.init()\n        self._m = {}\n\n    def read(self):\n        \"\"\"\n        label:\n            en: '%1 read new sample'\n        \"\"\"\n        self._m = self._driver.read_all()\n\n    def pm1(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 PM1 (ug/m3)'\n        \"\"\"\n        return self._m.get('pm1_ug_m3', 0)\n\n    def pm2_5(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 PM2.5 (ug/m3)'\n        \"\"\"\n        return self._m.get('pm2_5_ug_m3', 0)\n\n    def pm10(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 PM10 (ug/m3)'\n        \"\"\"\n        return self._m.get('pm10_ug_m3', 0)\n\n    def pm1_smoke(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 PM1 smoke ref. (ug/m3)'\n        \"\"\"\n        return self._m.get('pm1_smoke_ug_m3', 0)\n\n    def pm2_5_smoke(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 PM2.5 smoke ref. (ug/m3)'\n        \"\"\"\n        return self._m.get('pm2_5_smoke_ug_m3', 0)\n\n    def pm10_smoke(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 PM10 smoke ref. (ug/m3)'\n        \"\"\"\n        return self._m.get('pm10_smoke_ug_m3', 0)\n\n    def nc_0_3(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 particles >0.3 um (1/cm3)'\n        \"\"\"\n        return self._m.get('nc_0_3', 0)\n\n    def nc_0_5(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 particles >0.5 um (1/cm3)'\n        \"\"\"\n        return self._m.get('nc_0_5', 0)\n\n    def nc_1(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 particles >1 um (1/cm3)'\n        \"\"\"\n        return self._m.get('nc_1', 0)\n\n    def nc_2_5(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 particles >2.5 um (1/cm3)'\n        \"\"\"\n        return self._m.get('nc_2_5', 0)\n\n    def nc_4(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 particles >4 um (1/cm3)'\n        \"\"\"\n        return self._m.get('nc_4', 0)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (C)'\n        \"\"\"\n        return self._m.get('temperature_c', 0)\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 humidity (%RH)'\n        \"\"\"\n        return self._m.get('humidity_rh', 0)\n\n    def tvoc(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 TVOC (ug/m3)'\n        \"\"\"\n        return self._m.get('tvoc', 0)\n\n    def eco2(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 eCO2 (ppm)'\n        \"\"\"\n        return self._m.get('eco2_ppm', 0)\n\n    def iaq(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 IAQ index (1-5)'\n        \"\"\"\n        return self._m.get('iaq', 0)\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 status word'\n        \"\"\"\n        return self._m.get('status', 0)\n\n    def high_concentration(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 dust concentration too high'\n        \"\"\"\n        return self._m.get('high_concentration', False)\n\n    def dust_accumulation(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 dust accumulated'\n        \"\"\"\n        return self._m.get('dust_accumulation', False)\n\n    def fan_speed_error(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 fan speed out of range'\n        \"\"\"\n        return self._m.get('fan_speed', False)\n\n    def fan_error(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 fan malfunction'\n        \"\"\"\n        return self._m.get('fan', False)\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 new data ready'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def sleep(self):\n        \"\"\"\n        label:\n            en: '%1 sleep'\n        \"\"\"\n        self._driver.sleep()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake up'\n        \"\"\"\n        self._driver.wake()\n\n    def start_cleaning(self):\n        \"\"\"\n        label:\n            en: '%1 start fan cleaning'\n        \"\"\"\n        self._driver.start_cleaning()\n\n    def cleaning_done(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 cleaning done'\n        \"\"\"\n        return self._driver.cleaning_done()\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.soft_reset()\n\n    def set_moving_average(self, count: int = 10):\n        \"\"\"\n        label:\n            en: '%1 moving average (1-60) %2'\n        params:\n            count:\n                name: count\n                type: int\n                default: '10'\n                field: number\n        \"\"\"\n        self._driver.set_moving_average(int(count))\n\n    def get_moving_average(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 moving average'\n        \"\"\"\n        return self._driver.get_moving_average()\n\n    def set_fan_speed(self, percent: int = 86):\n        \"\"\"\n        label:\n            en: '%1 fan speed (60-100 %) %2'\n        params:\n            percent:\n                name: percent\n                type: int\n                default: '86'\n                field: number\n        \"\"\"\n        self._driver.set_fan_speed(int(percent))\n\n    def get_fan_speed(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 fan speed (%)'\n        \"\"\"\n        return self._driver.get_fan_speed()\n\n    def set_cleaning_interval(self, seconds: int = 604800):\n        \"\"\"\n        label:\n            en: '%1 cleaning interval (s, multiple of 30) %2'\n        params:\n            seconds:\n                name: seconds\n                type: int\n                default: '604800'\n                field: number\n        \"\"\"\n        self._driver.set_cleaning_interval(int(seconds))\n\n    def get_cleaning_interval(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 cleaning interval (s)'\n        \"\"\"\n        return self._driver.get_cleaning_interval()\n\n    def set_cleaning_time(self, seconds: int = 10):\n        \"\"\"\n        label:\n            en: '%1 cleaning time (0-60 s) %2'\n        params:\n            seconds:\n                name: seconds\n                type: int\n                default: '10'\n                field: number\n        \"\"\"\n        self._driver.set_cleaning_time(int(seconds))\n\n    def get_cleaning_time(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 cleaning time (s)'\n        \"\"\"\n        return self._driver.get_cleaning_time()\n\n    def mox_resistance(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 MOX resistance (ohm)'\n        \"\"\"\n        return self._driver.read_mox_resistance()\n\n    def unique_id(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 unique ID (hex)'\n        \"\"\"\n        return ''.join('%02X' % b for b in self._driver.unique_id())\n\n    def algorithm_version(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 algorithm version'\n        \"\"\"\n        return '%d.%d.%d' % self._driver.algorithm_version()\n\n    def firmware_version(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 firmware version'\n        \"\"\"\n        return '%d.%d' % self._driver.firmware_version()\n",
+  "version": "alpha2"
+}

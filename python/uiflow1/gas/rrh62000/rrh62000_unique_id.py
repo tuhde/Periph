@@ -1,0 +1,1 @@
+''.join('%02X' % b for b in _periph_rrh62000.unique_id())

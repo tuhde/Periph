@@ -1,0 +1,1 @@
+_periph_rrh62000.read_mox_resistance()

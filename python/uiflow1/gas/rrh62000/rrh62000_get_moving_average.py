@@ -1,0 +1,1 @@
+_periph_rrh62000.get_moving_average()

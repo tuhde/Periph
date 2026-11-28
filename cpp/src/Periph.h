@@ -91,6 +91,7 @@
 #include "chips/gas/Ccs811.h"
 #include "chips/gas/ENS160.h"
 #include "chips/gas/Rrh46410.h"
+#include "chips/gas/Rrh62000.h"
 #include "chips/gnss/NEO6.h"
 #include "chips/gyroscope/L3G4200D.h"
 #include "chips/gyroscope/L3gd20h.h"
