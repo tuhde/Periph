@@ -304,7 +304,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | TMP102 | Digital temperature sensor (12-bit, ±0.5 °C, ALERT, 1.4–3.6 V) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| TSL2561 | Ambient light sensor (two photodiodes, lux, interrupt) |  |  |  |  |  |  |  |  |
+| TSL2561 | Ambient light sensor (two photodiodes, lux, interrupt) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TSL2591 | High-dynamic-range ambient light sensor (600 M:1, 16-bit dual-channel, interrupt) | | | | | | | | |
 | UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
