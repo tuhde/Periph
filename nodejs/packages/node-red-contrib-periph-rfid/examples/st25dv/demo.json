@@ -1,0 +1,113 @@
+[
+    {
+        "id": "tab-st25dv-demo",
+        "type": "tab",
+        "label": "ST25DV NFC Memory",
+        "disabled": false,
+        "info": "Shares data between Node-RED and an NFC phone through an ST25DV dynamic tag. The first inject writes the text \"Hello NFC\" (hex string 48656C6C6F204E4643) to user memory at address 0x0100; the debug node shows the address and the number of bytes written. The second inject reads the 9 bytes back. The third inject stores the same text as an NDEF text record, which a phone reads when held to the antenna. Adjust the bus and the two addresses (0x53 memory, 0x57 system) in the st25dv-device config node."
+    },
+    {
+        "id": "cfg-st25dv",
+        "type": "st25dv-device",
+        "name": "ST25DV",
+        "bus": "1",
+        "address": "53",
+        "systemAddress": "57"
+    },
+    {
+        "id": "inj-write",
+        "type": "inject",
+        "name": "write \"Hello NFC\"",
+        "props": [{ "p": "payload" }],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"address\":256,\"data\":\"48656C6C6F204E4643\"}",
+        "payloadType": "json",
+        "z": "tab-st25dv-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [["st-write"]]
+    },
+    {
+        "id": "st-write",
+        "type": "st25dv",
+        "name": "Write memory",
+        "device": "cfg-st25dv",
+        "z": "tab-st25dv-demo",
+        "x": 360,
+        "y": 100,
+        "wires": [["dbg"]]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "read 9 bytes",
+        "props": [{ "p": "payload" }],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"address\":256,\"length\":9}",
+        "payloadType": "json",
+        "z": "tab-st25dv-demo",
+        "x": 140,
+        "y": 160,
+        "wires": [["st-read"]]
+    },
+    {
+        "id": "st-read",
+        "type": "st25dv",
+        "name": "Read memory",
+        "device": "cfg-st25dv",
+        "z": "tab-st25dv-demo",
+        "x": 360,
+        "y": 160,
+        "wires": [["dbg"]]
+    },
+    {
+        "id": "inj-ndef",
+        "type": "inject",
+        "name": "NDEF text \"Hello NFC\"",
+        "props": [{ "p": "payload" }],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"ndef\":\"D1010C5402656E48656C6C6F204E4643\"}",
+        "payloadType": "json",
+        "z": "tab-st25dv-demo",
+        "x": 160,
+        "y": 220,
+        "wires": [["st-ndef"]]
+    },
+    {
+        "id": "st-ndef",
+        "type": "st25dv",
+        "name": "Write NDEF",
+        "device": "cfg-st25dv",
+        "z": "tab-st25dv-demo",
+        "x": 360,
+        "y": 220,
+        "wires": [["dbg"]]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "ST25DV result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-st25dv-demo",
+        "x": 580,
+        "y": 160,
+        "wires": []
+    }
+]
