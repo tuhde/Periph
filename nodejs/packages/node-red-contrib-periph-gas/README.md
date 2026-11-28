@@ -1,8 +1,8 @@
 # node-red-contrib-periph-gas
 
-Node-RED nodes for gas sensor chips: CCS811, ENS160, RRH46410 — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for gas sensor chips: CCS811, ENS160, RRH46410, RRH62000 — part of the [Periph](https://github.com/tuhde/Periph) library.
 
-**Supported chips (3):** CCS811, ENS160, RRH46410.
+**Supported chips (4):** CCS811, ENS160, RRH46410, RRH62000.
 
 Each chip has a sensor/actuator node plus a shared `-device` config node that holds the bus settings. Importable example flows are in [`examples/`](https://github.com/tuhde/Periph/tree/main/nodejs/packages/node-red-contrib-periph-gas/examples).
 
@@ -26,6 +26,8 @@ npm install node-red-contrib-periph-gas
 | `ens160` | input | Reads air quality (AQI, TVOC, eCO2) from an ENS160 digital multi-gas sensor. |
 | `rrh46410-device` | config | Bus configuration for a RRH46410 |
 | `rrh46410` | input | Reads the indoor air quality (IAQ index, TVOC, ethanol equivalent, eCO₂ and relative IAQ) from a Renesas RRH46410 gas sensor module over I²C (address 0x38), one result per message. |
+| `rrh62000-device` | config | Bus configuration for a RRH62000 |
+| `rrh62000` | input | Reads particulate matter, temperature, humidity, TVOC, estimated CO₂ and the IAQ index from a Renesas RRH62000 air-quality module over I²C (address 0x69), one sample per message. |
 
 ## Links
 
