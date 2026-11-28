@@ -83,6 +83,7 @@ cpp/scripts/build-all.sh linux
 ```sh
 mkdir -p ~/.local/bin
 curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~/.local/bin sh
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-lint/main/etc/install.sh | BINDIR=~/.local/bin sh
 export PATH="$HOME/.local/bin:$PATH"   # add to ~/.bashrc
 
 arduino-cli config init --overwrite
@@ -98,6 +99,16 @@ Compile every example/test sketch, same as CI:
 ```sh
 cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests
 cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
+```
+
+Lint the Library Manager layout, same as CI's `arduino-checks` job (`arduino-lint`
+checks the staged library, not `cpp/` itself):
+
+```sh
+stage="$(mktemp -d)" && mkdir -p "$stage/Periph"
+cpp/scripts/stage-arduino-library.sh "$stage/Periph"
+arduino-lint --compliance strict --library-manager update \
+  --project-type library --recursive=false "$stage/Periph"
 ```
 
 ### 2c. Raspberry Pi Pico SDK
@@ -349,6 +360,7 @@ cpp/scripts/build-all.sh zephyr     # from inside ~/zephyrproject, after sourcin
 cpp/scripts/build-all.sh stm32cube  # needs STM32CUBE_FW_PATH
 cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests
 cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
+scripts/ci/run.sh arduino-checks    # Periph.h check + arduino-lint on the staged library
 
 # Python
 find python/periph python/tests python/examples -name '*.py' | xargs python3 -m py_compile

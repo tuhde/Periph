@@ -142,8 +142,8 @@ pipelines (`.github/workflows/ci.yml`, `.gitlab-ci.yml`) call
 `scripts/ci/run.sh <job>`; edit job logic there.
 
 Runner host (Debian 13, bare, no Docker): install everything in
-`TOOLCHAINS.md` as the runner's user, plus `arduino-lint`
-(<https://arduino.github.io/arduino-lint/>) and `python3-smbus2`. Expected
+`TOOLCHAINS.md` as the runner's user (including `arduino-lint`, section 2b), plus
+`python3-smbus2`. Expected
 locations (override via env in the runner's `.env`): `~/pico-sdk`,
 `~/esp-idf`, `~/STM32CubeF4` (with FatFs), `~/zephyrproject` +
 `~/.venvs/zephyr`. The cargo target dir persists in
