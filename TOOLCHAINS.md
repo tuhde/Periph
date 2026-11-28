@@ -72,6 +72,9 @@ Exactly CI's `linux-gcc` job:
 
 ```sh
 sudo apt-get install -y --no-install-recommends g++ libgpiod-dev python3
+```
+
+```sh
 cpp/scripts/build-all.sh linux
 ```
 
@@ -115,7 +118,9 @@ cmake -S /tmp/picotool-src -B /tmp/picotool-build -DPICO_SDK_PATH="$PICO_SDK_PAT
   -DPICOTOOL_NO_LIBUSB=1 -DPICOTOOL_FLAT_INSTALL=1 -DCMAKE_INSTALL_PREFIX="$HOME/picotool"
 cmake --build /tmp/picotool-build -j"$(nproc)" && cmake --install /tmp/picotool-build
 export CMAKE_PREFIX_PATH="$HOME/picotool"   # only needed outside run.sh
+```
 
+```sh
 PICO_BOARD=pico cpp/scripts/build-all.sh picosdk
 ```
 
@@ -129,7 +134,9 @@ sudo apt-get install -y --no-install-recommends \
 
 git clone --recursive -b v6.1 https://github.com/espressif/esp-idf.git ~/esp-idf
 ~/esp-idf/install.sh esp32
+```
 
+```sh
 # Every new shell:
 . ~/esp-idf/export.sh
 
@@ -183,7 +190,9 @@ git -C ~/STM32CubeF4 submodule update --init --depth 1 \
   Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
 echo 'export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"' >> ~/.bashrc
 export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"
+```
 
+```sh
 cpp/scripts/build-all.sh stm32cube
 ```
 
@@ -228,7 +237,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --defaul
 source "$HOME/.cargo/env"
 
 sudo apt-get install -y --no-install-recommends libudev-dev
+```
 
+```sh
 cargo build --manifest-path rust/Cargo.toml
 ```
 
@@ -240,7 +251,9 @@ cargo install espup --locked
 espup install
 echo '. "$HOME/export-esp.sh"' >> ~/.bashrc   # each new shell needs this sourced
 . "$HOME/export-esp.sh"
+```
 
+```sh
 cd rust/examples/embedded/esp32s3/<category>/<chip>/minimal
 cargo build --release
 ```
@@ -267,6 +280,9 @@ the line above — the `.deb`s are compatible.
 
 ```sh
 sudo apt-get install -y maven
+```
+
+```sh
 cd jvm
 mvn install --batch-mode --no-transfer-progress -DskipTests
 ```
@@ -312,7 +328,9 @@ architecture — see the [releases page](https://github.com/tinygo-org/tinygo/re
 ```sh
 curl -LO https://github.com/tinygo-org/tinygo/releases/download/v0.41.0/tinygo_0.41.0_amd64.deb
 sudo apt-get install -y ./tinygo_0.41.0_amd64.deb   # pulls in its own dependencies
+```
 
+```sh
 tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/power/ina226/minimal
 ```
 
