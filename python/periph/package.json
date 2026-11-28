@@ -633,6 +633,10 @@
       "github:tuhde/Periph/python/periph/chips/rfid/pn532.py"
     ],
     [
+      "periph/chips/rfid/st25dv.py",
+      "github:tuhde/Periph/python/periph/chips/rfid/st25dv.py"
+    ],
+    [
       "periph/chips/rtc/ds3231.py",
       "github:tuhde/Periph/python/periph/chips/rtc/ds3231.py"
     ],

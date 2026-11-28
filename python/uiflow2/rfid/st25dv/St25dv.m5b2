@@ -1,0 +1,871 @@
+{
+  "category": "St25dv",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ST25DV_LANGUAGES = {\n  \"CUSTOM_ST25DV_INIT\": {\n    \"en\": \"%1 init bus %2\"\n  },\n  \"CUSTOM_ST25DV_READ\": {\n    \"en\": \"%1 read address %2 length %3 -> hex\"\n  },\n  \"CUSTOM_ST25DV_WRITE\": {\n    \"en\": \"%1 write address %2 data (hex) %3\"\n  },\n  \"CUSTOM_ST25DV_MEMORY_SIZE\": {\n    \"en\": \"%1 memory size (bytes)\"\n  },\n  \"CUSTOM_ST25DV_IC_REFERENCE\": {\n    \"en\": \"%1 IC reference\"\n  },\n  \"CUSTOM_ST25DV_UID\": {\n    \"en\": \"%1 UID (hex)\"\n  },\n  \"CUSTOM_ST25DV_IC_REVISION\": {\n    \"en\": \"%1 IC revision\"\n  },\n  \"CUSTOM_ST25DV_READ_SYSTEM\": {\n    \"en\": \"%1 read system area address %2 length %3 -> hex\"\n  },\n  \"CUSTOM_ST25DV_WRITE_SYSTEM\": {\n    \"en\": \"%1 write system area address %2 data (hex) %3\"\n  },\n  \"CUSTOM_ST25DV_PRESENT_PASSWORD\": {\n    \"en\": \"%1 present I2C password (hex) %2\"\n  },\n  \"CUSTOM_ST25DV_WRITE_PASSWORD\": {\n    \"en\": \"%1 change I2C password (hex) %2\"\n  },\n  \"CUSTOM_ST25DV_SESSION_OPEN\": {\n    \"en\": \"%1 security session open\"\n  },\n  \"CUSTOM_ST25DV_SET_AREA_END\": {\n    \"en\": \"%1 set end of area (1-3) %2 to block (x32 bytes) %3\"\n  },\n  \"CUSTOM_ST25DV_SET_AREA_PROTECTION\": {\n    \"en\": \"%1 protect area (1-4) %2 RF (0-15) %3 I2C (0-3) %4\"\n  },\n  \"CUSTOM_ST25DV_GET_AREA_RF_PROTECTION\": {\n    \"en\": \"%1 RF protection of area (1-4) %2\"\n  },\n  \"CUSTOM_ST25DV_GET_AREA_I2C_PROTECTION\": {\n    \"en\": \"%1 I2C protection of area (1-4) %2\"\n  },\n  \"CUSTOM_ST25DV_SET_GPO\": {\n    \"en\": \"%1 set GPO sources %2 enable (1/0) %3\"\n  },\n  \"CUSTOM_ST25DV_GET_GPO\": {\n    \"en\": \"%1 GPO register\"\n  },\n  \"CUSTOM_ST25DV_SET_GPO_RUNTIME\": {\n    \"en\": \"%1 GPO output enable (1/0) %2\"\n  },\n  \"CUSTOM_ST25DV_SET_INTERRUPT_PULSE\": {\n    \"en\": \"%1 GPO pulse (0-7) %2\"\n  },\n  \"CUSTOM_ST25DV_FIELD_PRESENT\": {\n    \"en\": \"%1 RF field present\"\n  },\n  \"CUSTOM_ST25DV_SET_ENERGY_HARVESTING\": {\n    \"en\": \"%1 energy harvesting (1/0) %2 forced after boot (1/0) %3\"\n  },\n  \"CUSTOM_ST25DV_SET_RF_STATE\": {\n    \"en\": \"%1 RF disable (1/0) %2 sleep (1/0) %3\"\n  },\n  \"CUSTOM_ST25DV_ENABLE_MAILBOX\": {\n    \"en\": \"%1 enable mailbox\"\n  },\n  \"CUSTOM_ST25DV_DISABLE_MAILBOX\": {\n    \"en\": \"%1 disable mailbox\"\n  },\n  \"CUSTOM_ST25DV_MAILBOX_HAS_RF_MESSAGE\": {\n    \"en\": \"%1 mailbox has RF message\"\n  },\n  \"CUSTOM_ST25DV_MAILBOX_HAS_HOST_MESSAGE\": {\n    \"en\": \"%1 mailbox has host message\"\n  },\n  \"CUSTOM_ST25DV_MAILBOX_WRITE\": {\n    \"en\": \"%1 mailbox write (hex) %2\"\n  },\n  \"CUSTOM_ST25DV_MAILBOX_READ\": {\n    \"en\": \"%1 mailbox read -> hex\"\n  },\n  \"CUSTOM_ST25DV_SET_MAILBOX_WATCHDOG\": {\n    \"en\": \"%1 mailbox watchdog (0-7) %2\"\n  },\n  \"CUSTOM_ST25DV_LOCK_CCFILE\": {\n    \"en\": \"%1 lock CC file (1/0) %2\"\n  },\n  \"CUSTOM_ST25DV_WRITE_NDEF\": {\n    \"en\": \"%1 write NDEF message (hex) %2\"\n  },\n  \"CUSTOM_ST25DV_READ_NDEF\": {\n    \"en\": \"%1 read NDEF message -> hex\"\n  },\n  \"CUSTOM_ST25DV_WAIT_WRITE_COMPLETE\": {\n    \"en\": \"%1 wait for write cycle\"\n  },\n  \"CUSTOM_ST25DV_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt sources\"\n  },\n  \"CUSTOM_ST25DV_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt source %2\"\n  },\n  \"CUSTOM_ST25DV_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt source %2\"\n  }\n};\n\nconst initType = 'custom_st25dv_init';\nBlockly.BlockRegExpList['custom_st25dv'] = {\n  regexp: new RegExp(/^custom_st25dv_/),\n  code: \"from St25dv import St25dv\",\n  initBlockType: initType,\n  categoryId: 'custom_st25dv',\n}\nBlockly.utils.registerLanguages(CUSTOM_ST25DV_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ST25DV_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ST25DV = 'St25dv'\n\nBlockly.utils.getcustom_st25dvOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['st25dv_0', 'st25dv_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_st25dv_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_st25dvOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'st25dv_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = St25dv(${bus})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_read\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_READ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'length'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_read\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var length = Blockly.Python.valueToCode(block, 'length', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read(${address}, ${length})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_write\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_WRITE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_write\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write(${address}, ${data})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_memory_size\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_MEMORY_SIZE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_memory_size\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.memory_size()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_ic_reference\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_IC_REFERENCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_ic_reference\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ic_reference()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_uid\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_UID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_uid\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.uid()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_ic_revision\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_IC_REVISION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_ic_revision\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ic_revision()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_read_system\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_READ_SYSTEM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'length'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_read_system\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var length = Blockly.Python.valueToCode(block, 'length', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_system(${address}, ${length})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_write_system\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_WRITE_SYSTEM,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_write_system\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_system(${address}, ${data})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_present_password\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_PRESENT_PASSWORD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'password'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_present_password\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var password = Blockly.Python.valueToCode(block, 'password', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.present_password(${password})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_write_password\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_WRITE_PASSWORD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'password'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_write_password\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var password = Blockly.Python.valueToCode(block, 'password', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_password(${password})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_session_open\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SESSION_OPEN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_session_open\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.session_open()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_set_area_end\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_AREA_END,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'area'\n        },\n        {\n          'type': 'input_value',\n          'name': 'end_block'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_area_end\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var area = Blockly.Python.valueToCode(block, 'area', Blockly.Python.ORDER_FUNCTION_CALL);\n  var end_block = Blockly.Python.valueToCode(block, 'end_block', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_area_end(${area}, ${end_block})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_set_area_protection\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_AREA_PROTECTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'area'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rf'\n        },\n        {\n          'type': 'input_value',\n          'name': 'i2c'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_area_protection\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var area = Blockly.Python.valueToCode(block, 'area', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rf = Blockly.Python.valueToCode(block, 'rf', Blockly.Python.ORDER_FUNCTION_CALL);\n  var i2c = Blockly.Python.valueToCode(block, 'i2c', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_area_protection(${area}, ${rf}, ${i2c})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_get_area_rf_protection\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_GET_AREA_RF_PROTECTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'area'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_get_area_rf_protection\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var area = Blockly.Python.valueToCode(block, 'area', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.get_area_rf_protection(${area})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_get_area_i2c_protection\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_GET_AREA_I2C_PROTECTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'area'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_get_area_i2c_protection\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var area = Blockly.Python.valueToCode(block, 'area', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.get_area_i2c_protection(${area})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_set_gpo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_GPO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'sources'\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_gpo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sources = Blockly.Python.valueToCode(block, 'sources', Blockly.Python.ORDER_FUNCTION_CALL);\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gpo(${sources}, ${enable})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_get_gpo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_GET_GPO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_get_gpo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_gpo()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_set_gpo_runtime\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_GPO_RUNTIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_gpo_runtime\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gpo_runtime(${enable})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_set_interrupt_pulse\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_INTERRUPT_PULSE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_interrupt_pulse\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interrupt_pulse(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_field_present\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_FIELD_PRESENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_field_present\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.field_present()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_set_energy_harvesting\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_ENERGY_HARVESTING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n        {\n          'type': 'input_value',\n          'name': 'forced'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_energy_harvesting\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  var forced = Blockly.Python.valueToCode(block, 'forced', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_energy_harvesting(${enabled}, ${forced})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_set_rf_state\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_RF_STATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'disable'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sleep'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_rf_state\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var disable = Blockly.Python.valueToCode(block, 'disable', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sleep = Blockly.Python.valueToCode(block, 'sleep', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rf_state(${disable}, ${sleep})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_enable_mailbox\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_ENABLE_MAILBOX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_enable_mailbox\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_mailbox()\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_disable_mailbox\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_DISABLE_MAILBOX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_disable_mailbox\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_mailbox()\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_mailbox_has_rf_message\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_MAILBOX_HAS_RF_MESSAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_mailbox_has_rf_message\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mailbox_has_rf_message()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_mailbox_has_host_message\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_MAILBOX_HAS_HOST_MESSAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_mailbox_has_host_message\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mailbox_has_host_message()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_mailbox_write\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_MAILBOX_WRITE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_mailbox_write\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.mailbox_write(${data})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_mailbox_read\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_MAILBOX_READ,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_mailbox_read\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mailbox_read()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_set_mailbox_watchdog\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_SET_MAILBOX_WATCHDOG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_set_mailbox_watchdog\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mailbox_watchdog(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_lock_ccfile\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_LOCK_CCFILE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'lock'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_lock_ccfile\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var lock = Blockly.Python.valueToCode(block, 'lock', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.lock_ccfile(${lock})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_write_ndef\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_WRITE_NDEF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'message'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_write_ndef\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var message = Blockly.Python.valueToCode(block, 'message', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_ndef(${message})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_read_ndef\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_READ_NDEF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_read_ndef\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_ndef()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_wait_write_complete\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_WAIT_WRITE_COMPLETE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_wait_write_complete\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wait_write_complete()\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_st25dv_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_st25dv_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST25DV_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st25dvOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st25dv_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}",
+    "toolbox": "\n<category name=\"St25dv\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_st25dv\">\n<title text=\"St25dv\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_st25dv_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_read\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"length\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_write\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">48656C6C6F</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_memory_size\"/><block type=\"custom_st25dv_ic_reference\"/><block type=\"custom_st25dv_uid\"/><block type=\"custom_st25dv_ic_revision\"/><block type=\"custom_st25dv_read_system\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"length\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_write_system\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">00</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_present_password\">\n  <value name=\"password\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">0000000000000000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_write_password\">\n  <value name=\"password\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">0000000000000000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_session_open\"/><block type=\"custom_st25dv_set_area_end\">\n  <value name=\"area\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"end_block\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">63</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_set_area_protection\">\n  <value name=\"area\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"rf\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"i2c\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_get_area_rf_protection\">\n  <value name=\"area\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_get_area_i2c_protection\">\n  <value name=\"area\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_set_gpo\">\n  <value name=\"sources\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">8</field>\n    </shadow>\n  </value>\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_get_gpo\"/><block type=\"custom_st25dv_set_gpo_runtime\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_set_interrupt_pulse\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_field_present\"/><block type=\"custom_st25dv_set_energy_harvesting\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"forced\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_set_rf_state\">\n  <value name=\"disable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sleep\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_enable_mailbox\"/><block type=\"custom_st25dv_disable_mailbox\"/><block type=\"custom_st25dv_mailbox_has_rf_message\"/><block type=\"custom_st25dv_mailbox_has_host_message\"/><block type=\"custom_st25dv_mailbox_write\">\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">70696E67</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_mailbox_read\"/><block type=\"custom_st25dv_set_mailbox_watchdog\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_lock_ccfile\">\n  <value name=\"lock\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_write_ndef\">\n  <value name=\"message\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">D101055402656E4869</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_read_ndef\"/><block type=\"custom_st25dv_wait_write_complete\"/><block type=\"custom_st25dv_poll_interrupt\"/><block type=\"custom_st25dv_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st25dv_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_st25dv",
+    "block_type": [
+      "custom_st25dv___init__",
+      "custom_st25dv_read",
+      "custom_st25dv_write",
+      "custom_st25dv_memory_size",
+      "custom_st25dv_ic_reference",
+      "custom_st25dv_uid",
+      "custom_st25dv_ic_revision",
+      "custom_st25dv_read_system",
+      "custom_st25dv_write_system",
+      "custom_st25dv_present_password",
+      "custom_st25dv_write_password",
+      "custom_st25dv_session_open",
+      "custom_st25dv_set_area_end",
+      "custom_st25dv_set_area_protection",
+      "custom_st25dv_get_area_rf_protection",
+      "custom_st25dv_get_area_i2c_protection",
+      "custom_st25dv_set_gpo",
+      "custom_st25dv_get_gpo",
+      "custom_st25dv_set_gpo_runtime",
+      "custom_st25dv_set_interrupt_pulse",
+      "custom_st25dv_field_present",
+      "custom_st25dv_set_energy_harvesting",
+      "custom_st25dv_set_rf_state",
+      "custom_st25dv_enable_mailbox",
+      "custom_st25dv_disable_mailbox",
+      "custom_st25dv_mailbox_has_rf_message",
+      "custom_st25dv_mailbox_has_host_message",
+      "custom_st25dv_mailbox_write",
+      "custom_st25dv_mailbox_read",
+      "custom_st25dv_set_mailbox_watchdog",
+      "custom_st25dv_lock_ccfile",
+      "custom_st25dv_write_ndef",
+      "custom_st25dv_read_ndef",
+      "custom_st25dv_wait_write_complete",
+      "custom_st25dv_poll_interrupt",
+      "custom_st25dv_enable_interrupt",
+      "custom_st25dv_disable_interrupt"
+    ]
+  },
+  "data": {
+    "name": "St25dv",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "St25dv",
+      "time": "2026-11-28",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rfid.st25dv import ST25DVFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        user = I2CConnection(0x53, bus=bus, reg_bytes=2)\n        system = I2CConnection(0x57, bus=bus, reg_bytes=2)\n        self._driver = ST25DVFull(user, system)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read",
+        "note": {},
+        "label": {
+          "en": "%1 read address %2 length %3 -> hex"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "length",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read(address, length).hex()",
+        "ast_return": {
+          "code": "self._driver.read(address, length).hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write",
+        "note": {},
+        "label": {
+          "en": "%1 write address %2 data (hex) %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "default": "48656C6C6F",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write(address, bytes.fromhex(data))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "memory_size",
+        "note": {},
+        "label": {
+          "en": "%1 memory size (bytes)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.memory_size()",
+        "ast_return": {
+          "code": "self._driver.memory_size()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ic_reference",
+        "note": {},
+        "label": {
+          "en": "%1 IC reference"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.ic_reference()",
+        "ast_return": {
+          "code": "self._driver.ic_reference()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "uid",
+        "note": {},
+        "label": {
+          "en": "%1 UID (hex)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.uid().hex()",
+        "ast_return": {
+          "code": "self._driver.uid().hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ic_revision",
+        "note": {},
+        "label": {
+          "en": "%1 IC revision"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.ic_revision()",
+        "ast_return": {
+          "code": "self._driver.ic_revision()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_system",
+        "note": {},
+        "label": {
+          "en": "%1 read system area address %2 length %3 -> hex"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "length",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_system(address, length).hex()",
+        "ast_return": {
+          "code": "self._driver.read_system(address, length).hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_system",
+        "note": {},
+        "label": {
+          "en": "%1 write system area address %2 data (hex) %3"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "default": "00",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_system(address, bytes.fromhex(data))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "present_password",
+        "note": {},
+        "label": {
+          "en": "%1 present I2C password (hex) %2"
+        },
+        "params": [
+          {
+            "name": "password",
+            "type": "str",
+            "default": "0000000000000000",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.present_password(bytes.fromhex(password))",
+        "ast_return": {
+          "code": "self._driver.present_password(bytes.fromhex(password))",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_password",
+        "note": {},
+        "label": {
+          "en": "%1 change I2C password (hex) %2"
+        },
+        "params": [
+          {
+            "name": "password",
+            "type": "str",
+            "default": "0000000000000000",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_password(bytes.fromhex(password))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "session_open",
+        "note": {},
+        "label": {
+          "en": "%1 security session open"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.session_open()",
+        "ast_return": {
+          "code": "self._driver.session_open()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_area_end",
+        "note": {},
+        "label": {
+          "en": "%1 set end of area (1-3) %2 to block (x32 bytes) %3"
+        },
+        "params": [
+          {
+            "name": "area",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "end_block",
+            "type": "int",
+            "default": "63",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_area_end(area, end_block)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_area_protection",
+        "note": {},
+        "label": {
+          "en": "%1 protect area (1-4) %2 RF (0-15) %3 I2C (0-3) %4"
+        },
+        "params": [
+          {
+            "name": "area",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rf",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "i2c",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_area_protection(area, rf, i2c)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_area_rf_protection",
+        "note": {},
+        "label": {
+          "en": "%1 RF protection of area (1-4) %2"
+        },
+        "params": [
+          {
+            "name": "area",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_area_protection(area)[0]",
+        "ast_return": {
+          "code": "self._driver.get_area_protection(area)[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_area_i2c_protection",
+        "note": {},
+        "label": {
+          "en": "%1 I2C protection of area (1-4) %2"
+        },
+        "params": [
+          {
+            "name": "area",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_area_protection(area)[1]",
+        "ast_return": {
+          "code": "self._driver.get_area_protection(area)[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gpo",
+        "note": {},
+        "label": {
+          "en": "%1 set GPO sources %2 enable (1/0) %3"
+        },
+        "params": [
+          {
+            "name": "sources",
+            "type": "int",
+            "default": "8",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gpo(sources, bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_gpo",
+        "note": {},
+        "label": {
+          "en": "%1 GPO register"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_gpo()",
+        "ast_return": {
+          "code": "self._driver.get_gpo()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gpo_runtime",
+        "note": {},
+        "label": {
+          "en": "%1 GPO output enable (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gpo_runtime(bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interrupt_pulse",
+        "note": {},
+        "label": {
+          "en": "%1 GPO pulse (0-7) %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interrupt_pulse(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "field_present",
+        "note": {},
+        "label": {
+          "en": "%1 RF field present"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.field_present()",
+        "ast_return": {
+          "code": "self._driver.field_present()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_energy_harvesting",
+        "note": {},
+        "label": {
+          "en": "%1 energy harvesting (1/0) %2 forced after boot (1/0) %3"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "forced",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_energy_harvesting(bool(enabled), bool(forced))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rf_state",
+        "note": {},
+        "label": {
+          "en": "%1 RF disable (1/0) %2 sleep (1/0) %3"
+        },
+        "params": [
+          {
+            "name": "disable",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sleep",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rf_state(bool(disable), bool(sleep))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_mailbox",
+        "note": {},
+        "label": {
+          "en": "%1 enable mailbox"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_mailbox()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_mailbox",
+        "note": {},
+        "label": {
+          "en": "%1 disable mailbox"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_mailbox()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mailbox_has_rf_message",
+        "note": {},
+        "label": {
+          "en": "%1 mailbox has RF message"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mailbox_status()['rf_put']",
+        "ast_return": {
+          "code": "self._driver.mailbox_status()['rf_put']",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mailbox_has_host_message",
+        "note": {},
+        "label": {
+          "en": "%1 mailbox has host message"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mailbox_status()['host_put']",
+        "ast_return": {
+          "code": "self._driver.mailbox_status()['host_put']",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mailbox_write",
+        "note": {},
+        "label": {
+          "en": "%1 mailbox write (hex) %2"
+        },
+        "params": [
+          {
+            "name": "data",
+            "type": "str",
+            "default": "70696E67",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.mailbox_write(bytes.fromhex(data))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mailbox_read",
+        "note": {},
+        "label": {
+          "en": "%1 mailbox read -> hex"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mailbox_read().hex()",
+        "ast_return": {
+          "code": "self._driver.mailbox_read().hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mailbox_watchdog",
+        "note": {},
+        "label": {
+          "en": "%1 mailbox watchdog (0-7) %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mailbox_watchdog(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lock_ccfile",
+        "note": {},
+        "label": {
+          "en": "%1 lock CC file (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "lock",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.lock_ccfile(bool(lock))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_ndef",
+        "note": {},
+        "label": {
+          "en": "%1 write NDEF message (hex) %2"
+        },
+        "params": [
+          {
+            "name": "message",
+            "type": "str",
+            "default": "D101055402656E4869",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_ndef(bytes.fromhex(message))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_ndef",
+        "note": {},
+        "label": {
+          "en": "%1 read NDEF message -> hex"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_ndef().hex()",
+        "ast_return": {
+          "code": "self._driver.read_ndef().hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wait_write_complete",
+        "note": {},
+        "label": {
+          "en": "%1 wait for write cycle"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wait_write_complete()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt sources"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt source %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt source %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "st25dv"
+  },
+  "pyCode": "\"\"\"\nfile     St25dv\ntime     2026-11-28\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rfid.st25dv import ST25DVFull\n\n\nclass St25dv:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        user = I2CConnection(0x53, bus=bus, reg_bytes=2)\n        system = I2CConnection(0x57, bus=bus, reg_bytes=2)\n        self._driver = ST25DVFull(user, system)\n\n    def read(self, address: int = 0, length: int = 16) -> str:\n        \"\"\"\n        label:\n            en: '%1 read address %2 length %3 -> hex'\n        params:\n            address:\n                name: address\n                type: int\n                default: '0'\n                field: number\n            length:\n                name: length\n                type: int\n                default: '16'\n                field: number\n        \"\"\"\n        return self._driver.read(address, length).hex()\n\n    def write(self, address: int = 0, data: str = '48656C6C6F'):\n        \"\"\"\n        label:\n            en: '%1 write address %2 data (hex) %3'\n        params:\n            address:\n                name: address\n                type: int\n                default: '0'\n                field: number\n            data:\n                name: data\n                type: str\n                default: '48656C6C6F'\n        \"\"\"\n        self._driver.write(address, bytes.fromhex(data))\n\n    def memory_size(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 memory size (bytes)'\n        \"\"\"\n        return self._driver.memory_size()\n\n    def ic_reference(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 IC reference'\n        \"\"\"\n        return self._driver.ic_reference()\n\n    def uid(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 UID (hex)'\n        \"\"\"\n        return self._driver.uid().hex()\n\n    def ic_revision(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 IC revision'\n        \"\"\"\n        return self._driver.ic_revision()\n\n    def read_system(self, address: int = 0, length: int = 1) -> str:\n        \"\"\"\n        label:\n            en: '%1 read system area address %2 length %3 -> hex'\n        params:\n            address:\n                name: address\n                type: int\n                default: '0'\n                field: number\n            length:\n                name: length\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.read_system(address, length).hex()\n\n    def write_system(self, address: int = 0, data: str = '00'):\n        \"\"\"\n        label:\n            en: '%1 write system area address %2 data (hex) %3'\n        params:\n            address:\n                name: address\n                type: int\n                default: '0'\n                field: number\n            data:\n                name: data\n                type: str\n                default: '00'\n        \"\"\"\n        self._driver.write_system(address, bytes.fromhex(data))\n\n    def present_password(self, password: str = '0000000000000000') -> bool:\n        \"\"\"\n        label:\n            en: '%1 present I2C password (hex) %2'\n        params:\n            password:\n                name: password\n                type: str\n                default: '0000000000000000'\n        \"\"\"\n        return self._driver.present_password(bytes.fromhex(password))\n\n    def write_password(self, password: str = '0000000000000000'):\n        \"\"\"\n        label:\n            en: '%1 change I2C password (hex) %2'\n        params:\n            password:\n                name: password\n                type: str\n                default: '0000000000000000'\n        \"\"\"\n        self._driver.write_password(bytes.fromhex(password))\n\n    def session_open(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 security session open'\n        \"\"\"\n        return self._driver.session_open()\n\n    def set_area_end(self, area: int = 1, end_block: int = 63):\n        \"\"\"\n        label:\n            en: '%1 set end of area (1-3) %2 to block (x32 bytes) %3'\n        params:\n            area:\n                name: area\n                type: int\n                default: '1'\n                field: number\n            end_block:\n                name: end_block\n                type: int\n                default: '63'\n                field: number\n        \"\"\"\n        self._driver.set_area_end(area, end_block)\n\n    def set_area_protection(self, area: int = 1, rf: int = 0, i2c: int = 0):\n        \"\"\"\n        label:\n            en: '%1 protect area (1-4) %2 RF (0-15) %3 I2C (0-3) %4'\n        params:\n            area:\n                name: area\n                type: int\n                default: '1'\n                field: number\n            rf:\n                name: rf\n                type: int\n                default: '0'\n                field: number\n            i2c:\n                name: i2c\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_area_protection(area, rf, i2c)\n\n    def get_area_rf_protection(self, area: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 RF protection of area (1-4) %2'\n        params:\n            area:\n                name: area\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.get_area_protection(area)[0]\n\n    def get_area_i2c_protection(self, area: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 I2C protection of area (1-4) %2'\n        params:\n            area:\n                name: area\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.get_area_protection(area)[1]\n\n    def set_gpo(self, sources: int = 8, enable: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set GPO sources %2 enable (1/0) %3'\n        params:\n            sources:\n                name: sources\n                type: int\n                default: '8'\n                field: number\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_gpo(sources, bool(enable))\n\n    def get_gpo(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 GPO register'\n        \"\"\"\n        return self._driver.get_gpo()\n\n    def set_gpo_runtime(self, enable: int = 1):\n        \"\"\"\n        label:\n            en: '%1 GPO output enable (1/0) %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_gpo_runtime(bool(enable))\n\n    def set_interrupt_pulse(self, value: int = 3):\n        \"\"\"\n        label:\n            en: '%1 GPO pulse (0-7) %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '3'\n                field: number\n        \"\"\"\n        self._driver.set_interrupt_pulse(value)\n\n    def field_present(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 RF field present'\n        \"\"\"\n        return self._driver.field_present()\n\n    def set_energy_harvesting(self, enabled: int = 0, forced: int = 0):\n        \"\"\"\n        label:\n            en: '%1 energy harvesting (1/0) %2 forced after boot (1/0) %3'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                default: '0'\n                field: number\n            forced:\n                name: forced\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_energy_harvesting(bool(enabled), bool(forced))\n\n    def set_rf_state(self, disable: int = 0, sleep: int = 0):\n        \"\"\"\n        label:\n            en: '%1 RF disable (1/0) %2 sleep (1/0) %3'\n        params:\n            disable:\n                name: disable\n                type: int\n                default: '0'\n                field: number\n            sleep:\n                name: sleep\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_rf_state(bool(disable), bool(sleep))\n\n    def enable_mailbox(self):\n        \"\"\"\n        label:\n            en: '%1 enable mailbox'\n        \"\"\"\n        self._driver.enable_mailbox()\n\n    def disable_mailbox(self):\n        \"\"\"\n        label:\n            en: '%1 disable mailbox'\n        \"\"\"\n        self._driver.disable_mailbox()\n\n    def mailbox_has_rf_message(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 mailbox has RF message'\n        \"\"\"\n        return self._driver.mailbox_status()['rf_put']\n\n    def mailbox_has_host_message(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 mailbox has host message'\n        \"\"\"\n        return self._driver.mailbox_status()['host_put']\n\n    def mailbox_write(self, data: str = '70696E67'):\n        \"\"\"\n        label:\n            en: '%1 mailbox write (hex) %2'\n        params:\n            data:\n                name: data\n                type: str\n                default: '70696E67'\n        \"\"\"\n        self._driver.mailbox_write(bytes.fromhex(data))\n\n    def mailbox_read(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 mailbox read -> hex'\n        \"\"\"\n        return self._driver.mailbox_read().hex()\n\n    def set_mailbox_watchdog(self, value: int = 0):\n        \"\"\"\n        label:\n            en: '%1 mailbox watchdog (0-7) %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_mailbox_watchdog(value)\n\n    def lock_ccfile(self, lock: int = 1):\n        \"\"\"\n        label:\n            en: '%1 lock CC file (1/0) %2'\n        params:\n            lock:\n                name: lock\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.lock_ccfile(bool(lock))\n\n    def write_ndef(self, message: str = 'D101055402656E4869'):\n        \"\"\"\n        label:\n            en: '%1 write NDEF message (hex) %2'\n        params:\n            message:\n                name: message\n                type: str\n                default: 'D101055402656E4869'\n        \"\"\"\n        self._driver.write_ndef(bytes.fromhex(message))\n\n    def read_ndef(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 read NDEF message -> hex'\n        \"\"\"\n        return self._driver.read_ndef().hex()\n\n    def wait_write_complete(self):\n        \"\"\"\n        label:\n            en: '%1 wait for write cycle'\n        \"\"\"\n        self._driver.wait_write_complete()\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt sources'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def enable_interrupt(self, source: int = 16):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt source %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '16'\n                field: number\n        \"\"\"\n        self._driver.enable_interrupt(source)\n\n    def disable_interrupt(self, source: int = 16):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt source %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '16'\n                field: number\n        \"\"\"\n        self._driver.disable_interrupt(source)\n",
+  "version": "alpha2"
+}

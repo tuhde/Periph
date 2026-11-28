@@ -192,6 +192,7 @@ Each chip exposes two classes:
 | SSD1305 | Display driver | 132 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1306 | Display driver | 128 x 64 OLED controller-driver — minimal interface (I²C). |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
+| ST25DV | RFID/NFC | Dynamic NFC tag — minimal interface: user memory as a byte store. |
 | ST7036 | Display driver | Character LCD controller |
 | TCA9554 | IO expander | 8-bit I/O expander (I²C / SMBus) |
 | TMC2130 | Motor driver | Trinamic TMC2130 stepper driver over SPI. |

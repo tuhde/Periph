@@ -1,0 +1,394 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "st25dv_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ST25DV",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_read",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV read (hex string)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "length",
+          "type": "label"
+        },
+        {
+          "name": "_length",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_write",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV write (data hex)",
+          "type": "label"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "data",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_memory_size",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV memory size (bytes)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_ic_reference",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV IC reference",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_uid",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV UID (hex string)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_ic_revision",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV IC revision",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_present_password",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV present password (16 hex digits)",
+          "type": "label"
+        },
+        {
+          "name": "_password",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_session_open",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV security session open",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_set_area_end",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV set area end",
+          "type": "label"
+        },
+        {
+          "name": "area 1-3",
+          "type": "label"
+        },
+        {
+          "name": "_area",
+          "type": "number"
+        },
+        {
+          "name": "end block",
+          "type": "label"
+        },
+        {
+          "name": "_end_block",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_set_area_protection",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV set area protection",
+          "type": "label"
+        },
+        {
+          "name": "area 1-4",
+          "type": "label"
+        },
+        {
+          "name": "_area",
+          "type": "number"
+        },
+        {
+          "name": "RF 0-15",
+          "type": "label"
+        },
+        {
+          "name": "_rf",
+          "type": "number"
+        },
+        {
+          "name": "I2C 0-3",
+          "type": "label"
+        },
+        {
+          "name": "_i2c",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_set_gpo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV set GPO sources",
+          "type": "label"
+        },
+        {
+          "name": "_sources",
+          "type": "number"
+        },
+        {
+          "name": "enable (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enable",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_get_gpo",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV GPO register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_field_present",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV RF field present",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_set_energy_harvesting",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV energy harvesting (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_set_rf_state",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV RF disable (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_disable",
+          "type": "number"
+        },
+        {
+          "name": "sleep (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_sleep",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_enable_mailbox",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV enable mailbox",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_disable_mailbox",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV disable mailbox",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_mailbox_write",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV mailbox write (data hex)",
+          "type": "label"
+        },
+        {
+          "name": "_data",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_mailbox_read",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV mailbox read (hex string)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_mailbox_has_message",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV mailbox has RF message",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_write_ndef",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV write NDEF (message hex)",
+          "type": "label"
+        },
+        {
+          "name": "_message",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_read_ndef",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV read NDEF (hex string)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "ST25DV poll interrupt status",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV enable interrupt source",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st25dv_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST25DV disable interrupt source",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}
